@@ -202,23 +202,33 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function combines_rules_based_on_domain_type(): void
     {
+        // maybeMixed & maybeMixed
         $input = [
-            // maybeMixed & maybeMixed
             'a.com,b.com##.ad',
             'c.com##.ad',
             '~d.com,e.com##.ad',
-            '!', // negated & negated
+        ];
+        $expected = [
+            'a.com,b.com,c.com,~d.com,e.com##.ad',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        // negated & negated
+        $input = [
             '~a.com,~b.com##.ad',
             '~c.com##.ad',
-            '!', // maybeMixed & negated
+        ];
+        $expected = [
+            '~a.com,~b.com,~c.com##.ad',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        // maybeMixed & negated
+        $input = [
             'x.com##.ad',
             '~y.com##.ad',
         ];
         $expected = [
-            'a.com,b.com,c.com,~d.com,e.com##.ad',
-            '!',
-            '~a.com,~b.com,~c.com##.ad',
-            '!',
             'x.com##.ad',
             '~y.com##.ad',
         ];

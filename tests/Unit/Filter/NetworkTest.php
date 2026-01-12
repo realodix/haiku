@@ -61,23 +61,33 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function combines_rules_based_on_domain_type(): void
     {
+        // maybeMixed & maybeMixed
         $input = [
-            // maybeMixed & maybeMixed
             '||example.com^$domain=a.com|b.com',
             '||example.com^$domain=c.com',
             '||example.com^$domain=~d.com|e.com',
-            '!', // negated & negated
+        ];
+        $expected = [
+            '||example.com^$domain=a.com|b.com|c.com|~d.com|e.com',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        // negated & negated
+        $input = [
             '||example.com^$domain=~a.com|~b.com',
             '||example.com^$domain=~c.com',
-            '!', // maybeMixed & negated
+        ];
+        $expected = [
+            '||example.com^$domain=~a.com|~b.com|~c.com',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        // maybeMixed & negated
+        $input = [
             '||example.com^$domain=x.com',
             '||example.com^$domain=~y.com',
         ];
         $expected = [
-            '||example.com^$domain=a.com|b.com|c.com|~d.com|e.com',
-            '!',
-            '||example.com^$domain=~a.com|~b.com|~c.com',
-            '!',
             '||example.com^$domain=x.com',
             '||example.com^$domain=~y.com',
         ];
