@@ -45,13 +45,18 @@ final class ElementTidy
 
         $modifier = $this->adgModifier->applyFix($modifier);
         $domain = Helper::normalizeDomain($domain, ',');
-        $selector = $this->normalizeSpaces($selector);
+        $selector = $this->normalizeSelector($selector);
 
         return $modifier.$domain.$separator.$selector;
     }
 
-    private function normalizeSpaces(string $text): string
+    private function normalizeSelector(string $str): string
     {
-        return preg_replace('/\s\s+/', ' ', $text);
+        // remove extra spaces
+        $str = preg_replace('/\s\s+/', ' ', $str);
+        // remove leading spaces
+        $str = ltrim($str);
+
+        return $str;
     }
 }

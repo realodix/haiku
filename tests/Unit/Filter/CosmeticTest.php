@@ -40,22 +40,32 @@ class CosmeticTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
-    /**
-     * Remove extra spaces.
-     */
+    #[PHPUnit\DataProvider('removeExtraSpacesProvider')]
     #[PHPUnit\Test]
-    public function normalizeSpaces(): void
+    public function removeExtraSpaces($actual, $expected): void
     {
-        $input = [
-            'example.com##.single-post  .code-block    +    .single-page:style(margin-top: 100px!important;)',
-            'example.com##header:style(margin:     0!important;     padding: 0!important;)',
-        ];
-        $expected = [
-            'example.com##.single-post .code-block + .single-page:style(margin-top: 100px!important;)',
-            'example.com##header:style(margin: 0!important; padding: 0!important;)',
-        ];
+        $this->assertSame([$expected], $this->fix([$actual]));
+    }
 
-        $this->assertSame($expected, $this->fix($input));
+    public static function removeExtraSpacesProvider(): array
+    {
+        return [
+            // remove extra spaces
+            [
+                'example.com##.single-post  .code-block    +    .single-page:style(margin-top: 100px!important;)',
+                'example.com##.single-post .code-block + .single-page:style(margin-top: 100px!important;)',
+            ],
+            [
+                'example.com##header:style(margin:     0!important;     padding: 0!important;)',
+                'example.com##header:style(margin: 0!important; padding: 0!important;)',
+            ],
+
+            // remove trailing spaces
+            [
+                'example.com## .ads',
+                'example.com##.ads',
+            ],
+        ];
     }
 
     // ========================================================================
