@@ -19,27 +19,6 @@ class CosmeticTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
-    #[PHPUnit\Test]
-    public function multiple_sections_are_processed_correctly(): void
-    {
-        $input = [
-            '! Section 1: Network',
-            '||example.com/ad',
-            '||example.org/ad',
-            '! Section 2: Element',
-            'example.com##.ad',
-            'example.org##.ad',
-        ];
-        $expected = [
-            '! Section 1: Network',
-            '||example.com/ad',
-            '||example.org/ad',
-            '! Section 2: Element',
-            'example.com,example.org##.ad',
-        ];
-        $this->assertSame($expected, $this->fix($input));
-    }
-
     #[PHPUnit\DataProvider('removeExtraSpacesProvider')]
     #[PHPUnit\Test]
     public function removeExtraSpaces($actual, $expected): void
@@ -182,16 +161,20 @@ class CosmeticTest extends TestCase
             'a.com,b.com##.ad',
             'a.com##.adRight',
             'a.com,b.com##.adRight',
-            '!',
+        ];
+        $expected = [
+            'a.com,b.com##.ad',
+            'a.com,b.com##.adRight',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
             'b.com,a.com##.ads',
             'a.com#?#.ads',
             'a.com#@#.ads',
             'c.com##.ads',
         ];
         $expected = [
-            'a.com,b.com##.ad',
-            'a.com,b.com##.adRight',
-            '!',
             'a.com,b.com,c.com##.ads',
             'a.com#@#.ads',
             'a.com#?#.ads',

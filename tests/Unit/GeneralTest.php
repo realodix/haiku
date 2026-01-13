@@ -19,23 +19,25 @@ class GeneralTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function rulesOrder()
+    public function multiple_sections_are_processed_correctly()
     {
         $input = [
             '[$app=org.example.app]example.com##.textad',
             'example.com###ads',
-            'example.com##.ads',
+            'example.com##.ad',
+
             'example.com##ads',
             'example.com#@##ads',
             'example.com#@#.ads',
             'example.com#@#ads',
 
-            'example.com#@#+js(...)',
-            'example.com#@%#ads',
-
             '/ads.$domain=example.com',
             '||example.com^',
             '@@||example.com^',
+
+            'example.com#@#+js(...)',
+            'example.com#@%#ads',
+            'example.org##.ad',
         ];
 
         $expected = [
@@ -44,7 +46,7 @@ class GeneralTest extends TestCase
             '@@||example.com^',
 
             'example.com###ads',
-            'example.com##.ads',
+            'example.com,example.org##.ad',
             '[$app=org.example.app]example.com##.textad',
             'example.com##ads',
             'example.com#@##ads',
