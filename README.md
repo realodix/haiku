@@ -10,7 +10,7 @@ Haiku is a powerful command-line tool for managing ad-blocker filter lists. It a
 - **Fully compatible with various filter syntax.** Adblock Plus, AdGuard, uBlock Origin, etc.
 - **Filter List Building:** Builds unified outputs from multiple local or remote filter lists into a single file, regenerating metadata and stripping unnecessary lines such as comments.
 - **Rule Sorting:** Sorts filter rules alphabetically for consistent and readable ordering.
-- **Rules Combining:** Merges rules with identical patterns that differ only by domain, reducing duplication and improving efficiency.
+- **Domain combining:** Merges filter rules with identical patterns but different domain lists.
 - **Option Sorting:** Sorts filter options (e.g., `$third-party,script,domain=...`) into a standardized and predictable sequence.
 - **Caching:** Caches processed files and re-processes only those that have changed, speeding up subsequent runs.
 - **Configuration:** Easily configure builder and fixer behaviors via a simple `haiku.yml` file.
