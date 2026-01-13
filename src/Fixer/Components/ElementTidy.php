@@ -2,11 +2,14 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
+use Realodix\Haiku\Config\FixerConfig;
+
 final class ElementTidy
 {
     public function __construct(
         private DomainNormalizer $domainNormalizer,
         private AdgModifierForElement $adgModifier,
+        private FixerConfig $config,
     ) {}
 
     /**
@@ -41,7 +44,39 @@ final class ElementTidy
     private function normalizeSelector(string $str): string
     {
         $str = ltrim($str); // Remove leading spaces
+        $str = $this->convertExactAttributeSelector($str);
 
         return $str;
+    }
+
+    /**
+     * Converts an exact attribute selector to a CSS selector.
+     *
+     * Example:
+     * - [class="ads"] -> .ads
+     * - [id="ads"] -> #ads
+     *
+     * @param string $selector The selector to be converted
+     * @return string The converted CSS selector
+     */
+    private function convertExactAttributeSelector(string $selector): string
+    {
+        if (!$this->config->flags['exact_attr_to_css_selector']) {
+            return $selector;
+        }
+
+        return preg_replace_callback(
+            '/\[class="([^"\s]+)"\]/',
+            function ($m) {
+                // Pastikan benar-benar hanya [class="ads"]
+                // tanpa modifier, tanpa spasi, tanpa operator (^, *, $)
+                if ($m[0] === '[class="'.$m[1].'"]') {
+                    return '.'.$m[1];
+                }
+
+                return $m[0];
+            },
+            $selector,
+        );
     }
 }

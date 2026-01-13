@@ -242,6 +242,23 @@ class CosmeticTest extends TestCase
         $this->assertSame($input, $this->fix($input));
     }
 
+    #[PHPUnit\Test]
+    public function convertExactAttributeSelector(): void
+    {
+        $flags = ['exact_attr_to_css_selector' => true];
+
+        $input = [
+            '##[class="bnr-atas"]',
+            'example.com##[class="bnr-atas"]',
+        ];
+        $expected = [
+            '##.bnr-atas',
+            'example.com##.bnr-atas',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+    }
+
     // ========================================================================
     // Scriptlet Tests (`elementtidy`)
     // ========================================================================
