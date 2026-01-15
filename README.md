@@ -20,6 +20,7 @@ A few examples of transformations applied during optimization:
 
 ```adblock
 !## BEFORE
+[$path=/page.html,domain=b.com|a.com]##.ads1
 example.com##+js(aopw, Fingerprint2)
 ##.ads4
 example.org##.ads5
@@ -29,17 +30,13 @@ example.org##.ads5
 b.com,a.com##.ads3
 ##.ads2
 example.com##.ads5
-[$path=/page.html,domain=b.com|a.com]##.ads1
 ! merge filter options
 /ads.$image
+/ads.$css,script
 /ads.$css
-/ads2.$css,script
-/ads2.$script
 ! typo
 /ads.$domain=example.com/
-/ads2.$domain=example.com|
-example.com/##.ads
-example.com,##.ads2
+example.com,##.ads
 
 !## AFTER
 *$css,doc,image,script
@@ -51,15 +48,13 @@ example.com,example.org##.ads5
 [$domain=a.com|b.com,path=/page.html]##.ads1
 example.com##+js(aopw, Fingerprint2)
 ! merge filter options
-/ads.$image,css
-/ads2.$css,script
+/ads.$image,css,script
 ! typo
 /ads.$domain=example.com
-/ads2.$domain=example.com
 example.com##.ads
-example.com##.ads2
 ```
 
+For more details, see [docs/fixer-feature.md](./docs/fixer-feature.md).
 
 ## Installation
 
