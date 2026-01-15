@@ -134,8 +134,9 @@ final class NetworkOptionCombiner
     }
 
     /**
-     * Checks whether merging two option sets would mix different aliases belonging
-     * to the same semantic option group.
+     * Checks whether merging two option sets would introduce different aliases
+     * from the same semantic group. Conflict only occurs if AFTER merge there
+     * are two or more DISTINCT aliases from the same group.
      *
      * Example of unsafe merge:
      * - *$image,css
@@ -152,23 +153,20 @@ final class NetworkOptionCombiner
      */
     private function hasAliasGroupOverlap(array $existing, array $incoming): bool
     {
-        $existingSet = array_flip($existing);
+        $merged = array_unique(array_merge($existing, $incoming));
+        $mergedSet = array_flip($merged);
 
         foreach (self::OPTION_ALIAS as $group) {
-            $foundExisting = false;
-            $foundIncoming = false;
+            $count = 0;
 
             foreach ($group as $alias) {
-                if (isset($existingSet[$alias])) {
-                    $foundExisting = true;
-                }
-                if (in_array($alias, $incoming, true)) {
-                    $foundIncoming = true;
-                }
-            }
+                if (isset($mergedSet[$alias])) {
+                    $count++;
 
-            if ($foundExisting && $foundIncoming) {
-                return true;
+                    if ($count > 1) {
+                        return true; // real conflict
+                    }
+                }
             }
         }
 

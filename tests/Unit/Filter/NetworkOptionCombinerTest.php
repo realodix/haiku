@@ -43,6 +43,14 @@ final class NetworkOptionCombinerTest extends TestCase
         $actual = ['/ads.$image,css', '/ads.$image'];
         $expected = ['/ads.$image,css'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+
+        $actual = ['/ads.$image,stylesheet', '/ads.$stylesheet'];
+        $expected = ['/ads.$image,stylesheet'];
+        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+
+        $actual = ['/ads.$stylesheet', '/ads.$image,stylesheet'];
+        $expected = ['/ads.$stylesheet,image'];
+        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
 
     public function testIgnoreOptionOrderDifferences(): void
