@@ -191,45 +191,27 @@ final class NetworkOptionCombiner
         $eState = $this->polarityState($ePos, $eNeg);
         $iState = $this->polarityState($iPos, $iNeg);
 
-        // neg + neg → allowed
-        if ($eState === 'NEG' && $iState === 'NEG') {
+        // allowed
+        if ($eState === 'POS' && $iState === 'POS'
+            || $eState === 'NEG' && $iState === 'NEG') {
             return true;
-        }
-
-        // neg + mixed
-        // allowed only if they share at least one negated option
-        if ($eState === 'NEG' && $iState === 'MIXED') {
-            return (bool) array_intersect($eNeg, $iNeg);
-        }
-
-        if ($eState === 'MIXED' && $iState === 'NEG') {
-
-            return (bool) array_intersect($eNeg, $iNeg);
         }
 
         // pos + mixed
         // allowed only if they share at least one positive option
-        if ($eState === 'POS' && $iState === 'MIXED') {
-
+        if ($eState === 'POS' && $iState === 'MIXED'
+            || $eState === 'MIXED' && $iState === 'POS') {
             return (bool) array_intersect($ePos, $iPos);
         }
 
-        if ($eState === 'MIXED' && $iState === 'POS' ) {
-            return (bool) array_intersect($ePos, $iPos);
+        // neg + mixed
+        // allowed only if they share at least one negated option
+        if ($eState === 'NEG' && $iState === 'MIXED'
+            || $eState === 'MIXED' && $iState === 'NEG') {
+            return (bool) array_intersect($eNeg, $iNeg);
         }
 
-        // mixed + mixed → forbidden
-        if ($eState === 'MIXED' && $iState === 'MIXED') {
-            return false;
-        }
-
-        // pos + neg → forbidden
-        if (($eState === 'POS' && $iState === 'NEG')
-            || ($eState === 'NEG' && $iState === 'POS')) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     /**
