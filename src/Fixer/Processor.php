@@ -2,9 +2,9 @@
 
 namespace Realodix\Haiku\Fixer;
 
-use Realodix\Haiku\Fixer\Type\Combiner;
-use Realodix\Haiku\Fixer\Type\ElementTidy;
-use Realodix\Haiku\Fixer\Type\NetworkTidy;
+use Realodix\Haiku\Fixer\Classes\Combiner;
+use Realodix\Haiku\Fixer\Classes\ElementTidy;
+use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Helper;
 
 final class Processor
