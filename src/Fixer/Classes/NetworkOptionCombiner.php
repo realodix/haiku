@@ -4,9 +4,14 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\Regex;
 
+/**
+ * Merge compatible network filter rules by combining their option sets when it
+ * is safe to do so. Redundant rules (those that do not add new options) are
+ * dropped. Unsafe rules are preserved and returned unchanged.
+ */
 final class NetworkOptionCombiner
 {
-    private const OPTION_ALIAS_GROUPS = [
+    private const OPTION_ALIAS = [
         ['stylesheet', 'css'],
         ['elemhide', 'ehide'],
         ['subdocument', 'frame'],
@@ -16,12 +21,6 @@ final class NetworkOptionCombiner
     ];
 
     /**
-     * Merge compatible network filter rules by combining their option sets
-     * when it is safe to do so.
-     *
-     * Redundant rules (those that do not add new options) are dropped. Unsafe
-     * rules are preserved and returned unchanged.
-     *
      * @param array<string> $rules
      * @return array<string>
      */
@@ -113,8 +112,8 @@ final class NetworkOptionCombiner
      * and can be safely discarded.
      *
      * This prevents duplicate rules such as:
-     *   /ads.$image,css
-     *   /ads.$css,image
+     * - /ads.$image,css
+     * - /ads.$image
      *
      * @param array<string, bool> $existingOptions Currently merged options
      * @param array<string> $newOptions Incoming rule options
@@ -136,11 +135,8 @@ final class NetworkOptionCombiner
      * to the same semantic option group.
      *
      * Example of unsafe merge:
-     *   - *$image,css
-     *   - *$image,stylesheet
-     *
-     * Although "css" and "stylesheet" are semantically equivalent, merging them
-     * would force a canonical representation and potentially override user intent.
+     * - *$image,css
+     * - *$image,stylesheet
      *
      * This method:
      * - operates only across different rules
@@ -155,7 +151,7 @@ final class NetworkOptionCombiner
     {
         $existingSet = array_flip($existing);
 
-        foreach (self::OPTION_ALIAS_GROUPS as $group) {
+        foreach (self::OPTION_ALIAS as $group) {
             $foundExisting = false;
             $foundIncoming = false;
 
@@ -177,13 +173,8 @@ final class NetworkOptionCombiner
     }
 
     /**
-     * Rebuilds merged filter rules from grouped option sets.
-     *
-     * Each group produces a single rule with:
-     * - the original pattern
-     * - a sorted, de-duplicated list of options
-     *
-     * This method assumes all safety checks have already been performed.
+     * Rebuilds merged filter rules from grouped option sets. This method assumes
+     * all safety checks have already been performed.
      *
      * @param array<string, array{
      *  pattern: string,
