@@ -11,6 +11,7 @@ Haiku is a powerful command-line tool for managing ad-blocker filter lists. It a
 - **Filter List Building:** Builds a unified output from multiple local or remote filter lists into a single file, regenerating metadata and removing unnecessary lines such as comments.
 - **Rule Sorting:** Sorts filter rules alphabetically for consistent and readable output.
 - **Domain Combining:** Combines filter rules with identical patterns but different domain (e.g., `example.com##.ads` + `example.org##.ads` → `example.com,example.org##.ads`).
+- **Option Combining:** Combines filter rules with identical patterns but different options (e.g., `/ads.$image` + `/ads.$css` → `/ads.$image,css`).
 - **Option Sorting:** Sorts filter options into a standardized and predictable order.
 - **Caching:** Caches processed files and reprocesses only changed inputs to speed up subsequent runs.
 - **Configuration:** Allows easy configuration of builder and fixer behavior via a simple `haiku.yml` file.
@@ -30,6 +31,11 @@ google.com,example.com##.advert
 ##.top-banners
 [$path=/page.html]example.com,0.0.0.0##.textad
 [$path=/page.html,domain=example.com|0.0.0.0]##.textad
+! merge filter options
+/ads.$image
+/ads.$css
+/ads2.$css,script
+/ads2.$script
 ! typo
 /ads.$domain=example.com/
 /ads2.$domain=example.com|
@@ -46,6 +52,9 @@ example.com,google.com##.advert
 [$domain=0.0.0.0|example.com,path=/page.html]##.textad
 [$path=/page.html]0.0.0.0,example.com##.textad
 example.com##+js(aopw, Fingerprint2)
+! merge filter options
+/ads.$image,css
+/ads2.$css,script
 ! typo
 /ads.$domain=example.com
 /ads2.$domain=example.com

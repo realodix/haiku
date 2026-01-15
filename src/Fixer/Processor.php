@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Fixer;
 
 use Realodix\Haiku\Fixer\Classes\Combiner;
 use Realodix\Haiku\Fixer\Classes\ElementTidy;
+use Realodix\Haiku\Fixer\Classes\NetworkOptionCombiner;
 use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Helper;
 
@@ -13,6 +14,7 @@ final class Processor
         private Combiner $combiner,
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
+        private NetworkOptionCombiner $optionCombiner,
     ) {}
 
     /**
@@ -93,6 +95,7 @@ final class Processor
             ',',
         );
 
+        $network = $this->optionCombiner->applyFix($network);
         $networkResult = $this->combiner->applyFix(
             Helper::uniqueSorted(
                 $network,
