@@ -39,20 +39,28 @@ final class NetworkOptionCombiner
             $pattern = $m[1];
             $optionRaw = $m[2];
 
-            if (!$this->isSafeToMerge($optionRaw)) {
-                $passthrough[] = $rule;
-
-                continue;
-            }
-
             $options = explode(',', $optionRaw);
             $existing = $groups[$pattern]['options'] ?? [];
 
-            if ($existing && $this->isRedundant($existing, $options)) {
-                continue;
+            if ($existing) {
+                if (!$this->canMergeConsideringPolarity($existing, $options)) {
+                    $passthrough[] = $rule;
+
+                    continue;
+                }
+
+                if ($this->isRedundant($existing, $options)) {
+                    continue;
+                }
+
+                if ($this->hasAliasGroupOverlap(array_keys($existing), $options)) {
+                    $passthrough[] = $rule;
+
+                    continue;
+                }
             }
 
-            if ($existing && $this->hasAliasGroupOverlap(array_keys($existing), $options)) {
+            if (!$this->isSafeToMerge($optionRaw)) {
                 $passthrough[] = $rule;
 
                 continue;
@@ -81,11 +89,6 @@ final class NetworkOptionCombiner
     {
         // value-based options (domain=, to=)
         if (str_contains($optionRaw, '=')) {
-            return false;
-        }
-
-        // negated option (~css, ~image)
-        if (preg_match('/(?:\$|,)~[^,]+/', $optionRaw)) {
             return false;
         }
 
@@ -139,7 +142,7 @@ final class NetworkOptionCombiner
      * - *$image,stylesheet
      *
      * This method:
-     * - operates only across different rules
+     * - operates only across different rule lines
      * - does NOT validate per-line correctness
      * - only prevents unsafe cross-rule merges
      *
@@ -170,6 +173,86 @@ final class NetworkOptionCombiner
         }
 
         return false;
+    }
+
+    /**
+     * Determines whether two option sets can be safely merged, taking option
+     * polarity into account. The check is symmetric: the order of existing and
+     * incoming options does not affect the outcome.
+     *
+     * @param array<string, bool> $existing
+     * @param array<string> $incoming
+     */
+    private function canMergeConsideringPolarity(array $existing, array $incoming): bool
+    {
+        [$ePos, $eNeg] = $this->splitPolarity(array_keys($existing));
+        [$iPos, $iNeg] = $this->splitPolarity($incoming);
+
+        $eState = $this->polarityState($ePos, $eNeg);
+        $iState = $this->polarityState($iPos, $iNeg);
+
+        // allowed
+        if ($eState === 'POS' && $iState === 'POS'
+            || $eState === 'NEG' && $iState === 'NEG') {
+            return true;
+        }
+
+        // pos + mixed
+        // allowed only if they share at least one positive option
+        if ($eState === 'POS' && $iState === 'MIXED'
+            || $eState === 'MIXED' && $iState === 'POS') {
+            return (bool) array_intersect($ePos, $iPos);
+        }
+
+        // neg + mixed
+        // allowed only if they share at least one negated option
+        if ($eState === 'NEG' && $iState === 'MIXED'
+            || $eState === 'MIXED' && $iState === 'NEG') {
+            return (bool) array_intersect($eNeg, $iNeg);
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines whether two option sets can be safely merged, taking option
+     * polarity into account. This method does not validate option correctness;
+     * it only classifies structural polarity.
+     *
+     * @param array<string> $pos
+     * @param array<string> $neg
+     */
+    private function polarityState(array $pos, array $neg): string
+    {
+        return match (true) {
+            // contains only negated options ($~image)
+            $pos === [] && $neg !== [] => 'NEG',
+            // contains only positive options ($image)
+            $pos !== [] && $neg === [] => 'POS',
+            // contains both positive and negated options
+            $pos !== [] && $neg !== [] => 'MIXED',
+            default => 'EMPTY', // practically unreachable
+        };
+    }
+
+    /**
+     * @param array<string> $options
+     * @return array{0: array<string>, 1: array<string>}
+     */
+    private function splitPolarity(array $options): array
+    {
+        $positive = [];
+        $negative = [];
+
+        foreach ($options as $opt) {
+            if ($opt[0] === '~') {
+                $negative[] = substr($opt, 1);
+            } else {
+                $positive[] = $opt;
+            }
+        }
+
+        return [$positive, $negative];
     }
 
     /**

@@ -64,9 +64,6 @@ final class NetworkOptionCombinerTest extends TestCase
             // contains value
             [['/ads.$image,css,domain=a.com', '/ads.$image,domain=a.com']],
 
-            // negated options
-            [['*$image,~css', '*$script']],
-
             // special options
             [['*$image,badfilter', '*$badfilter,css']],
             [['*$image,badfilter', '*$image']],
@@ -89,6 +86,106 @@ final class NetworkOptionCombinerTest extends TestCase
                     '/ADS.$image,css',
                     '/ads.$image,css',
                 ],
+            ],
+        ];
+    }
+
+    #[PHPUnit\DataProvider('handlePolarityAcceptedProvider')]
+    public function testHandlePolarity_Accepted($actual, $expected): void
+    {
+        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+    }
+
+    public static function handlePolarityAcceptedProvider(): array
+    {
+        return [
+            // -- negative + negative
+            [
+                ['*$~image', '*$~css'],
+                ['*$~image,~css'],
+            ],
+
+            // -- mixed, need duplication
+            [
+                ['*$image,~css', '*$~css'],
+                ['*$image,~css'],
+            ],
+            [
+                ['*$~css', '*$image,~css'],
+                ['*$~css,image'],
+            ],
+            [
+                ['*$image,~css', '*$image'],
+                ['*$image,~css'],
+            ],
+            [
+                ['*$image', '*$image,~css'],
+                ['*$image,~css'],
+            ],
+        ];
+    }
+
+    #[PHPUnit\DataProvider('handlePolarityDissallowedProvider')]
+    public function testHandlePolarity_Dissallowed($actual, $expected): void
+    {
+        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+    }
+
+    public static function handlePolarityDissallowedProvider(): array
+    {
+        return [
+            // -- negative + positive
+            [
+                ['*$~css', '*$image'],
+                ['*$image', '*$~css'],
+            ],
+            [
+                ['*$image', '*$~css'],
+                ['*$~css', '*$image'],
+            ],
+
+            // negative + mixed
+            [
+                ['*$~script', '*$image,~css'],
+                ['*$image,~css', '*$~script'],
+            ],
+            [
+                ['*$image,~css', '*$~script'],
+                ['*$~script', '*$image,~css'],
+            ],
+
+            // positive + mixed
+            [
+                ['*$script', '*$image,~css'],
+                ['*$image,~css', '*$script'],
+            ],
+            [
+                ['*$image,~css', '*$script'],
+                ['*$script', '*$image,~css'],
+            ],
+
+            // It looks like there is duplication, but there isn't
+            [
+                ['*$css', '*$image,~css'],
+                ['*$image,~css', '*$css'],
+            ],
+            [
+                ['*$image,~css', '*$css'],
+                ['*$css', '*$image,~css'],
+            ],
+            [
+                ['*$~css', '*$image,css'],
+                ['*$image,css', '*$~css'],
+            ],
+            [
+                ['*$image,css', '*$~css'],
+                ['*$~css', '*$image,css'],
+            ],
+
+            // -- mixed + mixed
+            [
+                ['*$image,~css', '*$~css,script'],
+                ['*$~css,script', '*$image,~css'],
             ],
         ];
     }
