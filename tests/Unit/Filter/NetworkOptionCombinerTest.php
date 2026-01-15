@@ -69,6 +69,7 @@ final class NetworkOptionCombinerTest extends TestCase
 
             // special options
             [['*$image,badfilter', '*$badfilter,css']],
+            [['*$image,badfilter', '*$image']],
             [['*$image,important', '*$important']],
             [['*$image,all', '*$all']],
             [['*$image,other', '*$other']],
