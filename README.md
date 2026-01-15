@@ -21,16 +21,15 @@ A few examples of transformations applied during optimization:
 ```adblock
 !## BEFORE
 example.com##+js(aopw, Fingerprint2)
-##.top-r-ads
-example.com###ads
+##.ads4
+example.org##.ads5
 -banner-$image,domain=example.com
-||example.com^$script,domain=a.com,third-party
+*$image,css,script,doc
 -banner-$image,domain=example.org
-example.com###ads
-google.com,example.com##.advert
-##.top-banners
-[$path=/page.html]example.com,0.0.0.0##.textad
-[$path=/page.html,domain=example.com|0.0.0.0]##.textad
+b.com,a.com##.ads3
+##.ads2
+example.com##.ads5
+[$path=/page.html,domain=b.com|a.com]##.ads1
 ! merge filter options
 /ads.$image
 /ads.$css
@@ -43,14 +42,13 @@ example.com/##.ads
 example.com,##.ads2
 
 !## AFTER
+*$css,doc,image,script
 -banner-$image,domain=example.com|example.org
-||example.com^$third-party,script,domain=a.com
-example.com###ads
-example.com,google.com##.advert
-##.top-banners
-##.top-r-ads
-[$domain=0.0.0.0|example.com,path=/page.html]##.textad
-[$path=/page.html]0.0.0.0,example.com##.textad
+##.ads2
+a.com,b.com##.ads3
+##.ads4
+example.com,example.org##.ads5
+[$domain=a.com|b.com,path=/page.html]##.ads1
 example.com##+js(aopw, Fingerprint2)
 ! merge filter options
 /ads.$image,css
