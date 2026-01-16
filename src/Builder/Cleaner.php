@@ -37,12 +37,12 @@ final class Cleaner
      * - [AdGuard]
      *
      * References:
-     * - https://regex101.com/r/eZnxif
      * - https://github.com/AdguardTeam/FiltersCompiler/blob/e071fdef76/src/main/utils/workaround.js#L10
      * - https://github.com/github-linguist/linguist/blob/2409807814/lib/linguist/heuristics.yml#L927
      */
     private static function removeMetadataAgent(string $content): string
     {
+        // https://regex101.com/r/eZnxif
         return preg_replace(
             '/^\[(Ad[Bb]lock|[Aa]d[Gg]uard|u[Bb](?:lock|[Oo]))([a-zA-Z0-9\.\s]+)?\]$/m',
             '',
@@ -56,7 +56,6 @@ final class Cleaner
      * Don not remove comments that start with !# (Preprocessor directives).
      * - https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#pre-parsing-directives
      * - https://adguard.com/kb/general/ad-filtering/create-own-filters/#preprocessor-directives
-     * - https://regex101.com/r/VSOcD6/1
      */
     private static function removeComment(string $content): string
     {
@@ -64,6 +63,7 @@ final class Cleaner
             return '';
         }
 
+        // https://regex101.com/r/VSOcD6/1
         return preg_replace('/^!(?!#\s?(?:include\s|if|endif|else)).*/m', '', $content);
     }
 }

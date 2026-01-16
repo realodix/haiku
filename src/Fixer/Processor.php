@@ -88,25 +88,19 @@ final class Processor
             }
         }
 
-        $cosmeticResult = $this->combiner->applyFix(
-            Helper::uniqueSorted($cosmetic, fn($value) => $this->cosmeticRulesOrder($value))
-                ->all(),
-            Regex::COSMETIC_DOMAIN,
-            ',',
-        );
+        $cosmetic = Helper::uniqueSorted($cosmetic, fn($value) => $this->cosmeticRulesOrder($value))
+            ->all();
+        $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
         $network = $this->optionCombiner->applyFix($network);
-        $networkResult = $this->combiner->applyFix(
-            Helper::uniqueSorted(
-                $network,
-                fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
-                SORT_STRING | SORT_FLAG_CASE,
-            )->all(),
-            Regex::NET_OPTION_DOMAIN,
-            '|',
-        );
+        $network = Helper::uniqueSorted(
+            $network,
+            fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
+            SORT_STRING | SORT_FLAG_CASE,
+        )->all();
+        $network = $this->combiner->applyFix($network, Regex::NET_OPTION_DOMAIN, '|');
 
-        return array_merge($networkResult, $cosmeticResult);
+        return array_merge($network, $cosmetic);
     }
 
     /**
