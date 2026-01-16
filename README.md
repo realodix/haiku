@@ -11,8 +11,8 @@ Haiku is a powerful command-line tool for managing ad-blocker filter lists. It a
 - **Filter List Building:** Builds a unified output from multiple local or remote filter lists into a single file, regenerating metadata and removing unnecessary lines such as comments.
 - **Rule Sorting:** Sorts filter rules alphabetically for consistent and readable output.
 - **Domain Combining:** Combines filter rules with identical patterns but different domain (e.g., `example.com##.ads` + `example.org##.ads` → `example.com,example.org##.ads`).
-- **Option Combining:** Combines filter rules with identical patterns but different options (e.g., `/ads.$image` + `/ads.$css` → `/ads.$image,css`).
 - **Option Sorting:** Sorts filter options into a standardized and predictable order.
+- **Option Combining:** Combines filter rules with identical patterns but different options (e.g., `/ads.$image` + `/ads.$css` → `/ads.$image,css`).
 - **Caching:** Caches processed files and reprocesses only changed inputs to speed up subsequent runs.
 - **Configuration:** Allows easy configuration of builder and fixer behavior via a simple `haiku.yml` file.
 
@@ -20,20 +20,16 @@ A few examples of transformations applied during optimization:
 
 ```adblock
 !## BEFORE
+b.com,a.com##.ads3
 [$path=/page.html,domain=b.com|a.com]##.ads1
 example.com##+js(aopw, Fingerprint2)
-##.ads4
-example.org##.ads5
--banner-$image,domain=example.com
-*$image,css,script,doc
 -banner-$image,domain=example.org
-b.com,a.com##.ads3
+-banner-$image,domain=example.com
+example.org##.ads5
+*$image,css,script,doc
+##.ads4
 ##.ads2
 example.com##.ads5
-! merge filter options
-/ads.$image
-/ads.$css,script
-/ads.$css
 ! typo
 /ads.$domain=example.com/
 example.com,##.ads
@@ -47,8 +43,6 @@ a.com,b.com##.ads3
 example.com,example.org##.ads5
 [$domain=a.com|b.com,path=/page.html]##.ads1
 example.com##+js(aopw, Fingerprint2)
-! merge filter options
-/ads.$image,css,script
 ! typo
 /ads.$domain=example.com
 example.com##.ads
