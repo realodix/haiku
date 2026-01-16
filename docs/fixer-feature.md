@@ -31,12 +31,16 @@ a.com,b.com##.ads
 [$domain=a.com|b.com,path=/page.html]##.textad
 ```
 
+**Standardized Option Ordering**
+
+For readability and easier visual recognition, certain options are positioned at the beginning or the end of the rule. In this example, `$badfilter` is always placed first; `$domain` is always placed last; and the remaining options are sorted alphabetically.
+
 ```adblock
 ! before
-*$image,css,script,doc
+*$image,domain=github.com,script,css,badfilter
 
 ! after
-*$css,doc,image,script
+*$badfilter,css,image,script,domain=github.com
 ```
 
 **Remove Duplicates**
@@ -100,9 +104,11 @@ example.com##.ad
 ```adblock
 ! before
     ##.ads
+##.ads2   img
 
 ! after
 ##.ads
+##.ads2 img
 ```
 
 ### Typo
