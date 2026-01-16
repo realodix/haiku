@@ -37,6 +37,43 @@ class TypoTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
+    #[PHPUnit\DataProvider('domainWrongSeparatorProvider')]
+    #[PHPUnit\Test]
+    public function domain_wrong_separator($actual, $expected): void
+    {
+        $this->assertSame($expected, $this->fix($actual));
+    }
+
+    public static function domainWrongSeparatorProvider(): array
+    {
+        return [
+            [
+                ['a.com|b.com##.ads'],
+                ['a.com,b.com##.ads'],
+            ],
+
+            // ensure that it can still be combined
+            [
+                ['a.com|c.com##.ads', 'b.com##.ads'],
+                ['a.com,b.com,c.com##.ads'],
+            ],
+
+            // rejected
+            [
+                ['a.com|b.com,/(a|b)\.com/##.ads'],
+                ['/(a|b)\.com/,a.com|b.com##.ads'],
+            ],
+            [
+                ['/(a|b)\.com/##.ads'],
+                ['/(a|b)\.com/##.ads'],
+            ],
+            [
+                ['a.com,/(a|b)\.com/##.ads'],
+                ['/(a|b)\.com/,a.com##.ads'],
+            ],
+        ];
+    }
+
     #[PHPUnit\Test]
     public function network_option_separator(): void
     {
