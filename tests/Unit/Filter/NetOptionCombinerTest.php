@@ -3,17 +3,17 @@
 namespace Realodix\Haiku\Test\Unit\Filter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Classes\NetworkOptionCombiner;
+use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
 use Realodix\Haiku\Test\TestCase;
 
-final class NetworkOptionCombinerTest extends TestCase
+final class NetOptionCombinerTest extends TestCase
 {
-    private NetworkOptionCombiner $optionCombiner;
+    private NetOptionCombiner $optionCombiner;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->optionCombiner = new NetworkOptionCombiner;
+        $this->optionCombiner = new NetOptionCombiner;
     }
 
     public function testMergeSimpleOptions(): void

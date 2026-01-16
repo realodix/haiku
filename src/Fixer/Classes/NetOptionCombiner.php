@@ -9,7 +9,7 @@ use Realodix\Haiku\Fixer\Regex;
  * is safe to do so. Redundant rules (those that do not add new options) are
  * dropped. Unsafe rules are preserved and returned unchanged.
  */
-final class NetworkOptionCombiner
+final class NetOptionCombiner
 {
     private const OPTION_ALIAS = [
         ['stylesheet', 'css'],

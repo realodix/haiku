@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Fixer;
 
 use Realodix\Haiku\Fixer\Classes\Combiner;
 use Realodix\Haiku\Fixer\Classes\ElementTidy;
-use Realodix\Haiku\Fixer\Classes\NetworkOptionCombiner;
+use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Helper;
 
@@ -14,7 +14,7 @@ final class Processor
         private Combiner $combiner,
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
-        private NetworkOptionCombiner $optionCombiner,
+        private NetOptionCombiner $optionCombiner,
     ) {}
 
     /**
