@@ -147,7 +147,6 @@ fixer:
     - folder_2
   excludes:
     - excluded_file.txt
-    - some/path/to/file.txt
     - path/to/source
 
 # Settings for the `build` command
@@ -162,9 +161,6 @@ builder:
         ! Title: Ad Blocklist
         ! Description: Filter list that specifically removes adverts.
         ! Last modified: %timestamp%
-        ! Expires: 5 days (update frequency)
-        ! Homepage: https://example.org/
-        ! License: MIT
         ! --------------------------------------------------
       source: # Required
         - blocklists/general/local-rules.txt
@@ -174,10 +170,9 @@ builder:
     - filename: custom_privacy.txt
       source:
         - sources/tracking_domains-1.txt
-        - sources/tracking_domains-2.txt
 ```
 
-See [configuration reference](./docs/configuration.md) for more details.
+See [configuration reference](./docs/configuration.md) for more details and [AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/a63c92167c/haiku.yml) for a complete example.
 
 > [!NOTE]
 > You can delete any configurations you don't need. Haiku will use the default values ​​instead.
