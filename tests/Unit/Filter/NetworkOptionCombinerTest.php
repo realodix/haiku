@@ -49,7 +49,7 @@ final class NetworkOptionCombinerTest extends TestCase
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
 
         $actual = ['/ads.$stylesheet', '/ads.$image,stylesheet'];
-        $expected = ['/ads.$stylesheet,image'];
+        $expected = ['/ads.$image,stylesheet'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
 
@@ -199,20 +199,43 @@ final class NetworkOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('aliasConflictProvider')]
-    public function testAliasConflict($actual): void
+    public function testAliasConflict($actual, $expected): void
     {
-        $this->assertEqualsCanonicalizing($actual, $this->optionCombiner->applyFix($actual));
+        $this->assertEqualsCanonicalizing($expected, $this->optionCombiner->applyFix($actual));
     }
 
     public static function aliasConflictProvider(): array
     {
         return [
-            [['*$image,css', '*$image,stylesheet']],
-            [['*$image,ehide', '*$image,elemhide']],
-            [['*$image,frame', '*$image,subdocument']],
-            [['*$image,generichide', '*$image,ghide']],
-            [['*$image,specifichide', '*$image,shide']],
-            [['*$image,xhr', '*$image,xmlhttprequest']],
+            [
+                ['*$image,css', '*$image,stylesheet'],
+                ['*$image,stylesheet'],
+            ],
+            [
+                ['*$image,stylesheet', '*$image,css'],
+                ['*$image,css'],
+            ],
+
+            [
+                ['*$image,ehide', '*$image,elemhide'],
+                ['*$image,elemhide'],
+            ],
+            [
+                ['*$image,frame', '*$image,subdocument'],
+                ['*$image,subdocument'],
+            ],
+            [
+                ['*$image,generichide', '*$image,ghide'],
+                ['*$image,ghide'],
+            ],
+            [
+                ['*$image,specifichide', '*$image,shide'],
+                ['*$image,shide'],
+            ],
+            [
+                ['*$image,xhr', '*$image,xmlhttprequest'],
+                ['*$image,xmlhttprequest'],
+            ],
         ];
     }
 

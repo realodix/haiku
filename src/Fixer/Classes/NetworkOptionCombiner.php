@@ -53,10 +53,11 @@ final class NetworkOptionCombiner
                     continue;
                 }
 
-                if ($this->hasAliasGroupOverlap(array_keys($existing), $options)) {
-                    $passthrough[] = $rule;
-
-                    continue;
+                // overwrite existing aliases with the incoming ones
+                foreach ($options as $opt) {
+                    $this->overwriteAlias($groups[$pattern]['options'], $opt);
+                    $groups[$pattern]['options'][$opt] = true;
+                    $groups[$pattern]['pattern'] = $pattern;
                 }
             }
 
@@ -134,43 +135,25 @@ final class NetworkOptionCombiner
     }
 
     /**
-     * Checks whether merging two option sets would introduce different aliases
-     * from the same semantic group. Conflict only occurs if AFTER merge there
-     * are two or more DISTINCT aliases from the same group.
+     * Removes existing aliases that belong to the same alias group
+     * as the incoming option.
      *
-     * Example of unsafe merge:
-     * - *$image,css
-     * - *$image,stylesheet
-     *
-     * This method:
-     * - operates only across different rule lines
-     * - does NOT validate per-line correctness
-     * - only prevents unsafe cross-rule merges
-     *
-     * @param array<string> $existing Options already in the group
-     * @param array<string> $incoming Options from the incoming rule
-     * @return bool True if an alias conflict would be introduced
+     * @param array<string, bool> $existingOptions
      */
-    private function hasAliasGroupOverlap(array $existing, array $incoming): bool
+    private function overwriteAlias(array &$existingOptions, string $incomingOption): void
     {
-        $merged = array_unique(array_merge($existing, $incoming));
-        $mergedSet = array_flip($merged);
-
         foreach (self::OPTION_ALIAS as $group) {
-            $count = 0;
-
-            foreach ($group as $alias) {
-                if (isset($mergedSet[$alias])) {
-                    $count++;
-
-                    if ($count > 1) {
-                        return true; // real conflict
-                    }
-                }
+            if (!in_array($incomingOption, $group, true)) {
+                continue;
             }
-        }
 
-        return false;
+            // remove all aliases in the same group
+            foreach ($group as $alias) {
+                unset($existingOptions[$alias]);
+            }
+
+            return;
+        }
     }
 
     /**
