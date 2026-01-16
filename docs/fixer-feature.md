@@ -124,6 +124,15 @@ example.com##.ad
 example.com,example.org##.ads
 ```
 
+**Wrong Separator**
+```adblock
+! before
+example.com|example.org##.ads
+
+! after
+example.com,example.org##.ads
+```
+
 **Domain Symbol**
 ```adblock
 ! before
