@@ -1,3 +1,12 @@
+This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
+
+
+### Preserved Unchanged
+
+- Comments (`! comment` or `# comment`)
+- Preprocessor directives (`!#include /includedfile.txt`, `!#if (conditions)` , etc)
+
+
 ### Sorting & Deduplication
 
 **Sorting**
@@ -8,14 +17,14 @@ example.com##.ads3
 ||example.com^$script
 -banner-$image,domain=example.org
 ##.ads2
-[$path=/page.html]example.com,0.0.0.0##.ads1
+[$path=/page.html,domain=b.com|a.com]##.ads1
 
 ! after
 -banner-$image,domain=example.org
 ||example.com^$script
 ##.ads2
 example.com##.ads3
-[$path=/page.html]0.0.0.0,example.com##.ads1
+[$domain=a.com|b.com,path=/page.html]##.ads1
 example.com##+js(aopw, Fingerprint2)
 ```
 
@@ -46,8 +55,8 @@ For readability and easier visual recognition, certain options are positioned at
 **Remove Duplicates**
 ```adblock
 ! before
-*$css,image
-*$image
+/ads/*$css,image
+/ads/*$image
 ##.ads
 ##.ads
 

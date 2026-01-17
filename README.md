@@ -2,53 +2,46 @@
 
 # Realodix Haiku
 
-Haiku is a powerful command-line tool for managing ad-blocker filter lists. It automates repetitive tasks such as merging sources, optimizing, and tidying up filter lists effortlessly. With a built-in caching system, Haiku skips unchanged files since the last run, resulting in significantly faster processing.
+Haiku is a powerful command-line tool for managing adblock filter lists efficiently. It automates repetitive tasks such as merging sources, optimizing, and tidying up filter lists effortlessly.
 
 
 ## Features
 
-- **Fully compatible with multiple filter syntaxes.** Supports Adblock Plus, AdGuard, uBlock Origin, and more.
-- **Filter List Building:** Builds a unified output from multiple local or remote filter lists into a single file, regenerating metadata and removing unnecessary lines such as comments.
-- **Rule Sorting:** Sorts filter rules alphabetically for consistent and readable output.
-- **Domain Combining:** Combines filter rules with identical patterns but different domain (e.g., `example.com##.ads` + `example.org##.ads` → `example.com,example.org##.ads`).
-- **Option Sorting:** Sorts filter options into a standardized and predictable order.
-- **Option Combining:** Combines filter rules with identical patterns but different options (e.g., `/ads.$image` + `/ads.$css` → `/ads.$image,css`).
-- **Caching:** Caches processed files and reprocesses only changed inputs to speed up subsequent runs.
-- **Configuration:** Allows easy configuration of builder and fixer behavior via a simple `haiku.yml` file.
+- **Building**
+    Compiles multiple filter list sources (local files and/or remote URLs) into single unified output files, including regenerating headers metadata and removing unnecessary lines such as comments.
 
-A few examples of transformations applied during optimization:
+- **Fixing**
+    Normalize, sort, and combine adblock rules to produce cleaner and more maintainable filter lists. Supports multiple adblock syntaxes (Adblock Plus, AdGuard, uBlock Origin, and more).
+
+- **Unified Caching System**
+    Automatically skips unchanged inputs for significantly faster subsequent runs.
+
+- **Configuration via YAML**
+    Control both building and fixing behavior through a single `haiku.yml` file.
+
+The following example demonstrates how Haiku normalizes ordering, combines compatible rules, and removes redundant adblock rules:
 
 ```adblock
 !## BEFORE
-b.com,a.com##.ads3
 [$path=/page.html,domain=b.com|a.com]##.ads1
 example.com##+js(aopw, Fingerprint2)
 -banner-$image,domain=example.org
 -banner-$image,domain=example.com
-example.org##.ads5
+example.org##.ads2
 *$image,css,script,doc
-##.ads4
-##.ads2
-example.com##.ads5
-! typo
-/ads.$domain=example.com/
-example.com,##.ads
+##.ads1
+example.com##.ads2
 
 !## AFTER
 *$css,doc,image,script
 -banner-$image,domain=example.com|example.org
-##.ads2
-a.com,b.com##.ads3
-##.ads4
-example.com,example.org##.ads5
+##.ads1
+example.com,example.org##.ads2
 [$domain=a.com|b.com,path=/page.html]##.ads1
 example.com##+js(aopw, Fingerprint2)
-! typo
-/ads.$domain=example.com
-example.com##.ads
 ```
 
-For more details, see [docs/fixer-feature.md](./docs/fixer-feature.md).
+For a complete list of transformations and edge cases, see [docs/fixer-feature.md](./docs/fixer-feature.md).
 
 ## Installation
 
@@ -63,74 +56,27 @@ Composer will install Haiku executable in its `bin-dir` which defaults to `vendo
 
 ## Quick Start
 
-1. **Initialize the configuration file for Haiku:**
-    ```sh
-    vendor/bin/haiku init
-    ```
+### Initialize configuration
 
-    Run this command to create a `haiku.yml` configuration file.
+   ```sh
+   vendor/bin/haiku init
+   ```
+   Creates a `haiku.yml` configuration file in your project.
 
-2. **Build Filters:**
+### Main Workflow
 
+- **Build filter lists**
     ```sh
     vendor/bin/haiku build
     ```
 
-    This builds unified outputs from filter sources as defined in your config.
-
-3. **Fix & Optimize:**
-
+- **Fix and optimize filter lists**
     ```sh
     vendor/bin/haiku fix
     ```
 
-    This tidies and optimizes the specified filter file or directory.
+For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
 
-
-## Usage
-
-Haiku provides two main commands: `build` for merging sources and `fix` for optimization.
-
-### Building Filter Lists
-Builds multiple source files into a single output file as defined in your `haiku.yml`, including metadata regeneration and stripping unnecessary lines such as comments.
-
-```sh
-Usage:
-    vendor/bin/haiku build [options]
-
-Options:
-    --force     Ignore cache and rebuild all sources.
-    --config    Use a custom configuration file path.
-
-Examples:
-    # Build all sources with custom config file.
-    vendor/bin/haiku build --config haiku.yml
-    # Rebuild all sources with custom config file and ignore cache.
-    vendor/bin/haiku build --force --config haiku.yml
-```
-
-
-### Fixing Filter Lists
-Optimizes existing filter files or directories by cleaning syntax, sorting rules, and combining compatible patterns.
-
-```sh
-Usage:
-    vendor/bin/haiku fix [options]
-
-Options:
-    --path      Path to the filter file or directory to process.
-    --force     Ignore cache and process all files.
-    --config    Use a custom configuration file path.
-    --cache     Specify a custom cache path.
-
-Examples:
-    # Process all files in the root directory.
-    vendor/bin/haiku fix
-    # Process a specific file with custom config file.
-    vendor/bin/haiku fix --path filter-list.txt --config haiku.yml
-    # Process all files in the root directory with custom chache directory.
-    vendor/bin/haiku fix --cache ./customcachedir
-```
 
 
 ## Configuration
