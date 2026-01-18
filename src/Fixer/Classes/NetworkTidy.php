@@ -22,9 +22,9 @@ final class NetworkTidy
      * @var array<string>
      */
     const CASE_SENSITIVE_VALUE = [
-        'csp', 'reason', 'removeparam', 'replace', 'urlskip', 'urltransform',
+        'csp', 'reason', 'removeparam', 'replace', 'urlskip', 'uritransform',
         // AdGuard
-        'cookie', 'extension', 'hls', 'jsonprune', 'xmlprune',
+        'cookie', 'extension', 'hls', 'jsonprune', 'urltransform', 'xmlprune',
         // AdGuard DNS
         'dnsrewrite', 'dnstype',
     ];
@@ -156,7 +156,7 @@ final class NetworkTidy
 
         // Prio 3
         if (preg_match('/^(csp|header|method|permissions|redirect(?:-rule)?
-                |removeparam|replace|urlskip|urltransform
+                |removeparam|replace|urlskip|uritransform|urltransform
             )=/x',
             $option)) {
             return '4'.$option;

@@ -105,6 +105,16 @@ trait NetworkProvider
                 ['/ads.$xhr,urlskip=/\/dl\/(.+)/ -base64,domain=example.com'],
             ],
 
+            // $uritransform
+            [
+                ['/ads.$domain=example.com,xhr,uritransform=/X/Y/'],
+                ['/ads.$xhr,uritransform=/X/Y/,domain=example.com'],
+            ],
+            [
+                ['@@/ads.$domain=example.com,xhr,uritransform'],
+                ['@@/ads.$uritransform,xhr,domain=example.com'],
+            ],
+
             // $urltransform
             [
                 ['/ads.$domain=example.com,xhr,urltransform=/X/Y/'],
@@ -137,6 +147,7 @@ trait NetworkProvider
             ['||example.org^$Removeparam=Foo', '||example.org^$removeparam=Foo'],
             ['||example.org^$Replace=Foo', '||example.org^$replace=Foo'],
             ['||example.org^$Urlskip=Foo', '||example.org^$urlskip=Foo'],
+            ['||example.org^$Uritransform=Foo', '||example.org^$uritransform=Foo'],
             ['||example.org^$Urltransform=Foo', '||example.org^$urltransform=Foo'],
 
             ['||example.org^$Cookie=Foo', '||example.org^$cookie=Foo'],
