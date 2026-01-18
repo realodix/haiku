@@ -7,7 +7,7 @@ use Illuminate\Container\Container;
 class App
 {
     const NAME = 'Haiku';
-    const VERSION = '1.6.x-dev';
+    const VERSION = '1.7.0';
 
     /**
      * Register any application services.
