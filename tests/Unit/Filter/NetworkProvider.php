@@ -106,6 +106,7 @@ trait NetworkProvider
             ],
 
             // $uritransform
+            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#uritransform
             [
                 ['/ads.$domain=example.com,xhr,uritransform=/X/Y/'],
                 ['/ads.$xhr,uritransform=/X/Y/,domain=example.com'],
