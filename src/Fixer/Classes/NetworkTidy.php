@@ -17,19 +17,6 @@ final class NetworkTidy
     ];
 
     /**
-     * A list of options that have case-sensitive values.
-     *
-     * @var array<string>
-     */
-    const CASE_SENSITIVE_VALUE = [
-        'csp', 'reason', 'removeparam', 'replace', 'urlskip', 'uritransform',
-        // AdGuard
-        'cookie', 'extension', 'hls', 'jsonprune', 'urltransform', 'xmlprune',
-        // AdGuard DNS
-        'dnsrewrite', 'dnstype',
-    ];
-
-    /**
      * Tidies a network filter rule by normalizing options and sorting domains.
      */
     public function applyFix(string $line): string
@@ -60,22 +47,18 @@ final class NetworkTidy
 
         foreach (preg_split(Regex::NET_OPTION_SPLIT, $options) as $option) {
             $parts = explode('=', $option, 2);
-            $name = strtolower(ltrim($parts[0], '~'));
+            $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;
 
             if (in_array($name, self::MULTI_VALUE)) {
                 if ($value !== null) {
                     array_push($parsed[$name], ...[$value]);
                 }
-            } elseif (in_array($name, self::CASE_SENSITIVE_VALUE, true)) {
-                // Lowercase the name, preserve value
+            } else {
                 if ($value !== null) {
                     $name .= '='.$value;
                 }
                 $parsed['genericOpts'][] = $name;
-            } else {
-                // Lowercase the whole option
-                $parsed['genericOpts'][] = strtolower($option);
             }
         }
 
