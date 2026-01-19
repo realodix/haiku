@@ -160,6 +160,10 @@ class NetworkTest extends TestCase
         $input = ['$method=post|~get|delete'];
         $expected = ['$method=delete|~get|post'];
         $this->assertSame($expected, $this->fix($input));
+
+        // syntax is wrong, but Haiku doesn't error
+        $input = ['$domain'];
+        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]

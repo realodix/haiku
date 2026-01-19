@@ -26,98 +26,101 @@ final class NetworkTidy
         }
 
         $filterText = $m[1];
-        $filterOptions = $this->parseOptions($m[2]);
-        $optionList = $this->normalizeOption($filterOptions);
+        $optionList = $this->normalizeOption($m[2]);
 
         return $filterText.'$'.$optionList->implode(',');
     }
 
     /**
-     * Parse the filter options.
+     * Normalizes and sorts the network filter options.
      *
-     * @return array<string, array<string>>
+     * @param string $optionString Parsed options from parseOptions()
+     * @return \Illuminate\Support\Collection<int, string>
      */
-    private function parseOptions(string $options): array
+    private function normalizeOption(string $optionString)
     {
-        // Initialize an empty array
-        $parsed = ['genericOpts' => []];
+        // Initialize buckets for basic options
+        $optionList = [];
+
+        // Initialize buckets for multi-value options
+        $multiValueOpts = [];
         foreach (self::MULTI_VALUE as $key) {
-            $parsed[$key] = [];
+            $multiValueOpts[$key] = [];
         }
 
-        foreach (preg_split(Regex::NET_OPTION_SPLIT, $options) as $option) {
+        // 1. Split raw option string and classify each option.
+        foreach (preg_split(Regex::NET_OPTION_SPLIT, $optionString) as $option) {
             $parts = explode('=', $option, 2);
             $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;
 
-            if (in_array($name, self::MULTI_VALUE)) {
-                if ($value !== null) {
-                    array_push($parsed[$name], ...[$value]);
-                }
-            } else {
-                if ($value !== null) {
-                    $name .= '='.$value;
-                }
-                $parsed['genericOpts'][] = $name;
+            // If option supports multiple values, collect them
+            if (isset($multiValueOpts[$name]) && $value !== null) {
+                $multiValueOpts[$name][] = $value;
+
+                continue;
             }
+
+            // Otherwise treat it as a basic option
+            if ($value !== null) {
+                $name .= '='.$value;
+            }
+
+            $optionList[] = $name;
         }
 
-        return $parsed;
-    }
-
-    /**
-     * Normalizes and sorts the network filter options.
-     *
-     * @param array<string, array<string>> $options Parsed options from parseOptions()
-     * @return \Illuminate\Support\Collection<int, string>
-     */
-    private function normalizeOption(array $options)
-    {
-        $optionList = $options['genericOpts'];
-
-        // Add back the consolidated domain-like options.
-        foreach (self::MULTI_VALUE as $name) {
-            if (!empty($options[$name])) {
-                $value = Helper::normalizeDomain($options[$name][0], '|');
-                $optionList[] = $name.'='.$value;
+        // 2. Rebuild consolidated multi-value options (domain=, from=, etc.)
+        foreach ($multiValueOpts as $name => $values) {
+            if ($values === []) {
+                continue;
             }
+
+            $optionList[] = $name.'='.Helper::normalizeDomain($values[0], '|');
         }
 
-        $processedOptions = [];
-        foreach ($optionList as $option) {
-            $transformed = $this->applyOption($option);
-            if ($transformed) {
-                $processedOptions[] = $transformed;
-            }
-        }
-
-        return Helper::uniqueSorted($processedOptions, fn($v) => $this->optionOrder($v));
+        // 3. Transform, Remove duplicates and sort options by priority
+        return Helper::uniqueSorted(
+            $this->applyOption($optionList),
+            fn($v) => $this->optionOrder($v),
+        );
     }
 
     /**
      * Applies a set of dynamic rules to transform or remove a filter option.
+     *
+     * @param array<string> $options
+     * @return array<string>
      */
-    private function applyOption(string $option): string
+    private function applyOption(array $options): array
     {
-        // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#_-aka-noop
-        // https://adguard.com/kb/general/ad-filtering/create-own-filters/#noop-modifier
-        if (str_starts_with($option, '_')) {
-            return '';
+        $result = [];
+        foreach ($options as $option) {
+            // "_" is a noop modifier → drop entirely
+            if (str_starts_with($option, '_')) {
+                continue;
+            }
+
+            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
+            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
+            if ($option === 'empty') {
+                $result[] = 'redirect=nooptext';
+
+                continue;
+            }
+
+            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#mp4
+            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#mp4-modifier
+            if ($option === 'mp4') {
+                $result[] = 'media,redirect=noopmp4-1s';
+
+                continue;
+            }
+
+            // Default: keep option as-is
+            $result[] = $option;
         }
 
-        // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
-        // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
-        if ($option === 'empty') {
-            return 'redirect=nooptext';
-        }
-
-        // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#mp4
-        // https://adguard.com/kb/general/ad-filtering/create-own-filters/#mp4-modifier
-        if ($option === 'mp4') {
-            return 'media,redirect=noopmp4-1s';
-        }
-
-        return $option;
+        return $result;
     }
 
     /**
