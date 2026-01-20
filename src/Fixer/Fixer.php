@@ -108,7 +108,7 @@ final class Fixer
     private function hash(string $data): string
     {
         $v = explode('.', App::version());
-        if (str_starts_with($v[2], 'x-')) {
+        if (str_starts_with($v[2], 'x')) {
             $v = $v[2];
         } else {
             // get major and minor version

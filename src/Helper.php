@@ -87,44 +87,4 @@ final class Helper
     {
         return str_contains($domain, '/') && preg_match('/[\\^([{$\\\]/', $domain);
     }
-
-    /**
-     * Get git reference for a specific Composer package.
-     */
-    public static function getComposerRef(
-        string $packageName = 'realodix/haiku',
-        ?string $fallback = null,
-    ): ?string {
-        $composerLockPath = 'composer.lock';
-
-        if (!is_file($composerLockPath) || !is_readable($composerLockPath)) {
-            return $fallback;
-        }
-
-        $json = json_decode(file_get_contents($composerLockPath), true);
-
-        if (!is_array($json)) {
-            return $fallback;
-        }
-
-        foreach ($json['packages'] ?? [] as $package) {
-            if (($package['name'] ?? null) !== $packageName) {
-                continue;
-            }
-
-            if (!empty($package['source']['reference'])) {
-                return $package['source']['reference'];
-            }
-
-            if (!empty($package['dist']['reference'])) {
-                return $package['dist']['reference'];
-            }
-
-            // package found but no reference
-            return $fallback;
-        }
-
-        // package not found
-        return $fallback;
-    }
 }

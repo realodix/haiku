@@ -69,14 +69,4 @@ class HelperTest extends TestCase
             Helper::normalizeDomain('~/example\.([a-z]{1,2}|[A-Z]{4,16})/,127.1.0.1', ','),
         );
     }
-
-    #[PHPUnit\Test]
-    public function composerPackageReference()
-    {
-        $this->assertSame(null, Helper::getComposerRef());
-
-        $this->assertTrue(
-            strlen(Helper::getComposerRef('illuminate/collections')) >= 40,
-        );
-    }
 }
