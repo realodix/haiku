@@ -47,7 +47,7 @@ class Kernel
         $output = new ConsoleOutput;
         $this->app->instance(OutputInterface::class, $output);
 
-        $console = new Application(App::NAME, App::VERSION);
+        $console = new Application(App::NAME, App::version());
         $this->registerCommands($console);
 
         return $console->run(new ArgvInput, $output);
