@@ -191,7 +191,6 @@ class CacheTest extends TestCase
         $this->assertTrue($this->fs->exists($this->testCacheFile));
     }
 
-    // Test cleanStaleEntries
     public function testCleanStaleEntriesRemovesNonExistentFiles(): void
     {
         $existingFile = Path::join($this->tmpDir, 'existing_file.txt');

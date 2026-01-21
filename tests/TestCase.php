@@ -79,7 +79,9 @@ abstract class TestCase extends BaseTestCase
         $this->assertFileEquals($expectedFile, $processingFile);
     }
 
-    // Helper to call private/protected methods for testing
+    /**
+     * Helper to call private/protected methods for testing
+     */
     protected function callPrivateMethod(object $object, string $methodName, array $parameters = []): mixed
     {
         $reflection = new \ReflectionClass($object);
@@ -88,7 +90,9 @@ abstract class TestCase extends BaseTestCase
         return $method->invokeArgs($object, $parameters);
     }
 
-    // Helper to get private/protected properties for testing
+    /**
+     * Helper to get private/protected properties for testing
+     */
     protected function getPrivateProperty(object $object, string $propertyName): mixed
     {
         $reflection = new \ReflectionClass($object);

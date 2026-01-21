@@ -54,14 +54,14 @@ final class NetworkTidy
             $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;
 
-            // If option supports multiple values, collect them
+            // if option supports multiple values, collect them
             if (isset($multiValueOpts[$name]) && $value !== null) {
                 $multiValueOpts[$name][] = $value;
 
                 continue;
             }
 
-            // Otherwise treat it as a basic option
+            // otherwise treat it as a basic option
             if ($value !== null) {
                 $name .= '='.$value;
             }
