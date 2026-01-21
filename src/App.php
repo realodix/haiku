@@ -22,7 +22,7 @@ class App
                 return self::VERSION;
             }
 
-            $cRefShort = substr($cRef, 0, 7);
+            $cRefShort = substr($cRef, 0, 5);
 
             return str_replace('x', 'x-'.$cRefShort, self::VERSION);
         }
