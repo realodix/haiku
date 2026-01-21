@@ -22,14 +22,14 @@ class CleaningTest extends TestCase
             '[uBlock Origin Lite]',
             '[uBO Lite]',
         ];
-        $this->assertSame([], Cleaner::clean($input, false));
+        $this->assertSame([], Cleaner::clean($input));
 
         // not agent
         $input = [
             '[$adg-modifier]##[class^="ads-"]',
             '[$adg-modifier]$$script[data-src="banner"]',
         ];
-        $this->assertSame($input, Cleaner::clean($input, false));
+        $this->assertSame($input, Cleaner::clean($input));
     }
 
     #[PHPUnit\Test]
@@ -41,7 +41,7 @@ class CleaningTest extends TestCase
             '#comment',
         ];
 
-        $this->assertSame([], Cleaner::clean($input, false));
+        $this->assertSame([], Cleaner::clean($input));
     }
 
     #[PHPUnit\Test]
@@ -52,7 +52,7 @@ class CleaningTest extends TestCase
             '',
         ];
 
-        $this->assertSame([], Cleaner::clean($input, false));
+        $this->assertSame([], Cleaner::clean($input));
     }
 
     #[PHPUnit\Test]

@@ -14,7 +14,7 @@ final class Cleaner
      * @param bool $unique Removes duplicate filter rules
      * @return array<string> The cleaned filter contents, each containing only valid rules
      */
-    public static function clean(array $text, bool $unique): array
+    public static function clean(array $text, bool $unique = false): array
     {
         return collect($text)
             ->flatMap(function (string $content) {
