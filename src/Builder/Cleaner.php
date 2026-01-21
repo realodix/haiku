@@ -44,7 +44,7 @@ final class Cleaner
     {
         // https://regex101.com/r/eZnxif
         return preg_replace(
-            '/^\[(Ad[Bb]lock|[Aa]d[Gg]uard|u[Bb](?:lock|[Oo]))([a-zA-Z0-9\.\s]+)?\]$/m',
+            '/^\[(adblock|adguard|ub(?:lock|o))([a-z0-9\.\s]+)?\]$/i',
             '',
             $content,
         );
