@@ -44,6 +44,27 @@ class CosmeticTest extends TestCase
                 'example.com## .ads',
                 'example.com##.ads',
             ],
+            [
+                'example.com##^ ads',
+                'example.com##^ads',
+            ],
+            [
+                'example.com$$ ads',
+                'example.com$$ads',
+            ],
+            // this will be considered a comment
+            [
+                '## ads',
+                '## ads',
+            ],
+            [
+                '## .ads',
+                '## .ads',
+            ],
+            [
+                '## #ads',
+                '## #ads',
+            ],
         ];
     }
 
