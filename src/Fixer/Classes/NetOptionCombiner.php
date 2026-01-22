@@ -93,10 +93,10 @@ final class NetOptionCombiner
             return false;
         }
 
-        // https://regex101.com/r/ayVPBx/2
+        // https://regex101.com/r/ayVPBx/3
         if (preg_match(
             '/([\$,])
-            ( badfilter|important|all|other
+            ( badfilter|important|all|other|popunder|popup
               |(?:1|3)p|(?:strict-)?(?:first|third)-party|strict(?:1|3)p
             )
             (,|$)/x',

@@ -78,6 +78,8 @@ final class NetOptionCombinerTest extends TestCase
             [['*$image,important', '*$important']],
             [['*$image,all', '*$all']],
             [['*$image,other', '*$other']],
+            [['*$image,popup', '*$popup']],
+            [['*$image,popunder', '*$popunder']],
             [['*$image,1p', '*$1p']],
             [['*$image,3p', '*$3p']],
             [['*$image,first-party', '*$first-party']],
