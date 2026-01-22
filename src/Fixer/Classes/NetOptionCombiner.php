@@ -234,7 +234,10 @@ final class NetOptionCombiner
      * Rebuilds merged filter rules from grouped option sets. This method assumes
      * all safety checks have already been performed.
      *
-     * @param array<string, array{pattern: string, options: array<string, bool>}> $groups
+     * @param array<string, array{
+     *  pattern: string,
+     *  options: array<string, bool>
+     * }> $group
      * @return array<string>
      */
     private function rebuild(array $groups): array
