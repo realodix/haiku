@@ -16,7 +16,8 @@ final class NetOptionCombinerTest extends TestCase
         $this->optionCombiner = new NetOptionCombiner;
     }
 
-    public function testMergeSimpleOptions(): void
+    #[PHPUnit\Test]
+    public function mergeSimpleOptions(): void
     {
         $actual = ['/ads.$image', '/ads.$css'];
         $expected = ['/ads.$image,css'];
@@ -38,7 +39,8 @@ final class NetOptionCombinerTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
-    public function testMergeDuplicateOption(): void
+    #[PHPUnit\Test]
+    public function mergeDuplicateOption(): void
     {
         $actual = ['/ads.$image,css', '/ads.$image'];
         $expected = ['/ads.$image,css'];
@@ -61,7 +63,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('doNotMergeProvider')]
-    public function testDoNotMerge($actual): void
+    #[PHPUnit\Test]
+    public function doNotMerge($actual): void
     {
         $this->assertSame($actual, $this->optionCombiner->applyFix($actual));
     }
@@ -83,7 +86,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('handlePolarityAcceptedProvider')]
-    public function testHandlePolarity_Accepted($actual, $expected): void
+    #[PHPUnit\Test]
+    public function handlePolarity_Accepted($actual, $expected): void
     {
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
@@ -118,7 +122,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('handlePolarityDissallowedProvider')]
-    public function testHandlePolarity_Dissallowed($actual, $expected): void
+    #[PHPUnit\Test]
+    public function handlePolarity_Dissallowed($actual, $expected): void
     {
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
@@ -183,7 +188,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('aliasConflictProvider')]
-    public function testAliasConflict($actual, $expected): void
+    #[PHPUnit\Test]
+    public function aliasConflict($actual, $expected): void
     {
         $this->assertEqualsCanonicalizing($expected, $this->optionCombiner->applyFix($actual));
     }
@@ -211,7 +217,8 @@ final class NetOptionCombinerTest extends TestCase
         ];
     }
 
-    public function testPreserveSingleRule(): void
+    #[PHPUnit\Test]
+    public function preserveSingleRule(): void
     {
         $rules = ['/ads.$script'];
         $this->assertSame(
