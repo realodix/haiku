@@ -16,29 +16,31 @@ final class NetOptionCombinerTest extends TestCase
         $this->optionCombiner = new NetOptionCombiner;
     }
 
-    public function testMergeSimpleOptions(): void
+    #[PHPUnit\Test]
+    public function mergeSimpleOptions(): void
     {
         $actual = ['/ads.$image', '/ads.$css'];
         $expected = ['/ads.$image,css'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
 
-        // $input = [
-        //     '||example.com/banner/',
-        //     '/ads.$image',
-        //     '||example.org/banner/',
-        //     '/ads.$css',
-        //     '||example.com/banner/',
-        //     '/ads.$frame',
-        // ];
-        // $expected = [
-        //     '/ads.$image,css,frame',
-        //     '||example.com/banner/',
-        //     '||example.org/banner/',
-        // ];
-        // $this->assertSame($expected, $this->fix($input));
+        $input = [
+            '||example.com/banner/',
+            '/ads.$image',
+            '||example.org/banner/',
+            '/ads.$css',
+            '||example.com/banner/',
+            '/ads.$frame',
+        ];
+        $expected = [
+            '/ads.$image,css,frame',
+            '||example.com/banner/',
+            '||example.org/banner/',
+        ];
+        $this->assertSame($expected, $this->fix($input));
     }
 
-    public function testMergeDuplicateOption(): void
+    #[PHPUnit\Test]
+    public function mergeDuplicateOption(): void
     {
         $actual = ['/ads.$image,css', '/ads.$image'];
         $expected = ['/ads.$image,css'];
@@ -48,8 +50,8 @@ final class NetOptionCombinerTest extends TestCase
         $expected = ['/ads.$image,stylesheet'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
 
-        $actual = ['/ads.$stylesheet', '/ads.$image,stylesheet'];
-        $expected = ['/ads.$image,stylesheet'];
+        $actual = ['/ads.$font,stylesheet,script', '/ads.$image,stylesheet,xhr'];
+        $expected = ['/ads.$font,script,image,stylesheet,xhr'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
 
@@ -61,7 +63,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('doNotMergeProvider')]
-    public function testDoNotMerge($actual): void
+    #[PHPUnit\Test]
+    public function doNotMerge($actual): void
     {
         $this->assertSame($actual, $this->optionCombiner->applyFix($actual));
     }
@@ -72,36 +75,19 @@ final class NetOptionCombinerTest extends TestCase
             // contains value
             [['/ads.$image,css,domain=a.com', '/ads.$image,domain=a.com']],
 
-            // special options
-            [['*$image,badfilter', '*$badfilter,css']],
-            [['*$image,badfilter', '*$image']],
-            [['*$image,important', '*$important']],
-            [['*$image,all', '*$all']],
-            [['*$image,other', '*$other']],
-            [['*$image,popup', '*$popup']],
-            [['*$image,popunder', '*$popunder']],
-            [['*$image,1p', '*$1p']],
-            [['*$image,3p', '*$3p']],
-            [['*$image,first-party', '*$first-party']],
-            [['*$image,third-party', '*$third-party']],
-            [['*$image,strict1p', '*$strict1p']],
-            [['*$image,strict3p', '*$strict3p']],
-            [['*$image,strict3p', '*$strict3p']],
-            [['*$image,strict-first-party', '*$strict-first-party']],
-            [['*$image,strict-third-party', '*$strict-third-party']],
+            // unregistered
+            [['*$image,foo', '*$foo,css']],
+            [['*$image,foo', '*$image']],
+            [['*$foo', '*$image']],
 
             // different case
-            [
-                [
-                    '/ADS.$image,css',
-                    '/ads.$image,css',
-                ],
-            ],
+            [['/ADS.$image,css', '/ads.$image,css']],
         ];
     }
 
     #[PHPUnit\DataProvider('handlePolarityAcceptedProvider')]
-    public function testHandlePolarity_Accepted($actual, $expected): void
+    #[PHPUnit\Test]
+    public function handlePolarity_Accepted($actual, $expected): void
     {
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
@@ -136,7 +122,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('handlePolarityDissallowedProvider')]
-    public function testHandlePolarity_Dissallowed($actual, $expected): void
+    #[PHPUnit\Test]
+    public function handlePolarity_Dissallowed($actual, $expected): void
     {
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
@@ -201,7 +188,8 @@ final class NetOptionCombinerTest extends TestCase
     }
 
     #[PHPUnit\DataProvider('aliasConflictProvider')]
-    public function testAliasConflict($actual, $expected): void
+    #[PHPUnit\Test]
+    public function aliasConflict($actual, $expected): void
     {
         $this->assertEqualsCanonicalizing($expected, $this->optionCombiner->applyFix($actual));
     }
@@ -217,31 +205,20 @@ final class NetOptionCombinerTest extends TestCase
                 ['*$image,stylesheet', '*$image,css'],
                 ['*$image,css'],
             ],
+            [
+                ['*$font,css,script,image', '*$image,stylesheet'],
+                ['*$font,script,image,stylesheet'],
+            ],
 
             [
-                ['*$image,ehide', '*$image,elemhide'],
-                ['*$image,elemhide'],
-            ],
-            [
-                ['*$image,frame', '*$image,subdocument'],
-                ['*$image,subdocument'],
-            ],
-            [
-                ['*$image,generichide', '*$image,ghide'],
-                ['*$image,ghide'],
-            ],
-            [
-                ['*$image,specifichide', '*$image,shide'],
-                ['*$image,shide'],
-            ],
-            [
-                ['*$image,xhr', '*$image,xmlhttprequest'],
-                ['*$image,xmlhttprequest'],
+                ['*$stylesheet', '*$css'],
+                ['*$css'],
             ],
         ];
     }
 
-    public function testPreserveSingleRule(): void
+    #[PHPUnit\Test]
+    public function preserveSingleRule(): void
     {
         $rules = ['/ads.$script'];
         $this->assertSame(
