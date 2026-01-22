@@ -142,6 +142,7 @@ final class NetOptionCombiner
                 continue;
             }
 
+            // remove all aliases in the same group
             foreach ($group as $alias) {
                 unset($existing[$alias]);
             }
