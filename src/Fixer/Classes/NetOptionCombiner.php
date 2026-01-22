@@ -237,7 +237,7 @@ final class NetOptionCombiner
      * @param array<string, array{
      *  pattern: string,
      *  options: array<string, bool>
-     * }> $group
+     * }> $groups
      * @return array<string>
      */
     private function rebuild(array $groups): array
