@@ -14,7 +14,7 @@ final class Processor
         private Combiner $combiner,
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
-        private NetOptionCombiner $optionCombiner,
+        // private NetOptionCombiner $optionCombiner,
     ) {}
 
     /**
@@ -92,7 +92,7 @@ final class Processor
             ->all();
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
-        $network = $this->optionCombiner->applyFix($network);
+        // $network = $this->optionCombiner->applyFix($network);
         $network = Helper::uniqueSorted(
             $network,
             fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
