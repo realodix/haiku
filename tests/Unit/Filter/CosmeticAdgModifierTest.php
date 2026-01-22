@@ -107,13 +107,11 @@ class CosmeticAdgModifierTest extends TestCase
     {
         $input = [
             '[$domain=b.com|a.com]##selector',
-
             '[$app=test_app|com.apple.Safari,domain=b.com|a.com]##selector',
         ];
 
         $expected = [
             '[$app=com.apple.Safari|test_app,domain=a.com|b.com]##selector',
-
             '[$domain=a.com|b.com]##selector',
         ];
 
