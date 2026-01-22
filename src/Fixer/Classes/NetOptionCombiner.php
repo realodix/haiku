@@ -6,18 +6,26 @@ use Realodix\Haiku\Fixer\Regex;
 
 /**
  * Merge compatible network filter rules by combining their option sets when it
- * is safe to do so. Redundant rules (those that do not add new options) are
- * dropped. Unsafe rules are preserved and returned unchanged.
+ * is safe to do so. Redundant rules are dropped. Unsafe rules are preserved.
  */
 final class NetOptionCombiner
 {
     private const OPTION_ALIAS = [
+        ['document', 'doc'],
         ['stylesheet', 'css'],
-        ['elemhide', 'ehide'],
         ['subdocument', 'frame'],
-        ['generichide', 'ghide'],
-        ['specifichide', 'shide'],
         ['xmlhttprequest', 'xhr'],
+    ];
+    private const ALLOWED_OPTIONS = [
+        'document', 'doc',
+        'font',
+        'image',
+        'media',
+        'script',
+        'stylesheet', 'css',
+        'subdocument', 'frame',
+        'websocket',
+        'xmlhttprequest', 'xhr',
     ];
 
     /**
@@ -38,8 +46,14 @@ final class NetOptionCombiner
 
             $pattern = $m[1];
             $optionRaw = $m[2];
-
             $options = explode(',', $optionRaw);
+
+            if (!$this->isMergeable($options)) {
+                $passthrough[] = $rule;
+
+                continue;
+            }
+
             $existing = $groups[$pattern]['options'] ?? [];
 
             if ($existing) {
@@ -53,56 +67,37 @@ final class NetOptionCombiner
                     continue;
                 }
 
-                // overwrite existing aliases with the incoming ones
                 foreach ($options as $opt) {
                     $this->overwriteAlias($groups[$pattern]['options'], $opt);
                     $groups[$pattern]['options'][$opt] = true;
-                    $groups[$pattern]['pattern'] = $pattern;
                 }
-            }
-
-            if (!$this->isSafeToMerge($optionRaw)) {
-                $passthrough[] = $rule;
-
-                continue;
             }
 
             foreach ($options as $opt) {
                 $groups[$pattern]['options'][$opt] = true;
-                $groups[$pattern]['pattern'] = $pattern;
             }
+
+            $groups[$pattern]['pattern'] = $pattern;
         }
 
         return array_merge($passthrough, $this->rebuild($groups));
     }
 
     /**
-     * Determines whether a raw option string is safe to be merged.
+     * Determines whether a set of network filter options is eligible to be merged.
      *
-     * This method performs **coarse safety checks only** and does not validate
-     * correctness of individual options. Unsafe rules must not be merged, as doing
-     * so could alter the filter's execution semantics.
-     *
-     * @param string $optionRaw Raw option substring (after `$`)
+     * @param array<string> $options Parsed option list (without `$`), possibly
+     *                               prefixed with `~`
      * @return bool True if the options are safe to merge
      */
-    private function isSafeToMerge(string $optionRaw): bool
+    private function isMergeable(array $options): bool
     {
-        // value-based options (domain=, to=)
-        if (str_contains($optionRaw, '=')) {
-            return false;
-        }
+        foreach ($options as $opt) {
+            $clean = ltrim($opt, '~');
 
-        // https://regex101.com/r/ayVPBx/3
-        if (preg_match(
-            '/([\$,])
-            ( badfilter|important|all|other|popunder|popup
-              |(?:1|3)p|(?:strict-)?(?:first|third)-party|strict(?:1|3)p
-            )
-            (,|$)/x',
-            $optionRaw,
-        )) {
-            return false;
+            if (!in_array($clean, self::ALLOWED_OPTIONS, true)) {
+                return false;
+            }
         }
 
         return true;
@@ -119,14 +114,14 @@ final class NetOptionCombiner
      * - /ads.$image,css
      * - /ads.$image
      *
-     * @param array<string, bool> $existingOptions Currently merged options
-     * @param array<string> $newOptions Incoming rule options
+     * @param array<string, bool> $existing Currently merged options
+     * @param array<string> $incoming Incoming rule options
      * @return bool True if the incoming rule adds no new information
      */
-    private function isRedundant(array $existingOptions, array $newOptions): bool
+    private function isRedundant(array $existing, array $incoming): bool
     {
-        foreach ($newOptions as $opt) {
-            if (!isset($existingOptions[$opt])) {
+        foreach ($incoming as $opt) {
+            if (!isset($existing[$opt])) {
                 return false;
             }
         }
@@ -138,18 +133,17 @@ final class NetOptionCombiner
      * Removes existing aliases that belong to the same alias group
      * as the incoming option.
      *
-     * @param array<string, bool> $existingOptions
+     * @param array<string, bool> $existing
      */
-    private function overwriteAlias(array &$existingOptions, string $incomingOption): void
+    private function overwriteAlias(array &$existing, string $incoming): void
     {
         foreach (self::OPTION_ALIAS as $group) {
-            if (!in_array($incomingOption, $group, true)) {
+            if (!in_array($incoming, $group, true)) {
                 continue;
             }
 
-            // remove all aliases in the same group
             foreach ($group as $alias) {
-                unset($existingOptions[$alias]);
+                unset($existing[$alias]);
             }
 
             return;
@@ -173,8 +167,7 @@ final class NetOptionCombiner
         $iState = $this->polarityState($iPos, $iNeg);
 
         // allowed
-        if ($eState === 'POS' && $iState === 'POS'
-            || $eState === 'NEG' && $iState === 'NEG') {
+        if ($eState === $iState && $eState !== 'MIXED') {
             return true;
         }
 
@@ -206,10 +199,10 @@ final class NetOptionCombiner
     private function polarityState(array $pos, array $neg): string
     {
         return match (true) {
-            // contains only negated options ($~image)
-            $pos === [] && $neg !== [] => 'NEG',
             // contains only positive options ($image)
             $pos !== [] && $neg === [] => 'POS',
+            // contains only negated options ($~image)
+            $pos === [] && $neg !== [] => 'NEG',
             // contains both positive and negated options
             $pos !== [] && $neg !== [] => 'MIXED',
             default => 'EMPTY', // practically unreachable
@@ -222,39 +215,35 @@ final class NetOptionCombiner
      */
     private function splitPolarity(array $options): array
     {
-        $positive = [];
-        $negative = [];
+        $pos = [];
+        $neg = [];
 
         foreach ($options as $opt) {
             if ($opt[0] === '~') {
-                $negative[] = substr($opt, 1);
+                $neg[] = substr($opt, 1);
             } else {
-                $positive[] = $opt;
+                $pos[] = $opt;
             }
         }
 
-        return [$positive, $negative];
+        return [$pos, $neg];
     }
 
     /**
      * Rebuilds merged filter rules from grouped option sets. This method assumes
      * all safety checks have already been performed.
      *
-     * @param array<string, array{
-     *  pattern: string,
-     *  options: array<string, bool>
-     * }> $groups
-     * @return array<string> Final merged filter rules
+     * @param array<string, array{pattern: string, options: array<string,bool>}> $groups
+     * @return array<string>
      */
     private function rebuild(array $groups): array
     {
-        $result = [];
+        $out = [];
 
-        foreach ($groups as $group) {
-            $options = array_keys($group['options']);
-            $result[] = $group['pattern'].'$'.implode(',', $options);
+        foreach ($groups as $g) {
+            $out[] = $g['pattern'].'$'.implode(',', array_keys($g['options']));
         }
 
-        return $result;
+        return $out;
     }
 }

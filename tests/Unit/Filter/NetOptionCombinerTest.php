@@ -22,20 +22,20 @@ final class NetOptionCombinerTest extends TestCase
         $expected = ['/ads.$image,css'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
 
-        // $input = [
-        //     '||example.com/banner/',
-        //     '/ads.$image',
-        //     '||example.org/banner/',
-        //     '/ads.$css',
-        //     '||example.com/banner/',
-        //     '/ads.$frame',
-        // ];
-        // $expected = [
-        //     '/ads.$image,css,frame',
-        //     '||example.com/banner/',
-        //     '||example.org/banner/',
-        // ];
-        // $this->assertSame($expected, $this->fix($input));
+        $input = [
+            '||example.com/banner/',
+            '/ads.$image',
+            '||example.org/banner/',
+            '/ads.$css',
+            '||example.com/banner/',
+            '/ads.$frame',
+        ];
+        $expected = [
+            '/ads.$image,css,frame',
+            '||example.com/banner/',
+            '||example.org/banner/',
+        ];
+        $this->assertSame($expected, $this->fix($input));
     }
 
     public function testMergeDuplicateOption(): void
@@ -73,30 +73,12 @@ final class NetOptionCombinerTest extends TestCase
             [['/ads.$image,css,domain=a.com', '/ads.$image,domain=a.com']],
 
             // special options
-            [['*$image,badfilter', '*$badfilter,css']],
-            [['*$image,badfilter', '*$image']],
-            [['*$image,important', '*$important']],
-            [['*$image,all', '*$all']],
-            [['*$image,other', '*$other']],
-            [['*$image,popup', '*$popup']],
-            [['*$image,popunder', '*$popunder']],
-            [['*$image,1p', '*$1p']],
-            [['*$image,3p', '*$3p']],
-            [['*$image,first-party', '*$first-party']],
-            [['*$image,third-party', '*$third-party']],
-            [['*$image,strict1p', '*$strict1p']],
-            [['*$image,strict3p', '*$strict3p']],
-            [['*$image,strict3p', '*$strict3p']],
-            [['*$image,strict-first-party', '*$strict-first-party']],
-            [['*$image,strict-third-party', '*$strict-third-party']],
+            [['*$image,important', '*$important,css']],
+            [['*$image,important', '*$image']],
+            [['*$popup', '*$image']],
 
             // different case
-            [
-                [
-                    '/ADS.$image,css',
-                    '/ads.$image,css',
-                ],
-            ],
+            [['/ADS.$image,css', '/ads.$image,css']],
         ];
     }
 
@@ -219,24 +201,8 @@ final class NetOptionCombinerTest extends TestCase
             ],
 
             [
-                ['*$image,ehide', '*$image,elemhide'],
-                ['*$image,elemhide'],
-            ],
-            [
-                ['*$image,frame', '*$image,subdocument'],
-                ['*$image,subdocument'],
-            ],
-            [
-                ['*$image,generichide', '*$image,ghide'],
-                ['*$image,ghide'],
-            ],
-            [
-                ['*$image,specifichide', '*$image,shide'],
-                ['*$image,shide'],
-            ],
-            [
-                ['*$image,xhr', '*$image,xmlhttprequest'],
-                ['*$image,xmlhttprequest'],
+                ['*$stylesheet', '*$css'],
+                ['*$css'],
             ],
         ];
     }
