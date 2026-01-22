@@ -50,7 +50,6 @@ final class Processor
                 continue;
             }
 
-            // Categorize the line as either an element rule or a network filter.
             if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
                 $section[] = $this->elementTidy->applyFix($line, $m);
             } else {
@@ -78,6 +77,7 @@ final class Processor
         $cosmetic = [];
         $network = [];
 
+        // categorize the line as either an element rule or a network filter
         foreach ($section as $rule) {
             if (preg_match(Regex::COSMETIC_RULE, $rule)) {
                 $cosmetic[] = $rule;
