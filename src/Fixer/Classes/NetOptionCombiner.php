@@ -70,6 +70,7 @@ final class NetOptionCombiner
                     continue;
                 }
 
+                // overwrite existing aliases with the incoming ones
                 foreach ($options as $opt) {
                     $this->overwriteAlias($groups[$pattern]['options'], $opt);
                     $groups[$pattern]['options'][$opt] = true;
