@@ -45,11 +45,15 @@ final class AdgModifierForElement
         // add back the consolidated domain-like options.
         foreach ($multiValue as $name) {
             if (!empty($parsed[$name])) {
-                $value = Helper::uniqueSorted(
-                    explode('|', $parsed[$name][0]),
+                $domainString = $parsed[$name][0];
 
-                    fn($d) => ltrim($d, '~'),
-                )->implode('|');
+                if (str_contains($domainString, '/')) {
+                    $value = $domainString;
+                } else {
+                    $value = explode('|', $domainString);
+                    $value = Helper::uniqueSorted($value, fn($d) => ltrim($d, '~'))
+                        ->implode('|');
+                }
 
                 $parsed['modifiers'][] = $name.'='.$value;
             }

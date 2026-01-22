@@ -109,13 +109,17 @@ class CosmeticAdgModifierTest extends TestCase
             '[$domain=b.com|a.com]##selector',
             '[$app=test_app|com.apple.Safari,domain=b.com|a.com]##selector',
         ];
-
         $expected = [
             '[$app=com.apple.Safari|test_app,domain=a.com|b.com]##selector',
             '[$domain=a.com|b.com]##selector',
         ];
-
         $this->assertSame($expected, $this->fix($input));
+
+        // https://github.com/AdguardTeam/AdguardFilters/blob/280282dcf6/TurkishFilter/sections/antiadblock.txt#L159
+        $input = [
+            '[$domain=/(^\|.+\.)canlitribun\d+\.live/]#%#//scriptlet(\'prevent-xhr\', \'/advert.js\')',
+        ];
+        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]
