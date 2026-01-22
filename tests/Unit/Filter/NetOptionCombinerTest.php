@@ -48,8 +48,8 @@ final class NetOptionCombinerTest extends TestCase
         $expected = ['/ads.$image,stylesheet'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
 
-        $actual = ['/ads.$stylesheet', '/ads.$image,stylesheet'];
-        $expected = ['/ads.$image,stylesheet'];
+        $actual = ['/ads.$font,stylesheet,script', '/ads.$image,stylesheet,xhr'];
+        $expected = ['/ads.$font,script,image,stylesheet,xhr'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
 
@@ -72,10 +72,10 @@ final class NetOptionCombinerTest extends TestCase
             // contains value
             [['/ads.$image,css,domain=a.com', '/ads.$image,domain=a.com']],
 
-            // special options
-            [['*$image,important', '*$important,css']],
-            [['*$image,important', '*$image']],
-            [['*$popup', '*$image']],
+            // unregistered
+            [['*$image,foo', '*$foo,css']],
+            [['*$image,foo', '*$image']],
+            [['*$foo', '*$image']],
 
             // different case
             [['/ADS.$image,css', '/ads.$image,css']],
@@ -198,6 +198,10 @@ final class NetOptionCombinerTest extends TestCase
             [
                 ['*$image,stylesheet', '*$image,css'],
                 ['*$image,css'],
+            ],
+            [
+                ['*$font,css,script,image', '*$image,stylesheet'],
+                ['*$font,script,image,stylesheet'],
             ],
 
             [

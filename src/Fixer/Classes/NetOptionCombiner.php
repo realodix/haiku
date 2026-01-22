@@ -6,17 +6,12 @@ use Realodix\Haiku\Fixer\Regex;
 
 /**
  * Merge compatible network filter rules by combining their option sets when it
- * is safe to do so. Redundant rules are dropped. Unsafe rules are preserved.
+ * is safe to do so. Redundant rules are dropped. Unregistered rules are preserved.
  */
 final class NetOptionCombiner
 {
-    private const OPTION_ALIAS = [
-        ['document', 'doc'],
-        ['stylesheet', 'css'],
-        ['subdocument', 'frame'],
-        ['xmlhttprequest', 'xhr'],
-    ];
-    private const ALLOWED_OPTIONS = [
+    /** @var array<string> */
+    private const OPTIONS = [
         'document', 'doc',
         'font',
         'image',
@@ -26,6 +21,14 @@ final class NetOptionCombiner
         'subdocument', 'frame',
         'websocket',
         'xmlhttprequest', 'xhr',
+    ];
+
+    /** @var array<string[]> */
+    private const OPTION_ALIAS = [
+        ['document', 'doc'],
+        ['stylesheet', 'css'],
+        ['subdocument', 'frame'],
+        ['xmlhttprequest', 'xhr'],
     ];
 
     /**
@@ -95,7 +98,7 @@ final class NetOptionCombiner
         foreach ($options as $opt) {
             $clean = ltrim($opt, '~');
 
-            if (!in_array($clean, self::ALLOWED_OPTIONS, true)) {
+            if (!in_array($clean, self::OPTIONS, true)) {
                 return false;
             }
         }
