@@ -58,4 +58,3 @@ example.com$@$script[tag-content="banner"]
 !# Network
 ||example.com^$3p,1p,all,badfilter,css,stylesheet,cname,denyallow=x.com|y.com,domain=a.com|b.com,document,doc,from=a.com|b.com,elemhide,ehide,first-party,frame,subdocument,generichide,ghide,header=via:1.1 google,important,inline-script,inline-font,csp=script-src 'none',ipaddress=/^139\.45\.19[5-7]\./,match-case,method=post|get,permissions=oversized-images=()|unsized-media=(),ping,popunder,shide,specifichide,strict3p,strict1p,to=google.*|gstatic.com,xhr,xmlhttprequest,redirect=noopjs:100,redirect-rule=noopjs,removeparam=utm_source,replace=/(<VAST[\s\S]*?>)[\s\S]*<\/VAST>/\$1<\/VAST>/i
 *$script,header=via:/1\.1\s+google/
-||example.com^$~image,css,image

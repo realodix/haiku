@@ -128,6 +128,7 @@ final class NetworkTidy
      */
     private function optionOrder(string $option): string
     {
+        $option = ltrim($option, '~');
 
         // Prio 1: (Highest): 'important' and 'party' options must always be at the top.
         if ($option === 'important' || $option === 'badfilter' || $option === 'match-case') {
@@ -137,8 +138,9 @@ final class NetworkTidy
             || $option === 'strict3p' || $option === 'strict-third-party') {
             return '1'.$option;
         }
-        if (preg_match('/^~?((?:1|3)p|(first|third)-party)/', $option)) {
-            return '2'.ltrim($option, '~');
+        if ($option === '1p' || $option === 'first-party'
+            || $option === '3p' || $option === 'third-party') {
+            return '2'.$option;
         }
 
         // Prio 3

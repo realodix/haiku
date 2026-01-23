@@ -102,8 +102,7 @@ class NetworkTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
 
         $input = ['||example.com^$~image,image'];
-        $expected = ['||example.com^$image,~image'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -114,8 +113,8 @@ class NetworkTest extends TestCase
         $expected = ['*$badfilter,important,match-case,css,domain=3p.com'];
         $this->assertSame($expected, $this->fix($input));
 
-        $input = ['*$css,3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
-        $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,3p,first-party,third-party,css'];
+        $input = ['*$css,~3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
+        $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,~3p,first-party,third-party,css'];
         $this->assertSame($expected, $this->fix($input));
     }
 
