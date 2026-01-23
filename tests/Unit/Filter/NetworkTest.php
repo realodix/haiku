@@ -109,14 +109,13 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function option_sort_order__highest(): void
     {
-        $input = ['*$css,3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
-        $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,3p,first-party,third-party,css'];
+        // badfilter, important & match-case
+        $input = ['*$important,domain=3p.com,css,badfilter,match-case'];
+        $expected = ['*$badfilter,important,match-case,css,domain=3p.com'];
         $this->assertSame($expected, $this->fix($input));
 
-        // badfilter & important
-        // badfilter must always be first
-        $input = ['*$important,domain=3p.com,css,badfilter'];
-        $expected = ['*$badfilter,important,css,domain=3p.com'];
+        $input = ['*$css,3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
+        $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,3p,first-party,third-party,css'];
         $this->assertSame($expected, $this->fix($input));
     }
 

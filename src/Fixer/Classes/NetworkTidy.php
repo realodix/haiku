@@ -128,8 +128,9 @@ final class NetworkTidy
      */
     private function optionOrder(string $option): string
     {
+
         // Prio 1: (Highest): 'important' and 'party' options must always be at the top.
-        if ($option === 'important' || $option === 'badfilter') {
+        if ($option === 'important' || $option === 'badfilter' || $option === 'match-case') {
             return '0'.$option;
         }
         if ($option === 'strict1p' || $option === 'strict-first-party'
