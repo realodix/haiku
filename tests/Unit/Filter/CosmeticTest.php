@@ -29,16 +29,6 @@ class CosmeticTest extends TestCase
     public static function removeExtraSpacesProvider(): array
     {
         return [
-            // remove extra spaces
-            [
-                'example.com##.single-post  .code-block    +    .single-page:style(margin-top: 100px!important;)',
-                'example.com##.single-post .code-block + .single-page:style(margin-top: 100px!important;)',
-            ],
-            [
-                'example.com##header:style(margin:     0!important;     padding: 0!important;)',
-                'example.com##header:style(margin: 0!important; padding: 0!important;)',
-            ],
-
             // remove trailing spaces
             [
                 'example.com## .ads',
@@ -64,6 +54,14 @@ class CosmeticTest extends TestCase
             [
                 '## #ads',
                 '## #ads',
+            ],
+
+            // In the future, if the removal of extra spaces is implemented,
+            // this test should not fail.
+            // remove extra spaces
+            [
+                'example.com##[class="ads   ads-header"]',
+                'example.com##[class="ads   ads-header"]',
             ],
         ];
     }
