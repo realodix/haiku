@@ -106,7 +106,7 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function option_sort_order__highest(): void
+    public function option_order(): void
     {
         // badfilter, important & match-case
         $input = ['*$important,domain=3p.com,css,badfilter,match-case'];
@@ -116,20 +116,47 @@ class NetworkTest extends TestCase
         $input = ['*$css,~3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
         $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,~3p,first-party,third-party,css'];
         $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            '$css,domain=x.com,reason="foo",redirect-rule=noopjs,script,',
+        ];
+        $expected = [
+            '$css,script,redirect-rule=noopjs,domain=x.com,reason="foo"',
+        ];
+        $this->assertSame($expected, $this->fix($input));
     }
 
-    #[PHPUnit\DataProvider('option_sort_order__has_domain_provider')]
+    #[PHPUnit\DataProvider('optionOrdeDomainValueProvider')]
     #[PHPUnit\Test]
-    public function option_sort_order__has_domain(array $input, array $expected): void
+    public function option_orde__domain_value(array $input, array $expected): void
     {
         $this->assertSame($expected, $this->fix($input));
     }
 
-    #[PHPUnit\DataProvider('option_sort_order__has_value_provider')]
-    #[PHPUnit\Test]
-    public function option_sort_order__has_value(array $input, array $expected): void
+    public static function optionOrdeDomainValueProvider(): array
     {
-        $this->assertSame($expected, $this->fix($input));
+        return [
+            // Domain
+            [ // $denyallow
+                ['||example.com^$3p,domain=a.com|b.com,denyallow=x.com|y.com,script'],
+                ['||example.com^$3p,script,denyallow=x.com|y.com,domain=a.com|b.com'],
+            ],
+            [ // $domain
+                ['||example.com^$script,domain=x.com,css'],
+                ['||example.com^$css,script,domain=x.com'],
+            ],
+            [ // $to
+                ['*$script,to=y.*|x.*,from=y.*|x.*,css'],
+                ['*$css,script,from=x.*|y.*,to=x.*|y.*'],
+            ],
+
+            // $ipaddress
+            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#ipaddress
+            [
+                ['*$all,domain=~0.0.0.0|~127.0.0.1|~[::1]|~[::]|~local|~localhost,ipaddress=::,css'],
+                ['*$all,css,domain=~0.0.0.0|~127.0.0.1|~[::1]|~[::]|~local|~localhost,ipaddress=::'],
+            ],
+        ];
     }
 
     #[PHPUnit\Test]

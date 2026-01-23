@@ -130,7 +130,7 @@ final class NetworkTidy
     {
         $option = ltrim($option, '~');
 
-        // Prio 1: (Highest): 'important' and 'party' options must always be at the top.
+        // P1: 'important' and 'party' options should always be at the front/beginning
         if ($option === 'important' || $option === 'badfilter' || $option === 'match-case') {
             return '0'.$option;
         }
@@ -143,26 +143,22 @@ final class NetworkTidy
             return '2'.$option;
         }
 
-        // Prio 3
-        if (preg_match('/^(csp|header|method|permissions|redirect(?:-rule)?
-                |removeparam|replace|urlskip|uritransform|urltransform
-            )=/x',
-            $option)) {
-            return '4'.$option;
-        }
-
-        if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
-            || str_starts_with($option, 'from=') || str_starts_with($option, 'to=')
-            || str_starts_with($option, 'ipaddress=')) {
-            return '5'.$option;
-        }
-
         // Always put at the end
         if (str_starts_with($option, 'reason=')) {
             return $option;
         }
 
-        // Prio 2: Other options
+        // P3: options that support values
+        if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
+            || str_starts_with($option, 'from=') || str_starts_with($option, 'to=')
+            || str_starts_with($option, 'ipaddress=')) {
+            return '5'.$option;
+        }
+        if (str_contains($option, '=')) {
+            return '4'.$option;
+        }
+
+        // P2: basic options
         return '3'.$option;
     }
 }
