@@ -64,11 +64,10 @@ final class Combiner
     private function combineDomains(string $currentDomain, string $nextDomain, string $separator): string
     {
         $newDomain = $currentDomain.$separator.$nextDomain;
+        $newDomain = explode($separator, $newDomain);
 
-        return Helper::uniqueSorted(
-            explode($separator, $newDomain),
-            fn($s) => ltrim($s, '~'),
-        )->implode($separator);
+        return Helper::uniqueSorted($newDomain, fn($s) => ltrim($s, '~'))
+            ->implode($separator);
     }
 
     /**
