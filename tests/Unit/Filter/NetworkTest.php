@@ -7,8 +7,6 @@ use Realodix\Haiku\Test\TestCase;
 
 class NetworkTest extends TestCase
 {
-    use NetworkProvider;
-
     #[PHPUnit\Test]
     public function rules_order(): void
     {
@@ -206,11 +204,25 @@ class NetworkTest extends TestCase
         $this->assertSame(array_map('strtolower', $input), $this->fix($input));
     }
 
-    #[PHPUnit\DataProvider('lowercase_the_option_name_preserve_value_provider')]
+    #[PHPUnit\DataProvider('lowercaseTheOptionNamePreserveValueProvider')]
     #[PHPUnit\Test]
     public function lowercase_the_option_name_preserve_value($input, $expected): void
     {
         $this->assertSame([$expected], $this->fix([$input]));
+    }
+
+    public static function lowercaseTheOptionNamePreserveValueProvider(): array
+    {
+        return [
+            ['$Denyallow=/[A-Z-a-z-09]+/', '$denyallow=/[A-Z-a-z-09]+/'],
+            ['$Domain=/[A-Z-a-z-09]+/', '$domain=/[A-Z-a-z-09]+/'],
+            ['$From=/[A-Z-a-z-09]+/', '$from=/[A-Z-a-z-09]+/'],
+            ['$Method=/[A-Z-a-z-09]+/', '$method=/[A-Z-a-z-09]+/'],
+            ['$To=/[A-Z-a-z-09]+/', '$to=/[A-Z-a-z-09]+/'],
+
+            ['||example.org^$Reason=Foo', '||example.org^$reason=Foo'],
+            ['||example.org^$Removeparam=Foo', '||example.org^$removeparam=Foo'],
+        ];
     }
 
     #[PHPUnit\Test]
