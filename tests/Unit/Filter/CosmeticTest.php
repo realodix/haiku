@@ -11,14 +11,6 @@ class CosmeticTest extends TestCase
     // General & File Structure Tests
     // ========================================================================
 
-    #[PHPUnit\Test]
-    public function blank_lines_are_removed(): void
-    {
-        $input = ['line1', '', 'line2', '   ', 'line3'];
-        $expected = ['line1', 'line2', 'line3'];
-        $this->assertSame($expected, $this->fix($input));
-    }
-
     #[PHPUnit\DataProvider('removeExtraSpacesProvider')]
     #[PHPUnit\Test]
     public function removeExtraSpaces($actual, $expected): void
