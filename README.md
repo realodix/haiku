@@ -41,7 +41,7 @@ example.com,example.org##.ads2
 example.com##+js(aopw, Fingerprint2)
 ```
 
-For a complete list of transformations and edge cases, see [docs/fixer-feature.md](./docs/fixer-feature.md).
+For a complete list of transformations, see [docs/fixer-feature.md](./docs/fixer-feature.md).
 
 ## Installation
 

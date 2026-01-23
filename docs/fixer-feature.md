@@ -109,16 +109,6 @@ EXAMPLE.COM##.ad
 example.com##.ad
 ```
 
-**Trim Whitespace**
-```adblock
-! before
-    ##.ads
-##.ads2   img
-
-! after
-##.ads
-##.ads2 img
-```
 
 ### Typo
 
