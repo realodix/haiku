@@ -23,21 +23,18 @@ The following example demonstrates how Haiku normalizes ordering, combines compa
 
 ```adblock
 !## BEFORE
-[$path=/page.html,domain=b.com|a.com]##.ads1
+[$path=/page.html,domain=b.com|a.com]##.textad
 example.com##+js(aopw, Fingerprint2)
 -banner-$image,domain=example.org
 -banner-$image,domain=example.com
-example.org##.ads2
 *$image,css,script,doc
-##.ads1
-example.com##.ads2
+b.com,a.com##.ads
 
 !## AFTER
 *$css,doc,image,script
 -banner-$image,domain=example.com|example.org
-##.ads1
-example.com,example.org##.ads2
-[$domain=a.com|b.com,path=/page.html]##.ads1
+a.com,b.com##.ads
+[$domain=a.com|b.com,path=/page.html]##.textad
 example.com##+js(aopw, Fingerprint2)
 ```
 
