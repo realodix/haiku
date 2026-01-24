@@ -70,6 +70,11 @@ final class Helper
     {
         $domain = trim($domain);
 
+        // if the domain is a regex, return it
+        if (str_starts_with($domain, '/') && str_ends_with($domain, '/')) {
+            return $domain;
+        }
+
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
             $domain = substr($domain, 1);
         }

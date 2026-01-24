@@ -25,7 +25,7 @@ class HelperTest extends TestCase
     }
 
     #[PHPUnit\TestWith(['.example.com/', 'example.com'])]
-    #[PHPUnit\TestWith(['/example.com/', 'example.com'])]
+    #[PHPUnit\TestWith(['/example.com', 'example.com'])]
     #[PHPUnit\Test]
     public function cleanDomain($input, $expected)
     {
