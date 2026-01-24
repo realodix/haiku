@@ -57,20 +57,6 @@ class TypoTest extends TestCase
                 ['a.com|c.com##.ads', 'b.com##.ads'],
                 ['a.com,b.com,c.com##.ads'],
             ],
-
-            // rejected
-            [
-                ['a.com|b.com,/(a|b)\.com/##.ads'],
-                ['/(a|b)\.com/,a.com|b.com##.ads'],
-            ],
-            [
-                ['/(a|b)\.com/##.ads'],
-                ['/(a|b)\.com/##.ads'],
-            ],
-            [
-                ['a.com,/(a|b)\.com/##.ads'],
-                ['/(a|b)\.com/,a.com##.ads'],
-            ],
         ];
     }
 

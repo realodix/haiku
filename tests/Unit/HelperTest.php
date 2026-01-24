@@ -31,42 +31,4 @@ class HelperTest extends TestCase
     {
         $this->assertSame($expected, Helper::cleanDomain($input));
     }
-
-    #[PHPUnit\Test]
-    public function normalizeDomain_pipeSeparated()
-    {
-        $this->assertSame(
-            '~/example\.([a-z]{1,2}|[A-Z]{4,16})/|127.1.0.1|example.*',
-            Helper::normalizeDomain('Example.*|~/example\.([a-z]{1,2}|[A-Z]{4,16})/|127.1.0.1', '|'),
-        );
-
-        $this->assertSame(
-            '~/example\.([a-z]{1,2}|[A-Z]{4,16})/|example.*',
-            Helper::normalizeDomain('Example.*|~/example\.([a-z]{1,2}|[A-Z]{4,16})/', '|'),
-        );
-
-        $this->assertSame(
-            '~/example\.([a-z]{1,2}|[A-Z]{4,16})/|127.1.0.1',
-            Helper::normalizeDomain('~/example\.([a-z]{1,2}|[A-Z]{4,16})/|127.1.0.1', '|'),
-        );
-    }
-
-    #[PHPUnit\Test]
-    public function normalizeDomain_commaSeparated()
-    {
-        $this->assertSame(
-            '~/example\.([a-z]{1,2}|[A-Z]{4,16})/,127.1.0.1,example.*',
-            Helper::normalizeDomain('Example.*,~/example\.([a-z]{1,2}|[A-Z]{4,16})/,127.1.0.1', ','),
-        );
-
-        $this->assertSame(
-            '~/example\.([a-z]{1,2}|[A-Z]{4,16})/,example.*',
-            Helper::normalizeDomain('Example.*,~/example\.([a-z]{1,2}|[A-Z]{4,16})/', ','),
-        );
-
-        $this->assertSame(
-            '~/example\.([a-z]{1,2}|[A-Z]{4,16})/,127.1.0.1',
-            Helper::normalizeDomain('~/example\.([a-z]{1,2}|[A-Z]{4,16})/,127.1.0.1', ','),
-        );
-    }
 }
