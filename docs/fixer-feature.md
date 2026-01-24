@@ -1,10 +1,48 @@
 This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
 
 
-## Preserved Unchanged
+## Preserved Line
+
+The fixer preserves certain lines verbatim and never modifies their content, formatting, or position.
+
+In addition to being preserved, these lines also act as section boundaries. They explicitly separate rule blocks and prevent rules from being sorted, combined, or deduplicated across the boundary.
+
+### Types
+
+The following lines are preserved unchanged and treated as section separators:
 
 - Comments (`! comment` or `# comment`)
 - Preprocessor directives (`!#include /includedfile.txt`, `!#if (conditions)` , etc)
+
+### Section Boundary Behavior
+
+Rules located on different sides of a preserved line are processed independently.
+
+This means:
+- Rules are not combined across the boundary
+- Sorting restarts after the boundary
+- Each section is optimized in isolation
+
+```adblock
+! before
+a.com##.ads
+b.com##.ads
+!
+c.com##.ads
+
+! after
+a.com,b.com##.ads
+!
+c.com##.ads
+```
+
+In the example above, the comment line (`!`) acts as a hard separator. Although all three rules are compatible, `c.com##.ads` cannot be merged with the rules above because it belongs to a different section.
+
+### Rationale
+
+This behavior preserves:
+- Intentional grouping created by the filter author
+- Safety when comments or directives imply semantic separation
 
 
 ## Sorting & Structural Grouping
@@ -65,6 +103,7 @@ Negated domains will always be put before normal domains:
 ! after
 ~b.com,~d.com,a.com,c.com##.ad
 ```
+
 
 ## Rule Combining
 
