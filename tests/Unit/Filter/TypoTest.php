@@ -76,7 +76,7 @@ class TypoTest extends TestCase
     public function domain_value(): void
     {
         $input = [
-            '-ads.$domain=Example.com',
+            '-ads.$domain=example.com',
             '-ads.$domain=.Example.com/',
             '-ads.$domain=Example.com/',
             '/Example.com##.ads',
@@ -90,7 +90,7 @@ class TypoTest extends TestCase
 
         // complex
         $input = [
-            '/ads.$domain=/Example.com|.Example.com/|Example.com',
+            '/ads.$domain=/Example.com|.Example.com/|example.com',
             '/example.com,.example.com/,example.com##.ads',
         ];
         $expected = [
@@ -101,8 +101,8 @@ class TypoTest extends TestCase
 
         // regex
         $input = [
-            '/ads.$domain=/examplE\.com/',
-            '/example\.com/##.ads',
+            '/ads.$domain=/REGEX/',
+            '/REGEX/##.ads',
         ];
         $this->assertSame($input, $this->fix($input));
     }

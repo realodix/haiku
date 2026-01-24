@@ -43,7 +43,8 @@ final class Helper
 
     public static function normalizeDomain(string $domain, string $separator): string
     {
-        if (self::containsRegexDomain($domain)) {
+        // domain is a regex
+        if (str_starts_with($domain, '/') && str_ends_with($domain, '/')) {
             return $domain;
         }
 
@@ -51,10 +52,6 @@ final class Helper
         $domain = collect($domain)
             ->filter(fn($d) => $d !== '')
             ->map(function ($str) {
-                if (self::containsRegexDomain($str)) {
-                    return $str;
-                }
-
                 $domain = strtolower($str);
                 $domain = self::cleanDomain($domain);
 
@@ -76,11 +73,6 @@ final class Helper
     {
         $domain = trim($domain);
 
-        // if the domain is a regex, return it
-        if (str_starts_with($domain, '/') && str_ends_with($domain, '/')) {
-            return $domain;
-        }
-
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
             $domain = substr($domain, 1);
         }
@@ -90,10 +82,5 @@ final class Helper
         }
 
         return $domain;
-    }
-
-    public static function containsRegexDomain(string $domain): bool
-    {
-        return str_contains($domain, '/') && preg_match('/[\\^([{$\\\]/', $domain);
     }
 }
