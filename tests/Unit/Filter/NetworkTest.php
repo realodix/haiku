@@ -168,20 +168,20 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function optDomain_values_are_sorted(): void
     {
-        $input = ['$domain=c.com|a.com|~b.com'];
-        $expected = ['$domain=a.com|~b.com|c.com'];
+        $input = ['$domain=~d.com|c.com|a.com|~b.com'];
+        $expected = ['$domain=~b.com|~d.com|a.com|c.com'];
         $this->assertSame($expected, $this->fix($input));
 
-        $input = ['$from=c.com|a.com|~b.com,to=c.com|a.com|~b.com'];
-        $expected = ['$from=a.com|~b.com|c.com,to=a.com|~b.com|c.com'];
+        $input = ['$from=~d.com|c.com|a.com|~b.com,to=~d.com|c.com|a.com|~b.com'];
+        $expected = ['$from=~b.com|~d.com|a.com|c.com,to=~b.com|~d.com|a.com|c.com'];
         $this->assertSame($expected, $this->fix($input));
 
-        $input = ['$denyallow=c.com|a.com|~b.com'];
-        $expected = ['$denyallow=a.com|~b.com|c.com'];
+        $input = ['$denyallow=~d.com|c.com|a.com|~b.com'];
+        $expected = ['$denyallow=~b.com|~d.com|a.com|c.com'];
         $this->assertSame($expected, $this->fix($input));
 
         $input = ['$method=post|~get|delete'];
-        $expected = ['$method=delete|~get|post'];
+        $expected = ['$method=~get|delete|post'];
         $this->assertSame($expected, $this->fix($input));
 
         // syntax is wrong, but Haiku doesn't error

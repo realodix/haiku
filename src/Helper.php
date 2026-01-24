@@ -60,8 +60,14 @@ final class Helper
 
                 return $domain;
             })->unique()
-            ->sortBy(fn($d) => ltrim($d, '~'))
-            ->implode($separator);
+            ->sortBy(function ($str) {
+                // negated domain is always before normal domain
+                if (str_starts_with($str, '~')) {
+                    return '/'.$str;
+                }
+
+                return $str;
+            })->implode($separator);
 
         return $domain;
     }

@@ -151,16 +151,8 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function domains_are_sorted(): void
     {
-        $input = ['c.com,b.com,~a.com##.ad'];
-        $expected = ['~a.com,b.com,c.com##.ad'];
-        $this->assertSame($expected, $this->fix($input));
-    }
-
-    #[PHPUnit\Test]
-    public function domain_exclusion_is_handled(): void
-    {
-        $input = ['~b.com,a.com##.ad'];
-        $expected = ['a.com,~b.com##.ad'];
+        $input = ['~d.com,c.com,a.com,~b.com##.ad'];
+        $expected = ['~b.com,~d.com,a.com,c.com##.ad'];
         $this->assertSame($expected, $this->fix($input));
     }
 
@@ -246,24 +238,12 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function scriptlet_domains_are_sorted(): void
     {
-        $input = ['c.com,b.com,a.com##+js(...)'];
-        $expected = ['a.com,b.com,c.com##+js(...)'];
+        $input = ['~d.com,c.com,a.com,~b.com##+js(...)'];
+        $expected = ['~b.com,~d.com,a.com,c.com##+js(...)'];
         $this->assertSame($expected, $this->fix($input));
 
-        $input = ['c.com,b.com,a.com#%#//scriptlet(...)'];
-        $expected = ['a.com,b.com,c.com#%#//scriptlet(...)'];
-        $this->assertSame($expected, $this->fix($input));
-    }
-
-    #[PHPUnit\Test]
-    public function scriptlet_domain_exclusion_is_handled(): void
-    {
-        $input = ['~b.com,a.com##+js(...)'];
-        $expected = ['a.com,~b.com##+js(...)'];
-        $this->assertSame($expected, $this->fix($input));
-
-        $input = ['~b.com,a.com#%#//scriptlet(...)'];
-        $expected = ['a.com,~b.com#%#//scriptlet(...)'];
+        $input = ['~d.com,c.com,a.com,~b.com#%#//scriptlet(...)'];
+        $expected = ['~b.com,~d.com,a.com,c.com#%#//scriptlet(...)'];
         $this->assertSame($expected, $this->fix($input));
     }
 

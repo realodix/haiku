@@ -56,6 +56,15 @@ a.com,b.com##.ads
 [$domain=a.com|b.com]###adblock
 ```
 
+Negated domains will always be put before normal domains:
+
+```adblock
+! before
+~d.com,c.com,a.com,~b.com##.ad
+
+! after
+~b.com,~d.com,a.com,c.com##.ad
+```
 
 ## Rule Combining
 
