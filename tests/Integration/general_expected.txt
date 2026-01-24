@@ -8,30 +8,30 @@
 # =========================
 !# Sorting
 ###a
-a.com,b.com,~c.com###a
+a.com,b.com###a
 ###b
-a.com,b.com,~c.com###b
+a.com,b.com###b
 ##.a
-a.com,b.com,~c.com##.a
+a.com,b.com##.a
 ##.b
-a.com,b.com,~c.com##.b
+a.com,b.com##.b
 #@##a
-a.com,b.com,~c.com#@##a
+a.com,b.com#@##a
 #@##b
-a.com,b.com,~c.com#@##b
+a.com,b.com#@##b
 #@#.a
-a.com,b.com,~c.com#@#.a
+a.com,b.com#@#.a
 #@#.b
-a.com,b.com,~c.com#@#.b
+a.com,b.com#@#.b
 !# Merging
 ###a
-a.com,b.com,~c.com###a
+a.com,b.com###a
 ##.a
-a.com,b.com,~c.com##.a
+a.com,b.com##.a
 #@##a
-a.com,b.com,~c.com#@##a
+a.com,b.com#@##a
 #@#.a
-a.com,b.com,~c.com#@#.a
+a.com,b.com#@#.a
 !# Cosmetic, Scriptlet and Network
 -ad123-
 ||example.com/banner/

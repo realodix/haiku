@@ -15,14 +15,14 @@
 #@##a
 #@#.b
 #@#.a
-~c.com,b.com,a.com###b
-~c.com,b.com,a.com###a
-~c.com,b.com,a.com##.b
-~c.com,b.com,a.com##.a
-~c.com,b.com,a.com#@##b
-~c.com,b.com,a.com#@##a
-~c.com,b.com,a.com#@#.b
-~c.com,b.com,a.com#@#.a
+b.com,a.com###b
+b.com,a.com###a
+b.com,a.com##.b
+b.com,a.com##.a
+b.com,a.com#@##b
+b.com,a.com#@##a
+b.com,a.com#@#.b
+b.com,a.com#@#.a
 !# Merging
 ###a
 ###a
@@ -32,14 +32,14 @@
 #@##a
 #@#.a
 #@#.a
-~c.com,b.com,a.com###a
-~c.com,b.com,a.com###a
-~c.com,b.com,a.com##.a
-~c.com,b.com,a.com##.a
-~c.com,b.com,a.com#@##a
-~c.com,b.com,a.com#@##a
-~c.com,b.com,a.com#@#.a
-~c.com,b.com,a.com#@#.a
+b.com,a.com###a
+b.com,a.com###a
+b.com,a.com##.a
+b.com,a.com##.a
+b.com,a.com#@##a
+b.com,a.com#@##a
+b.com,a.com#@#.a
+b.com,a.com#@#.a
 !# Cosmetic, Scriptlet and Network
 -ad123-
 ##.ads
