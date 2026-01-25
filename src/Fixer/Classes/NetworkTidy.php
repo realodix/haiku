@@ -20,6 +20,11 @@ final class NetworkTidy
         private DomainNormalizer $domainNormalizer,
     ) {}
 
+    public function setExperimental(bool $xMode): void
+    {
+        $this->domainNormalizer->xMode = $xMode;
+    }
+
     /**
      * Tidies a network filter rule by normalizing options and sorting domains.
      */

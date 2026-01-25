@@ -11,6 +11,11 @@ final class ElementTidy
         private AdgModifierForElement $adgModifier,
     ) {}
 
+    public function setExperimental(bool $xMode): void
+    {
+        $this->domainNormalizer->xMode = $xMode;
+    }
+
     /**
      * @param string $line The rule line
      * @param array<string> $m The regex match
