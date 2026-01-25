@@ -63,6 +63,78 @@ class GeneralTest extends TestCase
         $this->assertSame($expected, $output);
     }
 
+    #[PHPUnit\Test]
+    public function duplicateRules()
+    {
+        $input = [
+            '-ads-',
+            '-ads-',
+        ];
+        $expected = ['-ads-'];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            '##.ads',
+            '##.ads',
+        ];
+        $expected = ['##.ads'];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            'example.com##.adsHeader',
+            'example.com##.adsHeader',
+        ];
+        $expected = ['example.com##.adsHeader'];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
+    public function duplicateDomain()
+    {
+        $input = [
+            '*$domain=example.com|example.com',
+            'example.com,example.com##.ads',
+        ];
+        $expected = [
+            '*$domain=example.com',
+            'example.com##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            '*$domain=example.com|example.org',
+            '*$domain=example.com',
+            'example.com,example.org##.ads',
+            'example.com##.ads',
+        ];
+        $expected = [
+            '*$domain=example.com|example.org',
+            'example.com,example.org##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
+    public function normalizeDomain()
+    {
+        $input = [
+            '*$domain=A.com|B.com',
+            'A.com,B.com##.ads',
+        ];
+        $expected = [
+            '*$domain=a.com|b.com',
+            'a.com,b.com##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        // regex domain will not affected
+        $input = [
+            '*$domain=/example\.[a-Z]/',
+            '/example\.[a-Z]/##.ads',
+        ];
+        $this->assertSame($input, $this->fix($input));
+    }
+
     /**
      * Remove the blank line
      */
@@ -145,27 +217,6 @@ class GeneralTest extends TestCase
     public function isNotSpecialLine($data)
     {
         $this->assertFalse(app(Processor::class)->isSpecialLine($data));
-    }
-
-    #[PHPUnit\Test]
-    public function normalizeDomain()
-    {
-        $input = [
-            '*$domain=A.com|B.com',
-            'A.com,B.com##.ads',
-        ];
-        $expected = [
-            '*$domain=a.com|b.com',
-            'a.com,b.com##.ads',
-        ];
-        $this->assertSame($expected, $this->fix($input));
-
-        // regex domain will not affected
-        $input = [
-            '*$domain=/example\.[a-Z]/',
-            '/example\.[a-Z]/##.ads',
-        ];
-        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]
