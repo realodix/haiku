@@ -8,7 +8,7 @@ use Illuminate\Container\Container;
 class App
 {
     const NAME = 'Haiku';
-    const VERSION = '1.8.0';
+    const VERSION = '1.8.x';
 
     public static function version(): string
     {
