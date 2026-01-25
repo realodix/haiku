@@ -7,17 +7,10 @@ Haiku is a powerful command-line tool for managing adblock filter lists efficien
 
 ## Features
 
-- **Building**
-    Compiles multiple filter list sources (local files and/or remote URLs) into single unified output files, including regenerating headers metadata and removing unnecessary lines such as comments.
-
-- **Fixing**
-    Normalize, sort, and combine adblock rules to produce cleaner and more maintainable filter lists. Supports multiple adblock syntaxes (Adblock Plus, AdGuard, uBlock Origin, and more).
-
-- **Unified Caching System**
-    Automatically skips unchanged inputs for significantly faster subsequent runs.
-
-- **Configuration via YAML**
-    Control both building and fixing behavior through a single `haiku.yml` file.
+- **Building**: Compiles multiple filter list sources (local files and/or remote URLs) into single unified output files, including regenerating headers metadata and removing unnecessary lines such as comments.
+- **Fixing**: Normalize, sort, and combine adblock rules to produce cleaner and more maintainable filter lists. Supports multiple adblock syntaxes (Adblock Plus, AdGuard, uBlock Origin, and more).
+- **Unified Caching System**: Automatically skips unchanged inputs for significantly faster subsequent runs.
+- **Configuration via YAML**: Control both building and fixing behavior through a single `haiku.yml` file.
 
 The following example demonstrates how Haiku normalizes ordering, combines compatible rules, and removes redundant adblock rules:
 
@@ -27,11 +20,9 @@ The following example demonstrates how Haiku normalizes ordering, combines compa
 example.com##+js(aopw, Fingerprint2)
 -banner-$image,domain=example.org
 -banner-$image,domain=example.com
-*$image,css,script,doc
 b.com,a.com##.ads
 
 !## AFTER
-*$css,doc,image,script
 -banner-$image,domain=example.com|example.org
 a.com,b.com##.ads
 [$domain=a.com|b.com,path=/page.html]##.textad
@@ -116,9 +107,6 @@ builder:
 ```
 
 See [configuration reference](./docs/configuration.md) for more details and [AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/a63c92167c/haiku.yml) for a complete example.
-
-> [!NOTE]
-> You can delete any configurations you don't need. Haiku will use the default values ​​instead.
 
 
 ## Contributing

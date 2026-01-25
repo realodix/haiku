@@ -24,13 +24,13 @@ This means:
 - Each section is optimized in isolation
 
 ```adblock
-! before
+!## BEFORE
 a.com##.ads
 b.com##.ads
 !
 c.com##.ads
 
-! after
+!## AFTER
 a.com,b.com##.ads
 !
 c.com##.ads
@@ -60,22 +60,20 @@ Rules are always sorted in the following order:
 ```
 
 ```adblock
-! before
+!## BEFORE
 example.com##+js(no-xhr-if, adsbygoogle.js)
 ||example.com/ads/images/
 -banner-ads-$~script
 example.com#$#body { background-color: #333!important; }
 ##.ads2
 example.com##.ads1
-example.org#?#div:has(> a[target="_blank"][rel="nofollow"])
 
-! after
+!## AFTER
 -banner-ads-$~script
 ||example.com/ads/images/
 example.com##.ads1
 ##.ads2
 example.com#$#body { background-color: #333!important; }
-example.org#?#div:has(> a[target="_blank"][rel="nofollow"])
 example.com##+js(no-xhr-if, adsbygoogle.js)
 ```
 
@@ -83,12 +81,12 @@ example.com##+js(no-xhr-if, adsbygoogle.js)
 ## Domain List Sorting
 
 ```adblock
-! before
+!## BEFORE
 /ads/*$image,domain=b.com|a.com
 b.com,a.com##.ads
 [$domain=b.com|a.com]###adblock
 
-! after
+!## AFTER
 /ads/*$image,domain=a.com|b.com
 a.com,b.com##.ads
 [$domain=a.com|b.com]###adblock
@@ -97,10 +95,10 @@ a.com,b.com##.ads
 Negated domains will always be put before normal domains:
 
 ```adblock
-! before
+!## BEFORE
 ~d.com,c.com,a.com,~b.com##.ad
 
-! after
+!## AFTER
 ~b.com,~d.com,a.com,c.com##.ad
 ```
 
@@ -108,7 +106,7 @@ Negated domains will always be put before normal domains:
 ## Rule Combining
 
 ```adblock
-! before
+!## BEFORE
 *$image
 *$script
 /ads/*$image,domain=example.com
@@ -116,7 +114,7 @@ Negated domains will always be put before normal domains:
 example.com##.ads
 example.org##.ads
 
-! after
+!## AFTER
 *$image,script
 /ads/*$image,domain=example.com|example.org
 example.com,example.org##.ads
@@ -136,11 +134,11 @@ Options are not sorted purely alphabetically. Instead, they are grouped by seman
 This canonicalization ensures visually predictable rules.
 
 ```adblock
-! before
+!## BEFORE
 *$image,script,css,badfilter
 /ads/*$domain=~example.com,~image,third-party,xmlhttprequest
 
-! after
+!## AFTER
 *$badfilter,css,image,script
 /ads/*$third-party,~image,xmlhttprequest,domain=~example.com
 ```
@@ -150,24 +148,24 @@ This canonicalization ensures visually predictable rules.
 
 ### Duplicates
 ```adblock
-! before
+!## BEFORE
 /ads/*$css,image
 /ads/*$image
 ##.ads
 ##.ads
 
-! after
+!## AFTER
 /ads/*$css,image
 ##.ads
 ```
 
 ```adblock
-! before
+!## BEFORE
 *$image,image
 /ads/*$image,domain=example.com|example.com
 example.com,example.com##.ads
 
-! after
+!## AFTER
 *$image
 /ads/*$image,domain=example.com
 example.com##.ads
@@ -175,42 +173,42 @@ example.com##.ads
 
 ### Lowercase
 ```adblock
-! before
+!## BEFORE
 *$IMAGE
 EXAMPLE.COM##.ad
 
-! after
+!## AFTER
 *$image
 example.com##.ad
 ```
 
 ### Superfluous Separators
 ```adblock
-! before
+!## BEFORE
 /ads/*$image,domain=|example.com||example.org|
 ,example.com,,example.org,##.ads
 
-! after
+!## AFTER
 /ads/*$image,domain=example.com|example.org
 example.com,example.org##.ads
 ```
 
 ### Wrong Separator
 ```adblock
-! before
+!## BEFORE
 example.com|example.org##.ads
 
-! after
+!## AFTER
 example.com,example.org##.ads
 ```
 
 ### Domain Symbol
 ```adblock
-! before
+!## BEFORE
 example.com/##.ads1
 .example.org##.ads2
 
-! after
+!## AFTER
 example.com##.ads1
 example.org##.ads2
 ```
