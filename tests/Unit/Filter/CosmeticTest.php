@@ -195,7 +195,7 @@ class CosmeticTest extends TestCase
             '~d.com,e.com##.ad',
         ];
         $expected = [
-            'a.com,b.com,c.com,~d.com,e.com##.ad',
+            '~d.com,a.com,b.com,c.com,e.com##.ad',
         ];
         $this->assertSame($expected, $this->fix($input));
 
@@ -260,7 +260,7 @@ class CosmeticTest extends TestCase
         $expected = [
             'a.com,b.com##+js(...)',
             '!',
-            'a.com,~a.com,b.com##+js(...)',
+            '~a.com,a.com,b.com##+js(...)',
         ];
         $this->assertSame($expected, $this->fix($input));
 
@@ -274,7 +274,7 @@ class CosmeticTest extends TestCase
         $expected = [
             'a.com,b.com#%#//scriptlet(...)',
             '!',
-            'a.com,~a.com,b.com#%#//scriptlet(...)',
+            '~a.com,a.com,b.com#%#//scriptlet(...)',
         ];
         $this->assertSame($expected, $this->fix($input));
     }

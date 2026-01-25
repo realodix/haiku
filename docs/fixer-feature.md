@@ -92,7 +92,7 @@ a.com,b.com##.ads
 [$domain=a.com|b.com]###adblock
 ```
 
-Negated domains will always be put before normal domains:
+During sorting, negated domains ('~domain') come first, followed by normal domains:
 
 ```adblock
 !## BEFORE

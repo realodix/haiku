@@ -66,7 +66,7 @@ class NetworkTest extends TestCase
             '||example.com^$domain=~d.com|e.com',
         ];
         $expected = [
-            '||example.com^$domain=a.com|b.com|c.com|~d.com|e.com',
+            '||example.com^$domain=~d.com|a.com|b.com|c.com|e.com',
         ];
         $this->assertSame($expected, $this->fix($input));
 

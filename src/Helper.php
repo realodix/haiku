@@ -43,7 +43,7 @@ final class Helper
 
     public static function normalizeDomain(string $domain, string $separator): string
     {
-        // domain is a regex
+        // regex domain, don't touch
         if (str_starts_with($domain, '/') && str_ends_with($domain, '/')) {
             return $domain;
         }
@@ -58,7 +58,7 @@ final class Helper
                 return $domain;
             })->unique()
             ->sortBy(function ($str) {
-                // negated domain is always before normal domain
+                // ensure negated domains ('~') come first
                 if (str_starts_with($str, '~')) {
                     return '/'.$str;
                 }
