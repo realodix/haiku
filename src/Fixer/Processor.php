@@ -94,7 +94,9 @@ final class Processor
             ->all();
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
-        $network = $this->optionCombiner->applyFix($network);
+        if ($xMode) {
+            $network = $this->optionCombiner->applyFix($network);
+        }
         $network = Helper::uniqueSorted(
             $network,
             fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,

@@ -122,7 +122,10 @@ example.com,example.org##.ads
 
 ### Combining Overlapping Options
 
-When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule. This process reduces duplication while preserving the original filtering behavior.
+> [!NOTE]
+> Experimental feature. Use `--x` flag to enable this feature.
+
+When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 
 ```adblock
 !## BEFORE
