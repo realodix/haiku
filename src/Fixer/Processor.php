@@ -22,9 +22,10 @@ final class Processor
      * and combined list.
      *
      * @param array<string> $lines An array of raw filter lines
+     * @param bool $xMode Enable experimental features
      * @return array<string> The processed and optimized list of filter lines
      */
-    public function process(array $lines): array
+    public function process(array $lines, bool $xMode = false): array
     {
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules
@@ -40,7 +41,7 @@ final class Processor
             if ($this->isSpecialLine($line)) {
                 // Write current section if it exists and reset counters
                 if ($section) {
-                    $result = array_merge($result, $this->processSection($section));
+                    $result = array_merge($result, $this->processSection($section, $xMode));
                     $section = [];
                 }
 
@@ -59,7 +60,7 @@ final class Processor
 
         // Write any remaining section
         if ($section) {
-            $result = array_merge($result, $this->processSection($section));
+            $result = array_merge($result, $this->processSection($section, $xMode));
         }
 
         return $result;
@@ -70,9 +71,10 @@ final class Processor
      * and combining them into their final form.
      *
      * @param array<string> $section Tidied filter rules
+     * @param bool $xMode Enable experimental features
      * @return array<string> The processed lines for the section
      */
-    private function processSection(array $section): array
+    private function processSection(array $section, bool $xMode): array
     {
         $cosmetic = [];
         $network = [];

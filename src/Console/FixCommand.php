@@ -31,7 +31,8 @@ class FixCommand extends Command
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to process')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force processing even if file has not changed')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
-            ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file');
+            ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
+            ->addOption('x', null, InputOption::VALUE_NONE, 'Enable experimental features');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -51,6 +52,7 @@ class FixCommand extends Command
             $input->getOption('path'),
             $input->getOption('cache'),
             $input->getOption('config'),
+            $input->getOption('x'),
         );
 
         $stats = $this->fixer->stats();

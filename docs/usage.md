@@ -61,6 +61,8 @@ vendor/bin/haiku fix [options]
   Use a custom configuration file path.
 - `--cache <path>`
   Specify a custom cache directory.
+- `--x`
+  Enable experimental features.
 
 ### Examples
 

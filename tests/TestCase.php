@@ -35,9 +35,9 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    protected function fix(array $value): mixed
+    protected function fix(array $value, bool $xMode = false): mixed
     {
-        return app(Processor::class)->process($value);
+        return app(Processor::class)->process($value, $xMode);
     }
 
     protected function runBuildCommand(array $options = [])
