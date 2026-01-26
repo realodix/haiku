@@ -120,6 +120,22 @@ example.org##.ads
 example.com,example.org##.ads
 ```
 
+### Combining Overlapping Options
+
+When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule. This process reduces duplication while preserving the original filtering behavior.
+
+```adblock
+!## BEFORE
+-ads-$css,image
+-ads-$image
+-banner-$css
+-banner-$image
+
+!## AFTER
+-ads-$css,image
+-banner-$css,image
+```
+
 
 ## Network Option Ordering
 
@@ -149,26 +165,17 @@ This canonicalization ensures visually predictable rules.
 ### Duplicates
 ```adblock
 !## BEFORE
-/ads/*$css,image
-/ads/*$image
-##.ads
-##.ads
-
-!## AFTER
-/ads/*$css,image
-##.ads
-```
-
-```adblock
-!## BEFORE
 *$image,image
 /ads/*$image,domain=example.com|example.com
 example.com,example.com##.ads
+##.banner
+##.banner
 
 !## AFTER
 *$image
 /ads/*$image,domain=example.com
 example.com##.ads
+##.banner
 ```
 
 ### Lowercase
