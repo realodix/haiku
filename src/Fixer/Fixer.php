@@ -107,11 +107,11 @@ final class Fixer
 
     private function hash(string $data): string
     {
-        $v = explode('.', App::version());
-        if (str_starts_with($v[2], 'x')) {
-            $v = $v[2];
+        if (str_contains(App::VERSION, '.x')) {
+            $v = App::version();
         } else {
             // get major and minor version
+            $v = explode('.', App::version());
             $v = implode('.', array_slice($v, 0, 2));
         }
 

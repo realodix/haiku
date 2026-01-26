@@ -12,10 +12,7 @@ class App
 
     public static function version(): string
     {
-        $v = explode('.', self::VERSION);
-        $vPatch = $v[2];
-
-        if ($vPatch === 'x') {
+        if (str_contains(self::VERSION, '.x')) {
             $cRef = InstalledVersions::getReference('realodix/haiku');
 
             if ($cRef === null) {
