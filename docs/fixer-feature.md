@@ -165,20 +165,59 @@ This canonicalization ensures visually predictable rules.
 
 ## Normalization & Cleanup
 
-### Duplicates
+### Duplicate Rules
+
+Removes duplicate rules.
+
 ```adblock
 !## BEFORE
-*$image,image
-/ads/*$image,domain=example.com|example.com
-example.com,example.com##.ads
 ##.banner
+##.ads
 ##.banner
 
 !## AFTER
-*$image
+##.ads
+##.banner
+```
+
+### Duplicate Filter Options
+
+Removes duplicate filter options.
+
+```adblock
+!## BEFORE
+*$image,script,image
+
+!## AFTER
+*$image,script
+```
+
+### Duplicate Domains
+
+Removes duplicate domains.
+
+```adblock
+!## BEFORE
+/ads/*$image,domain=example.com|example.com
+example.com,example.com##.ads
+
+!## AFTER
 /ads/*$image,domain=example.com
 example.com##.ads
-##.banner
+```
+
+### Superfluous Separators
+
+Removes unneeded separators.
+
+```adblock
+!## BEFORE
+/ads/*$image,domain=|example.com||example.org|
+,example.com,,example.org,##.ads
+
+!## AFTER
+/ads/*$image,domain=example.com|example.org
+example.com,example.org##.ads
 ```
 
 ### Lowercase
@@ -192,17 +231,6 @@ EXAMPLE.COM##.ad
 example.com##.ad
 ```
 
-### Superfluous Separators
-```adblock
-!## BEFORE
-/ads/*$image,domain=|example.com||example.org|
-,example.com,,example.org,##.ads
-
-!## AFTER
-/ads/*$image,domain=example.com|example.org
-example.com,example.org##.ads
-```
-
 ### Wrong Separator
 ```adblock
 !## BEFORE
@@ -213,6 +241,9 @@ example.com,example.org##.ads
 ```
 
 ### Domain Symbol
+
+Removes unnecessary symbols from the domain.
+
 ```adblock
 !## BEFORE
 example.com/##.ads1
