@@ -75,7 +75,7 @@ final class DomainNormalizer
         return $domains->reject(function ($d) use ($wildcardBases) {
             if (str_starts_with($d, '~') // don't touch negated domains
                 || str_ends_with($d, '.*') // keep wildcard domains
-                // although IP never uses wildcards, we assume that the input is not always correct
+                // IP never uses wildcard, but we assume the input is not always correct
                 || filter_var($d, FILTER_VALIDATE_IP) !== false
             ) {
                 return false;
