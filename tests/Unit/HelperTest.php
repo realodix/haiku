@@ -23,12 +23,4 @@ class HelperTest extends TestCase
     {
         $this->assertFalse(Helper::isCosmeticRule($data));
     }
-
-    #[PHPUnit\TestWith(['.example.com/', 'example.com'])]
-    #[PHPUnit\TestWith(['/example.com', 'example.com'])]
-    #[PHPUnit\Test]
-    public function cleanDomain($input, $expected)
-    {
-        $this->assertSame($expected, Helper::cleanDomain($input));
-    }
 }

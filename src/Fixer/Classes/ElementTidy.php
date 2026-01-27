@@ -3,11 +3,11 @@
 namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Helper;
 
 final class ElementTidy
 {
     public function __construct(
+        private DomainNormalizer $domainNormalizer,
         private AdgModifierForElement $adgModifier,
     ) {}
 
@@ -57,7 +57,7 @@ final class ElementTidy
             $str = str_replace('|', ',', $str);
         }
 
-        return Helper::normalizeDomain($str, ',');
+        return $this->domainNormalizer->applyFix($str, ',');
     }
 
     private function normalizeSelector(string $str): string

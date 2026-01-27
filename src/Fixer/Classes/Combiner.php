@@ -3,10 +3,13 @@
 namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\ValueObject\DomainSection;
-use Realodix\Haiku\Helper;
 
 final class Combiner
 {
+    public function __construct(
+        private DomainNormalizer $domainNormalizer,
+    ) {}
+
     /**
      * Combines domains for (further) identical rules.
      *
@@ -65,7 +68,7 @@ final class Combiner
     {
         $newDomain = $currentDomain.$separator.$nextDomain;
 
-        return Helper::normalizeDomain($newDomain, $separator);
+        return $this->domainNormalizer->applyFix($newDomain, $separator);
     }
 
     /**

@@ -16,6 +16,10 @@ final class NetworkTidy
         'domain', 'from', 'to', 'denyallow', 'method',
     ];
 
+    public function __construct(
+        private DomainNormalizer $domainNormalizer,
+    ) {}
+
     /**
      * Tidies a network filter rule by normalizing options and sorting domains.
      */
@@ -75,7 +79,7 @@ final class NetworkTidy
                 continue;
             }
 
-            $optionList[] = $name.'='.Helper::normalizeDomain($values[0], '|');
+            $optionList[] = $name.'='.$this->domainNormalizer->applyFix($values[0], '|');
         }
 
         // 3. Transform, Remove duplicates and sort options by priority
