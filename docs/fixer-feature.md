@@ -7,14 +7,14 @@ The fixer preserves certain lines verbatim and never modifies their content, for
 
 In addition to being preserved, these lines also act as section boundaries. They explicitly separate rule blocks and prevent rules from being sorted, combined, or deduplicated across the boundary.
 
-### Types
+### # Types
 
 The following lines are preserved unchanged and treated as section separators:
 
 - Comments (`! comment` or `# comment`)
 - Preprocessor directives (`!#include /includedfile.txt`, `!#if (conditions)` , etc)
 
-### Section Boundary Behavior
+### # Section Boundary Behavior
 
 Rules located on different sides of a preserved line are processed independently.
 
@@ -38,7 +38,7 @@ c.com##.ads
 
 In the example above, the comment line (`!`) acts as a hard separator. Although all three rules are compatible, `c.com##.ads` cannot be merged with the rules above because it belongs to a different section.
 
-### Rationale
+### # Rationale
 
 This behavior preserves:
 - Intentional grouping created by the filter author
@@ -92,7 +92,7 @@ a.com,b.com##.ads
 [$domain=a.com|b.com]###adblock
 ```
 
-During sorting, negated domains ('~domain') come first, followed by normal domains:
+During sorting, negated domains (`~domain`) come first, followed by normal domains:
 
 ```adblock
 !## BEFORE
@@ -120,7 +120,7 @@ example.org##.ads
 example.com,example.org##.ads
 ```
 
-### Combining Overlapping Options
+### # Combining Overlapping Options
 
 > [!NOTE]
 > Experimental feature. Use `--x` flag to enable this feature.
@@ -155,17 +155,17 @@ This canonicalization ensures visually predictable rules.
 ```adblock
 !## BEFORE
 *$image,script,css,badfilter
-/ads/*$domain=~example.com,~image,third-party,xmlhttprequest
+-ads-$domain=~example.com,~image,third-party,xmlhttprequest
 
 !## AFTER
 *$badfilter,css,image,script
-/ads/*$third-party,~image,xmlhttprequest,domain=~example.com
+-ads-$third-party,~image,xmlhttprequest,domain=~example.com
 ```
 
 
 ## Normalization & Cleanup
 
-### Duplicate Rules
+### # Duplicate Rules
 
 Removes duplicate rules.
 
@@ -180,7 +180,7 @@ Removes duplicate rules.
 ##.banner
 ```
 
-### Duplicate Filter Options
+### # Duplicate Filter Options
 
 Removes duplicate filter options.
 
@@ -192,7 +192,7 @@ Removes duplicate filter options.
 *$image,script
 ```
 
-### Duplicate Domains
+### # Duplicate Domains
 
 Removes duplicate domains.
 
@@ -206,7 +206,7 @@ example.com,example.com##.ads
 example.com##.ads
 ```
 
-### Superfluous Separators
+### # Superfluous Separators
 
 Removes unneeded separators.
 
@@ -220,7 +220,7 @@ Removes unneeded separators.
 example.com,example.org##.ads
 ```
 
-### Lowercase
+### # Lowercase
 ```adblock
 !## BEFORE
 *$IMAGE
@@ -231,7 +231,7 @@ EXAMPLE.COM##.ad
 example.com##.ad
 ```
 
-### Wrong Separator
+### # Wrong Separator
 ```adblock
 !## BEFORE
 example.com|example.org##.ads
@@ -240,16 +240,18 @@ example.com|example.org##.ads
 example.com,example.org##.ads
 ```
 
-### Domain Symbol
+### # Domain Symbol
 
 Removes unnecessary symbols from the domain.
 
 ```adblock
 !## BEFORE
-example.com/##.ads1
+-ads-$domain=example.com/
+/example.com##.ads1
 .example.org##.ads2
 
 !## AFTER
+-ads-$domain=example.com
 example.com##.ads1
 example.org##.ads2
 ```
