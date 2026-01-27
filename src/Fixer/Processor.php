@@ -10,12 +10,19 @@ use Realodix\Haiku\Helper;
 
 final class Processor
 {
+    private bool $xMode;
+
     public function __construct(
         private Combiner $combiner,
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
         private NetOptionCombiner $optionCombiner,
     ) {}
+
+    public function setExperimental(bool $xMode): void
+    {
+        $this->xMode = $xMode;
+    }
 
     /**
      * Processes an array of filter lines, optimizing them into a sorted
@@ -27,6 +34,8 @@ final class Processor
      */
     public function process(array $lines, bool $xMode = false): array
     {
+        $this->setExperimental($xMode);
+
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules
 
@@ -41,7 +50,7 @@ final class Processor
             if ($this->isSpecialLine($line)) {
                 // Write current section if it exists and reset counters
                 if ($section) {
-                    $result = array_merge($result, $this->processSection($section, $xMode));
+                    $result = array_merge($result, $this->processSection($section));
                     $section = [];
                 }
 
@@ -60,7 +69,7 @@ final class Processor
 
         // Write any remaining section
         if ($section) {
-            $result = array_merge($result, $this->processSection($section, $xMode));
+            $result = array_merge($result, $this->processSection($section));
         }
 
         return $result;
@@ -71,10 +80,9 @@ final class Processor
      * and combining them into their final form.
      *
      * @param array<string> $section Tidied filter rules
-     * @param bool $xMode Enable experimental features
      * @return array<string> The processed lines for the section
      */
-    private function processSection(array $section, bool $xMode): array
+    private function processSection(array $section): array
     {
         $cosmetic = [];
         $network = [];
@@ -94,7 +102,7 @@ final class Processor
             ->all();
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
-        if ($xMode) {
+        if ($this->xMode) {
             $network = $this->optionCombiner->applyFix($network);
         }
         $network = Helper::uniqueSorted(
