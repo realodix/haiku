@@ -9,7 +9,6 @@
         "php": "^8.4",
         "illuminate/container": "^12.45",
         "illuminate/support": "^12.45",
-        "nesbot/carbon": "^3.11",
         "nette/schema": "^1.3",
         "symfony/console": "^8.0",
         "symfony/filesystem": "^8.0",
