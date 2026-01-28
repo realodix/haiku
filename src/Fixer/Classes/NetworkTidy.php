@@ -158,12 +158,13 @@ final class NetworkTidy
         }
 
         // P3: options that support values
-        if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
-            || str_starts_with($option, 'from=') || str_starts_with($option, 'to=')
-            || str_starts_with($option, 'ipaddress=')) {
-            return '5'.$option;
-        }
         if (str_contains($option, '=')) {
+            if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
+                || str_starts_with($option, 'from=') || str_starts_with($option, 'to=')
+                || str_starts_with($option, 'ipaddress=')) {
+                return '5'.$option;
+            }
+
             return '4'.$option;
         }
 
