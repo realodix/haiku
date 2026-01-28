@@ -10,6 +10,11 @@ final class Combiner
         private DomainNormalizer $domainNormalizer,
     ) {}
 
+    public function setExperimental(bool $xMode): void
+    {
+        $this->domainNormalizer->xMode = $xMode;
+    }
+
     /**
      * Combines domains for (further) identical rules.
      *

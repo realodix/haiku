@@ -206,6 +206,41 @@ example.com,example.com##.ads
 example.com##.ads
 ```
 
+### # Domain Redundancy Elimination
+
+> [!NOTE]
+> Experimental feature. Use `--x` flag to enable this feature.
+
+Haiku performs additional domain redundancy elimination to remove semantically redundant domain rules.
+
+#### Wildcard Domain Coverage
+
+If a wildcard TLD domain is present, all explicit domains with the same base are considered redundant.
+
+```adblock
+!## BEFORE
+example.com,~example.net,example.*##.ads
+
+!## AFTER
+~example.net,example.*##.ads
+```
+
+Explicit domains covered by a wildcard domain are removed. Negated domains are preserved.
+
+#### Subdomain Coverage
+
+If a base domain is present, its subdomains are considered redundant.
+
+```adblock
+!## BEFORE
+example.com,~ads.example.com,api.example.com,example.org##.ads
+
+!## AFTER
+~ads.example.com,example.com,example.org##.ads
+```
+
+Subdomains covered by a base domain are removed. Negated domains are preserved.
+
 ### # Superfluous Separators
 
 Removes unneeded separators.

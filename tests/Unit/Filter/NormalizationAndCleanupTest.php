@@ -78,4 +78,68 @@ class NormalizationAndCleanupTest extends TestCase
         ];
         $this->assertSame($input, $this->fix($input));
     }
+
+    #[PHPUnit\Test]
+    public function wildcardDomainCoverage()
+    {
+        $input = [
+            '*$domain=example.com|~example.net|example.*',
+            'example.com,~example.net,example.*##.ads',
+        ];
+        $expected = [
+            '*$domain=~example.net|example.*',
+            '~example.net,example.*##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input, true));
+
+        $input = [
+            '*$domain=api.example.com|example.*',
+            'api.example.com,example.*##.ads',
+        ];
+        $this->assertSame($input, $this->fix($input, true));
+
+        $input = [
+            '*$domain=example.com|~example.net',
+            '*$domain=example.*',
+            'example.com,example.*##.ads',
+            '~example.net##.ads',
+        ];
+        $expected = [
+            '*$domain=~example.net|example.*',
+            'example.*##.ads',
+            '~example.net##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input, true));
+
+        // Just in case the user enters invalid input
+        $input = ['192.*,192.168.1.1##.ads'];
+        $this->assertSame($input, $this->fix($input, true));
+    }
+
+    #[PHPUnit\Test]
+    public function subdomainCoverage()
+    {
+        $input = [
+            '*$domain=example.com|~ads.example.com|api.example.com|example.org',
+            'example.com,~ads.example.com,api.example.com,example.org##.ads',
+        ];
+        $expected = [
+            '*$domain=~ads.example.com|example.com|example.org',
+            '~ads.example.com,example.com,example.org##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input, true));
+
+        $input = [
+            '*$domain=example.com|~ads.example.com|api.example.com',
+            '*$domain=example.org',
+            'example.com,api.example.com,example.org##.ads',
+            '~ads.example.com##.ads',
+        ];
+        $expected = [
+            '*$domain=~ads.example.com|example.com|example.org',
+            'example.com,example.org##.ads',
+            '~ads.example.com##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input, true));
+    }
 }

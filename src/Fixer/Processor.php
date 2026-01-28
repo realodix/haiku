@@ -22,6 +22,9 @@ final class Processor
     public function setExperimental(bool $xMode): void
     {
         $this->xMode = $xMode;
+        $this->elementTidy->setExperimental($xMode);
+        $this->networkTidy->setExperimental($xMode);
+        $this->combiner->setExperimental($xMode);
     }
 
     /**
