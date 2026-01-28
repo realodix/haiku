@@ -21,7 +21,7 @@ final class DomainNormalizer
                 return self::cleanDomain($domain);
             });
 
-        // DomainCoverageReducer
+        // Domain Coverage Reducer
         if ($this->xMode) {
             $domains = self::removeWildcardCoveredDomains($domains);
             $domains = self::removeSubdomainCoveredDomains($domains);
