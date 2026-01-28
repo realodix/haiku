@@ -111,6 +111,7 @@ class NormalizationAndCleanupTest extends TestCase
         ];
         $this->assertSame($expected, $this->fix($input, true));
 
+        // Just in case the user enters invalid input
         $input = ['192.*,192.168.1.1##.ads'];
         $this->assertSame($input, $this->fix($input, true));
     }
