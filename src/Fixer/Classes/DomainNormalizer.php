@@ -18,14 +18,12 @@ final class DomainNormalizer
             ->map(function ($str) {
                 $domain = strtolower($str);
 
-                return self::cleanDomain($domain);
+                return $this->cleanDomain($domain);
             });
 
         // Domain Coverage Reducer
-        if ($this->xMode) {
-            $domains = self::removeWildcardCoveredDomains($domains);
-            $domains = self::removeSubdomainCoveredDomains($domains);
-        }
+        $domains = $this->removeWildcardCoveredDomains($domains);
+        $domains = $this->removeSubdomainCoveredDomains($domains);
 
         return $domains->unique()->sortBy(function ($str) {
             // ensure negated domains ('~') come first
@@ -60,8 +58,12 @@ final class DomainNormalizer
      * @param \Illuminate\Support\Collection<int, string> $domains
      * @return \Illuminate\Support\Collection<int, string>
      */
-    public static function removeWildcardCoveredDomains($domains)
+    private function removeWildcardCoveredDomains($domains)
     {
+        if ($this->xMode === false) {
+            return $domains;
+        }
+
         // collect wildcard bases: example.*
         $wildcardBases = $domains
             ->filter(fn($d) => !str_starts_with($d, '~') && str_ends_with($d, '.*'))
@@ -96,8 +98,12 @@ final class DomainNormalizer
      * @param \Illuminate\Support\Collection<int, string> $domains
      * @return \Illuminate\Support\Collection<int, string>
      */
-    public static function removeSubdomainCoveredDomains($domains)
+    private function removeSubdomainCoveredDomains($domains)
     {
+        if ($this->xMode === false) {
+            return $domains;
+        }
+
         // collect base domains (non-negated, non-wildcard)
         $baseDomains = $domains
             ->filter(fn($d) => !str_starts_with($d, '~')
