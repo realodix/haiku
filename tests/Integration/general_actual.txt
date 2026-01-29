@@ -55,6 +55,12 @@ example.com$@$script[tag-content="banner"]
 ###ads
 ##div
 ##.ads
-!# Network
-||example.com^$3p,1p,all,badfilter,css,stylesheet,cname,denyallow=x.com|y.com,domain=a.com|b.com,document,doc,from=a.com|b.com,elemhide,ehide,first-party,frame,subdocument,generichide,ghide,header=via:1.1 google,important,inline-script,inline-font,csp=script-src 'none',ipaddress=/^139\.45\.19[5-7]\./,match-case,method=post|get,permissions=oversized-images=()|unsized-media=(),ping,popunder,shide,specifichide,strict3p,strict1p,to=google.*|gstatic.com,xhr,xmlhttprequest,redirect=noopjs:100,redirect-rule=noopjs,removeparam=utm_source,replace=/(<VAST[\s\S]*?>)[\s\S]*<\/VAST>/\$1<\/VAST>/i
-*$script,header=via:/1\.1\s+google/
+!# Network Modifiers
+$domain=a.com|b.com,urltransform=/(pref\/).*\/(suf)/\$1\$2/i,css,uritransform=/X/Y/
+/BannerAd1.$xmlhttprequest,websocket,to=~good.com|~good.org,third-party,subdocument,stylesheet,strict-third-party,strict-first-party,script,popup,popunder,ping,other,object,method=get|head,media,match-case,ipaddress=/^139\.45\.19[5-7]\./,important,image,header=set-cookie:foo,font,first-party,domain=a.com|b.com,document,denyallow=x.com|y.com,app=org.example.app1|org.example.app2
+/BannerAd1/alias-$xhr,websocket,to=~good.com|~good.org,strict3p,strict1p,script,popup,ping,other,object,method=get|head,media,match-case,important,image,header=set-cookie:foo,from=a.com|b.com,frame,font,doc,denyallow=x.com|y.com,css,app=org.example.app1|org.example.app2,3p,1p
+/BannerAd2.$xmlprune=/bookstore/book[position() mod 2 = 1],removeparam=/^(utm_source|utm_medium|utm_term)=/,removeheader=location,referrerpolicy=unsafe-url,redirect=noopjs:100,redirect-rule=noopjs,permissions=autoplay=(),network,jsonprune=\$.elems[?(key-eq "\$.a.b.c" "abc")],inline-script,inline-font,hls=/\/videoplayback\/?\?.*\&source=dclk_video_ads/i,csp=frame-src 'none',cookie=NAME;maxAge=3600;sameSite=lax,badfilter,all
+/BannerAd3.$_,removeparam=/^ss\\$/,_,image,reason="Tracker",replace=/X/Y/,domain=a.com
+/exception-$generichide,content,urlblock,stealth=3p-cookie|dpi,jsinject,extension="AdGuard Assistant",specifichide,elemhide,genericblock
+/exception/alias-$ghide,content,urlblock,stealth=3p-cookie|dpi,jsinject,extension="AdGuard Assistant",shide,ehide,genericblock
+[$url=||example.com/content/*path=page.html,domain=example.com|example.org,app=org.example.app]example.com##.textad

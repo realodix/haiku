@@ -152,12 +152,12 @@ class GeneralTest extends TestCase
     {
         // escape comma
         $input = [
-            '$permissions=storage-access=()\, camera=(),domain=b.com|a.com,image',
-            '||example.org^$domain=/a\,b/,hls=/#UPLYNK-SEGMENT:.*\,ad/t',
+            '$permissions=storage-access=()\, camera=(),domain=b.com|a.com,image,extension="userscript name\, with \"quote\""',
+            '||example.org^$domain=/a\,b/,hls=/#UPLYNK-SEGMENT:.*\,ad/t,extension="userscript name\, with \"quote\""',
         ];
         $expected = [
-            '$image,permissions=storage-access=()\, camera=(),domain=a.com|b.com',
-            '||example.org^$hls=/#UPLYNK-SEGMENT:.*\,ad/t,domain=/a\,b/',
+            '$image,extension="userscript name\, with \"quote\"",permissions=storage-access=()\, camera=(),domain=a.com|b.com',
+            '||example.org^$extension="userscript name\, with \"quote\"",hls=/#UPLYNK-SEGMENT:.*\,ad/t,domain=/a\,b/',
         ];
         $this->assertSame($expected, $this->fix($input));
 

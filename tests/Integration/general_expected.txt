@@ -45,6 +45,12 @@ $@$script[tag-content="banner"]
 example.com$@$script[tag-content="banner"]
 [$path=/page.html]##selector
 example.com##+js(nobab)
-!# Network
-*$script,header=via:/1\.1\s+google/
-||example.com^$badfilter,important,match-case,strict1p,strict3p,1p,3p,first-party,all,cname,css,doc,document,ehide,elemhide,frame,generichide,ghide,inline-font,inline-script,ping,popunder,shide,specifichide,stylesheet,subdocument,xhr,xmlhttprequest,csp=script-src 'none',header=via:1.1 google,method=get|post,permissions=oversized-images=()|unsized-media=(),redirect-rule=noopjs,redirect=noopjs:100,removeparam=utm_source,replace=/(<VAST[\s\S]*?>)[\s\S]*<\/VAST>/\$1<\/VAST>/i,denyallow=x.com|y.com,domain=a.com|b.com,from=a.com|b.com,ipaddress=/^139\.45\.19[5-7]\./,to=google.*|gstatic.com
+!# Network Modifiers
+$css,uritransform=/X/Y/,urltransform=/(pref\/).*\/(suf)/\$1\$2/i,domain=a.com|b.com
+/BannerAd1.$important,match-case,strict-first-party,strict-third-party,first-party,third-party,document,font,image,media,object,other,ping,popunder,popup,script,stylesheet,subdocument,websocket,xmlhttprequest,app=org.example.app1|org.example.app2,header=set-cookie:foo,method=get|head,denyallow=x.com|y.com,domain=a.com|b.com,ipaddress=/^139\.45\.19[5-7]\./,to=~good.com|~good.org
+/BannerAd1/alias-$important,match-case,strict1p,strict3p,1p,3p,css,doc,font,frame,image,media,object,other,ping,popup,script,websocket,xhr,app=org.example.app1|org.example.app2,header=set-cookie:foo,method=get|head,denyallow=x.com|y.com,from=a.com|b.com,to=~good.com|~good.org
+/BannerAd2.$badfilter,all,inline-font,inline-script,network,cookie=NAME;maxAge=3600;sameSite=lax,csp=frame-src 'none',hls=/\/videoplayback\/?\?.*\&source=dclk_video_ads/i,jsonprune=\$.elems[?(key-eq "\$.a.b.c" "abc")],permissions=autoplay=(),redirect-rule=noopjs,redirect=noopjs:100,referrerpolicy=unsafe-url,removeheader=location,removeparam=/^(utm_source|utm_medium|utm_term)=/,xmlprune=/bookstore/book[position() mod 2 = 1]
+/BannerAd3.$image,removeparam=/^ss\\$/,_,replace=/X/Y/,domain=a.com,reason="Tracker"
+/exception-$content,elemhide,genericblock,generichide,jsinject,specifichide,urlblock,extension="AdGuard Assistant",stealth=3p-cookie|dpi
+/exception/alias-$content,ehide,genericblock,ghide,jsinject,shide,urlblock,extension="AdGuard Assistant",stealth=3p-cookie|dpi
+[$app=org.example.app,domain=example.com|example.org,url=||example.com/content/*path=page.html]example.com##.textad
