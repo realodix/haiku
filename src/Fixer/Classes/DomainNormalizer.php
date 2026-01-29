@@ -9,7 +9,7 @@ final class DomainNormalizer
     public function applyFix(string $domainStr, string $separator): string
     {
         // regex domain, don't touch
-        if (str_starts_with($domainStr, '/') && str_ends_with($domainStr, '/')) {
+        if ($this->containsRegexDomain($domainStr)) {
             return $domainStr;
         }
 
@@ -129,5 +129,11 @@ final class DomainNormalizer
 
             return false;
         });
+    }
+
+    private function containsRegexDomain(string $domainStr): bool
+    {
+        return str_starts_with($domainStr, '/') && str_ends_with($domainStr, '/')
+            || str_contains($domainStr, '/') && preg_match('/[\\^([{$\\\]/', $domainStr);
     }
 }
