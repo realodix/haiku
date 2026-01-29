@@ -296,17 +296,4 @@ class NetworkTest extends TestCase
             ],
         ];
     }
-
-    #[PHPUnit\Test]
-    public function handle_nonAscii(): void
-    {
-        // https://github.com/AdguardTeam/tsurlfilter/blob/8a529d173b/packages/agtree/test/parser/misc/modifier-list.test.ts#L775
-        $input = [
-            '$foo=你好,bar=世界',
-        ];
-        $expected = [
-            '$bar=世界,foo=你好',
-        ];
-        $this->assertSame($expected, $this->fix($input));
-    }
 }

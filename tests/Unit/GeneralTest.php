@@ -191,6 +191,20 @@ class GeneralTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
+    #[PHPUnit\Test]
+    public function handle_nonAscii(): void
+    {
+        $input = [
+            '$domain=éxample.com|färgbolaget.nu|jõulud.eu',
+            'éxample.com,färgbolaget.nu,jõulud.eu##.ads',
+        ];
+        $expected = [
+            '$domain=färgbolaget.nu|jõulud.eu|éxample.com',
+            'färgbolaget.nu,jõulud.eu,éxample.com##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
     /**
      * The results must not cause warnings/errors
      */
