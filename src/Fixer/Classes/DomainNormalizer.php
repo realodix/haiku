@@ -6,14 +6,14 @@ final class DomainNormalizer
 {
     public bool $xMode;
 
-    public function applyFix(string $domain, string $separator): string
+    public function applyFix(string $domainStr, string $separator): string
     {
         // regex domain, don't touch
-        if (str_starts_with($domain, '/') && str_ends_with($domain, '/')) {
-            return $domain;
+        if (str_starts_with($domainStr, '/') && str_ends_with($domainStr, '/')) {
+            return $domainStr;
         }
 
-        $domains = collect(explode($separator, $domain))
+        $domains = collect(explode($separator, $domainStr))
             ->filter(fn($d) => $d !== '')
             ->map(function ($str) {
                 $domain = strtolower($str);
