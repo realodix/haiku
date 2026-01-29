@@ -41,7 +41,7 @@ class TypoTest extends TestCase
     #[PHPUnit\Test]
     public function domain_wrong_separator($actual, $expected): void
     {
-        $this->assertSame($expected, $this->fix($actual));
+        $this->assertSame($expected, $this->fix($actual, true));
     }
 
     public static function domainWrongSeparatorProvider(): array
@@ -51,11 +51,31 @@ class TypoTest extends TestCase
                 ['a.com|b.com##.ads'],
                 ['a.com,b.com##.ads'],
             ],
+            [
+                ['||example.com^$domain=a.com,b.com,css'],
+                ['||example.com^$css,domain=a.com|b.com'],
+            ],
 
             // ensure that it can still be combined
             [
                 ['a.com|c.com##.ads', 'b.com##.ads'],
                 ['a.com,b.com,c.com##.ads'],
+            ],
+            [
+                ['||example.com^$domain=a.com,c.com,css', '||example.com^$domain=b.com,css'],
+                ['||example.com^$css,domain=a.com|b.com|c.com'],
+            ],
+
+            // contains regex, will be skipped
+            [
+                [
+                    '$domain=a.com,c.com|/[a-z]{,3}/,css',
+                    'a.com|b.com,/(com|org)/##.ads',
+                ],
+                [
+                    '$css,domain=a.com,c.com|/[a-z]{,3}/',
+                    'a.com|b.com,/(com|org)/##.ads',
+                ],
             ],
         ];
     }

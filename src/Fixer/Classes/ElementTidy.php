@@ -49,20 +49,10 @@ final class ElementTidy
         }
 
         $modifier = $this->adgModifier->applyFix($modifier);
-        $domain = $this->normalizeDomain($domain);
+        $domain = $this->domainNormalizer->applyFix($domain, ',');
         $selector = $this->normalizeSelector($selector);
 
         return $modifier.$domain.$separator.$selector;
-    }
-
-    private function normalizeDomain(string $str): string
-    {
-        // fix incorrect domain separators when they do not contain regex
-        if (!str_contains($str, '/') && str_contains($str, '|')) {
-            $str = str_replace('|', ',', $str);
-        }
-
-        return $this->domainNormalizer->applyFix($str, ',');
     }
 
     private function normalizeSelector(string $str): string
