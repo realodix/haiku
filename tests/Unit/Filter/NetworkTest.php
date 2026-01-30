@@ -165,28 +165,39 @@ class NetworkTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
+    #[PHPUnit\DataProvider('optDomainValuesAreSortedProvider')]
     #[PHPUnit\Test]
-    public function optDomain_values_are_sorted(): void
+    public function optDomain_values_are_sorted(array $input, array $expected): void
     {
-        $input = ['$domain=~d.com|c.com|a.com|~b.com'];
-        $expected = ['$domain=~b.com|~d.com|a.com|c.com'];
         $this->assertSame($expected, $this->fix($input));
+    }
 
-        $input = ['$from=~d.com|c.com|a.com|~b.com,to=~d.com|c.com|a.com|~b.com'];
-        $expected = ['$from=~b.com|~d.com|a.com|c.com,to=~b.com|~d.com|a.com|c.com'];
-        $this->assertSame($expected, $this->fix($input));
+    public static function optDomainValuesAreSortedProvider(): array
+    {
+        return [
+            [
+                ['$domain=~d.com|c.com|a.com|~b.com'],
+                ['$domain=~b.com|~d.com|a.com|c.com'],
+            ],
+            [
+                ['$from=~d.com|c.com|a.com|~b.com,to=~d.com|c.com|a.com|~b.com'],
+                ['$from=~b.com|~d.com|a.com|c.com,to=~b.com|~d.com|a.com|c.com'],
+            ],
+            [
+                ['$denyallow=~d.com|c.com|a.com|~b.com'],
+                ['$denyallow=~b.com|~d.com|a.com|c.com'],
+            ],
+            [
+                ['$method=post|~get|delete'],
+                ['$method=~get|delete|post'],
+            ],
 
-        $input = ['$denyallow=~d.com|c.com|a.com|~b.com'];
-        $expected = ['$denyallow=~b.com|~d.com|a.com|c.com'];
-        $this->assertSame($expected, $this->fix($input));
-
-        $input = ['$method=post|~get|delete'];
-        $expected = ['$method=~get|delete|post'];
-        $this->assertSame($expected, $this->fix($input));
-
-        // syntax is wrong, but Haiku doesn't error
-        $input = ['$domain'];
-        $this->assertSame($input, $this->fix($input));
+            // The syntax is incorrect, but Haiku should not throw an error.
+            [
+                ['$domain'],
+                ['$domain'],
+            ],
+        ];
     }
 
     #[PHPUnit\Test]
