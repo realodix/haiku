@@ -10,6 +10,10 @@ use Realodix\Haiku\Helper;
  */
 final class AdgModifierForElement
 {
+    public function __construct(
+        private NetworkTidy $networkTidy,
+    ) {}
+
     public function applyFix(string $str): string
     {
         // unwrap  `[` and `]`
@@ -28,7 +32,7 @@ final class AdgModifierForElement
             $parsed[$key] = [];
         }
 
-        foreach (preg_split(Regex::NET_OPTION_SPLIT, $modifiers) as $option) {
+        foreach ($this->networkTidy->splitOptions($modifiers) as $option) {
             $parts = explode('=', $option, 2);
             $name = ltrim($parts[0], '~');
             $value = $parts[1] ?? null;

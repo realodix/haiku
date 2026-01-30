@@ -8,6 +8,40 @@ use Realodix\Haiku\Helper;
 final class NetworkTidy
 {
     /**
+     * A list of known options.
+     *
+     * https://github.com/gorhill/uBlock/blob/2a0842f17/src/js/static-filtering-parser.js#L3132
+     *
+     * @var array<string>
+     */
+    const KNOWN_OPTIONS = [
+        // must assign values
+        'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason',
+        'redirect-rule', 'redirect', 'replace', 'rewrite', 'to', 'urlskip', 'urltransform', 'uritransform',
+
+        // basic
+        'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font',
+        'inline-script', 'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
+        '1p', 'first-party', 'strict1p', 'strict-first-party', '3p', 'third-party', 'strict3p', 'strict-third-party',
+        'css', 'stylesheet', 'doc', 'document', 'ehide', 'elemhide', 'frame', 'subdocument', 'ghide', 'generichide',
+        'object', 'object-subrequest', 'ping', 'beacon', 'removeparam', 'queryprune', 'shide', 'specifichide',
+        'xhr', 'xmlhttprequest',
+
+        // deprecated
+        'empty', 'mp4', 'webrtc',
+    ];
+
+    /**
+     * A list of known options from AdGuard.
+     *
+     * @var array<string>
+     */
+    const ADG_KNOWN_OPTIONS = [
+        'app', 'content', 'cookie', 'extension', 'hls', 'jsinject', 'jsonprune', 'network', 'path',
+        'removeheader', 'referrerpolicy', 'stealth', 'url', 'urlblock', 'xmlprune',
+    ];
+
+    /**
      * A list of options that can have multiple values.
      *
      * @var array<string>
@@ -41,6 +75,20 @@ final class NetworkTidy
     }
 
     /**
+     * Splits a network filter's options.
+     *
+     * @param string $optionString Raw option string
+     * @return array<string>
+     */
+    public function splitOptions(string $optionString): array
+    {
+        $knownOptions = array_merge(self::KNOWN_OPTIONS, self::ADG_KNOWN_OPTIONS, [',']);
+        $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOptions).')\b|$)/i';
+
+        return preg_split($pattern, $optionString);
+    }
+
+    /**
      * Normalizes and sorts the network filter options.
      *
      * @param string $optionString Parsed options from parseOptions()
@@ -58,7 +106,7 @@ final class NetworkTidy
         }
 
         // 1. Split raw option string and classify each option.
-        foreach (preg_split(Regex::NET_OPTION_SPLIT, $optionString) as $option) {
+        foreach ($this->splitOptions($optionString) as $option) {
             $parts = explode('=', $option, 2);
             $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;

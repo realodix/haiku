@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Regex;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Test\TestCase;
 
@@ -110,9 +111,10 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function network_option_split($string, $expected)
     {
-        $v = preg_split(Regex::NET_OPTION_SPLIT, $string);
-
-        $this->assertSame($expected, $v);
+        $this->assertSame(
+            $expected,
+            $this->callPrivateMethod(app(NetworkTidy::class), 'splitOptions', [$string]),
+        );
     }
 
     public static function network_option_split_provider()

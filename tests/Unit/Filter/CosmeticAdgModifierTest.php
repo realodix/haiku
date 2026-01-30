@@ -199,7 +199,7 @@ class CosmeticAdgModifierTest extends TestCase
     {
         $this->assertSame(
             $expected,
-            $this->callPrivateMethod(new AdgModifierForElement, 'extract', [$actual]),
+            $this->callPrivateMethod(app(AdgModifierForElement::class), 'extract', [$actual]),
         );
     }
 
@@ -307,7 +307,7 @@ class CosmeticAdgModifierTest extends TestCase
     {
         $this->assertSame(
             $expected,
-            $this->callPrivateMethod(new AdgModifierForElement, 'extract', [$actual]),
+            $this->callPrivateMethod(app(AdgModifierForElement::class), 'extract', [$actual]),
         );
     }
 
