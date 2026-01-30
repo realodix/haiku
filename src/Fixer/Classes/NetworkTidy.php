@@ -43,10 +43,11 @@ final class NetworkTidy
     /**
      * A list of options that can have multiple values.
      *
-     * @var array<string>
+     * @var array<string, array<mixed>>
      */
     const MULTI_VALUE = [
-        'domain', 'from', 'to', 'denyallow', 'method',
+        'domain' => [], 'from' => [], 'to' => [], 'denyallow' => [], 'method' => [], 'ctag' => [],
+        'app' => ['case_sensitive' => true], 'dnstype' => ['case_sensitive' => true],
     ];
 
     public function __construct(
@@ -100,7 +101,7 @@ final class NetworkTidy
 
         // Initialize buckets for multi-value options
         $multiValueOpts = [];
-        foreach (self::MULTI_VALUE as $key) {
+        foreach (self::MULTI_VALUE as $key => $_config) {
             $multiValueOpts[$key] = [];
         }
 
@@ -131,7 +132,10 @@ final class NetworkTidy
                 continue;
             }
 
-            $optionList[] = $name.'='.$this->domainNormalizer->applyFix($values[0], '|');
+            $caseSensitive = data_get(self::MULTI_VALUE[$name], 'case_sensitive', false);
+            $value = $this->domainNormalizer->applyFix($values[0], '|', $caseSensitive);
+
+            $optionList[] = $name.'='.$value;
         }
 
         // 3. Transform, Remove duplicates and sort options by priority

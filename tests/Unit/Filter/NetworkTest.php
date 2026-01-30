@@ -191,6 +191,20 @@ class NetworkTest extends TestCase
                 ['$method=post|~get|delete'],
                 ['$method=~get|delete|post'],
             ],
+            [
+                ['$ctag=device_pc|~device_phone'],
+                ['$ctag=~device_phone|device_pc'],
+            ],
+
+            // case sensitive
+            [
+                ['$app=com.pelmorex.WeatherEyeAndroid|Kinoplay.exe'],
+                ['$app=Kinoplay.exe|com.pelmorex.WeatherEyeAndroid'],
+            ],
+            [
+                ['$dnstype=~CNAME|~A'],
+                ['$dnstype=~A|~CNAME'],
+            ],
 
             // The syntax is incorrect, but Haiku should not throw an error.
             [

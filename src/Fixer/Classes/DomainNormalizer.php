@@ -6,7 +6,7 @@ final class DomainNormalizer
 {
     public bool $xMode;
 
-    public function applyFix(string $domainStr, string $separator): string
+    public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
         // regex domain, don't touch
         if ($this->containsRegexDomain($domainStr)) {
@@ -17,10 +17,12 @@ final class DomainNormalizer
 
         $domains = collect(explode($separator, $domainStr))
             ->filter(fn($d) => $d !== '')
-            ->map(function ($str) {
-                $domain = strtolower($str);
+            ->map(function ($domainStr) use ($caseSensitive) {
+                if ($caseSensitive === false) {
+                    $domainStr = strtolower($domainStr);
+                }
 
-                return $this->cleanDomain($domain);
+                return $this->cleanDomain($domainStr);
             });
 
         // Domain Coverage Reducer
