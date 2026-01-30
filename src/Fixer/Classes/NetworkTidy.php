@@ -39,6 +39,7 @@ final class NetworkTidy
     const ADG_KNOWN_OPTIONS = [
         'app', 'content', 'cookie', 'extension', 'hls', 'jsinject', 'jsonprune', 'network', 'path',
         'removeheader', 'referrerpolicy', 'stealth', 'url', 'urlblock', 'xmlprune',
+        'client', 'ctag', 'dnstype', 'dnsrewrite', // Adg DNS
     ];
 
     /**
