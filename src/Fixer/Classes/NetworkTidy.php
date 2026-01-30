@@ -18,7 +18,6 @@ final class NetworkTidy
         // must assign values
         'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason',
         'redirect-rule', 'redirect', 'replace', 'rewrite', 'to', 'urlskip', 'urltransform', 'uritransform',
-
         // basic
         'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font',
         'inline-script', 'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
@@ -26,7 +25,6 @@ final class NetworkTidy
         'css', 'stylesheet', 'doc', 'document', 'ehide', 'elemhide', 'frame', 'subdocument', 'ghide', 'generichide',
         'object', 'object-subrequest', 'ping', 'beacon', 'removeparam', 'queryprune', 'shide', 'specifichide',
         'xhr', 'xmlhttprequest',
-
         // deprecated
         'empty', 'mp4', 'webrtc',
     ];
