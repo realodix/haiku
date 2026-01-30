@@ -13,6 +13,8 @@ final class DomainNormalizer
             return $domainStr;
         }
 
+        $domainStr = $this->fixWrongSeparator($domainStr, $separator);
+
         $domains = collect(explode($separator, $domainStr))
             ->filter(fn($d) => $d !== '')
             ->map(function ($str) {
@@ -33,6 +35,25 @@ final class DomainNormalizer
 
             return $str;
         })->implode($separator);
+    }
+
+    private function fixWrongSeparator(string $domainStr, string $separator): string
+    {
+        if ($this->xMode === false) {
+            return $domainStr;
+        }
+
+        // @phpstan-ignore match.unhandled
+        $typo = match ($separator) {
+            '|' => ',',
+            ',' => '|',
+        };
+
+        if (str_contains($domainStr, $typo)) {
+            $domainStr = str_replace($typo, $separator, $domainStr);
+        }
+
+        return $domainStr;
     }
 
     private function cleanDomain(string $domain): string

@@ -267,11 +267,17 @@ example.com##.ad
 ```
 
 ### # Wrong Separator
+
+> [!NOTE]
+> Experimental feature. Use `--x` flag to enable this feature.
+
 ```adblock
 !## BEFORE
+-ads-$domain=a.com,b.com,css
 example.com|example.org##.ads
 
 !## AFTER
+-ads-$css,domain=a.com|b.com
 example.com,example.org##.ads
 ```
 
