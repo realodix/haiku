@@ -31,12 +31,23 @@ final class NetOptionCombiner
         ['xmlhttprequest', 'xhr'],
     ];
 
+    private bool $xMode;
+
+    public function setExperimental(bool $xMode): void
+    {
+        $this->xMode = $xMode;
+    }
+
     /**
      * @param array<string> $rules
      * @return array<string>
      */
     public function applyFix(array $rules): array
     {
+        if ($this->xMode === false) {
+            return $rules;
+        }
+
         $groups = [];
         $passthrough = [];
 

@@ -10,8 +10,6 @@ use Realodix\Haiku\Helper;
 
 final class Processor
 {
-    private bool $xMode;
-
     public function __construct(
         private Combiner $combiner,
         private ElementTidy $elementTidy,
@@ -21,10 +19,10 @@ final class Processor
 
     public function setExperimental(bool $xMode): void
     {
-        $this->xMode = $xMode;
         $this->elementTidy->setExperimental($xMode);
         $this->networkTidy->setExperimental($xMode);
         $this->combiner->setExperimental($xMode);
+        $this->optionCombiner->setExperimental($xMode);
     }
 
     /**
@@ -105,9 +103,7 @@ final class Processor
             ->all();
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
-        if ($this->xMode) {
-            $network = $this->optionCombiner->applyFix($network);
-        }
+        $network = $this->optionCombiner->applyFix($network);
         $network = Helper::uniqueSorted(
             $network,
             fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,

@@ -14,6 +14,7 @@ final class NetOptionCombinerTest extends TestCase
     {
         parent::setUp();
         $this->optionCombiner = new NetOptionCombiner;
+        $this->optionCombiner->setExperimental(true);
     }
 
     #[PHPUnit\Test]
