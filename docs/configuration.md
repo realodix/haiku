@@ -1,18 +1,34 @@
-# Configuration
+# Configuration Guide
 
-Haiku is configured using a single YAML file named `haiku.yml`. This document serves as a complete reference for all supported configuration options, their semantics, defaults, and interactions.
+This document provides comprehensive documentation for configuring Haiku through the configuration file. It explains the file structure, all available configuration options, and their defaults.
 
-## Configuration Resolution
 
-Configuration is resolved in the following order:
+## Configuration File Overview
 
-1. Default values defined by Haiku.
-2. Values from `haiku.yml`.
-3. CLI options (highest priority).
+Haiku is configured through a single YAML file named `haiku.yml` located in your project's root directory. This file controls both the `build` and `fix` commands through separate configuration sections.
 
-CLI options always override configuration file values, but only for the scope of the current command execution.
+### Creating the Configuration File
+Use the `init` command to generate a template configuration file:
 
-## General
+```sh
+vendor/bin/haiku init
+```
+
+This creates a `haiku.yml` file with commented examples of all available options.
+
+### Configuration Resolution Priority
+Configuration values are resolved in the following order (highest priority first):
+
+1. **CLI options** - Command-line flags like `--force`.
+2. **haiku.yml values** - Settings in your configuration file.
+3. **Default values** - Built-in defaults defined by Haiku
+
+CLI options always override configuration file values for the current command execution only.
+
+
+## Global Configuration
+
+Global configuration options apply to all commands and are defined at the root level of configuration file.
 
 #### `cache_dir`
 Specifies the directory where Haiku stores cache data for both the `build` and `fix` commands.
@@ -27,7 +43,8 @@ cache_dir: .tmp
 - Deleting this directory forces a full reprocess
 
 
-## Fixer
+## Fixer Configuration
+
 This section configures the behavior for the `fix` command.
 
 ```yml
@@ -38,10 +55,10 @@ fixer:
     - vendor
 ```
 
-##### `paths`
-A list of files or directories to be processed. If `fixer.paths` is not set, it defaults to the project's root directory.
+#### `paths`
+A list of files or directories to process. Paths are relative to the project root directory. If not specified, defaults to the project root.
 
-##### `excludes`
+#### `excludes`
 A list of files or directories to be excluded during processing. If `excludes` contains root paths, Haiku automatically excludes `vendor` directory.
 
 Paths under `excludes` are relative to the `fixer.paths`. Here are some examples of `excludes`, assuming that `src` is defined in `fixer.paths`:
@@ -49,7 +66,8 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
 
 
-## Builder
+## Builder Configuration
+
 This section configures the behavior for the `build` command.
 
 ```yml
@@ -67,16 +85,32 @@ builder:
       remove_duplicates: true
 ```
 
-##### `output_dir`
-The directory where generated filter lists are written. Directory is created if it does not exist.
+#### `output_dir`
+The directory where compiled filter lists are written. The directory is created automatically if it doesn't exist.
 
-##### `filter_list`
-An array that defines one or more filter lists to be built. Each item in the array is an object that configures a single filter list.
+#### `filter_list`
+An array defining one or more filter lists to build. Each item in the array configures a single output filter list. At least one filter list must be defined.
 
-- **`filename`** (Required): The output filename for the filter list.
-- **`header`**: A multi-line string prepended to the output file.
-  - `%timestamp%`: replaced with the current date and time formatted according to RFC 7231.
-- **`source`** (Required): A list of source files (local or URL) to build the filter list from.
+- **`filename`** (*Required*): The output filename for the compiled filter list.
+- **`header`**: A multi-line string prepended to the output file. Supports placeholder substitution:
+  - `%timestamp%`: Replaced with current date/time in RFC 7231 format.
+- **`source`** (*Required*): A list of source files (local or URL) to build the filter list from.
 - **`remove_duplicates`**: Controls whether duplicate lines are removed after sources are merged.
-  - **Possible values:** `true` or `false`
-  - **Default:** `false`
+  - Possible values: `true` or `false`
+  - Default: `false`
+
+```yml
+# A minimal configuration requires for the build command:
+
+builder:
+  filter_list:
+    - filename: output.txt
+      source:
+        - input.txt
+```
+
+
+## Real-World Example
+
+For a production configuration example, see
+[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/a63c92167c/haiku.yml)
