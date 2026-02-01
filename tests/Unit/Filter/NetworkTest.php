@@ -25,6 +25,48 @@ class NetworkTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
+    /**
+     * @see \Realodix\Haiku\Fixer\Regex::NET_OPTION_DOMAIN
+     */
+    #[PHPUnit\DataProvider('combineSupportedOptionsProvider')]
+    #[PHPUnit\Test]
+    public function combine_supported_options(array $input, array $expected): void
+    {
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    public static function combineSupportedOptionsProvider(): array
+    {
+        return [
+            [
+                ['$domain=a.com', '$domain=b.com'],
+                ['$domain=a.com|b.com'],
+            ],
+            [
+                ['$from=a.com', '$from=b.com'],
+                ['$from=a.com|b.com'],
+            ],
+            [
+                ['$to=a.com', '$to=b.com'],
+                ['$to=a.com|b.com'],
+            ],
+            [
+                ['$denyallow=a.com', '$denyallow=b.com'],
+                ['$denyallow=a.com|b.com'],
+            ],
+            [
+                ['$denyallow=get', '$denyallow=post'],
+                ['$denyallow=get|post'],
+            ],
+
+            // unsupported
+            [
+                ['$foo=a.com', '$foo=b.com'],
+                ['$foo=a.com', '$foo=b.com'],
+            ],
+        ];
+    }
+
     #[PHPUnit\Test]
     public function combines_rules_based_on_rules(): void
     {
