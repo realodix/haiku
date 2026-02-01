@@ -25,7 +25,7 @@ final class DomainNormalizer
                 return $this->cleanDomain($domainStr);
             });
 
-        // Domain Coverage Reducer
+        // domain coverage reducer
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
 
@@ -39,6 +39,16 @@ final class DomainNormalizer
         })->implode($separator);
     }
 
+    /**
+     * Fix wrong separator in domain string.
+     *
+     * If the domain string contains an incorrect separator (e.g. '|' instead of ','),
+     * replace it with the correct separator.
+     *
+     * @param string $domainStr The domain string to fix
+     * @param string $separator The correct separator to use
+     * @return string The fixed domain string
+     */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
         if ($this->xMode === false) {
@@ -58,6 +68,9 @@ final class DomainNormalizer
         return $domainStr;
     }
 
+    /**
+     * Removes leading and trailing slashes and dots from a domain string.
+     */
     private function cleanDomain(string $domain): string
     {
         $domain = trim($domain);
@@ -160,6 +173,12 @@ final class DomainNormalizer
         });
     }
 
+    /**
+     * Determines if a given domain string contains a regex domain.
+     *
+     * @param string $domainStr The domain string to check
+     * @return bool True if the domain string contains a regex domain, false otherwise
+     */
     private function containsRegexDomain(string $domainStr): bool
     {
         return str_starts_with($domainStr, '/') && str_ends_with($domainStr, '/')

@@ -6,16 +6,16 @@ This document describes how to use Haiku from the command line, including availa
 
 Haiku provides two main commands:
 
-- `build` — Compile multiple filter list sources into unified output files.
-- `fix` — Normalize and optimize existing filter list files or directories.
+- `build` — Compiles multiple filter list sources (local files and remote URLs) into unified output files
+- `fix` — Sorting, combining, and optimizing adblock filter lists.
 
 Both commands use the same configuration system unless overridden by CLI options.
 
----
 
-## build
+<br>
 
-Compile filter list sources into unified output files as defined in `haiku.yml`.
+
+## `build` Command
 
 ```sh
 vendor/bin/haiku build [options]
@@ -24,11 +24,9 @@ vendor/bin/haiku build [options]
 ### Options
 
 - `--force`
-  Ignore cache and rebuild all sources.
+  Ignore cache and rebuild all sources regardless of whether they have changed.
 - `--config <path>`
-  Use a custom configuration file path.
-
-### Examples
+  Custom configuration file path.
 
 ```sh
 # Build using default configuration
@@ -37,15 +35,15 @@ vendor/bin/haiku build
 # Build with a custom configuration file
 vendor/bin/haiku build --config haiku.yml
 
-# Rebuild all sources and ignore cache
+# Rebuild all sources and ignore the cache
 vendor/bin/haiku build --force
 ```
 
----
 
-## fix
+<br>
 
-Normalize, sort, and combine adblock rules in existing filter list files or directories.
+
+## `fix` Command
 
 ```sh
 vendor/bin/haiku fix [options]
@@ -56,15 +54,11 @@ vendor/bin/haiku fix [options]
 - `--path <path>`
   Path to the filter file or directory to process.
 - `--force`
-  Ignore cache and process all files.
+  Ignore cache and process all files regardless of whether they have changed.
 - `--config <path>`
-  Use a custom configuration file path.
-- `--cache <path>`
-  Specify a custom cache directory.
+  Custom configuration file path.
 - `--x`
   Enable experimental features.
-
-### Examples
 
 ```sh
 # Process all files in the current directory

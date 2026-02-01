@@ -29,7 +29,7 @@ class FixCommand extends Command
     {
         $this
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to process')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Force processing even if file has not changed')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and process all files')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
             ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
             ->addOption('x', null, InputOption::VALUE_NONE, 'Enable experimental features');

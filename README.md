@@ -12,7 +12,7 @@ Haiku is a powerful command-line tool for managing adblock filter lists efficien
 - **Unified Caching System**: Automatically skips unchanged inputs for significantly faster subsequent runs.
 - **Configuration via YAML**: Control both building and fixing behavior through a single `haiku.yml` file.
 
-The following example demonstrates how Haiku normalizes ordering, combines compatible rules, and removes redundant adblock rules:
+The following example shows Haiku that normalizes the order and combines compatible rules.
 
 ```adblock
 !## BEFORE
@@ -69,44 +69,7 @@ For detailed command usage, available options, and more examples, see [docs/usag
 
 ## Configuration
 
-The configuration file should be a valid YAML file. The following options are available:
-
-```yaml
-# cache_dir: .tmp
-
-# Settings for the `fix` command
-fixer:
-  paths:
-    - folder_1/file.txt
-    - folder_2
-  excludes:
-    - excluded_file.txt
-    - path/to/source
-
-# Settings for the `build` command
-builder:
-  output_dir: dist
-  filter_list:
-    # First filter list
-    - filename: general_blocklist.txt # Required
-      remove_duplicates: true
-      header: |
-        [Adblock Plus 2.0]
-        ! Title: Ad Blocklist
-        ! Description: Filter list that specifically removes adverts.
-        ! Last modified: %timestamp%
-        ! --------------------------------------------------
-      source: # Required
-        - blocklists/general/local-rules.txt
-        - https://cdn.example.org/blocklists/general.txt
-
-    # Second filter list
-    - filename: custom_privacy.txt
-      source:
-        - sources/tracking_domains-1.txt
-```
-
-See [configuration reference](./docs/configuration.md) for more details and [AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/a63c92167c/haiku.yml) for a complete example.
+See [configuration file](./docs/configuration.md) documentation or [AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/ca03961fc3/haiku.yml) for a production configuration example.
 
 
 ## Contributing
