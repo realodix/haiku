@@ -27,6 +27,10 @@ vendor/bin/haiku build [options]
   Ignore cache and rebuild all sources regardless of whether they have changed.
 - `--config <path>`
   Custom configuration file path.
+- `--verbose`
+  Enable verbose logging.
+- `--quiet`
+  Suppress all output.
 
 ```sh
 # Build using default configuration
@@ -59,6 +63,10 @@ vendor/bin/haiku fix [options]
   Custom configuration file path.
 - `--x`
   Enable experimental features.
+- `--verbose`
+  Enable verbose logging.
+- `--quiet`
+  Suppress all output.
 
 ```sh
 # Process all files in the current directory
