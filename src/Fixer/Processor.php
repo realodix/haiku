@@ -30,10 +30,11 @@ final class Processor
      * and combined list.
      *
      * @param array<string> $lines An array of raw filter lines
+     * @param bool $keepEmptyLines Keep empty lines
      * @param bool $xMode Enable experimental features
      * @return array<string> The processed and optimized list of filter lines
      */
-    public function process(array $lines, bool $xMode = false): array
+    public function process(array $lines, bool $keepEmptyLines = false, bool $xMode = false): array
     {
         $this->setExperimental($xMode);
 
@@ -42,7 +43,7 @@ final class Processor
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === '') {
+            if ($keepEmptyLines === false && $line === '') {
                 continue;
             }
 

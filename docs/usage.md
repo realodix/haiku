@@ -59,6 +59,8 @@ vendor/bin/haiku fix [options]
   Path to the filter file or directory to process.
 - `--force`
   Ignore cache and process all files regardless of whether they have changed.
+- `--keep-empty-lines`
+  Keep empty lines in output.
 - `--config <path>`
   Custom configuration file path.
 - `--x`
