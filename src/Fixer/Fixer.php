@@ -6,8 +6,8 @@ use Realodix\Haiku\App;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Enums\Mode;
 use Realodix\Haiku\Enums\Scope;
+use Realodix\Haiku\Fixer\ValueObject\FixerRunContext;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -23,23 +23,16 @@ final class Fixer
 
     /**
      * Entry point for file or directory processing.
-     *
-     * @param \Realodix\Haiku\Enums\Mode $mode Processing mode
-     * @param string|null $path File or directory path to process
-     * @param string|null $cachePath Custom path to the cache file
-     * @param string|null $configFile Custom path to the configuration file
-     * @param bool $keepEmptyLines Keep empty lines
-     * @param bool $xMode Enable experimental features
      */
-    public function handle(Mode $mode, ?string $path, ?string $cachePath, ?string $configFile, bool $keepEmptyLines, bool $xMode): void
+    public function handle(FixerRunContext $ctx): void
     {
-        $config = $this->config->load(Scope::F, $configFile);
-        $fixerConfig = $config->fixer($path ? ['paths' => [$path]] : []);
+        $config = $this->config->load(Scope::F, $ctx->configFile);
+        $fixerConfig = $config->fixer($ctx->path ? ['paths' => [$ctx->path]] : []);
 
         $this->cache->prepareForRun(
             $fixerConfig->paths,
-            $cachePath ?? $config->cacheDir,
-            $mode,
+            $ctx->cachePath ?? $config->cacheDir,
+            $ctx->mode,
         );
 
         foreach ($fixerConfig->paths as $path) {
@@ -60,7 +53,7 @@ final class Fixer
             }
 
             $this->logger->processing($path);
-            $this->write($path, $this->processor->process($content, $keepEmptyLines, $xMode));
+            $this->write($path, $this->processor->process($content, $ctx->keepEmptyLines, $ctx->xMode));
             $this->logger->processed($path);
         }
 
