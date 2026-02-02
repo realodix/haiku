@@ -48,7 +48,7 @@ final class BuilderConfig
     private function outputDir(?string $dir): string
     {
         if ($dir === null) {
-            return base_path();
+            return project_path();
         }
 
         if (Path::isAbsolute($dir)) {
@@ -58,7 +58,7 @@ final class BuilderConfig
             ));
         }
 
-        $outputDir = base_path($dir);
+        $outputDir = project_path($dir);
         if (!$this->fs->exists($outputDir)) {
             $this->fs->mkdir($outputDir);
         }

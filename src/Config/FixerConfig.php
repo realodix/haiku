@@ -50,7 +50,7 @@ final class FixerConfig
      */
     private function paths(array $paths, array $excludes): array
     {
-        $rootPath = base_path();
+        $rootPath = project_path();
         $paths = !empty($paths) ? $paths : [$rootPath];
 
         $resolvedPaths = [];
@@ -90,7 +90,7 @@ final class FixerConfig
      */
     private function finder(string $dir, array $excludes)
     {
-        if ($dir === base_path()) {
+        if ($dir === project_path()) {
             $excludes = array_merge($excludes, ['vendor']);
         }
 
