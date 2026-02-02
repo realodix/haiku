@@ -63,10 +63,7 @@ class GeneralTest extends TestCase
         $this->assertSame($expected, $output);
     }
 
-    /**
-     * Remove the blank line
-     */
-    public function testBlankLine()
+    public function testEmptyLine()
     {
         $input = [
             '',
@@ -74,10 +71,10 @@ class GeneralTest extends TestCase
         ];
 
         $expected = [];
+        $this->assertSame($expected, $this->fix($input));
 
-        $output = $this->fix($input);
-
-        $this->assertSame($expected, $output);
+        $expected = ['', ''];
+        $this->assertSame($expected, $this->fix($input, keepEmptyLines: true));
     }
 
     #[PHPUnit\Test]

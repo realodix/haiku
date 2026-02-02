@@ -28,9 +28,10 @@ final class Fixer
      * @param string|null $path File or directory path to process
      * @param string|null $cachePath Custom path to the cache file
      * @param string|null $configFile Custom path to the configuration file
+     * @param bool $keepEmptyLines Keep empty lines
      * @param bool $xMode Enable experimental features
      */
-    public function handle(Mode $mode, ?string $path, ?string $cachePath, ?string $configFile, bool $xMode): void
+    public function handle(Mode $mode, ?string $path, ?string $cachePath, ?string $configFile, bool $keepEmptyLines, bool $xMode): void
     {
         $config = $this->config->load(Scope::F, $configFile);
         $fixerConfig = $config->fixer($path ? ['paths' => [$path]] : []);
@@ -59,7 +60,7 @@ final class Fixer
             }
 
             $this->logger->processing($path);
-            $this->write($path, $this->processor->process($content, $xMode));
+            $this->write($path, $this->processor->process($content, $keepEmptyLines, $xMode));
             $this->logger->processed($path);
         }
 
