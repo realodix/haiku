@@ -93,7 +93,7 @@ final class Config
      */
     private function resolvePath(?string $path): string
     {
-        return base_path($path ?? self::DEFAULT_FILENAME);
+        return project_path($path ?? self::DEFAULT_FILENAME);
     }
 
     /**

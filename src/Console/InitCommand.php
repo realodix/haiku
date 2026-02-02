@@ -20,7 +20,7 @@ class InitCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $filename = Config::DEFAULT_FILENAME;
 
-        $configFile = base_path($filename);
+        $configFile = project_path($filename);
 
         if (file_exists($configFile)) {
             if (!$io->confirm("The {$filename} file already exists. Do you want to overwrite it?", false)) {
