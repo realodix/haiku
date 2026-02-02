@@ -14,7 +14,7 @@ final class OutputLogger
         private OutputInterface $output,
         private Statistics $stats,
     ) {
-        $this->root = base_path();
+        $this->root = project_path();
     }
 
     public function processing(string $path): void
