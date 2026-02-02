@@ -320,6 +320,10 @@ class NetworkTest extends TestCase
                 ['||example.com/video/*.mp4$mp4,domain=example.org'],
                 ['||example.com/video/*.mp4$media,redirect=noopmp4-1s,domain=example.org'],
             ],
+            [ // $queryprune
+                ['$xhr,queryprune', '$xhr,queryprune=utm_source'],
+                ['$removeparam,xhr', '$xhr,removeparam=utm_source'],
+            ],
         ];
     }
 

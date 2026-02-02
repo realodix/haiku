@@ -23,10 +23,10 @@ final class NetworkTidy
         'inline-script', 'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
         '1p', 'first-party', 'strict1p', 'strict-first-party', '3p', 'third-party', 'strict3p', 'strict-third-party',
         'css', 'stylesheet', 'doc', 'document', 'ehide', 'elemhide', 'frame', 'subdocument', 'ghide', 'generichide',
-        'object', 'object-subrequest', 'ping', 'beacon', 'removeparam', 'queryprune', 'shide', 'specifichide',
+        'object', 'object-subrequest', 'ping', 'beacon', 'removeparam', 'shide', 'specifichide',
         'xhr', 'xmlhttprequest',
         // deprecated
-        'empty', 'mp4', 'webrtc',
+        'empty', 'mp4', 'queryprune', 'webrtc',
     ];
 
     /**
@@ -172,6 +172,14 @@ final class NetworkTidy
             // https://adguard.com/kb/general/ad-filtering/create-own-filters/#mp4-modifier
             if ($option === 'mp4') {
                 $result[] = 'media,redirect=noopmp4-1s';
+
+                continue;
+            }
+
+            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#removeparam
+            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#removeparam-modifier
+            if (str_starts_with($option, 'queryprune')) {
+                $result[] = str_replace('queryprune', 'removeparam', $option);
 
                 continue;
             }
