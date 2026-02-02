@@ -39,7 +39,7 @@ vendor/bin/haiku build
 # Build with a custom configuration file
 vendor/bin/haiku build --config haiku.yml
 
-# Rebuild all sources and ignore the cache
+# Rebuild all sources
 vendor/bin/haiku build --force
 ```
 
@@ -77,6 +77,6 @@ vendor/bin/haiku fix
 # Process a specific file with a custom config
 vendor/bin/haiku fix --path filter-list.txt --config haiku.yml
 
-# Use a custom cache directory
-vendor/bin/haiku fix --cache ./customcachedir
+# Reprocess all files
+vendor/bin/haiku fix --force
 ```
