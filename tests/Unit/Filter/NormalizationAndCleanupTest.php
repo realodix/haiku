@@ -90,13 +90,13 @@ class NormalizationAndCleanupTest extends TestCase
             '*$domain=~example.net|example.*',
             '~example.net,example.*##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, true));
+        $this->assertSame($expected, $this->fix($input, xMode: true));
 
         $input = [
             '*$domain=api.example.com|example.*',
             'api.example.com,example.*##.ads',
         ];
-        $this->assertSame($input, $this->fix($input, true));
+        $this->assertSame($input, $this->fix($input, xMode: true));
 
         $input = [
             '*$domain=example.com|~example.net',
@@ -109,11 +109,11 @@ class NormalizationAndCleanupTest extends TestCase
             'example.*##.ads',
             '~example.net##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, true));
+        $this->assertSame($expected, $this->fix($input, xMode: true));
 
         // Just in case the user enters invalid input
         $input = ['192.*,192.168.1.1##.ads'];
-        $this->assertSame($input, $this->fix($input, true));
+        $this->assertSame($input, $this->fix($input, xMode: true));
     }
 
     #[PHPUnit\Test]
@@ -127,7 +127,7 @@ class NormalizationAndCleanupTest extends TestCase
             '*$domain=~ads.example.com|example.com|example.org',
             '~ads.example.com,example.com,example.org##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, true));
+        $this->assertSame($expected, $this->fix($input, xMode: true));
 
         $input = [
             '*$domain=example.com|~ads.example.com|api.example.com',
@@ -140,6 +140,6 @@ class NormalizationAndCleanupTest extends TestCase
             'example.com,example.org##.ads',
             '~ads.example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, true));
+        $this->assertSame($expected, $this->fix($input, xMode: true));
     }
 }
