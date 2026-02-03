@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'build',
-    description: 'Combine multiple filters into one',
+    description: 'Compiles multiple filter list sources into single unified output files.',
 )]
 class BuildCommand extends Command
 {

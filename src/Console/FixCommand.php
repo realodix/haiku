@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'fix',
-    description: 'Process adblock filter files in a directory or single file.',
+    description: 'Sort, combine, and normalize ad-blocking filter lists.',
 )]
 class FixCommand extends Command
 {

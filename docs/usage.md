@@ -6,42 +6,10 @@ This document describes how to use Haiku from the command line, including availa
 
 Haiku provides two main commands:
 
-- `build` — Compiles multiple filter list sources (local files and remote URLs) into unified output files
 - `fix` — Sorting, combining, and optimizing adblock filter lists.
+- `build` — Compiles multiple filter list sources (local files and remote URLs) into unified output files
 
 Both commands use the same configuration system unless overridden by CLI options.
-
-
-<br>
-
-
-## `build` Command
-
-```sh
-vendor/bin/haiku build [options]
-```
-
-### Options
-
-- `--force`
-  Ignore cache and rebuild all sources regardless of whether they have changed.
-- `--config <path>`
-  Custom configuration file path.
-- `--verbose`
-  Enable verbose logging.
-- `--quiet`
-  Suppress all output.
-
-```sh
-# Build using default configuration
-vendor/bin/haiku build
-
-# Build with a custom configuration file
-vendor/bin/haiku build --config haiku.yml
-
-# Rebuild all sources
-vendor/bin/haiku build --force
-```
 
 
 <br>
@@ -67,9 +35,11 @@ vendor/bin/haiku fix [options]
   Custom configuration file path.
 - `--x`
   Enable experimental features.
+- `--help`
+  Show help message
 - `--verbose`
   Enable verbose logging.
-- `--quiet`
+- `--silent`
   Suppress all output.
 
 ```sh
@@ -81,4 +51,38 @@ vendor/bin/haiku fix --path filter-list.txt --config haiku.yml
 
 # Reprocess all files
 vendor/bin/haiku fix --force
+```
+
+
+<br>
+
+
+## `build` Command
+
+```sh
+vendor/bin/haiku build [options]
+```
+
+### Options
+
+- `--force`
+  Ignore cache and rebuild all sources regardless of whether they have changed.
+- `--config <path>`
+  Custom configuration file path.
+- `--help`
+  Show help message
+- `--verbose`
+  Enable verbose logging.
+- `--silent`
+  Suppress all output.
+
+```sh
+# Build using default configuration
+vendor/bin/haiku build
+
+# Build with a custom configuration file
+vendor/bin/haiku build --config haiku.yml
+
+# Rebuild all sources
+vendor/bin/haiku build --force
 ```
