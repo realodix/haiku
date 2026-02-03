@@ -32,7 +32,7 @@ final class Fixer
         $this->cache->prepareForRun(
             $fixerConfig->paths,
             $ctx->cachePath ?? $config->cacheDir,
-            $ctx->mode,
+            $ctx->ignoreCache,
         );
 
         foreach ($fixerConfig->paths as $path) {

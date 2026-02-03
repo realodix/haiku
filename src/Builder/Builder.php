@@ -6,7 +6,6 @@ use Illuminate\Support\Arr;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Enums\Mode;
 use Realodix\Haiku\Enums\Scope;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -22,12 +21,11 @@ final class Builder
     /**
      * Main entry point for building filter lists.
      *
-     * @param bool $force If true, forces rebuild even when cache is valid
+     * @param bool $ignoreCache If true, the cache is ignored
      * @param string|null $configFile Custom path to the configuration file
      */
-    public function handle(bool $force, ?string $configFile): void
+    public function handle(bool $ignoreCache, ?string $configFile): void
     {
-        $mode = $force ? Mode::Force : Mode::Default;
         $config = $this->config->load(Scope::B, $configFile);
         $filterSets = $config->builder()->filterSet;
 
@@ -36,7 +34,7 @@ final class Builder
             // builder.filter_list.filename
             array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
             $config->cacheDir,
-            $mode,
+            $ignoreCache,
             Scope::B,
         );
 
@@ -56,7 +54,7 @@ final class Builder
             $content = Cleaner::clean($rawContent, $filterSet->unique);
             $sourceHash = $this->sourceHash($content, [$header]);
 
-            if (!$force && $this->cache->isValid($outputPath, $sourceHash)) {
+            if (!$ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
                 $this->logger->skipped($outputPath);
 
                 continue;

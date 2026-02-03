@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Console;
 
 use Realodix\Haiku\App;
 use Realodix\Haiku\Config\InvalidConfigurationException;
-use Realodix\Haiku\Enums\Mode;
 use Realodix\Haiku\Fixer\Fixer;
 use Realodix\Haiku\Fixer\ValueObject\FixerRunContext;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -51,7 +50,7 @@ class FixCommand extends Command
         $startTime = microtime(true);
         $this->fixer->handle(
             new FixerRunContext(
-                $this->inputMode($input),
+                $input->getOption('force'),
                 $input->getOption('path'),
                 $input->getOption('cache'),
                 $input->getOption('config'),
@@ -77,13 +76,5 @@ class FixCommand extends Command
         ));
 
         return Command::SUCCESS;
-    }
-
-    protected function inputMode(InputInterface $input): Mode
-    {
-        return match (true) {
-            $input->getOption('force') => Mode::Force,
-            default => Mode::Default,
-        };
     }
 }

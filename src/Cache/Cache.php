@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Cache;
 
-use Realodix\Haiku\Enums\Mode;
 use Realodix\Haiku\Enums\Scope;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -28,19 +27,20 @@ final class Cache
      *
      * @param array<string> $validKeys $validKeys A valid keys to keep
      * @param string|null $storagePath The path where the cache is stored
+     * @param bool $ignoreCache If true, the cache is ignored
      */
-    public function prepareForRun(array $validKeys, ?string $storagePath, Mode $mode, Scope $scope = Scope::F): void
+    public function prepareForRun(array $validKeys, ?string $storagePath, bool $ignoreCache = false, Scope $scope = Scope::F): void
     {
         $this->repository()
             ->setCacheFile($this->resolvePath($storagePath))
             ->setScope($scope)
             ->load();
 
-        if ($mode !== Mode::Force) {
+        if ($ignoreCache === false) {
             $this->cleanStaleEntries($validKeys);
         }
 
-        if ($mode == Mode::Force && !$this->cacheCleared) {
+        if ($ignoreCache && !$this->cacheCleared) {
             $this->repository()->clear();
             $this->cacheCleared = true;
         }
