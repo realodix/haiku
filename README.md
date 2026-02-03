@@ -42,26 +42,31 @@ composer require realodix/haiku
 Composer will install Haiku executable in its `bin-dir` which defaults to `vendor/bin`.
 
 
-## Quick Start
+## Commands
 
-### Initialize configuration
+#### Initialize configuration
 
-   ```sh
-   vendor/bin/haiku init
-   ```
-   Creates a `haiku.yml` configuration file in your project.
+Creates a `haiku.yml` configuration file in your project.
 
-### Main Workflow
+```sh
+vendor/bin/haiku init
+```
 
-- **Build filter lists**
-    ```sh
-    vendor/bin/haiku build
-    ```
+#### Fixer
 
-- **Fix and optimize filter lists**
-    ```sh
-    vendor/bin/haiku fix
-    ```
+Sorting, combining, and optimizing adblock filter lists.
+
+```sh
+vendor/bin/haiku fix
+```
+
+#### Builder
+
+Compiling filter lists from multiple source into consolidated output files.
+
+```sh
+vendor/bin/haiku build
+```
 
 For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
 
