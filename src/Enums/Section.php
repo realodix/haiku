@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Enums;
 
-enum Scope: string
+enum Section: string
 {
     case B = 'builder';
     case F = 'fixer';

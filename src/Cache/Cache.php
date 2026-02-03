@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Cache;
 
-use Realodix\Haiku\Enums\Scope;
+use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -29,11 +29,11 @@ final class Cache
      * @param string|null $storagePath The path where the cache is stored
      * @param bool $ignoreCache If true, the cache is ignored
      */
-    public function prepareForRun(array $validKeys, ?string $storagePath, bool $ignoreCache = false, Scope $scope = Scope::F): void
+    public function prepareForRun(array $validKeys, ?string $storagePath, bool $ignoreCache = false, Section $section = Section::F): void
     {
         $this->repository()
             ->setCacheFile($this->resolvePath($storagePath))
-            ->setScope($scope)
+            ->setSection($section)
             ->load();
 
         if ($ignoreCache === false) {

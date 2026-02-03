@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Cache;
 
-use Realodix\Haiku\Enums\Scope;
+use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class Repository
@@ -18,7 +18,7 @@ final class Repository
 
     private string $cachePath = self::DEFAULT_FILENAME;
 
-    private string $scope = Scope::F->value;
+    private string $section = Section::F->value;
 
     public function __construct(
         private Filesystem $fs,
@@ -37,13 +37,13 @@ final class Repository
     }
 
     /**
-     * Set the scope for which the cache is stored.
+     * Set the section for which the cache is stored.
      *
-     * @param \Realodix\Haiku\Enums\Scope $scope The scope to set
+     * @param \Realodix\Haiku\Enums\Section $section The section to set
      */
-    public function setScope(Scope $scope): self
+    public function setSection(Section $section): self
     {
-        $this->scope = $scope->value;
+        $this->section = $section->value;
 
         return $this;
     }
@@ -99,7 +99,7 @@ final class Repository
      */
     public function set(string $key, array $data): void
     {
-        $this->storage[$this->scope][$key] = $data;
+        $this->storage[$this->section][$key] = $data;
     }
 
     /**
@@ -110,17 +110,17 @@ final class Repository
      */
     public function get(string $key): ?array
     {
-        return $this->storage[$this->scope][$key] ?? null;
+        return $this->storage[$this->section][$key] ?? null;
     }
 
     /**
-     * Returns the entire cache for the current scope as an array.
+     * Returns the entire cache for the current section as an array.
      *
      * @return array<string, mixed>|array{}
      */
     public function all(): array
     {
-        return $this->storage[$this->scope] ?? [];
+        return $this->storage[$this->section] ?? [];
     }
 
     /**
@@ -130,14 +130,14 @@ final class Repository
      */
     public function remove(string $key): void
     {
-        unset($this->storage[$this->scope][$key]);
+        unset($this->storage[$this->section][$key]);
     }
 
     /**
-     * Clears the cache for the current scope.
+     * Clears the cache for the current section.
      */
     public function clear(): void
     {
-        $this->storage[$this->scope] = [];
+        $this->storage[$this->section] = [];
     }
 }

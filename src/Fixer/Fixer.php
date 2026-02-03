@@ -6,7 +6,7 @@ use Realodix\Haiku\App;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Enums\Scope;
+use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Fixer\ValueObject\FixerRunContext;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -26,7 +26,7 @@ final class Fixer
      */
     public function handle(FixerRunContext $ctx): void
     {
-        $config = $this->config->load(Scope::F, $ctx->configFile);
+        $config = $this->config->load(Section::F, $ctx->configFile);
         $fixerConfig = $config->fixer($ctx->path ? ['paths' => [$ctx->path]] : []);
 
         $this->cache->prepareForRun(

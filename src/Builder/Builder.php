@@ -6,7 +6,7 @@ use Illuminate\Support\Arr;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Enums\Scope;
+use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class Builder
@@ -26,7 +26,7 @@ final class Builder
      */
     public function handle(bool $ignoreCache, ?string $configFile): void
     {
-        $config = $this->config->load(Scope::B, $configFile);
+        $config = $this->config->load(Section::B, $configFile);
         $filterSets = $config->builder()->filterSet;
 
         // Prepare cache repository for this run
@@ -35,7 +35,7 @@ final class Builder
             array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
             $config->cacheDir,
             $ignoreCache,
-            Scope::B,
+            Section::B,
         );
 
         foreach ($filterSets as $filterSet) {

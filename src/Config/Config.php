@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Config;
 
 use Illuminate\Support\Arr;
 use Nette\Schema\Processor;
-use Realodix\Haiku\Enums\Scope;
+use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -27,15 +27,15 @@ final class Config
     /**
      * @param string|null $path Custom path to the configuration file
      */
-    public function load(Scope $scope, ?string $path): self
+    public function load(Section $section, ?string $path): self
     {
         try {
             $config = Yaml::parseFile($this->resolvePath($path));
-            $this->validate($config, $scope);
+            $this->validate($config, $section);
         } catch (\Symfony\Component\Yaml\Exception\ParseException) {
             $config = [];
 
-            if ($scope === Scope::B) {
+            if ($section === Section::B) {
                 throw new InvalidConfigurationException('The configuration file does not exist.');
             }
         }
@@ -78,11 +78,11 @@ final class Config
 
     /**
      * @param array<string, mixed> $config
-     * @param \Realodix\Haiku\Enums\Scope $scope
+     * @param \Realodix\Haiku\Enums\Section $section
      */
-    private function validate($config, $scope): void
+    private function validate($config, $section): void
     {
-        if ($scope === Scope::B) {
+        if ($section === Section::B) {
             $config = Arr::only($config, ['cache_dir', 'builder']);
             $schema = Schema::builder();
         } else {
