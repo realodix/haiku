@@ -53,6 +53,9 @@ final class Fixer
             }
 
             $this->logger->processing($path);
+            if ($ctx->backup) {
+                $this->backup($path);
+            }
             $this->write($path, $this->processor->process($content, $ctx->keepEmptyLines, $ctx->xMode));
             $this->logger->processed($path);
         }
@@ -98,6 +101,23 @@ final class Fixer
         $this->fs->dumpFile($filePath, $content);
 
         $this->cache->set($filePath, $this->hash($content));
+    }
+
+    /**
+     * Create a backup of the file at the given path.
+     *
+     * @param string $filePath Path to file
+     */
+    private function backup(string $filePath): void
+    {
+        $timestamp = date('Ymd-His');
+        $backupPath = $filePath."_{$timestamp}.bak";
+
+        try {
+            $this->fs->copy($filePath, $backupPath);
+        } catch (\RuntimeException $e) {
+            $this->logger->error("Failed to create backup for: {$filePath}");
+        }
     }
 
     private function hash(string $data): string

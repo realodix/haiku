@@ -6,6 +6,7 @@ final readonly class FixerRunContext
 {
     /**
      * @param bool $ignoreCache If true, the cache is ignored
+     * @param bool $backup Create backup files before modifying
      * @param string|null $path File or directory path to process
      * @param string|null $cachePath Custom path to the cache file
      * @param string|null $configFile Custom path to the configuration file
@@ -14,6 +15,7 @@ final readonly class FixerRunContext
      */
     public function __construct(
         public bool $ignoreCache,
+        public bool $backup,
         public ?string $path,
         public ?string $cachePath,
         public ?string $configFile,

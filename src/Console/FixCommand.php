@@ -30,6 +30,7 @@ class FixCommand extends Command
         $this
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to process')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and process all files')
+            ->addOption('backup', null, InputOption::VALUE_NONE, 'Create backup files before modifying')
             ->addOption('keep-empty-lines', null, InputOption::VALUE_NONE, 'Keep empty lines in output')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
             ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
@@ -51,6 +52,7 @@ class FixCommand extends Command
         $this->fixer->handle(
             new FixerRunContext(
                 $input->getOption('force'),
+                $input->getOption('backup'),
                 $input->getOption('path'),
                 $input->getOption('cache'),
                 $input->getOption('config'),
