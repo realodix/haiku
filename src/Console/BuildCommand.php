@@ -40,8 +40,10 @@ class BuildCommand extends Command
         $startTime = microtime(true);
         $io->writeln('Building...');
         $this->builder->handle(
-            (bool) $input->getOption('force'),
-            $input->getOption('config'),
+            new CommandOptions(
+                configFile: $input->getOption('config'),
+                ignoreCache: $input->getOption('force'),
+            ),
         );
 
         if ($this->builder->stats()->allSkipped()) {

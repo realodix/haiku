@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Console;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Fixer\Fixer;
-use Realodix\Haiku\Fixer\ValueObject\FixerRunContext;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,14 +49,14 @@ class FixCommand extends Command
         // ---- Execute ----
         $startTime = microtime(true);
         $this->fixer->handle(
-            new FixerRunContext(
-                $input->getOption('force'),
-                $input->getOption('backup'),
-                $input->getOption('path'),
-                $input->getOption('cache'),
-                $input->getOption('config'),
-                $input->getOption('keep-empty-lines'),
-                $input->getOption('x'),
+            new CommandOptions(
+                backup: $input->getOption('backup'),
+                cachePath: $input->getOption('cache'),
+                configFile: $input->getOption('config'),
+                ignoreCache: $input->getOption('force'),
+                keepEmptyLines: $input->getOption('keep-empty-lines'),
+                path: $input->getOption('path'),
+                xMode: $input->getOption('x'),
             ),
         );
 

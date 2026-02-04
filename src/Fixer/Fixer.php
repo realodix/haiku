@@ -5,9 +5,9 @@ namespace Realodix\Haiku\Fixer;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
+use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Enums\Section;
-use Realodix\Haiku\Fixer\ValueObject\FixerRunContext;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -24,15 +24,15 @@ final class Fixer
     /**
      * Entry point for file or directory processing.
      */
-    public function handle(FixerRunContext $ctx): void
+    public function handle(CommandOptions $cmdOpt): void
     {
-        $config = $this->config->load(Section::F, $ctx->configFile);
-        $fixerConfig = $config->fixer($ctx->path ? ['paths' => [$ctx->path]] : []);
+        $config = $this->config->load(Section::F, $cmdOpt->configFile);
+        $fixerConfig = $config->fixer($cmdOpt->path ? ['paths' => [$cmdOpt->path]] : []);
 
         $this->cache->prepareForRun(
             $fixerConfig->paths,
-            $ctx->cachePath ?? $config->cacheDir,
-            $ctx->ignoreCache,
+            $cmdOpt->cachePath ?? $config->cacheDir,
+            $cmdOpt->ignoreCache,
         );
 
         foreach ($fixerConfig->paths as $path) {
@@ -53,10 +53,10 @@ final class Fixer
             }
 
             $this->logger->processing($path);
-            if ($ctx->backup) {
+            if ($cmdOpt->backup) {
                 $this->backup($path);
             }
-            $this->write($path, $this->processor->process($content, $ctx->keepEmptyLines, $ctx->xMode));
+            $this->write($path, $this->processor->process($content, $cmdOpt->keepEmptyLines, $cmdOpt->xMode));
             $this->logger->processed($path);
         }
 

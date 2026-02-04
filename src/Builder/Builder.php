@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Builder;
 use Illuminate\Support\Arr;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
+use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
@@ -20,13 +21,10 @@ final class Builder
 
     /**
      * Main entry point for building filter lists.
-     *
-     * @param bool $ignoreCache If true, the cache is ignored
-     * @param string|null $configFile Custom path to the configuration file
      */
-    public function handle(bool $ignoreCache, ?string $configFile): void
+    public function handle(CommandOptions $options): void
     {
-        $config = $this->config->load(Section::B, $configFile);
+        $config = $this->config->load(Section::B, $options->configFile);
         $filterSets = $config->builder()->filterSet;
 
         // Prepare cache repository for this run
@@ -34,7 +32,7 @@ final class Builder
             // builder.filter_list.filename
             array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
             $config->cacheDir,
-            $ignoreCache,
+            $options->ignoreCache,
             Section::B,
         );
 
@@ -54,7 +52,7 @@ final class Builder
             $content = Cleaner::clean($rawContent, $filterSet->unique);
             $sourceHash = $this->sourceHash($content, [$header]);
 
-            if (!$ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
+            if (!$options->ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
                 $this->logger->skipped($outputPath);
 
                 continue;
