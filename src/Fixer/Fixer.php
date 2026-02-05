@@ -57,10 +57,7 @@ final class Fixer
             if ($opt['backup']) {
                 $this->backup($path);
             }
-            $this->write(
-                $path,
-                $this->processor->process($content, $opt['keep_empty_lines'], $opt['xmode']),
-            );
+            $this->write($path, $this->processor->process($content, $opt));
             $this->logger->processed($path);
         }
 

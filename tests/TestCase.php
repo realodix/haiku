@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Test;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Console\BuildCommand;
 use Realodix\Haiku\Console\FixCommand;
 use Realodix\Haiku\Fixer\Processor;
@@ -35,9 +36,11 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    protected function fix(array $value, bool $keepEmptyLines = false, bool $xMode = false): mixed
+    protected function fix(array $value, array $options = []): mixed
     {
-        return app(Processor::class)->process($value, $keepEmptyLines, $xMode);
+        $options = array_merge(app(FixerConfig::class)->options, $options);
+
+        return app(Processor::class)->process($value, $options);
     }
 
     protected function runBuildCommand(array $options = [])

@@ -41,7 +41,7 @@ class TypoTest extends TestCase
     #[PHPUnit\Test]
     public function domain_wrong_separator($input, $expected): void
     {
-        $this->assertSame($expected, $this->fix($input, xMode: true));
+        $this->assertSame($expected, $this->fix($input, ['xmode' => true]));
     }
 
     public static function domainWrongSeparatorProvider(): array

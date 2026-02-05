@@ -74,7 +74,7 @@ class GeneralTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
 
         $expected = ['', ''];
-        $this->assertSame($expected, $this->fix($input, keepEmptyLines: true));
+        $this->assertSame($expected, $this->fix($input, ['keep_empty_lines' => true]));
     }
 
     #[PHPUnit\Test]
