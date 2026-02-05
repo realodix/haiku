@@ -255,6 +255,20 @@ Removes unneeded separators.
 example.com,example.org##.ads
 ```
 
+### # Space In Domain List
+
+Removes unnecessary spaces.
+
+```adblock
+!## BEFORE
+/ads/*$image,domain= example.com | example.org
+example.com , example.org ##.ads
+
+!## AFTER
+/ads/*$image,domain=example.com|example.org
+example.com,example.org##.ads
+```
+
 ### # Lowercase
 ```adblock
 !## BEFORE
