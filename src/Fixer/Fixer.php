@@ -7,7 +7,6 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -26,17 +25,15 @@ final class Fixer
      */
     public function handle(CommandOptions $cmdOpt): void
     {
-        $config = $this->config->load(Section::F, $cmdOpt->configFile);
-        $fixerConfig = $config->fixer($cmdOpt->path ? ['paths' => [$cmdOpt->path]] : []);
-        $opt = $fixerConfig->options;
+        $config = $this->config->fixer($cmdOpt);
 
         $this->cache->prepareForRun(
-            $fixerConfig->paths,
-            $cmdOpt->cachePath ?? $config->cacheDir,
+            $config->paths,
+            $this->config->getCachePath($cmdOpt->cachePath),
             $cmdOpt->ignoreCache,
         );
 
-        foreach ($fixerConfig->paths as $path) {
+        foreach ($config->paths as $path) {
             $path = Path::canonicalize($path);
             $content = $this->read($path);
             if ($content === null) {
@@ -54,10 +51,10 @@ final class Fixer
             }
 
             $this->logger->processing($path);
-            if ($opt['backup']) {
+            if ($config->options['backup']) {
                 $this->backup($path);
             }
-            $this->write($path, $this->processor->process($content, $opt));
+            $this->write($path, $this->processor->process($content, $config->options));
             $this->logger->processed($path);
         }
 

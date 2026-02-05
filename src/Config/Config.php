@@ -25,9 +25,46 @@ final class Config
     ) {}
 
     /**
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     */
+    public function builder($cmdOpt): BuilderConfig
+    {
+        $this->load(Section::B, $cmdOpt->configFile);
+
+        if (!isset($this->config['builder'])) {
+            throw new InvalidConfigurationException('The "builder" configuration is missing.');
+        }
+
+        return $this->builder->make($this->config['builder']);
+    }
+
+    /**
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     */
+    public function fixer($cmdOpt): FixerConfig
+    {
+        $this->load(Section::F, $cmdOpt->configFile);
+
+        return $this->fixer->make(
+            $this->config['fixer'] ?? [],
+            [
+                'paths' => $cmdOpt->path ? [$cmdOpt->path] : null,
+            ],
+        );
+    }
+
+    /**
+     * @param string|null $cachePath Custom cache path from command options
+     */
+    public function getCachePath(?string $cachePath = null): ?string
+    {
+        return $cachePath ?? $this->cacheDir;
+    }
+
+    /**
      * @param string|null $path Custom path to the configuration file
      */
-    public function load(Section $section, ?string $path): self
+    private function load(Section $section, ?string $path): self
     {
         try {
             $config = Yaml::parseFile($this->resolvePath($path));
@@ -44,23 +81,6 @@ final class Config
         $this->cacheDir = $config['cache_dir'] ?? null;
 
         return $this;
-    }
-
-    public function builder(): BuilderConfig
-    {
-        if (!isset($this->config['builder'])) {
-            throw new InvalidConfigurationException('The "builder" configuration is missing.');
-        }
-
-        return $this->builder->make($this->config['builder']);
-    }
-
-    /**
-     * @param array{paths?: array<string>} $custom Custom configuration from the CLI
-     */
-    public function fixer(array $custom): FixerConfig
-    {
-        return $this->fixer->make($this->config['fixer'] ?? [], $custom);
     }
 
     /**

@@ -19,12 +19,12 @@ final class FixerConfig
 
     /**
      * @param array<string, array<string>|array<string, bool>> $config User-defined configuration from the config file
-     * @param array{paths?: array<string>} $custom Custom configuration from the CLI
+     * @param array{paths?: array<string>} $cmdOpt Command options
      */
-    public function make(array $config, array $custom): self
+    public function make(array $config, array $cmdOpt): self
     {
         $this->paths = $this->paths(
-            $custom['paths'] ?? $config['paths'] ?? [],
+            $cmdOpt['paths'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );
 

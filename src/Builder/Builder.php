@@ -22,17 +22,16 @@ final class Builder
     /**
      * Main entry point for building filter lists.
      */
-    public function handle(CommandOptions $options): void
+    public function handle(CommandOptions $cmdOpt): void
     {
-        $config = $this->config->load(Section::B, $options->configFile);
-        $filterSets = $config->builder()->filterSet;
+        $filterSets = $this->config->builder($cmdOpt)->filterSet;
 
         // Prepare cache repository for this run
         $this->cache->prepareForRun(
             // builder.filter_list.filename
             array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
-            $config->cacheDir,
-            $options->ignoreCache,
+            $this->config->getCachePath(),
+            $cmdOpt->ignoreCache,
             Section::B,
         );
 
@@ -52,7 +51,7 @@ final class Builder
             $content = Cleaner::clean($rawContent, $filterSet->unique);
             $sourceHash = $this->sourceHash($content, [$header]);
 
-            if (!$options->ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
+            if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
                 $this->logger->skipped($outputPath);
 
                 continue;
