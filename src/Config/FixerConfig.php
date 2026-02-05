@@ -10,8 +10,15 @@ final class FixerConfig
     /** @var array<string> */
     public array $paths;
 
+    /** @var array<string, bool> */
+    public array $options = [
+        'backup' => false,
+        'keep_empty_lines' => false,
+        'xmode' => false,
+    ];
+
     /**
-     * @param array<string, array<string>> $config User-defined configuration from the config file
+     * @param array<string, array<string>|array<string, bool>> $config User-defined configuration from the config file
      * @param array{paths?: array<string>} $custom Custom configuration from the CLI
      */
     public function make(array $config, array $custom): self
@@ -20,6 +27,10 @@ final class FixerConfig
             $custom['paths'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );
+
+        foreach ($config['options'] ?? [] as $name => $value) {
+            $this->options[$name] = $value;
+        }
 
         return $this;
     }

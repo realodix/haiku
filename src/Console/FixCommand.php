@@ -29,8 +29,6 @@ class FixCommand extends Command
         $this
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to process')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and process all files')
-            ->addOption('backup', null, InputOption::VALUE_NONE, 'Create backup files before modifying')
-            ->addOption('keep-empty-lines', null, InputOption::VALUE_NONE, 'Keep empty lines in output')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
             ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
             ->addOption('x', null, InputOption::VALUE_NONE, 'Enable experimental features');
@@ -42,6 +40,13 @@ class FixCommand extends Command
             throw new InvalidConfigurationException('The configuration file does not exist.');
         }
 
+        // todo: remove in the future
+        if ($input->getOption('x')) {
+            throw new InvalidConfigurationException(
+                'The "x" option is no longer supported. Use the "fixer.options.xmode" instead.',
+            );
+        }
+
         $io = new SymfonyStyle($input, $output);
         $io->writeln(sprintf('%s <info>%s</info> by <comment>Realodix</comment>', App::NAME, App::version()));
         $io->newLine();
@@ -50,13 +55,10 @@ class FixCommand extends Command
         $startTime = microtime(true);
         $this->fixer->handle(
             new CommandOptions(
-                backup: $input->getOption('backup'),
                 cachePath: $input->getOption('cache'),
                 configFile: $input->getOption('config'),
                 ignoreCache: $input->getOption('force'),
-                keepEmptyLines: $input->getOption('keep-empty-lines'),
                 path: $input->getOption('path'),
-                xMode: $input->getOption('x'),
             ),
         );
 

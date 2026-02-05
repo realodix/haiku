@@ -53,6 +53,8 @@ fixer:
     - src
   excludes:
     - vendor
+  options:
+    keep_empty_lines: true
 ```
 
 #### `paths`
@@ -64,6 +66,13 @@ A list of files or directories to be excluded during processing. If `excludes` c
 Paths under `excludes` are relative to the `fixer.paths`. Here are some examples of `excludes`, assuming that `src` is defined in `fixer.paths`:
 - `Config` will skip the `src/Config` folder.
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
+
+#### `options`
+A list of options to configure the fixer. Available options are:
+
+- **`backup`**: If set to `true`, creates a backup of each file before applying fixes. Default is `false`.
+- **`keep_empty_lines`**: If set to `true`, keeps empty lines in the output file. Default is `false`.
+- **`xmode`**: If set to `true`, enables experimental features. Default is `false`.
 
 
 ## Builder Configuration

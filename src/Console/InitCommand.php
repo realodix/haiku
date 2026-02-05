@@ -51,6 +51,10 @@ fixer:
     - excluded_file.txt
     - some/path/to/file.txt
     - path/to/source
+  # options:
+  #  backup: true
+  #  keep_empty_lines: true
+  #  xmode: true
 
 # Settings for the `build` command
 builder:

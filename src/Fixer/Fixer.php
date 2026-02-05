@@ -28,6 +28,7 @@ final class Fixer
     {
         $config = $this->config->load(Section::F, $cmdOpt->configFile);
         $fixerConfig = $config->fixer($cmdOpt->path ? ['paths' => [$cmdOpt->path]] : []);
+        $opt = $fixerConfig->options;
 
         $this->cache->prepareForRun(
             $fixerConfig->paths,
@@ -53,10 +54,13 @@ final class Fixer
             }
 
             $this->logger->processing($path);
-            if ($cmdOpt->backup) {
+            if ($opt['backup']) {
                 $this->backup($path);
             }
-            $this->write($path, $this->processor->process($content, $cmdOpt->keepEmptyLines, $cmdOpt->xMode));
+            $this->write(
+                $path,
+                $this->processor->process($content, $opt['keep_empty_lines'], $opt['xmode']),
+            );
             $this->logger->processed($path);
         }
 

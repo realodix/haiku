@@ -25,6 +25,11 @@ final class Schema
             'fixer' => Expect::structure([
                 'paths' => Expect::listOf('string'),
                 'excludes' => Expect::listOf('string'),
+                'options' => Expect::array([
+                    'backup' => Expect::bool(),
+                    'keep_empty_lines' => Expect::bool(),
+                    'xmode' => Expect::bool(),
+                ]),
             ]),
         ]);
     }

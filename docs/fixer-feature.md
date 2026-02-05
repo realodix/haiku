@@ -123,7 +123,7 @@ example.com,example.org##.ads
 ### # Combining Overlapping Options
 
 > [!NOTE]
-> Experimental feature. Use `--x` flag to enable this feature.
+> Experimental feature. Set `fixer.options.xmode` to enable this feature.
 
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 
@@ -209,7 +209,7 @@ example.com##.ads
 ### # Domain Redundancy Elimination
 
 > [!NOTE]
-> Experimental feature. Use `--x` flag to enable this feature.
+> Experimental feature. Set `fixer.options.xmode` to enable this featuree.
 
 Haiku performs additional domain redundancy elimination to remove semantically redundant domain rules.
 
@@ -269,7 +269,7 @@ example.com##.ad
 ### # Wrong Separator
 
 > [!NOTE]
-> Experimental feature. Use `--x` flag to enable this feature.
+> Experimental feature. Set `fixer.options.xmode` to enable this featuree.
 
 ```adblock
 !## BEFORE
