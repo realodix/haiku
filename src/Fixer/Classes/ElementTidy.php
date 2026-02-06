@@ -57,7 +57,7 @@ final class ElementTidy
 
     private function normalizeSelector(string $str): string
     {
-        // remove leading spaces
+        // Remove leading spaces
         $str = ltrim($str);
 
         return $str;

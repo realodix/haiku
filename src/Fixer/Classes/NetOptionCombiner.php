@@ -188,14 +188,14 @@ final class NetOptionCombiner
         }
 
         // pos + mixed
-        // allowed only if they share at least one positive option
+        // Allowed only if they share at least one positive option
         if ($eState === 'POS' && $iState === 'MIXED'
             || $eState === 'MIXED' && $iState === 'POS') {
             return (bool) array_intersect($ePos, $iPos);
         }
 
         // neg + mixed
-        // allowed only if they share at least one negated option
+        // Allowed only if they share at least one negated option
         if ($eState === 'NEG' && $iState === 'MIXED'
             || $eState === 'MIXED' && $iState === 'NEG') {
             return (bool) array_intersect($eNeg, $iNeg);

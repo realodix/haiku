@@ -8,7 +8,7 @@ final class DomainNormalizer
 
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
-        // regex domain, don't touch
+        // Regex domain, don't touch
         if ($this->containsRegexDomain($domainStr)) {
             return $domainStr;
         }
@@ -25,12 +25,12 @@ final class DomainNormalizer
                 return $this->cleanDomain($domainStr);
             });
 
-        // domain coverage reducer
+        // Domain coverage reducer
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
 
         return $domains->unique()->sortBy(function ($str) {
-            // ensure negated domains ('~') come first
+            // Ensure negated domains ('~') come first
             if (str_starts_with($str, '~')) {
                 return '/'.$str;
             }
@@ -100,7 +100,7 @@ final class DomainNormalizer
             return $domains;
         }
 
-        // collect wildcard bases: example.*
+        // Collect wildcard bases: example.*
         $wildcardBases = $domains
             ->filter(fn($d) => !str_starts_with($d, '~') && str_ends_with($d, '.*'))
             ->map(fn($d) => substr($d, 0, -2))
@@ -140,11 +140,11 @@ final class DomainNormalizer
             return $domains;
         }
 
-        // collect base domains (non-negated, non-wildcard)
+        // Collect base domains (non-negated, non-wildcard)
         $baseDomains = $domains
-            ->filter(fn($d) => !str_starts_with($d, '~')
-                && !str_ends_with($d, '.*')
-                && str_contains($d, '.'),
+            ->filter(fn($d) => str_contains($d, '.')
+                && !str_starts_with($d, '~')
+                && !str_ends_with($d, '.*'),
             )->unique();
 
         if ($baseDomains->isEmpty()) {
@@ -152,13 +152,13 @@ final class DomainNormalizer
         }
 
         return $domains->reject(function ($d) use ($baseDomains) {
-            // don't touch negated domains
+            // Don't touch negated domains
             if (str_starts_with($d, '~')) {
                 return false;
             }
 
             foreach ($baseDomains as $base) {
-                // skip self
+                // Skip self
                 if ($d === $base) {
                     continue;
                 }
