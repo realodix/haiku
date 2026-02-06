@@ -151,20 +151,24 @@ final class DomainNormalizer
             return $domains;
         }
 
-        return $domains->reject(function ($d) use ($baseDomains) {
-            // Don't touch negated domains
+        $baseSet = $baseDomains->flip()->all();
+
+        return $domains->reject(function ($d) use ($baseSet) {
+            // don't touch negated domains
             if (str_starts_with($d, '~')) {
                 return false;
             }
 
-            foreach ($baseDomains as $base) {
-                // Skip self
-                if ($d === $base) {
-                    continue;
-                }
-
-                // login.example.com ends with .example.com
-                if (str_ends_with($d, '.'.$base)) {
+            // Check each parent domain, starting from the closest one
+            // and if parent exists, current domain is redundant.
+            //
+            // example: login.api.example.com -> api.example.com
+            //   -> example.com (found in base set -> covered)
+            $parts = explode('.', $d);
+            $count = count($parts);
+            for ($i = 1; $i < $count; $i++) {
+                $parent = implode('.', array_slice($parts, $i));
+                if (isset($baseSet[$parent])) {
                     return true;
                 }
             }

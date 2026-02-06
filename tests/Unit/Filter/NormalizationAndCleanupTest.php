@@ -120,23 +120,23 @@ class NormalizationAndCleanupTest extends TestCase
     public function subdomainCoverage()
     {
         $input = [
-            '*$domain=example.com|~ads.example.com|api.example.com|example.org',
+            '*$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk|example.co.uk|login.example.co.uk',
             'example.com,~ads.example.com,api.example.com,example.org##.ads',
         ];
         $expected = [
-            '*$domain=~ads.example.com|example.com|example.org',
+            '*$domain=~ads.example.co.uk|example.co.uk',
             '~ads.example.com,example.com,example.org##.ads',
         ];
         $this->assertSame($expected, $this->fix($input, ['xmode' => true]));
 
         $input = [
-            '*$domain=example.com|~ads.example.com|api.example.com',
-            '*$domain=example.org',
+            '*$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk',
+            '*$domain=example.org|example.co.uk',
             'example.com,api.example.com,example.org##.ads',
             '~ads.example.com##.ads',
         ];
         $expected = [
-            '*$domain=~ads.example.com|example.com|example.org',
+            '*$domain=~ads.example.co.uk|example.co.uk|example.org',
             'example.com,example.org##.ads',
             '~ads.example.com##.ads',
         ];
