@@ -14,7 +14,7 @@ final class FixerConfig
 
     /** @var array<string, bool> */
     public array $flags = [
-        'keep_empty_lines' => false,
+        'remove_empty_lines' => true,
         'xmode' => false,
     ];
 

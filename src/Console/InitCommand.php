@@ -53,7 +53,7 @@ fixer:
     - path/to/source
   # backup: true
   # flags:
-  #  keep_empty_lines: true
+  #  remove_empty_lines: false
   #  xmode: true
 
 # Settings for the `build` command

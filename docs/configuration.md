@@ -54,7 +54,7 @@ fixer:
   excludes:
     - vendor
   flags:
-    keep_empty_lines: true
+    remove_empty_lines: false
 ```
 
 #### `paths`
@@ -73,7 +73,7 @@ Creates a backup of each file before applying fixes. Default is `false`.
 #### `flags`
 A list of flags to control processing behavior.
 
-- **`keep_empty_lines`**: Keeps empty lines in the output file. Default is `false`.
+- **`remove_empty_lines`**: Removes empty lines. Default is `true`.
 - **`xmode`**: Enables experimental features. Default is `false`.
 
 

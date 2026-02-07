@@ -27,7 +27,7 @@ final class Schema
                 'excludes' => Expect::listOf('string'),
                 'backup' => Expect::bool(),
                 'flags' => Expect::array([
-                    'keep_empty_lines' => Expect::bool(),
+                    'remove_empty_lines' => Expect::bool(),
                     'xmode' => Expect::bool(),
                 ]),
             ]),

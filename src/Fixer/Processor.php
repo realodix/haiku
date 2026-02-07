@@ -42,7 +42,7 @@ final class Processor
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (!$flags['keep_empty_lines'] && $line === '') {
+            if ($flags['remove_empty_lines'] && $line === '') {
                 continue;
             }
 
