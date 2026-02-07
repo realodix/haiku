@@ -11,14 +11,14 @@ final class FixerConfig
     public array $paths;
 
     /** @var array<string, bool> */
-    public array $options = [
+    public array $flags = [
         'backup' => false,
         'keep_empty_lines' => false,
         'xmode' => false,
     ];
 
     /**
-     * @param array<string, array<string>|array<string, bool>> $config User-defined configuration from the config file
+     * @param array<string, array<string>> $config User-defined configuration from the config file
      * @param array{paths?: array<string>} $cmdOpt Command options
      */
     public function make(array $config, array $cmdOpt): self
@@ -28,8 +28,8 @@ final class FixerConfig
             $config['excludes'] ?? [],
         );
 
-        foreach ($config['options'] ?? [] as $name => $value) {
-            $this->options[$name] = $value;
+        foreach ($config['flags'] ?? [] as $name => $value) {
+            $this->flags[$name] = $value;
         }
 
         return $this;

@@ -51,8 +51,8 @@ fixer:
     - excluded_file.txt
     - some/path/to/file.txt
     - path/to/source
-  # options:
-  #  backup: true
+  # backup: true
+  # flags:
   #  keep_empty_lines: true
   #  xmode: true
 

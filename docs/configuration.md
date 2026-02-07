@@ -53,7 +53,7 @@ fixer:
     - src
   excludes:
     - vendor
-  options:
+  flags:
     keep_empty_lines: true
 ```
 
@@ -67,12 +67,12 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 - `Config` will skip the `src/Config` folder.
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
 
-#### `options`
-A list of options to configure the fixer. Available options are:
+#### `flags`
+A list of flags to control processing behavior.
 
-- **`backup`**: If set to `true`, creates a backup of each file before applying fixes. Default is `false`.
-- **`keep_empty_lines`**: If set to `true`, keeps empty lines in the output file. Default is `false`.
-- **`xmode`**: If set to `true`, enables experimental features. Default is `false`.
+- **`backup`**: Creates a backup of each file before applying fixes. Default is `false`.
+- **`keep_empty_lines`**: Keeps empty lines in the output file. Default is `false`.
+- **`xmode`**: Enables experimental features. Default is `false`.
 
 
 ## Builder Configuration

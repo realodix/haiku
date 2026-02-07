@@ -36,11 +36,11 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    protected function fix(array $value, array $options = []): mixed
+    protected function fix(array $value, array $flags = []): mixed
     {
-        $options = array_merge(app(FixerConfig::class)->options, $options);
+        $flags = array_merge(app(FixerConfig::class)->flags, $flags);
 
-        return app(Processor::class)->process($value, $options);
+        return app(Processor::class)->process($value, $flags);
     }
 
     protected function runBuildCommand(array $options = [])

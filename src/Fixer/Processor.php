@@ -17,7 +17,7 @@ final class Processor
         private NetOptionCombiner $optionCombiner,
     ) {}
 
-    public function setExperimental(bool $xMode): void
+    private function setExperimental(bool $xMode): void
     {
         $this->elementTidy->setExperimental($xMode);
         $this->networkTidy->setExperimental($xMode);
@@ -30,19 +30,19 @@ final class Processor
      * and combined list.
      *
      * @param array<string> $lines An array of raw filter lines
-     * @param array<string, bool> $opt Options to use
+     * @param array<string, bool> $flags An array of flags to control processing behavior
      * @return array<string> The processed and optimized list of filter lines
      */
-    public function process(array $lines, array $opt): array
+    public function process(array $lines, array $flags): array
     {
-        $this->setExperimental($opt['xmode']);
+        $this->setExperimental($flags['xmode']);
 
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($opt['keep_empty_lines'] === false && $line === '') {
+            if (!$flags['keep_empty_lines'] && $line === '') {
                 continue;
             }
 
