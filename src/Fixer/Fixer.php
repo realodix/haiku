@@ -51,7 +51,7 @@ final class Fixer
             }
 
             $this->logger->processing($path);
-            if ($config->flags['backup']) {
+            if ($config->backup) {
                 $this->backup($path);
             }
             $this->write($path, $this->processor->process($content, $config->flags));

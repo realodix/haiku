@@ -67,10 +67,12 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 - `Config` will skip the `src/Config` folder.
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
 
+#### `backup`
+Creates a backup of each file before applying fixes. Default is `false`.
+
 #### `flags`
 A list of flags to control processing behavior.
 
-- **`backup`**: Creates a backup of each file before applying fixes. Default is `false`.
 - **`keep_empty_lines`**: Keeps empty lines in the output file. Default is `false`.
 - **`xmode`**: Enables experimental features. Default is `false`.
 
