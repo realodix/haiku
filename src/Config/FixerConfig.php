@@ -88,7 +88,7 @@ final class FixerConfig
      * @param array<string> $excludes Excludes files or dirs
      * @return \Symfony\Component\Finder\Finder
      */
-    public function finder(string $dir, array $excludes)
+    private function finder(string $dir, array $excludes)
     {
         if ($dir === base_path()) {
             $excludes = array_merge($excludes, ['vendor']);
