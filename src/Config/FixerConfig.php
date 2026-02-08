@@ -14,6 +14,7 @@ final class FixerConfig
 
     /** @var array<string, bool> */
     public array $flags = [
+        'migrate_deprecated_options' => false,
         'remove_empty_lines' => true,
         'xmode' => false,
     ];

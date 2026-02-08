@@ -73,6 +73,7 @@ Creates a backup of each file before applying fixes. Default is `false`.
 #### `flags`
 A list of flags to control processing behavior.
 
+<!-- - **`migrate_deprecated_options`**: Rewrite deprecated options to new ones. Default is `false`. -->
 - **`remove_empty_lines`**: Removes empty lines. Default is `true`.
 - **`xmode`**: Enables experimental features. Default is `false`.
 

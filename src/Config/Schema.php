@@ -27,6 +27,7 @@ final class Schema
                 'excludes' => Expect::listOf('string'),
                 'backup' => Expect::bool(),
                 'flags' => Expect::array([
+                    'migrate_deprecated_options' => Expect::bool(),
                     'remove_empty_lines' => Expect::bool(),
                     'xmode' => Expect::bool(),
                 ]),
