@@ -296,7 +296,8 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function option_transforms($input, $expected): void
     {
-        $this->assertSame($expected, $this->fix($input));
+        $flags = ['xmode' => true];
+        $this->assertSame($expected, $this->fix($input, $flags));
     }
 
     public static function optionTransformsProvider(): array

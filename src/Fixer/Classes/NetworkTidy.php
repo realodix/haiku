@@ -54,11 +54,15 @@ final class NetworkTidy
         private DomainNormalizer $domainNormalizer,
     ) {}
 
+    /** @var array<string, bool> */
+    private array $flags;
+
     /**
      * @param array<string, bool> $flags
      */
     public function setFlags(array $flags): void
     {
+        $this->flags = $flags;
         $this->domainNormalizer->flags = $flags;
     }
 
@@ -163,28 +167,30 @@ final class NetworkTidy
                 continue;
             }
 
-            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
-            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
-            if ($option === 'empty') {
-                $result[] = 'redirect=nooptext';
+            if ($this->flags['xmode']) {
+                // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
+                // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
+                if ($option === 'empty') {
+                    $result[] = 'redirect=nooptext';
 
-                continue;
-            }
+                    continue;
+                }
 
-            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#mp4
-            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#mp4-modifier
-            if ($option === 'mp4') {
-                $result[] = 'media,redirect=noopmp4-1s';
+                // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#mp4
+                // https://adguard.com/kb/general/ad-filtering/create-own-filters/#mp4-modifier
+                if ($option === 'mp4') {
+                    $result[] = 'media,redirect=noopmp4-1s';
 
-                continue;
-            }
+                    continue;
+                }
 
-            // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#removeparam
-            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#removeparam-modifier
-            if (str_starts_with($option, 'queryprune')) {
-                $result[] = str_replace('queryprune', 'removeparam', $option);
+                // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#removeparam
+                // https://adguard.com/kb/general/ad-filtering/create-own-filters/#removeparam-modifier
+                if (str_starts_with($option, 'queryprune')) {
+                    $result[] = str_replace('queryprune', 'removeparam', $option);
 
-                continue;
+                    continue;
+                }
             }
 
             // Default: keep option as-is
