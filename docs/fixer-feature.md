@@ -120,10 +120,10 @@ example.org##.ads
 example.com,example.org##.ads
 ```
 
-### # Combining Overlapping Options
+### # Combine Overlapping Options
 
 > [!NOTE]
-> Experimental feature. Set `fixer.options.xmode` to enable this feature.
+> Set `fixer.flags.xmode` to enable this.
 
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 
@@ -164,6 +164,23 @@ This canonicalization ensures visually predictable rules.
 
 
 ## Normalization & Cleanup
+
+### # Empty Lines
+
+Removes empty lines.
+
+**Config**: `fixer.flags.remove_empty_lines`
+
+```adblock
+!## BEFORE
+##.ads
+
+##.banner
+
+!## AFTER
+##.ads
+##.banner
+```
 
 ### # Duplicate Rules
 
@@ -209,7 +226,7 @@ example.com##.ads
 ### # Domain Redundancy Elimination
 
 > [!NOTE]
-> Experimental feature. Set `fixer.options.xmode` to enable this featuree.
+> Set `fixer.flags.xmode` to enable this.
 
 Haiku performs additional domain redundancy elimination to remove semantically redundant domain rules.
 
@@ -241,7 +258,7 @@ example.com,~ads.example.com,api.example.com,example.org##.ads
 
 Subdomains covered by a base domain are removed. Negated domains are preserved.
 
-### # Superfluous Separators
+### # Superfluous Domain Separators
 
 Removes unneeded separators.
 
@@ -257,7 +274,7 @@ example.com,example.org##.ads
 
 ### # Space In Domain List
 
-Removes unnecessary spaces.
+Remove spaces within the domain list.
 
 ```adblock
 !## BEFORE
@@ -269,21 +286,30 @@ example.com , example.org ##.ads
 example.com,example.org##.ads
 ```
 
-### # Lowercase
+### # Lowercase Domain
 ```adblock
 !## BEFORE
-*$IMAGE
 EXAMPLE.COM##.ad
 
 !## AFTER
-*$image
 example.com##.ad
 ```
 
-### # Wrong Separator
+### # Lowercase Option Name
+```adblock
+!## BEFORE
+*$IMAGE
+
+!## AFTER
+*$image
+```
+
+### # Wrong Domain Separator
 
 > [!NOTE]
-> Experimental feature. Set `fixer.options.xmode` to enable this featuree.
+> Set `fixer.flags.xmode` to enable this.
+
+Fixes the domain separator.
 
 ```adblock
 !## BEFORE
@@ -310,3 +336,25 @@ Removes unnecessary symbols from the domain.
 example.com##.ads1
 example.org##.ads2
 ```
+
+
+## Migrations
+
+### # Deprecated Filter Options
+
+> [!NOTE]
+> Set `fixer.flags.xmode` to enable this.
+
+Converts deprecated filter options to new ones.
+
+Supported options:
+- `$empty`
+- `$mp4`
+- `$queryprune`
+
+```adblock
+!## BEFORE
+*$mp4
+
+!## AFTER
+*$media,redirect=noopmp4-1s

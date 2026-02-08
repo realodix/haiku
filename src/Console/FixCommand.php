@@ -43,7 +43,7 @@ class FixCommand extends Command
         // deprecated
         if ($input->getOption('x')) {
             throw new InvalidConfigurationException(
-                'The "x" option is no longer supported. Use the "fixer.options.xmode" instead.',
+                'The "x" option is no longer supported. Use the "fixer.flags.xmode" instead.',
             );
         }
 
