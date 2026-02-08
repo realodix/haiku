@@ -26,10 +26,7 @@ final class Schema
                 'paths' => Expect::listOf('string'),
                 'excludes' => Expect::listOf('string'),
                 'backup' => Expect::bool(),
-                'flags' => Expect::array([
-                    'remove_empty_lines' => Expect::bool(),
-                    'xmode' => Expect::bool(),
-                ]),
+                'flags' => Expect::arrayOf('bool', 'string'),
             ]),
         ]);
     }

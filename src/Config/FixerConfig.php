@@ -37,7 +37,7 @@ final class FixerConfig
         $this->backup = $config['backup'] ?? false;
 
         foreach ($config['flags'] ?? [] as $name => $value) {
-            $this->flags[$name] = $value;
+            $this->setFlag($name, $value);
         }
 
         return $this;
@@ -72,6 +72,15 @@ final class FixerConfig
         $resolvedPaths = array_map(fn($path) => Path::canonicalize($path), $resolvedPaths);
 
         return array_unique($resolvedPaths);
+    }
+
+    private function setFlag(string $name, bool $value): void
+    {
+        if (!array_key_exists($name, $this->flags)) {
+            throw new InvalidConfigurationException(sprintf('Unknown flag name: "%s".', $name));
+        }
+
+        $this->flags[$name] = $value;
     }
 
     /**
