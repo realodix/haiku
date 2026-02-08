@@ -10,9 +10,12 @@ final class Combiner
         private DomainNormalizer $domainNormalizer,
     ) {}
 
-    public function setExperimental(bool $xMode): void
+    /**
+     * @param array<string, bool> $flags
+     */
+    public function setFlags(array $flags): void
     {
-        $this->domainNormalizer->xMode = $xMode;
+        $this->domainNormalizer->flags = $flags;
     }
 
     /**

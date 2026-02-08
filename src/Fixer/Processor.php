@@ -17,12 +17,15 @@ final class Processor
         private NetOptionCombiner $optionCombiner,
     ) {}
 
-    private function setExperimental(bool $xMode): void
+    /**
+     * @param array<string, bool> $flags
+     */
+    private function setFlags(array $flags): void
     {
-        $this->elementTidy->setExperimental($xMode);
-        $this->networkTidy->setExperimental($xMode);
-        $this->combiner->setExperimental($xMode);
-        $this->optionCombiner->setExperimental($xMode);
+        $this->elementTidy->setFlags($flags);
+        $this->networkTidy->setFlags($flags);
+        $this->combiner->setFlags($flags);
+        $this->optionCombiner->setFlags($flags);
     }
 
     /**
@@ -35,7 +38,7 @@ final class Processor
      */
     public function process(array $lines, array $flags): array
     {
-        $this->setExperimental($flags['xmode']);
+        $this->setFlags($flags);
 
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules

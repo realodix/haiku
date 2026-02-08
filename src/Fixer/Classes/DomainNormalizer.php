@@ -4,7 +4,8 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 final class DomainNormalizer
 {
-    public bool $xMode;
+    /** @var array<string, bool> */
+    public array $flags;
 
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
@@ -51,7 +52,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if ($this->xMode === false) {
+        if ($this->flags['xmode'] === false) {
             return $domainStr;
         }
 
@@ -96,7 +97,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if ($this->xMode === false) {
+        if ($this->flags['xmode'] === false) {
             return $domains;
         }
 
@@ -136,7 +137,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if ($this->xMode === false) {
+        if ($this->flags['xmode'] === false) {
             return $domains;
         }
 

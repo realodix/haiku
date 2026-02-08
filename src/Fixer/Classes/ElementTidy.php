@@ -11,9 +11,12 @@ final class ElementTidy
         private AdgModifierForElement $adgModifier,
     ) {}
 
-    public function setExperimental(bool $xMode): void
+    /**
+     * @param array<string, bool> $flags
+     */
+    public function setFlags(array $flags): void
     {
-        $this->domainNormalizer->xMode = $xMode;
+        $this->domainNormalizer->flags = $flags;
     }
 
     /**

@@ -31,11 +31,15 @@ final class NetOptionCombiner
         ['xmlhttprequest', 'xhr'],
     ];
 
-    private bool $xMode;
+    /** @var array<string, bool> */
+    private array $flags;
 
-    public function setExperimental(bool $xMode): void
+    /**
+     * @param array<string, bool> $flags
+     */
+    public function setFlags(array $flags): void
     {
-        $this->xMode = $xMode;
+        $this->flags = $flags;
     }
 
     /**
@@ -44,7 +48,7 @@ final class NetOptionCombiner
      */
     public function applyFix(array $rules): array
     {
-        if ($this->xMode === false) {
+        if ($this->flags['xmode'] === false) {
             return $rules;
         }
 
