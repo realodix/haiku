@@ -48,16 +48,7 @@ final class Fixer
         $path = Path::canonicalize($path);
         $content = $this->read($path);
 
-        if ($content === null) {
-            return;
-        }
-
-        $contentHash = $this->hash(implode("\n", $content)."\n", $config->flags);
-        if ($this->cache->isValid($path, $contentHash)
-            || trim(implode($content)) === '' // empty file
-        ) {
-            $this->logger->skipped($path);
-
+        if ($this->shouldSkip($path, $content, $config->flags)) {
             return;
         }
 
@@ -97,6 +88,37 @@ final class Fixer
         }
 
         return $rawContent;
+    }
+
+    /**
+     * Check if file should be skipped.
+     *
+     * @param string $path Path to file
+     * @param array<string>|null $content File content
+     * @param array<string, bool> $flags
+     */
+    private function shouldSkip(string $path, ?array $content, array $flags): bool
+    {
+        // File doesn't exist
+        if ($content === null) {
+            return true;
+        }
+
+        // Empty file
+        if (trim(implode($content)) === '') {
+            $this->logger->skipped($path);
+
+            return true;
+        }
+
+        $fingerprint = $this->hash(implode("\n", $content)."\n", $flags);
+        if ($this->cache->isValid($path, $fingerprint)) {
+            $this->logger->skipped($path);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
