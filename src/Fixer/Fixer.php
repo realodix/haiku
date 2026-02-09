@@ -52,7 +52,7 @@ final class Fixer
             return;
         }
 
-        $contentHash = $this->hash(implode("\n", $content)."\n");
+        $contentHash = $this->hash(implode("\n", $content)."\n", $config->flags);
         if ($this->cache->isValid($path, $contentHash)
             || trim(implode($content)) === '' // empty file
         ) {
@@ -67,7 +67,11 @@ final class Fixer
             $this->backup($path);
         }
 
-        $this->write($path, $this->processor->process($content, $config->flags));
+        $content = $this->processor->process($content, $config->flags);
+        $content = implode("\n", $content)."\n";
+        $this->fs->dumpFile($path, $content);
+
+        $this->cache->set($path, $this->hash($content, $config->flags));
         $this->logger->processed($path);
     }
 
@@ -96,22 +100,6 @@ final class Fixer
     }
 
     /**
-     * Write processed content to a file.
-     *
-     * @param string $filePath Path to file
-     * @param array<string> $content Processed content
-     *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
-     */
-    private function write(string $filePath, array $content): void
-    {
-        $content = implode("\n", $content)."\n";
-        $this->fs->dumpFile($filePath, $content);
-
-        $this->cache->set($filePath, $this->hash($content));
-    }
-
-    /**
      * Create a backup of the file at the given path.
      *
      * @param string $filePath Path to file
@@ -128,8 +116,13 @@ final class Fixer
         }
     }
 
-    private function hash(string $data): string
+    /**
+     * @param array<string, bool> $configFlags
+     */
+    private function hash(string $data, array $configFlags): string
     {
+        $flags = json_encode($configFlags, JSON_THROW_ON_ERROR);
+
         if (str_contains(App::VERSION, '.x')) {
             $v = App::version();
         } else {
@@ -138,7 +131,7 @@ final class Fixer
             $v = implode('.', array_slice($v, 0, 2));
         }
 
-        return hash('xxh128', $data.$v);
+        return hash('xxh128', $data.$v.$flags);
     }
 
     /**
