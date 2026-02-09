@@ -25,8 +25,6 @@ final class Builder
     public function handle(CommandOptions $cmdOpt): void
     {
         $filterSets = $this->config->builder($cmdOpt)->filterSet;
-
-        // Prepare cache repository for this run
         $this->cache->prepareForRun(
             // builder.filter_list.filename
             array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
@@ -36,41 +34,49 @@ final class Builder
         );
 
         foreach ($filterSets as $filterSet) {
-            // Step 1: Read all source files or URLs
-            $outputPath = $filterSet->outputPath;
-            $header = $filterSet->header;
-            $rawContent = $this->read($filterSet->source);
-
-            if ($rawContent === null) {
-                $this->logger->skipped($outputPath);
-
-                continue;
-            }
-
-            // Step 2: Preparing content
-            $content = Cleaner::clean($rawContent, $filterSet->unique);
-            $sourceHash = $this->sourceHash($content, [$header]);
-
-            if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
-                $this->logger->skipped($outputPath);
-
-                continue;
-            }
-
-            // Step 3: Build and write
-            $finalContent = array_merge([$this->header($header)], $content);
-            $this->write($outputPath, $finalContent, $sourceHash);
-            $this->logger->processed($outputPath);
+            $this->buildFilterList($filterSet, $cmdOpt);
         }
 
-        // Save all updated cache entries to disk
         $this->cache->repository()->save();
+    }
+
+    /**
+     * @param \Realodix\Haiku\Config\ValueObject\FilterSet $filterSet
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     */
+    private function buildFilterList($filterSet, $cmdOpt): void
+    {
+        // Step 1: Read all source files or URLs
+        $outputPath = $filterSet->outputPath;
+        $header = $filterSet->header;
+        $rawContent = $this->read($filterSet->source);
+
+        if ($rawContent === null) {
+            $this->logger->skipped($outputPath);
+
+            return;
+        }
+
+        // Step 2: Preparing content
+        $content = Cleaner::clean($rawContent, $filterSet->unique);
+        $sourceHash = $this->sourceHash($content, [$header]);
+
+        if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
+            $this->logger->skipped($outputPath);
+
+            return;
+        }
+
+        // Step 3: Build and write
+        $finalContent = array_merge([$this->header($header)], $content);
+        $this->write($outputPath, $finalContent, $sourceHash);
+        $this->logger->processed($outputPath);
     }
 
     /**
      * Filterlist header.
      */
-    public function header(string $data): string
+    private function header(string $data): string
     {
         $date = new \DateTime()->format(\DateTimeInterface::RFC7231);
 

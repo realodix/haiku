@@ -26,7 +26,6 @@ final class Fixer
     public function handle(CommandOptions $cmdOpt): void
     {
         $config = $this->config->fixer($cmdOpt);
-
         $this->cache->prepareForRun(
             $config->paths,
             $this->config->getCachePath($cmdOpt->cachePath),
@@ -34,31 +33,42 @@ final class Fixer
         );
 
         foreach ($config->paths as $path) {
-            $path = Path::canonicalize($path);
-            $content = $this->read($path);
-            if ($content === null) {
-                continue;
-            }
-
-            $contentHash = $this->hash(implode("\n", $content)."\n");
-            if (
-                $this->cache->isValid($path, $contentHash)
-                || trim(implode($content)) === '' // empty file
-            ) {
-                $this->logger->skipped($path);
-
-                continue;
-            }
-
-            $this->logger->processing($path);
-            if ($config->backup) {
-                $this->backup($path);
-            }
-            $this->write($path, $this->processor->process($content, $config->flags));
-            $this->logger->processed($path);
+            $this->processFile($path, $config);
         }
 
         $this->cache->repository()->save();
+    }
+
+    /**
+     * @param string $path Path to file
+     * @param \Realodix\Haiku\Config\FixerConfig $config Fixer configuration
+     */
+    private function processFile(string $path, $config): void
+    {
+        $path = Path::canonicalize($path);
+        $content = $this->read($path);
+
+        if ($content === null) {
+            return;
+        }
+
+        $contentHash = $this->hash(implode("\n", $content)."\n");
+        if ($this->cache->isValid($path, $contentHash)
+            || trim(implode($content)) === '' // empty file
+        ) {
+            $this->logger->skipped($path);
+
+            return;
+        }
+
+        $this->logger->processing($path);
+
+        if ($config->backup) {
+            $this->backup($path);
+        }
+
+        $this->write($path, $this->processor->process($content, $config->flags));
+        $this->logger->processed($path);
     }
 
     /**
