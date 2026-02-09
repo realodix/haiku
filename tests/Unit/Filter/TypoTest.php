@@ -95,6 +95,8 @@ class TypoTest extends TestCase
     #[PHPUnit\Test]
     public function domain_value(): void
     {
+        $flags = ['xmode' => true];
+
         $input = [
             '-ads.$domain=example.com',
             '-ads.$domain=.Example.com/',
@@ -106,7 +108,7 @@ class TypoTest extends TestCase
             '-ads.$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->fix($input, $flags));
 
         // complex
         $input = [
@@ -117,13 +119,13 @@ class TypoTest extends TestCase
             '/ads.$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->fix($input, $flags));
 
         // regex
         $input = [
             '/ads.$domain=/REGEX/',
             '/REGEX/##.ads',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->fix($input, $flags));
     }
 }

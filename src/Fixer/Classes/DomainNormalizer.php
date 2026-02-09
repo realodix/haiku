@@ -76,6 +76,10 @@ final class DomainNormalizer
     {
         $domain = trim($domain);
 
+        if ($this->flags['xmode'] === false) {
+            return $domain;
+        }
+
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
             $domain = substr($domain, 1);
         }

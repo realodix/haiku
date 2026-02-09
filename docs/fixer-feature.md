@@ -323,6 +323,9 @@ example.com,example.org##.ads
 
 ### # Domain Symbol
 
+> [!NOTE]
+> Set `fixer.flags.xmode` to enable this.
+
 Removes unnecessary symbols from the domain.
 
 ```adblock
