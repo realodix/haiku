@@ -25,7 +25,7 @@ final class FixerConfig
      *   backup: bool|null,
      *   flags: array<string, bool>|null
      * } $config User-defined configuration from the config file
-     * @param array{paths?: array<string>} $cmdOpt Command options
+     * @param array{paths: array<int, string>|null} $cmdOpt Command options
      */
     public function make(array $config, array $cmdOpt): self
     {
