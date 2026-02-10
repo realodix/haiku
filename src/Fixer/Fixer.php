@@ -48,7 +48,7 @@ final class Fixer
         $path = Path::canonicalize($path);
         $content = $this->read($path);
 
-        if ($this->shouldSkip($path, $content, $config->flags)) {
+        if ($content === null || $this->shouldSkip($path, $content, $config->flags)) {
             return;
         }
 
@@ -94,16 +94,11 @@ final class Fixer
      * Check if file should be skipped.
      *
      * @param string $path Path to file
-     * @param array<string>|null $content File content
+     * @param array<string> $content File content
      * @param array<string, bool> $flags
      */
-    private function shouldSkip(string $path, ?array $content, array $flags): bool
+    private function shouldSkip(string $path, array $content, array $flags): bool
     {
-        // File doesn't exist
-        if ($content === null) {
-            return true;
-        }
-
         // Empty file
         if (trim(implode($content)) === '') {
             $this->logger->skipped($path);
