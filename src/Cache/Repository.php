@@ -60,6 +60,7 @@ final class Repository
             }
 
             try {
+                /** @var array<string, mixed>|null $data */
                 $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {
                 throw new \UnexpectedValueException(

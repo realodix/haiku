@@ -90,7 +90,7 @@ final class Builder
      * Reads all source files or URLs defined in the configuration.
      *
      * @param array<string> $paths
-     * @return array<string>|null Source contents, or null if a read fails.
+     * @return array<int, string>|null Source contents, or null if a read fails.
      */
     private function read($paths): ?array
     {
