@@ -54,6 +54,7 @@ final class Combiner
 
                 // Replace the domain in `$currentLine` and insert it into `$nextLine`.
                 $newFullMatch = str_replace($currentLineParse->domainList, $newDomain, $currentLineParse->fullMatch);
+                /** @var array<int, string> $filters */
                 $filters[$i + 1] = preg_replace($domainPattern, $newFullMatch, $currentLine);
             } else {
                 $combined[] = $currentLine;

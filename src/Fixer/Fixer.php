@@ -70,7 +70,7 @@ final class Fixer
      * Read file content.
      *
      * @param string $filePath Path to file
-     * @return array<string>|null
+     * @return list<string>|null
      */
     private function read(string $filePath): ?array
     {
