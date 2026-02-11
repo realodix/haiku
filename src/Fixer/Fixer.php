@@ -94,7 +94,7 @@ final class Fixer
      * Check if file should be skipped.
      *
      * @param string $path Path to file
-     * @param array<string> $content File content
+     * @param array<int, string> $content File content
      * @param array<string, bool> $flags
      */
     private function shouldSkip(string $path, array $content, array $flags): bool
