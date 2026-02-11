@@ -7,7 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 final class FixerConfig
 {
-    /** @var array<string> */
+    /** @var array<int, string> */
     public array $paths;
 
     public bool $backup;
@@ -44,9 +44,9 @@ final class FixerConfig
     }
 
     /**
-     * @param array<string> $paths
-     * @param array<string> $excludes Excludes files or dirs
-     * @return array<string>
+     * @param array<int, string> $paths
+     * @param array<int, string> $excludes Excludes files or dirs
+     * @return array<int, string>
      */
     private function paths(array $paths, array $excludes): array
     {
@@ -85,7 +85,7 @@ final class FixerConfig
 
     /**
      * @param string $dir The directory to use for the search
-     * @param array<string> $excludes Excludes files or dirs
+     * @param array<int, string> $excludes Excludes files or dirs
      * @return \Symfony\Component\Finder\Finder
      */
     private function finder(string $dir, array $excludes)

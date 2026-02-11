@@ -25,7 +25,7 @@ final class Cache
      * - If not forced: clean stale entries (files that no longer exist)
      * - If forced: clear entire cache, but only once per run
      *
-     * @param array<string> $validKeys $validKeys A valid keys to keep
+     * @param array<int, string> $validKeys $validKeys A valid keys to keep
      * @param string|null $storagePath The path where the cache is stored
      * @param bool $ignoreCache If true, the cache is ignored
      */
@@ -75,7 +75,7 @@ final class Cache
     /**
      * Remove cache entries that are no longer valid.
      *
-     * @param array<string> $validKeys A valid keys to keep
+     * @param array<int, string> $validKeys A valid keys to keep
      */
     private function cleanStaleEntries(array $validKeys): void
     {

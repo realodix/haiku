@@ -9,7 +9,7 @@ final readonly class FilterSet
 {
     /**
      * @param string $outputPath The path to the output file
-     * @param array<string> $source The source files for the filter list
+     * @param array<int, string> $source The source files for the filter list
      * @param bool $unique Removes duplicate filter rules
      */
     public function __construct(

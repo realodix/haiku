@@ -32,9 +32,9 @@ final class Processor
      * Processes an array of filter lines, optimizing them into a sorted
      * and combined list.
      *
-     * @param array<string> $lines An array of raw filter lines
+     * @param array<int, string> $lines An array of raw filter lines
      * @param array<string, bool> $flags An array of flags to control processing behavior
-     * @return array<string> The processed and optimized list of filter lines
+     * @return array<int, string> The processed and optimized list of filter lines
      */
     public function process(array $lines, array $flags): array
     {
@@ -83,8 +83,8 @@ final class Processor
      * Processes a section of filter rules by normalizing, sorting, de-duplicating
      * and combining them into their final form.
      *
-     * @param array<string> $section Tidied filter rules
-     * @return array<string> The processed lines for the section
+     * @param array<int, string> $section Tidied filter rules
+     * @return array<int, string> The processed lines for the section
      */
     private function processSection(array $section): array
     {

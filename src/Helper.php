@@ -7,7 +7,7 @@ final class Helper
     /**
      * Returns a sorted, unique array of strings.
      *
-     * @param array<string> $value The array of strings to process
+     * @param array<int, string> $value The array of strings to process
      * @param callable|null $sortBy The sorting function to use
      * @param int $flags The sorting flags
      * @return \Illuminate\Support\Collection<int, string>

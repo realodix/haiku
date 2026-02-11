@@ -10,7 +10,7 @@ use Realodix\Haiku\Fixer\Regex;
  */
 final class NetOptionCombiner
 {
-    /** @var array<string> */
+    /** @var array<int, string> */
     private const OPTIONS = [
         'document', 'doc',
         'font',
@@ -43,8 +43,8 @@ final class NetOptionCombiner
     }
 
     /**
-     * @param array<string> $rules
-     * @return array<string>
+     * @param array<int, string> $rules
+     * @return array<int, string>
      */
     public function applyFix(array $rules): array
     {
@@ -105,7 +105,7 @@ final class NetOptionCombiner
     /**
      * Determines whether a set of network filter options is eligible to be merged.
      *
-     * @param array<string> $options Parsed option list (without `$`), possibly
+     * @param array<int, string> $options Parsed option list (without `$`), possibly
      *                               prefixed with `~`
      * @return bool True if the options are safe to merge
      */
@@ -134,7 +134,7 @@ final class NetOptionCombiner
      * - /ads.$image
      *
      * @param array<string, bool> $existing Currently merged options
-     * @param array<string> $incoming Incoming rule options
+     * @param array<int, string> $incoming Incoming rule options
      * @return bool True if the incoming rule adds no new information
      */
     private function isRedundant(array $existing, array $incoming): bool
@@ -176,7 +176,7 @@ final class NetOptionCombiner
      * incoming options does not affect the outcome.
      *
      * @param array<string, bool> $existing
-     * @param array<string> $incoming
+     * @param array<int, string> $incoming
      */
     private function canMergeConsideringPolarity(array $existing, array $incoming): bool
     {
@@ -213,8 +213,8 @@ final class NetOptionCombiner
      * polarity into account. This method does not validate option correctness;
      * it only classifies structural polarity.
      *
-     * @param array<string> $pos
-     * @param array<string> $neg
+     * @param array<int, string> $pos
+     * @param array<int, string> $neg
      */
     private function polarityState(array $pos, array $neg): string
     {
@@ -230,8 +230,8 @@ final class NetOptionCombiner
     }
 
     /**
-     * @param array<string> $options
-     * @return array{0: array<string>, 1: array<string>}
+     * @param array<int, string> $options
+     * @return list<array<int, string>>
      */
     private function splitPolarity(array $options): array
     {
@@ -257,7 +257,7 @@ final class NetOptionCombiner
      *  pattern: string,
      *  options: array<string, bool>
      * }> $groups
-     * @return array<string>
+     * @return array<int, string>
      */
     private function rebuild(array $groups): array
     {

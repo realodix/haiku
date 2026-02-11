@@ -21,7 +21,7 @@ final class ElementTidy
 
     /**
      * @param string $line The rule line
-     * @param array<string> $m The regex match
+     * @param array<int, string> $m The regex match
      * @return string The normalized rule
      */
     public function applyFix(string $line, array $m): string

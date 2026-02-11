@@ -10,9 +10,9 @@ final class Cleaner
      * Cleans a list of raw filter source contents by removing metadata, comments,
      * and empty lines, leaving only the valid filter rules.
      *
-     * @param array<string> $text Raw filter source contents
+     * @param array<int, string> $text Raw filter source contents
      * @param bool $unique Removes duplicate filter rules
-     * @return array<string> The cleaned filter contents, each containing only valid rules
+     * @return array<int, string> The cleaned filter contents, each containing only valid rules
      */
     public static function clean(array $text, bool $unique = false): array
     {
