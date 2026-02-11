@@ -48,7 +48,7 @@ final class NetOptionCombiner
      */
     public function applyFix(array $rules): array
     {
-        if ($this->flags['xmode'] === false) {
+        if (!$this->flags['xmode']) {
             return $rules;
         }
 

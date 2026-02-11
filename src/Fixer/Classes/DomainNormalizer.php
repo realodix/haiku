@@ -52,7 +52,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if ($this->flags['xmode'] === false) {
+        if (!$this->flags['xmode']) {
             return $domainStr;
         }
 
@@ -76,7 +76,7 @@ final class DomainNormalizer
     {
         $domain = trim($domain);
 
-        if ($this->flags['xmode'] === false) {
+        if (!$this->flags['xmode']) {
             return $domain;
         }
 
@@ -101,7 +101,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if ($this->flags['xmode'] === false) {
+        if (!$this->flags['xmode']) {
             return $domains;
         }
 
@@ -141,7 +141,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if ($this->flags['xmode'] === false) {
+        if (!$this->flags['xmode']) {
             return $domains;
         }
 
