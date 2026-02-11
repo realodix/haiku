@@ -106,7 +106,7 @@ final class NetOptionCombiner
      * Determines whether a set of network filter options is eligible to be merged.
      *
      * @param array<int, string> $options Parsed option list (without `$`), possibly
-     *                               prefixed with `~`
+     *                                    prefixed with `~`
      * @return bool True if the options are safe to merge
      */
     private function isMergeable(array $options): bool
