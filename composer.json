@@ -18,7 +18,7 @@
     "require-dev": {
         "mockery/mockery": "^1.6",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^12.5",
+        "phpunit/phpunit": "^13.0",
         "realodix/relax": "^1.20"
     },
     "minimum-stability": "dev",
