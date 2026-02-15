@@ -8,7 +8,6 @@ use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
 
 final class Fixer
 {
@@ -45,7 +44,6 @@ final class Fixer
      */
     private function processFile(string $path, $config): void
     {
-        $path = Path::canonicalize($path);
         $content = $this->read($path);
 
         if ($content === null || $this->shouldSkip($path, $content, $config->flags)) {
