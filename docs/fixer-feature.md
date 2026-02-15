@@ -228,11 +228,11 @@ example.com##.ads
 > [!NOTE]
 > Set `fixer.flags.xmode` to enable this.
 
-Haiku performs additional domain redundancy elimination to remove semantically redundant domain rules.
+Reduces domain lists by eliminating entries that are semantically covered by more general entries, improving filter list efficiency.
 
 #### Wildcard Domain Coverage
 
-If a wildcard TLD domain is present, all explicit domains with the same base are considered redundant.
+If a wildcard TLD domain (`example.*`) is present, all explicit domains with the same base are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -246,7 +246,7 @@ Explicit domains covered by a wildcard domain are removed. Negated domains are p
 
 #### Subdomain Coverage
 
-If a base domain is present, its subdomains are considered redundant.
+If a base domain is present, all its subdomains are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -309,7 +309,7 @@ example.com##.ad
 > [!NOTE]
 > Set `fixer.flags.xmode` to enable this.
 
-Fixes the domain separator.
+Corrects separator syntax errors where the wrong separator is used for the context (`,` in network rules, `|` in cosmetic rules).
 
 ```adblock
 !## BEFORE
@@ -326,7 +326,7 @@ example.com,example.org##.ads
 > [!NOTE]
 > Set `fixer.flags.xmode` to enable this.
 
-Removes unnecessary symbols from the domain.
+Removes extraneous symbols from domain strings that may result from copy-paste errors.
 
 ```adblock
 !## BEFORE
@@ -348,7 +348,7 @@ example.org##.ads2
 > [!NOTE]
 > Set `fixer.flags.xmode` to enable this.
 
-Converts deprecated filter options to new ones.
+Migrates deprecated filter options to their modern equivalents.
 
 Supported options:
 - `$empty`
