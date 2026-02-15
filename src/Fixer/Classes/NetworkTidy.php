@@ -12,7 +12,7 @@ final class NetworkTidy
      *
      * https://github.com/gorhill/uBlock/blob/2a0842f17/src/js/static-filtering-parser.js#L3132
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     const KNOWN_OPTIONS = [
         // must assign values
@@ -32,7 +32,7 @@ final class NetworkTidy
     /**
      * A list of known options from AdGuard.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     const ADG_KNOWN_OPTIONS = [
         'app', 'content', 'cookie', 'extension', 'hls', 'jsinject', 'jsonprune', 'network', 'path',
@@ -85,7 +85,7 @@ final class NetworkTidy
      * Splits a network filter's options.
      *
      * @param string $optionString Raw option string
-     * @return array<int, string>
+     * @return list<string>
      */
     public function splitOptions(string $optionString): array
     {

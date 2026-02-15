@@ -10,7 +10,7 @@ use Realodix\Haiku\Fixer\Regex;
  */
 final class NetOptionCombiner
 {
-    /** @var array<int, string> */
+    /** @var list<string> */
     private const OPTIONS = [
         'document', 'doc',
         'font',
@@ -23,7 +23,7 @@ final class NetOptionCombiner
         'xmlhttprequest', 'xhr',
     ];
 
-    /** @var array<string[]> */
+    /** @var array<list<string>> */
     private const OPTION_ALIAS = [
         ['document', 'doc'],
         ['stylesheet', 'css'],
