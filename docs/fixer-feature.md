@@ -1,5 +1,15 @@
 This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
 
+Some of these transformations may be enabled or disabled using the `fixer.flags` configuration option.
+
+```yml
+# Example configuration
+fixer:
+  flags:
+    remove_empty_lines: false
+    xmode: true
+```
+
 
 ## Preserved Line
 
@@ -122,8 +132,7 @@ example.com,example.org##.ads
 
 ### # Combine Overlapping Options
 
-> [!NOTE]
-> Set `fixer.flags.xmode` to enable this.
+`fixer.flags.xmode`
 
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 
@@ -163,13 +172,13 @@ This canonicalization ensures visually predictable rules.
 ```
 
 
-## Normalization & Cleanup
+## Cleanup & Normalization
 
 ### # Empty Lines
 
-Removes empty lines.
+`fixer.flags.remove_empty_lines`, enabled by default.
 
-**Config**: `fixer.flags.remove_empty_lines`
+Removes empty lines.
 
 ```adblock
 !## BEFORE
@@ -225,8 +234,7 @@ example.com##.ads
 
 ### # Domain Redundancy Elimination
 
-> [!NOTE]
-> Set `fixer.flags.xmode` to enable this.
+`fixer.flags.xmode`
 
 Reduces domain lists by eliminating entries that are semantically covered by more general entries, improving filter list efficiency.
 
@@ -286,6 +294,40 @@ example.com , example.org ##.ads
 example.com,example.org##.ads
 ```
 
+### # Wrong Domain Separator
+
+`fixer.flags.xmode`
+
+Corrects separator syntax errors where the wrong separator is used for the context (`,` in network rules, `|` in cosmetic rules).
+
+```adblock
+!## BEFORE
+-ads-$domain=a.com,b.com,css
+example.com|example.org##.ads
+
+!## AFTER
+-ads-$css,domain=a.com|b.com
+example.com,example.org##.ads
+```
+
+### # Domain Symbol
+
+`fixer.flags.xmode`
+
+Removes extraneous symbols from domain strings that may result from copy-paste errors.
+
+```adblock
+!## BEFORE
+-ads-$domain=example.com/
+/example.com##.ads1
+.example.org##.ads2
+
+!## AFTER
+-ads-$domain=example.com
+example.com##.ads1
+example.org##.ads2
+```
+
 ### # Lowercase Domain
 ```adblock
 !## BEFORE
@@ -304,49 +346,12 @@ example.com##.ad
 *$image
 ```
 
-### # Wrong Domain Separator
-
-> [!NOTE]
-> Set `fixer.flags.xmode` to enable this.
-
-Corrects separator syntax errors where the wrong separator is used for the context (`,` in network rules, `|` in cosmetic rules).
-
-```adblock
-!## BEFORE
--ads-$domain=a.com,b.com,css
-example.com|example.org##.ads
-
-!## AFTER
--ads-$css,domain=a.com|b.com
-example.com,example.org##.ads
-```
-
-### # Domain Symbol
-
-> [!NOTE]
-> Set `fixer.flags.xmode` to enable this.
-
-Removes extraneous symbols from domain strings that may result from copy-paste errors.
-
-```adblock
-!## BEFORE
--ads-$domain=example.com/
-/example.com##.ads1
-.example.org##.ads2
-
-!## AFTER
--ads-$domain=example.com
-example.com##.ads1
-example.org##.ads2
-```
-
 
 ## Migrations
 
 ### # Deprecated Filter Options
 
-> [!NOTE]
-> Set `fixer.flags.xmode` to enable this.
+`fixer.flags.xmode`
 
 Migrates deprecated filter options to their modern equivalents.
 
