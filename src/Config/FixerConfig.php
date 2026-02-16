@@ -14,6 +14,7 @@ final class FixerConfig
 
     /** @var array<string, bool> */
     public array $flags = [
+        'migrate_deprecated_options' => false,
         'normalize_domains' => false,
         'reduce_subdomains' => false,
         'reduce_wildcard_domains' => false,

@@ -355,7 +355,7 @@ example.com##.ad
 
 ### # Deprecated Filter Options
 
-`fixer.flags.xmode`
+`fixer.flags.migrate_deprecated_options`
 
 Migrates deprecated filter options to their modern equivalents.
 

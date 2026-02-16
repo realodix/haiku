@@ -167,7 +167,7 @@ final class NetworkTidy
                 continue;
             }
 
-            if ($this->flags['xmode']) {
+            if ($this->flags['xmode'] || $this->flags['migrate_deprecated_options']) {
                 // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
                 // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
                 if ($option === 'empty') {
