@@ -132,7 +132,7 @@ example.com,example.org##.ads
 
 ### # Combine Overlapping Options
 
-`fixer.flags.xmode`
+`fixer.flags.combine_option_sets`
 
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 

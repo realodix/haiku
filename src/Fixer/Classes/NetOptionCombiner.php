@@ -50,7 +50,7 @@ final class NetOptionCombiner
      */
     public function applyFix(array $rules): array
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['combine_option_sets']) {
             return $rules;
         }
 
