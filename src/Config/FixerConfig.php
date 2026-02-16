@@ -14,6 +14,7 @@ final class FixerConfig
 
     /** @var array<string, bool> */
     public array $flags = [
+        'normalize_domains' => false,
         'reduce_subdomains' => false,
         'reduce_wildcard_domains' => false,
         'remove_empty_lines' => true,

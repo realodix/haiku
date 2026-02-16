@@ -284,6 +284,8 @@ example.com,example.org##.ads
 
 ### # Space In Domain List
 
+`fixer.flags.normalize_domains`
+
 Remove spaces within the domain list.
 
 ```adblock
@@ -298,7 +300,7 @@ example.com,example.org##.ads
 
 ### # Wrong Domain Separator
 
-`fixer.flags.xmode`
+`fixer.flags.normalize_domains`
 
 Corrects separator syntax errors where the wrong separator is used for the context (`,` in network rules, `|` in cosmetic rules).
 
@@ -314,7 +316,7 @@ example.com,example.org##.ads
 
 ### # Domain Symbol
 
-`fixer.flags.xmode`
+`fixer.flags.normalize_domains`
 
 Removes extraneous symbols from domain strings that may result from copy-paste errors.
 

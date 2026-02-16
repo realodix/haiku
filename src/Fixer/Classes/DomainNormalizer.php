@@ -52,7 +52,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['normalize_domains']) {
             return $domainStr;
         }
 
@@ -74,11 +74,11 @@ final class DomainNormalizer
      */
     private function cleanDomain(string $domain): string
     {
-        $domain = trim($domain);
-
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['normalize_domains']) {
             return $domain;
         }
+
+        $domain = trim($domain);
 
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
             $domain = substr($domain, 1);
