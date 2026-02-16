@@ -7,7 +7,7 @@ Some of these transformations may be enabled or disabled using the `fixer.flags`
 fixer:
   flags:
     remove_empty_lines: false
-    xmode: true
+    reduce_wildcard_covered_domains: true
 ```
 
 
@@ -234,13 +234,13 @@ example.com##.ads
 
 ### # Domain Redundancy Elimination
 
-`fixer.flags.xmode`
-
 Reduces domain lists by eliminating entries that are semantically covered by more general entries, improving filter list efficiency.
 
-#### Wildcard Domain Coverage
+#### Wildcard TLD Coverage
 
-If a wildcard TLD domain (`example.*`) is present, all explicit domains with the same base are considered redundant.
+`fixer.flags.reduce_wildcard_covered_domains`
+
+When a wildcard TLD domain (`example.*`) is present, all explicit domains with the same base are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -254,7 +254,9 @@ Explicit domains covered by a wildcard domain are removed. Negated domains are p
 
 #### Subdomain Coverage
 
-If a base domain is present, all its subdomains are considered redundant.
+`fixer.flags.reduce_subdomains`
+
+When a base domain is present, all its subdomains are considered redundant.
 
 ```adblock
 !## BEFORE

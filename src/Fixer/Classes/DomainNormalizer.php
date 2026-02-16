@@ -101,7 +101,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['reduce_wildcard_covered_domains']) {
             return $domains;
         }
 
@@ -141,7 +141,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['reduce_subdomains']) {
             return $domains;
         }
 
