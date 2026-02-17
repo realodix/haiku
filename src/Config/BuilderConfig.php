@@ -6,6 +6,18 @@ use Realodix\Haiku\Config\ValueObject\FilterSet;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
+/**
+ * @phpstan-type FilterList list<array{
+ *  filename: string, header?: string,
+ *  source: array<int, string>,
+ *  header?: string,
+ *  remove_duplicates?: bool,
+ * }>
+ * @phpstan-type BuilderConfigType array{
+ *  output_dir?: string,
+ *  filter_list: FilterList,
+ * }
+ */
 final class BuilderConfig
 {
     /** @var list<FilterSet> */
@@ -18,10 +30,7 @@ final class BuilderConfig
     ) {}
 
     /**
-     * @param array{
-     *  output_dir?: string,
-     *  filter_list: list<array<string, mixed>>
-     * } $config User-defined configuration from the config file
+     * @param BuilderConfigType $config User-defined configuration from the config file
      */
     public function make(array $config): self
     {
@@ -69,7 +78,7 @@ final class BuilderConfig
     /**
      * Resolves the filter list configuration for each filter list.
      *
-     * @param list<array<string, mixed>> $filterLists
+     * @param FilterList $filterLists
      * @return list<FilterSet>
      */
     private function filterSets(array $filterLists): array
@@ -88,7 +97,7 @@ final class BuilderConfig
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param BuilderConfigType $config
      */
     private function validate(array $config): void
     {
