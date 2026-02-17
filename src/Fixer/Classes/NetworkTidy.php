@@ -55,18 +55,16 @@ final class NetworkTidy
 
     public function __construct(
         private DomainNormalizer $domainNormalizer,
+        private NetOptionTransformer $netOptionTransformer,
     ) {}
-
-    /** @var FixerFlags */
-    private array $flags;
 
     /**
      * @param FixerFlags $flags
      */
     public function setFlags(array $flags): void
     {
-        $this->flags = $flags;
         $this->domainNormalizer->flags = $flags;
+        $this->netOptionTransformer->flags = $flags;
     }
 
     /**
@@ -150,57 +148,9 @@ final class NetworkTidy
 
         // 3. Transform, Remove duplicates and sort options by priority
         return Helper::uniqueSorted(
-            $this->applyOption($optionList),
+            $this->netOptionTransformer->applyFix($optionList),
             fn($v) => $this->optionOrder($v),
         );
-    }
-
-    /**
-     * Applies a set of dynamic rules to transform or remove a filter option.
-     *
-     * @param array<int, string> $options
-     * @return array<int, string>
-     */
-    private function applyOption(array $options): array
-    {
-        $result = [];
-        foreach ($options as $option) {
-            // "_" is a noop modifier → drop entirely
-            if (str_starts_with($option, '_')) {
-                continue;
-            }
-
-            if ($this->flags['xmode'] || $this->flags['migrate_deprecated_options']) {
-                // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
-                // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
-                if ($option === 'empty') {
-                    $result[] = 'redirect=nooptext';
-
-                    continue;
-                }
-
-                // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#mp4
-                // https://adguard.com/kb/general/ad-filtering/create-own-filters/#mp4-modifier
-                if ($option === 'mp4') {
-                    $result[] = 'media,redirect=noopmp4-1s';
-
-                    continue;
-                }
-
-                // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#removeparam
-                // https://adguard.com/kb/general/ad-filtering/create-own-filters/#removeparam-modifier
-                if (str_starts_with($option, 'queryprune')) {
-                    $result[] = str_replace('queryprune', 'removeparam', $option);
-
-                    continue;
-                }
-            }
-
-            // Default: keep option as-is
-            $result[] = $option;
-        }
-
-        return $result;
     }
 
     /**
