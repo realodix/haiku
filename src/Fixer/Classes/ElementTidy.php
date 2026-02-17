@@ -4,6 +4,9 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\Regex;
 
+/**
+ * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ */
 final class ElementTidy
 {
     public function __construct(
@@ -12,7 +15,7 @@ final class ElementTidy
     ) {}
 
     /**
-     * @param array<string, bool> $flags
+     * @param FixerFlags $flags
      */
     public function setFlags(array $flags): void
     {

@@ -5,6 +5,17 @@ namespace Realodix\Haiku\Config;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @phpstan-type FixerFlags array{
+ *  combine_option_sets: bool,
+ *  migrate_deprecated_options: bool,
+ *  normalize_domains: bool,
+ *  reduce_subdomains: bool,
+ *  reduce_wildcard_covered_domains: bool,
+ *  remove_empty_lines: bool,
+ *  xmode: bool
+ * }
+ */
 final class FixerConfig
 {
     /** @var array<int, string> */
@@ -12,8 +23,13 @@ final class FixerConfig
 
     public bool $backup;
 
-    /** @var array<string, bool> */
+    /** @var FixerFlags */
     public array $flags = [
+        'combine_option_sets' => false,
+        'migrate_deprecated_options' => false,
+        'normalize_domains' => false,
+        'reduce_subdomains' => false,
+        'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => true,
         'xmode' => false,
     ];

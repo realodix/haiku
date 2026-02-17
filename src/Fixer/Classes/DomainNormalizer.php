@@ -2,9 +2,12 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
+/**
+ * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ */
 final class DomainNormalizer
 {
-    /** @var array<string, bool> */
+    /** @var FixerFlags */
     public array $flags;
 
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
@@ -52,7 +55,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['normalize_domains']) {
             return $domainStr;
         }
 
@@ -74,11 +77,11 @@ final class DomainNormalizer
      */
     private function cleanDomain(string $domain): string
     {
-        $domain = trim($domain);
-
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['normalize_domains']) {
             return $domain;
         }
+
+        $domain = trim($domain);
 
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
             $domain = substr($domain, 1);
@@ -101,7 +104,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['reduce_wildcard_covered_domains']) {
             return $domains;
         }
 
@@ -141,7 +144,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if (!$this->flags['xmode']) {
+        if (!$this->flags['xmode'] && !$this->flags['reduce_subdomains']) {
             return $domains;
         }
 

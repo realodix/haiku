@@ -4,6 +4,9 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\ValueObject\DomainSection;
 
+/**
+ * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ */
 final class Combiner
 {
     public function __construct(
@@ -11,7 +14,7 @@ final class Combiner
     ) {}
 
     /**
-     * @param array<string, bool> $flags
+     * @param FixerFlags $flags
      */
     public function setFlags(array $flags): void
     {

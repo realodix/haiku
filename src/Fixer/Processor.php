@@ -8,6 +8,9 @@ use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Helper;
 
+/**
+ * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ */
 final class Processor
 {
     public function __construct(
@@ -18,7 +21,7 @@ final class Processor
     ) {}
 
     /**
-     * @param array<string, bool> $flags
+     * @param FixerFlags $flags
      */
     private function setFlags(array $flags): void
     {
@@ -33,7 +36,7 @@ final class Processor
      * and combined list.
      *
      * @param array<int, string> $lines An array of raw filter lines
-     * @param array<string, bool> $flags An array of flags to control processing behavior
+     * @param FixerFlags $flags An array of flags to control processing behavior
      * @return array<int, string> The processed and optimized list of filter lines
      */
     public function process(array $lines, array $flags): array

@@ -5,6 +5,9 @@ namespace Realodix\Haiku\Fixer\Classes;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
 
+/**
+ * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ */
 final class NetworkTidy
 {
     /**
@@ -54,11 +57,11 @@ final class NetworkTidy
         private DomainNormalizer $domainNormalizer,
     ) {}
 
-    /** @var array<string, bool> */
+    /** @var FixerFlags */
     private array $flags;
 
     /**
-     * @param array<string, bool> $flags
+     * @param FixerFlags $flags
      */
     public function setFlags(array $flags): void
     {
@@ -167,7 +170,7 @@ final class NetworkTidy
                 continue;
             }
 
-            if ($this->flags['xmode']) {
+            if ($this->flags['xmode'] || $this->flags['migrate_deprecated_options']) {
                 // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#empty
                 // https://adguard.com/kb/general/ad-filtering/create-own-filters/#empty-modifier
                 if ($option === 'empty') {

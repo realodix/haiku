@@ -7,7 +7,7 @@ Some of these transformations may be enabled or disabled using the `fixer.flags`
 fixer:
   flags:
     remove_empty_lines: false
-    xmode: true
+    reduce_wildcard_covered_domains: true
 ```
 
 
@@ -132,7 +132,7 @@ example.com,example.org##.ads
 
 ### # Combine Overlapping Options
 
-`fixer.flags.xmode`
+`fixer.flags.combine_option_sets`
 
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 
@@ -234,13 +234,13 @@ example.com##.ads
 
 ### # Domain Redundancy Elimination
 
-`fixer.flags.xmode`
-
 Reduces domain lists by eliminating entries that are semantically covered by more general entries, improving filter list efficiency.
 
-#### Wildcard Domain Coverage
+#### Wildcard TLD Coverage
 
-If a wildcard TLD domain (`example.*`) is present, all explicit domains with the same base are considered redundant.
+`fixer.flags.reduce_wildcard_covered_domains`
+
+When a wildcard TLD domain (`example.*`) is present, all explicit domains with the same base are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -254,7 +254,9 @@ Explicit domains covered by a wildcard domain are removed. Negated domains are p
 
 #### Subdomain Coverage
 
-If a base domain is present, all its subdomains are considered redundant.
+`fixer.flags.reduce_subdomains`
+
+When a base domain is present, all its subdomains are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -282,6 +284,8 @@ example.com,example.org##.ads
 
 ### # Space In Domain List
 
+`fixer.flags.normalize_domains`
+
 Remove spaces within the domain list.
 
 ```adblock
@@ -296,7 +300,7 @@ example.com,example.org##.ads
 
 ### # Wrong Domain Separator
 
-`fixer.flags.xmode`
+`fixer.flags.normalize_domains`
 
 Corrects separator syntax errors where the wrong separator is used for the context (`,` in network rules, `|` in cosmetic rules).
 
@@ -312,7 +316,7 @@ example.com,example.org##.ads
 
 ### # Domain Symbol
 
-`fixer.flags.xmode`
+`fixer.flags.normalize_domains`
 
 Removes extraneous symbols from domain strings that may result from copy-paste errors.
 
@@ -351,7 +355,7 @@ example.com##.ad
 
 ### # Deprecated Filter Options
 
-`fixer.flags.xmode`
+`fixer.flags.migrate_deprecated_options`
 
 Migrates deprecated filter options to their modern equivalents.
 

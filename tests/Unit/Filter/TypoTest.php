@@ -20,7 +20,7 @@ class TypoTest extends TestCase
             '||example.com^$domain=a.com|b.com',
             'a.com,b.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->fix($input, ['xmode' => true]));
     }
 
     #[PHPUnit\Test]
