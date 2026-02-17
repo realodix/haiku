@@ -353,6 +353,28 @@ example.com##.ad
 
 ## Migrations
 
+### # Filter Option Format
+
+`fixer.flags.option_format`, possible values: `long`, `short`
+
+Normalizes option names to either their long form or short form, depending on the selected format.
+
+- `long`: Use full-length option names
+  (e.g. `third-party`, `document`, `strict-first-party`)
+
+- `short`: Use abbreviated option names when available
+  (e.g. `3p`, `doc`, `strict1p`)
+
+```adblock
+! option_format: long
+
+!## BEFORE
+*$3p
+
+!## AFTER
+*$third-party
+```
+
 ### # Deprecated Filter Options
 
 `fixer.flags.migrate_deprecated_options`
