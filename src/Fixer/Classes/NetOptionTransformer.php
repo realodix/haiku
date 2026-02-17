@@ -59,6 +59,10 @@ final class NetOptionTransformer
      */
     private function transformName(string $option): string
     {
+        if ($this->flags['option_format'] === false) {
+            return $option;
+        }
+
         // Split into name and value (for $domain)
         [$rawName, $value] = explode('=', $option, 2) + [1 => null];
 
