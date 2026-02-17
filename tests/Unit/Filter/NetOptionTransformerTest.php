@@ -54,7 +54,7 @@ final class NetOptionTransformerTest extends TestCase
 
             [
                 '/ads.$image,stylesheet,domain=~example.com',
-                '/ads.$css,image,from=~example.com'
+                '/ads.$css,image,from=~example.com',
             ],
         ];
     }
