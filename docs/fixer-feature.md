@@ -1,6 +1,6 @@
 This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
 
-Some of these transformations may be enabled or disabled using the `fixer.flags` configuration option.
+Some transformations can be enabled or disabled via the `fixer.flags` configuration option.
 
 ```yml
 # Example configuration
@@ -13,7 +13,7 @@ fixer:
 
 ## Preserved Line
 
-The fixer preserves certain lines verbatim and never modifies their content, formatting, or position.
+Certain lines are preserved verbatim. The fixer never modifies their content, formatting, or position.
 
 In addition to being preserved, these lines also act as section boundaries. They explicitly separate rule blocks and prevent rules from being sorted, combined, or deduplicated across the boundary.
 
@@ -102,7 +102,7 @@ a.com,b.com##.ads
 [$domain=a.com|b.com]###adblock
 ```
 
-During sorting, negated domains (`~domain`) come first, followed by normal domains:
+During sorting, negated domains (`~domain`) are placed first, followed by normal domains:
 
 ```adblock
 !## BEFORE
@@ -114,6 +114,8 @@ During sorting, negated domains (`~domain`) come first, followed by normal domai
 
 
 ## Rule Combining
+
+Rules that are structurally compatible are merged to reduce redundancy and improve efficiency.
 
 ```adblock
 !## BEFORE
@@ -151,15 +153,14 @@ When multiple network filters share the same pattern but differ only in their op
 
 ## Network Option Ordering
 
-Options are not sorted purely alphabetically. Instead, they are grouped by semantic role and emitted in fixed positions:
+Options are not sorted purely alphabetically. Instead, they are grouped by semantic role and emitted in fixed positions to ensure consistent, readable and visually predictable output.
 
-1. **Rule modifiers**: (`badfilter`, `important`, `match-case`)
-2. **Party / context modifiers**: (`strict-first-party`, `1p`, `3p`, etc.)
-3. **Basic request modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
+Ordering rules:
+1. `badfilter`, `important`, `match-case`
+2. **Party modifiers**: (`strict-first-party`, `1p`, `3p`, ...)
+3. **Basic modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
 4. **Key-value modifiers**: (`domain=`, `denyallow=`, `from=`, ...)
-5. **Metadata modifiers**: (`reason=`), always placed last
-
-This canonicalization ensures visually predictable rules.
+5. `reason=`, always placed last
 
 ```adblock
 !## BEFORE
@@ -193,7 +194,7 @@ Removes empty lines.
 
 ### # Duplicate Rules
 
-Removes duplicate rules.
+Removes identical duplicate rules.
 
 ```adblock
 !## BEFORE
@@ -220,7 +221,7 @@ Removes duplicate filter options.
 
 ### # Duplicate Domains
 
-Removes duplicate domains.
+Removes duplicate domains within a domain list.
 
 ```adblock
 !## BEFORE
@@ -240,7 +241,7 @@ Reduces domain lists by eliminating entries that are semantically covered by mor
 
 `fixer.flags.reduce_wildcard_covered_domains`
 
-When a wildcard TLD domain (`example.*`) is present, all explicit domains with the same base are considered redundant.
+If a wildcard TLD domain (e.g., `example.*`) is present, explicit domains sharing the same base (e.g., `example.com`) are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -256,7 +257,7 @@ Explicit domains covered by a wildcard domain are removed. Negated domains are p
 
 `fixer.flags.reduce_subdomains`
 
-When a base domain is present, all its subdomains are considered redundant.
+If a base domain is present (e.g., `example.com`), its subdomains (e.g., `api.example.com`) are considered redundant.
 
 ```adblock
 !## BEFORE
@@ -270,7 +271,7 @@ Subdomains covered by a base domain are removed. Negated domains are preserved.
 
 ### # Superfluous Domain Separators
 
-Removes unneeded separators.
+Removes unnecessary or duplicated separators.
 
 ```adblock
 !## BEFORE
@@ -286,7 +287,7 @@ example.com,example.org##.ads
 
 `fixer.flags.normalize_domains`
 
-Remove spaces within the domain list.
+Remove spaces inside domain lists.
 
 ```adblock
 !## BEFORE
@@ -302,7 +303,9 @@ example.com,example.org##.ads
 
 `fixer.flags.normalize_domains`
 
-Corrects separator syntax errors where the wrong separator is used for the context (`,` in network rules, `|` in cosmetic rules).
+Corrects incorrect separator usage:
+- `|` is used for network rule domain lists
+- `,` is used for cosmetic rule domain lists
 
 ```adblock
 !## BEFORE
@@ -318,7 +321,7 @@ example.com,example.org##.ads
 
 `fixer.flags.normalize_domains`
 
-Removes extraneous symbols from domain strings that may result from copy-paste errors.
+Removes extraneous symbols accidentally included in domain strings (often caused by copy-paste errors).
 
 ```adblock
 !## BEFORE
@@ -333,6 +336,9 @@ example.org##.ads2
 ```
 
 ### # Lowercase Domain
+
+Normalizes domain names to lowercase.
+
 ```adblock
 !## BEFORE
 EXAMPLE.COM##.ad
@@ -342,6 +348,9 @@ example.com##.ad
 ```
 
 ### # Lowercase Option Name
+
+Normalizes option names to lowercase.
+
 ```adblock
 !## BEFORE
 *$IMAGE
@@ -357,13 +366,13 @@ example.com##.ad
 
 `fixer.flags.option_format`, possible values: `long`, `short`
 
-Normalizes option names to either their long form or short form, depending on the selected format.
+Normalizes option names to either their long form or short form.
 
 - `long`: Use full-length option names
-  (e.g. `third-party`, `document`, `strict-first-party`)
+  (e.g. `$third-party`, `$document`, `$strict-first-party`)
 
-- `short`: Use abbreviated option names when available
-  (e.g. `3p`, `doc`, `strict1p`)
+- `short`: Use abbreviated option names
+  (e.g. `$3p`, `$doc`, `$strict1p`)
 
 ```adblock
 ! option_format: long
@@ -381,10 +390,7 @@ Normalizes option names to either their long form or short form, depending on th
 
 Migrates deprecated filter options to their modern equivalents.
 
-Supported options:
-- `$empty`
-- `$mp4`
-- `$queryprune`
+Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 
 ```adblock
 !## BEFORE
