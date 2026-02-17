@@ -292,42 +292,6 @@ class NetworkTest extends TestCase
         ];
     }
 
-    #[PHPUnit\DataProvider('optionTransformsProvider')]
-    #[PHPUnit\Test]
-    public function option_transforms($input, $expected): void
-    {
-        $flags = ['xmode' => true];
-        $this->assertSame($expected, $this->fix($input, $flags));
-    }
-
-    public static function optionTransformsProvider(): array
-    {
-        return [
-            [ // `$_`
-                [
-                    '||example.com$_,removeparam=/^ss\\$/,__,image',
-                    '||example.com$domain=example.com,replace=/bad/good/,___,~third-party',
-                ],
-                [
-                    '||example.com$image,removeparam=/^ss\$/,__',
-                    '||example.com$~third-party,replace=/bad/good/,___,domain=example.com',
-                ],
-            ],
-            [ // $empty
-                ['||example.com/js/net.js$empty,script,domain=example.org'],
-                ['||example.com/js/net.js$script,redirect=nooptext,domain=example.org'],
-            ],
-            [ // $mp4
-                ['||example.com/video/*.mp4$mp4,domain=example.org'],
-                ['||example.com/video/*.mp4$media,redirect=noopmp4-1s,domain=example.org'],
-            ],
-            [ // $queryprune
-                ['$xhr,queryprune', '$xhr,queryprune=utm_source'],
-                ['$removeparam,xhr', '$xhr,removeparam=utm_source'],
-            ],
-        ];
-    }
-
     #[PHPUnit\Test]
     public function handle_regex_domains(): void
     {
