@@ -36,10 +36,10 @@ final class FixerConfig
 
     /**
      * @param array{
-     *   paths: list<string>|null,
-     *   excludes: list<string>|null,
-     *   backup: bool|null,
-     *   flags: array<string, bool>|null
+     *   paths?: list<string>,
+     *   excludes?: list<string>,
+     *   backup?: bool,
+     *   flags?: FixerFlags
      * } $config User-defined configuration from the config file
      * @param array{paths: array<int, string>|null} $cmdOpt Command options
      */
