@@ -21,6 +21,44 @@ final class NetOptionTransformerTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
+    #[PHPUnit\DataProvider('optionNameMappingProvider')]
+    #[PHPUnit\Test]
+    public function convertOptionNameToLongerName($native, $alias): void
+    {
+        $this->assertSame([$native], $this->fix([$alias], ['option_format' => 'long']));
+    }
+
+    #[PHPUnit\DataProvider('optionNameMappingProvider')]
+    #[PHPUnit\Test]
+    public function convertOptionNameToShorterName($native, $alias): void
+    {
+        $this->assertSame([$alias], $this->fix([$native], ['option_format' => 'short']));
+    }
+
+    public static function optionNameMappingProvider(): array
+    {
+        return [
+            ['/ads.$domain=~example.com', '/ads.$from=~example.com'],
+
+            ['$first-party', '$1p'],
+            ['$~third-party', '$~3p'],
+            ['$strict-first-party', '$strict1p'],
+            ['$strict-third-party', '$strict3p'],
+            ['$document', '$doc'],
+            ['$elemhide', '$ehide'],
+            ['$generichide', '$ghide'],
+            ['$specifichide', '$shide'],
+            ['$stylesheet', '$css'],
+            ['$subdocument', '$frame'],
+            ['$xmlhttprequest', '$xhr'],
+
+            [
+                '/ads.$image,stylesheet,domain=~example.com',
+                '/ads.$css,image,from=~example.com'
+            ],
+        ];
+    }
+
     #[PHPUnit\DataProvider('migrateDeprecatedOptionsProvider')]
     #[PHPUnit\Test]
     public function migrateDeprecatedOptions($input, $expected): void

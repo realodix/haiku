@@ -7,6 +7,22 @@ namespace Realodix\Haiku\Fixer\Classes;
  */
 final class NetOptionTransformer
 {
+    /** @var array<string, string> */
+    private const OPTION_CONVERSION = [
+        'domain' => 'from',
+        'first-party' => '1p',
+        'third-party' => '3p',
+        'strict-first-party' => 'strict1p',
+        'strict-third-party' => 'strict3p',
+        'document' => 'doc',
+        'elemhide' => 'ehide',
+        'generichide' => 'ghide',
+        'specifichide' => 'shide',
+        'stylesheet' => 'css',
+        'subdocument' => 'frame',
+        'xmlhttprequest' => 'xhr',
+    ];
+
     /** @var FixerFlags */
     public array $flags;
 
@@ -26,12 +42,49 @@ final class NetOptionTransformer
                 continue;
             }
 
+            $option = $this->transformName($option);
             $option = $this->migrateDeprecatedOptions($option);
 
             $result[] = $option;
         }
 
         return $result;
+    }
+
+    /**
+     * Transforms a filter option name according to the configured option format.
+     *
+     * Handles negation once, and replaces the option name with its short or
+     * long name equivalent.
+     */
+    private function transformName(string $option): string
+    {
+        // Split into name and value (for $domain)
+        [$rawName, $value] = explode('=', $option, 2) + [1 => null];
+
+        // Handle negation once
+        $negated = str_starts_with($rawName, '~');
+        $name = $negated ? substr($rawName, 1) : $rawName;
+
+        if ($this->flags['option_format'] === 'short') {
+            $name = self::OPTION_CONVERSION[$name] ?? $name;
+        }
+
+        if ($this->flags['option_format'] === 'long') {
+            static $reverse = null;
+
+            if ($reverse === null) {
+                $reverse = array_flip(self::OPTION_CONVERSION);
+            }
+
+            $name = $reverse[$name] ?? $name;
+        }
+
+        if ($negated) {
+            $name = '~'.$name;
+        }
+
+        return $value !== null ? $name.'='.$value : $name;
     }
 
     /**
