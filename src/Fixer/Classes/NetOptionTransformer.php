@@ -55,6 +55,12 @@ final class NetOptionTransformer
             return 'media,redirect=noopmp4-1s';
         }
 
+        // https://adguard.com/kb/general/ad-filtering/create-own-filters/#object-subrequest-modifier
+        // https://github.com/gorhill/uBlock/blob/f1689a9ab/src/js/static-filtering-parser.js#L263
+        if ($option === 'object-subrequest') {
+            return 'object';
+        }
+
         // https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#removeparam
         // https://adguard.com/kb/general/ad-filtering/create-own-filters/#removeparam-modifier
         if (str_starts_with($option, 'queryprune')) {

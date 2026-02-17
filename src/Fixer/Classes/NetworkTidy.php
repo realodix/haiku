@@ -26,10 +26,10 @@ final class NetworkTidy
         'inline-script', 'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
         '1p', 'first-party', 'strict1p', 'strict-first-party', '3p', 'third-party', 'strict3p', 'strict-third-party',
         'css', 'stylesheet', 'doc', 'document', 'ehide', 'elemhide', 'frame', 'subdocument', 'ghide', 'generichide',
-        'object', 'object-subrequest', 'ping', 'beacon', 'removeparam', 'shide', 'specifichide',
+        'object', 'ping', 'beacon', 'removeparam', 'shide', 'specifichide',
         'xhr', 'xmlhttprequest',
         // deprecated
-        'empty', 'mp4', 'queryprune', 'webrtc',
+        'empty', 'mp4', 'object-subrequest', 'queryprune', 'webrtc',
     ];
 
     /**
