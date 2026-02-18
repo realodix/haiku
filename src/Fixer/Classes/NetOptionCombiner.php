@@ -217,6 +217,7 @@ final class NetOptionCombiner
      *
      * @param array<int, string> $pos
      * @param array<int, string> $neg
+     * @return 'POS'|'NEG'|'MIXED'
      */
     private function polarityState(array $pos, array $neg): string
     {
