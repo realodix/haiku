@@ -40,7 +40,7 @@ class FixCommand extends Command
             throw new InvalidConfigurationException('The configuration file does not exist.');
         }
 
-        // deprecated
+        // @deprecated
         if ($input->getOption('x')) {
             throw new InvalidConfigurationException(
                 'The "x" option is no longer supported. Use the "fixer.flags.xmode" instead.',
