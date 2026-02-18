@@ -63,7 +63,7 @@ final class NetOptionTransformerTest extends TestCase
     #[PHPUnit\Test]
     public function migrateDeprecatedOptions($input, $expected): void
     {
-        $flags = ['xmode' => true];
+        $flags = ['fmode' => true];
         $this->assertSame($expected, $this->fix($input, $flags));
     }
 

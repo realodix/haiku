@@ -15,7 +15,6 @@ use Symfony\Component\Finder\Finder;
  *  reduce_subdomains: bool,
  *  reduce_wildcard_covered_domains: bool,
  *  remove_empty_lines: bool,
- *  xmode: bool
  * }
  */
 final class FixerConfig
@@ -35,7 +34,6 @@ final class FixerConfig
         'reduce_subdomains' => false,
         'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => true,
-        'xmode' => false,
     ];
 
     /**
@@ -55,12 +53,50 @@ final class FixerConfig
         );
 
         $this->backup = $config['backup'] ?? false;
-
-        foreach ($config['flags'] ?? [] as $name => $value) {
-            $this->setFlag($name, $value);
-        }
+        $this->flags = $this->resolveFlags($config['flags'] ?? []);
 
         return $this;
+    }
+
+    /**
+     * @param array<string, bool|string> $override
+     * @return array<string, bool|string>
+     */
+    public function resolveFlags(array $override = []): array
+    {
+        $flags = $this->flags;
+
+        // @deprecated
+        if (array_key_exists('xmode', $override)) {
+            $override['fmode'] = $override['xmode'];
+            unset($override['xmode']);
+        }
+
+        // Handle fmode if exists.
+        if (array_key_exists('fmode', $override)) {
+            $value = (bool) $override['fmode'];
+
+            foreach ($flags as $name => $_) {
+                if ($name === 'option_format') {
+                    continue;
+                }
+
+                $flags[$name] = $value;
+            }
+
+            unset($override['fmode']);
+        }
+
+        // Override with specific flags.
+        foreach ($override as $name => $value) {
+            if (!array_key_exists($name, $flags)) {
+                throw new InvalidConfigurationException(sprintf('Unknown flag name: "%s".', $name));
+            }
+
+            $flags[$name] = $value;
+        }
+
+        return $flags;
     }
 
     /**
@@ -92,15 +128,6 @@ final class FixerConfig
         $resolvedPaths = array_map(fn($path) => Path::canonicalize($path), $resolvedPaths);
 
         return array_unique($resolvedPaths);
-    }
-
-    private function setFlag(string $name, bool|string $value): void
-    {
-        if (!array_key_exists($name, $this->flags)) {
-            throw new InvalidConfigurationException(sprintf('Unknown flag name: "%s".', $name));
-        }
-
-        $this->flags[$name] = $value;
     }
 
     /**

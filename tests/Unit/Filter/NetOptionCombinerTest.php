@@ -14,7 +14,10 @@ final class NetOptionCombinerTest extends TestCase
     {
         parent::setUp();
         $this->optionCombiner = new NetOptionCombiner;
-        $this->optionCombiner->setFlags(['xmode' => true]);
+        $this->optionCombiner->setFlags(
+            app(\Realodix\Haiku\Config\FixerConfig::class)
+                ->resolveFlags(['fmode' => true]),
+        );
     }
 
     #[PHPUnit\Test]
@@ -37,7 +40,7 @@ final class NetOptionCombinerTest extends TestCase
             '||example.com/banner/',
             '||example.org/banner/',
         ];
-        $this->assertSame($expected, $this->fix($input, ['xmode' => true]));
+        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
     }
 
     #[PHPUnit\Test]

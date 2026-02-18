@@ -96,7 +96,7 @@ final class NetOptionTransformer
      */
     private function migrateDeprecatedOptions(string $option): string
     {
-        if (!$this->flags['xmode'] && !$this->flags['migrate_deprecated_options']) {
+        if (!$this->flags['migrate_deprecated_options']) {
             return $option;
         }
 
