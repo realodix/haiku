@@ -2,26 +2,22 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
+use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
 
 /**
  * https://adguard.com/kb/general/ad-filtering/create-own-filters/#non-basic-rules-modifiers
- *
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class AdgModifierForElement
 {
-    /** @var _FixerFlags */
-    public array $flags;
-
     public function __construct(
         private NetworkTidy $networkTidy,
     ) {}
 
     public function applyFix(string $str): string
     {
-        if (!$this->flags['adg_non_basic_rules_modifiers']) {
+        if (!FixerConfig::resolveFlags()['adg_non_basic_rules_modifiers']) {
             return $str;
         }
 
@@ -85,7 +81,7 @@ final class AdgModifierForElement
      */
     public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
     {
-        if ((!$this->flags['adg_non_basic_rules_modifiers'])
+        if ((!FixerConfig::resolveFlags()['adg_non_basic_rules_modifiers'])
             || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
         ) {
             return [];

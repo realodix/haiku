@@ -4,22 +4,11 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\ValueObject\DomainSection;
 
-/**
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
- */
 final class Combiner
 {
     public function __construct(
         private DomainNormalizer $domainNormalizer,
     ) {}
-
-    /**
-     * @param _FixerFlags $flags
-     */
-    public function setFlags(array $flags): void
-    {
-        $this->domainNormalizer->flags = $flags;
-    }
 
     /**
      * Combines domains for (further) identical rules.

@@ -34,13 +34,18 @@ abstract class TestCase extends BaseTestCase
             \Symfony\Component\Console\Output\OutputInterface::class,
             \Symfony\Component\Console\Output\BufferedOutput::class,
         );
+
+        app()->instance(FixerConfig::class, new FixerConfig);
     }
 
     protected function fix(array $value, array $flags = []): mixed
     {
-        $flags = app(FixerConfig::class)->resolveFlags($flags);
+        if ($flags !== []) {
+            $config = app(FixerConfig::class);
+            $config->flags = $config->resolveFlags($flags);
+        }
 
-        return app(Processor::class)->process($value, $flags);
+        return app(Processor::class)->process($value);
     }
 
     protected function runBuildCommand(array $options = [])

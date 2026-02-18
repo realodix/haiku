@@ -5,9 +5,6 @@ namespace Realodix\Haiku\Fixer\Classes;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
 
-/**
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
- */
 final class NetworkTidy
 {
     /**
@@ -51,15 +48,6 @@ final class NetworkTidy
         private DomainNormalizer $domainNormalizer,
         private NetOptionTransformer $netOptionTransformer,
     ) {}
-
-    /**
-     * @param _FixerFlags $flags
-     */
-    public function setFlags(array $flags): void
-    {
-        $this->domainNormalizer->flags = $flags;
-        $this->netOptionTransformer->flags = $flags;
-    }
 
     /**
      * Tidies a network filter rule by normalizing options and sorting domains.

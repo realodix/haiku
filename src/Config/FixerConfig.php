@@ -62,6 +62,15 @@ final class FixerConfig
      * @param array<string, bool|string> $override
      * @return array<string, bool|string>
      */
+    public static function resolveFlags(array $override = []): array
+    {
+        return app(self::class)->resolve($override);
+    }
+
+    /**
+     * @param array<string, bool|string> $override
+     * @return array<string, bool|string>
+     */
     public function resolveFlags(array $override = []): array
     {
         $flags = $this->flags;
