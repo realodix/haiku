@@ -94,7 +94,7 @@ final class FixerConfig
         return array_unique($resolvedPaths);
     }
 
-    private function setFlag(string $name, bool $value): void
+    private function setFlag(string $name, bool|string $value): void
     {
         if (!array_key_exists($name, $this->flags)) {
             throw new InvalidConfigurationException(sprintf('Unknown flag name: "%s".', $name));
