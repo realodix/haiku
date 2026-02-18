@@ -7,6 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @phpstan-type _FixerFlags array{
+ *  adg_non_basic_rules_modifiers: bool,
  *  combine_option_sets: bool,
  *  migrate_deprecated_options: bool,
  *  normalize_domains: bool,
@@ -26,6 +27,7 @@ final class FixerConfig
 
     /** @var _FixerFlags */
     public array $flags = [
+        'adg_non_basic_rules_modifiers' => false,
         'combine_option_sets' => false,
         'migrate_deprecated_options' => false,
         'normalize_domains' => false,

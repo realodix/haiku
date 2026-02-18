@@ -20,6 +20,7 @@ final class ElementTidy
     public function setFlags(array $flags): void
     {
         $this->domainNormalizer->flags = $flags;
+        $this->adgModifier->flags = $flags;
     }
 
     /**
@@ -39,19 +40,9 @@ final class ElementTidy
         $separator = $m[4];      // ##
         $selector = $m[5];       // .ads
 
-        if (str_starts_with($modifier, '[$') && $this->adgModifier->isComplicated($modifier)) {
-            $modifier = $this->adgModifier->extract($domainBlock);
-
-            if (is_null($modifier)) {
-                return $line;
-            }
-
-            $line = substr($line, strlen($modifier));
-
-            preg_match(Regex::COSMETIC_RULE, $line, $m);
-            $domain = $m[3];
-            $separator = $m[4];
-            $selector = $m[5];
+        // Handle complicated AdGuard modifier (delegated)
+        if ($resolved = $this->adgModifier->resolveComplicated($line, $domainBlock, $modifier)) {
+            [$modifier, $domain, $separator, $selector] = $resolved;
         }
 
         $modifier = $this->adgModifier->applyFix($modifier);
