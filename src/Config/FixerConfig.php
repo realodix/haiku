@@ -59,12 +59,12 @@ final class FixerConfig
     }
 
     /**
-     * @param array<string, bool|string> $override
-     * @return array<string, bool|string>
+     * @param key-of<_FixerFlags> $name
+     * @return value-of<_FixerFlags>
      */
-    public static function resolveFlags(array $override = []): array
+    public static function getFlag(string $name)
     {
-        return app(self::class)->resolve($override);
+        return app(self::class)->flags[$name];
     }
 
     /**

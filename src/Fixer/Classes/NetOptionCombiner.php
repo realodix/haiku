@@ -36,7 +36,7 @@ final class NetOptionCombiner
      */
     public function applyFix(array $rules): array
     {
-        if (!FixerConfig::resolveFlags()['combine_option_sets']) {
+        if (!FixerConfig::getFlag('combine_option_sets')) {
             return $rules;
         }
 

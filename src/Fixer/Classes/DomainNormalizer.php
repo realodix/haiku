@@ -75,7 +75,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if (!FixerConfig::resolveFlags()['normalize_domains']) {
+        if (!FixerConfig::getFlag('normalize_domains')) {
             return $domainStr;
         }
 
@@ -97,7 +97,7 @@ final class DomainNormalizer
      */
     private function cleanDomain(string $domain): string
     {
-        if (!FixerConfig::resolveFlags()['normalize_domains']) {
+        if (!FixerConfig::getFlag('normalize_domains')) {
             return $domain;
         }
 
@@ -124,7 +124,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if (!FixerConfig::resolveFlags()['reduce_wildcard_covered_domains']) {
+        if (!FixerConfig::getFlag('reduce_wildcard_covered_domains')) {
             return $domains;
         }
 
@@ -164,7 +164,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if (!FixerConfig::resolveFlags()['reduce_subdomains']) {
+        if (!FixerConfig::getFlag('reduce_subdomains')) {
             return $domains;
         }
 

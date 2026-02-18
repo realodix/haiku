@@ -27,14 +27,12 @@ final class Processor
      */
     public function process(array $lines): array
     {
-        $flags = FixerConfig::resolveFlags();
-
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($flags['remove_empty_lines'] && $line === '') {
+            if (FixerConfig::getFlag('remove_empty_lines') && $line === '') {
                 continue;
             }
 

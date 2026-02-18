@@ -17,7 +17,7 @@ final class AdgModifierForElement
 
     public function applyFix(string $str): string
     {
-        if (!FixerConfig::resolveFlags()['adg_non_basic_rules_modifiers']) {
+        if (!FixerConfig::getFlag('adg_non_basic_rules_modifiers')) {
             return $str;
         }
 
@@ -81,7 +81,7 @@ final class AdgModifierForElement
      */
     public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
     {
-        if ((!FixerConfig::resolveFlags()['adg_non_basic_rules_modifiers'])
+        if ((!FixerConfig::getFlag('adg_non_basic_rules_modifiers'))
             || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
         ) {
             return [];
