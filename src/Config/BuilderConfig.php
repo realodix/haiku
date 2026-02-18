@@ -7,16 +7,12 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * @phpstan-type FilterList list<array{
+ * @phpstan-type _FilterList list<array{
  *  filename: string, header?: string,
  *  source: array<int, string>,
  *  header?: string,
  *  remove_duplicates?: bool,
  * }>
- * @phpstan-type BuilderConfigType array{
- *  output_dir?: string,
- *  filter_list: FilterList,
- * }
  */
 final class BuilderConfig
 {
@@ -30,7 +26,10 @@ final class BuilderConfig
     ) {}
 
     /**
-     * @param BuilderConfigType $config User-defined configuration from the config file
+     * @param array{
+     *  output_dir?: string,
+     *  filter_list: _FilterList,
+     * } $config User-defined configuration from the config file
      */
     public function make(array $config): self
     {
@@ -78,7 +77,7 @@ final class BuilderConfig
     /**
      * Resolves the filter list configuration for each filter list.
      *
-     * @param FilterList $filterLists
+     * @param _FilterList $filterLists
      * @return list<FilterSet>
      */
     private function filterSets(array $filterLists): array
@@ -97,7 +96,7 @@ final class BuilderConfig
     }
 
     /**
-     * @param BuilderConfigType $config
+     * @param array<_FilterList>|array<string, string> $config
      */
     private function validate(array $config): void
     {

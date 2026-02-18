@@ -6,11 +6,11 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @phpstan-type FixerFlags array{
+ * @phpstan-type _FixerFlags array{
  *  combine_option_sets: bool,
  *  migrate_deprecated_options: bool,
  *  normalize_domains: bool,
- *  option_format: false|string,
+ *  option_format: false|'long'|'short',
  *  reduce_subdomains: bool,
  *  reduce_wildcard_covered_domains: bool,
  *  remove_empty_lines: bool,
@@ -24,7 +24,7 @@ final class FixerConfig
 
     public bool $backup;
 
-    /** @var FixerFlags */
+    /** @var _FixerFlags */
     public array $flags = [
         'combine_option_sets' => false,
         'migrate_deprecated_options' => false,
@@ -41,7 +41,7 @@ final class FixerConfig
      *   paths?: list<string>,
      *   excludes?: list<string>,
      *   backup?: bool,
-     *   flags?: FixerFlags
+     *   flags?: _FixerFlags
      * } $config User-defined configuration from the config file
      * @param array{paths: array<int, string>|null} $cmdOpt Command options
      */

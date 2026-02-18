@@ -8,7 +8,7 @@ use Realodix\Haiku\Fixer\Regex;
  * Merge compatible network filter rules by combining their option sets when it
  * is safe to do so. Redundant rules are dropped. Unregistered rules are preserved.
  *
- * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class NetOptionCombiner
 {
@@ -33,11 +33,11 @@ final class NetOptionCombiner
         ['xmlhttprequest', 'xhr'],
     ];
 
-    /** @var FixerFlags */
+    /** @var _FixerFlags */
     private array $flags;
 
     /**
-     * @param FixerFlags $flags
+     * @param _FixerFlags $flags
      */
     public function setFlags(array $flags): void
     {

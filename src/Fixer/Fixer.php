@@ -10,7 +10,7 @@ use Realodix\Haiku\Console\OutputLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class Fixer
 {
@@ -96,7 +96,7 @@ final class Fixer
      *
      * @param string $path Path to file
      * @param array<int, string> $content File content
-     * @param FixerFlags $flags
+     * @param _FixerFlags $flags
      */
     private function shouldSkip(string $path, array $content, array $flags): bool
     {
@@ -135,7 +135,7 @@ final class Fixer
     }
 
     /**
-     * @param FixerFlags $configFlags
+     * @param _FixerFlags $configFlags
      */
     private function hash(string $data, array $configFlags): string
     {

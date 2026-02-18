@@ -3,11 +3,11 @@
 namespace Realodix\Haiku\Fixer\Classes;
 
 /**
- * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class DomainNormalizer
 {
-    /** @var FixerFlags */
+    /** @var _FixerFlags */
     public array $flags;
 
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string

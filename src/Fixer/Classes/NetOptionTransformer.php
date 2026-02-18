@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Fixer\Classes;
 
 /**
- * @phpstan-import-type FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class NetOptionTransformer
 {
@@ -23,7 +23,7 @@ final class NetOptionTransformer
         'xmlhttprequest' => 'xhr',
     ];
 
-    /** @var FixerFlags */
+    /** @var _FixerFlags */
     public array $flags;
 
     /**
