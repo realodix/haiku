@@ -12,7 +12,7 @@ use Realodix\Haiku\Test\TestCase;
  */
 class CosmeticAdgModifierTest extends TestCase
 {
-    const FLAGS = ['xmode' => true];
+    const FLAGS = ['fmode' => true];
 
     #[PHPUnit\DataProvider('parseProvider')]
     #[PHPUnit\Test]

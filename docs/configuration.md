@@ -74,7 +74,8 @@ Creates a backup of each file before applying fixes. Default is `false`.
 A list of flags to control processing behavior.
 
 - **`remove_empty_lines`**: Removes empty lines. Default is `true`.
-- **`xmode`**: Enable all features. Default is `false`.
+- **`fmode`**: Enable all features. Default is `false`.
+- **`xmode`**: Enables experimental features. Default is `false`.
 
 
 ## Builder Configuration
