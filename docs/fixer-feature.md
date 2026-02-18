@@ -113,6 +113,28 @@ During sorting, negated domains (`~domain`) are placed first, followed by normal
 ```
 
 
+## Network Option Ordering
+
+Options are not sorted purely alphabetically. Instead, they are grouped by semantic role and emitted in fixed positions to ensure consistent, readable and visually predictable output.
+
+Ordering rules:
+1. `badfilter`, `important`, `match-case`
+2. **Party modifiers**: (`strict-first-party`, `1p`, `3p`, ...)
+3. **Basic modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
+4. **Key-value modifiers**: (`domain=`, `denyallow=`, `from=`, ...)
+5. `reason=`, always placed last
+
+```adblock
+!## BEFORE
+*$image,script,css,badfilter
+-ads-$domain=~example.com,~image,third-party,xmlhttprequest
+
+!## AFTER
+*$badfilter,css,image,script
+-ads-$third-party,~image,xmlhttprequest,domain=~example.com
+```
+
+
 ## Rule Combining
 
 Rules that are structurally compatible are merged to reduce redundancy and improve efficiency.
@@ -148,28 +170,6 @@ When multiple network filters share the same pattern but differ only in their op
 !## AFTER
 -ads-$css,image
 -banner-$css,image
-```
-
-
-## Network Option Ordering
-
-Options are not sorted purely alphabetically. Instead, they are grouped by semantic role and emitted in fixed positions to ensure consistent, readable and visually predictable output.
-
-Ordering rules:
-1. `badfilter`, `important`, `match-case`
-2. **Party modifiers**: (`strict-first-party`, `1p`, `3p`, ...)
-3. **Basic modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
-4. **Key-value modifiers**: (`domain=`, `denyallow=`, `from=`, ...)
-5. `reason=`, always placed last
-
-```adblock
-!## BEFORE
-*$image,script,css,badfilter
--ads-$domain=~example.com,~image,third-party,xmlhttprequest
-
-!## AFTER
-*$badfilter,css,image,script
--ads-$third-party,~image,xmlhttprequest,domain=~example.com
 ```
 
 
