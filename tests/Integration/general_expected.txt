@@ -53,4 +53,4 @@ $css,uritransform=/X/Y/,urltransform=/(pref\/).*\/(suf)/\$1\$2/i,domain=a.com|b.
 /BannerAd3.$image,removeparam=/^ss\\$/,_,replace=/X/Y/,domain=a.com,reason="Tracker"
 /exception-$content,elemhide,genericblock,generichide,jsinject,specifichide,urlblock,extension="AdGuard Assistant",stealth=3p-cookie|dpi
 /exception/alias-$content,ehide,genericblock,ghide,jsinject,shide,urlblock,extension="AdGuard Assistant",stealth=3p-cookie|dpi
-[$app=org.example.app,domain=example.com|example.org,url=||example.com/content/*path=page.html]example.com##.textad
+[$app=org.example.app]example.com##.textad

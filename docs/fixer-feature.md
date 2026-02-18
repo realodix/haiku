@@ -173,6 +173,21 @@ When multiple network filters share the same pattern but differ only in their op
 ```
 
 
+##  AdGuard Non-basic Rules Modifiers
+
+`fixer.flags.adg_non_basic_rules_modifiers`
+
+Sorting domains and modifiers in AdGuard non-basic rules modifiers.
+
+```adblock
+!## BEFORE
+[$domain=b.com|a.com,app=test_app|com.apple.Safari]##selector
+
+!## AFTER
+[$app=com.apple.Safari|test_app,domain=a.com|b.com]##selector
+```
+
+
 ## Cleanup & Normalization
 
 ### # Empty Lines

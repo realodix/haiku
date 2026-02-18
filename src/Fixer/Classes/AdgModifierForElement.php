@@ -7,15 +7,24 @@ use Realodix\Haiku\Helper;
 
 /**
  * https://adguard.com/kb/general/ad-filtering/create-own-filters/#non-basic-rules-modifiers
+ *
+ * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class AdgModifierForElement
 {
+    /** @var _FixerFlags */
+    public array $flags;
+
     public function __construct(
         private NetworkTidy $networkTidy,
     ) {}
 
     public function applyFix(string $str): string
     {
+        if (!$this->flags['xmode'] && !$this->flags['adg_non_basic_rules_modifiers']) {
+            return $str;
+        }
+
         // unwrap  `[` and `]`
         $str = substr($str, 1, -1);
 
@@ -70,9 +79,37 @@ final class AdgModifierForElement
     }
 
     /**
+     * Handle complicated AdGuard modifier and re-parse rule.
+     *
+     * @return array{0:string,1:string,2:string,3:string}|array{}
+     */
+    public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
+    {
+        if ((!$this->flags['xmode'] && !$this->flags['adg_non_basic_rules_modifiers'])
+            || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
+        ) {
+            return [];
+        }
+
+        $modifier = $this->extract($domainBlock);
+
+        if ($modifier === null) {
+            return [];
+        }
+
+        $line = substr($line, strlen($modifier));
+
+        if (!preg_match(Regex::COSMETIC_RULE, $line, $m)) {
+            return [];
+        }
+
+        return [$modifier, $m[3], $m[4], $m[5]];
+    }
+
+    /**
      * Extract AdGuard modifier using backward scan.
      */
-    public function extract(string $str): ?string
+    private function extract(string $str): ?string
     {
         $len = strlen($str);
         $open = null; // '/'
@@ -113,7 +150,7 @@ final class AdgModifierForElement
      * Checks if a given AdGuard modifier is complicated. i.e., contains regex string
      * or Regex::COSMETIC_RULE fails to extract.
      */
-    public function isComplicated(string $modifier): bool
+    private function isComplicated(string $modifier): bool
     {
         return
             // contains regex
@@ -122,7 +159,7 @@ final class AdgModifierForElement
             || substr_count($modifier, '[') != substr_count($modifier, ']');
     }
 
-    public function isIpv6Literal(string $str, int $end): ?int
+    private function isIpv6Literal(string $str, int $end): ?int
     {
         for ($i = $end - 1; $i >= 0; $i--) {
             $c = $str[$i];
