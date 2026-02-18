@@ -1,9 +1,9 @@
 /.tmp
 
+phpunit.xml
+phpstan.neon
+
 ## Package Manager
 /vendor
 composer.phar
 composer.lock
-
-## Static Analysis
-phpstan.neon
