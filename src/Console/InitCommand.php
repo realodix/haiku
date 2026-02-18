@@ -54,7 +54,6 @@ fixer:
   # backup: true
   # flags:
   #  remove_empty_lines: false
-  #  xmode: true
 
 # Settings for the `build` command
 builder:
