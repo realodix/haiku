@@ -41,8 +41,7 @@ abstract class TestCase extends BaseTestCase
     protected function fix(array $value, array $flags = []): mixed
     {
         if ($flags !== []) {
-            $config = app(FixerConfig::class);
-            $config->flags = $config->resolveFlags($flags);
+            app(FixerConfig::class)->setFlag($flags);
         }
 
         return app(Processor::class)->process($value);

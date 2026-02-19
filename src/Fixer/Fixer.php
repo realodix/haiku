@@ -133,7 +133,7 @@ final class Fixer
 
     private function hash(string $data): string
     {
-        $flags = collect(app(FixerConfig::class)->flags)
+        $flags = collect(FixerConfig::getFlag())
             ->reject(static fn($value) => $value === false)
             ->sortKeys()->toJson();
 

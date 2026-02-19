@@ -25,7 +25,7 @@ final class FixerConfig
     public bool $backup;
 
     /** @var _FixerFlags */
-    public array $flags = [
+    private array $flags = [
         'adg_non_basic_rules_modifiers' => false,
         'combine_option_sets' => false,
         'migrate_deprecated_options' => false,
@@ -53,25 +53,37 @@ final class FixerConfig
         );
 
         $this->backup = $config['backup'] ?? false;
-        $this->flags = $this->resolveFlags($config['flags'] ?? []);
+        $this->setFlag($config['flags'] ?? []);
 
         return $this;
     }
 
     /**
-     * @param key-of<_FixerFlags> $name
-     * @return value-of<_FixerFlags>
+     * @param array<string, bool|string> $flags
      */
-    public static function getFlag(string $name)
+    public function setFlag(array $flags): self
     {
-        return app(self::class)->flags[$name];
+        $this->flags = $this->resolveFlags($flags);
+
+        return $this;
+    }
+
+    /**
+     * @param key-of<_FixerFlags>|null $name
+     * @return ($name is string ? value-of<_FixerFlags> : _FixerFlags)
+     */
+    public static function getFlag(?string $name = null)
+    {
+        $config = app(self::class);
+
+        return $name === null ? $config->flags : $config->flags[$name];
     }
 
     /**
      * @param array<string, bool|string> $override
      * @return array<string, bool|string>
      */
-    public function resolveFlags(array $override = []): array
+    private function resolveFlags(array $override = []): array
     {
         $flags = $this->flags;
 
