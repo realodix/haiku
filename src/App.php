@@ -4,7 +4,6 @@ namespace Realodix\Haiku;
 
 use Composer\InstalledVersions;
 use Illuminate\Container\Container;
-use Realodix\Haiku\Config\FixerConfig;
 
 class App
 {
@@ -33,6 +32,6 @@ class App
      */
     public function register(Container $app): void
     {
-        $app->singleton(FixerConfig::class);
+        $app->singleton(\Realodix\Haiku\Config\FixerConfig::class);
     }
 }
