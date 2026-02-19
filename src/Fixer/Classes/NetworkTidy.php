@@ -14,8 +14,6 @@ final class NetworkTidy
      * A list of known options.
      *
      * https://github.com/gorhill/uBlock/blob/2a0842f17/src/js/static-filtering-parser.js#L3132
-     *
-     * @var list<string>
      */
     const KNOWN_OPTIONS = [
         // must assign values
@@ -34,8 +32,6 @@ final class NetworkTidy
 
     /**
      * A list of known options from AdGuard.
-     *
-     * @var list<string>
      */
     const ADG_KNOWN_OPTIONS = [
         'app', 'content', 'cookie', 'extension', 'hls', 'jsinject', 'jsonprune', 'network', 'path',
@@ -45,8 +41,6 @@ final class NetworkTidy
 
     /**
      * A list of options that can have multiple values.
-     *
-     * @var array<string, array<mixed>>
      */
     const MULTI_VALUE = [
         'domain' => [], 'from' => [], 'to' => [], 'denyallow' => [], 'method' => [], 'ctag' => [],

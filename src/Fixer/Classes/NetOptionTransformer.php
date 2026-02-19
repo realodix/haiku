@@ -7,7 +7,6 @@ namespace Realodix\Haiku\Fixer\Classes;
  */
 final class NetOptionTransformer
 {
-    /** @var array<string, string> */
     private const OPTION_CONVERSION = [
         'from' => 'domain',
         '1p' => 'first-party',
@@ -22,7 +21,6 @@ final class NetOptionTransformer
         'shide' => 'specifichide',
         'xhr' => 'xmlhttprequest',
     ];
-
     private const DEPRECATED_OPTION_CONVERSION = [
         'empty' => 'redirect=nooptext',
         'mp4' => 'media,redirect=noopmp4-1s',
