@@ -79,8 +79,8 @@ final class NetOptionTransformerTest extends TestCase
                 ['||example.com/video/*.mp4$media,redirect=noopmp4-1s,domain=example.org'],
             ],
             [ // $object-subrequest
-                ['$object-subrequest'],
-                ['$object'],
+                ['$~object-subrequest'],
+                ['$~object'],
             ],
             [ // $queryprune
                 ['$xhr,queryprune', '$xhr,queryprune=utm_source'],
