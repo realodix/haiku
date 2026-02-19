@@ -2,6 +2,9 @@
 
 namespace Realodix\Haiku;
 
+/**
+ * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
+ */
 final class Helper
 {
     /**
@@ -39,5 +42,16 @@ final class Helper
         $advanced = preg_match('/^(#(?:@?(?:\$|\?|%)|@?\$\?)#)[^\s]/', $line);
 
         return $basic || $advanced;
+    }
+
+    /**
+     * @param key-of<_FixerFlags>|null $name
+     * @return ($name is string ? value-of<_FixerFlags> : _FixerFlags)
+     */
+    public static function flag(?string $name = null)
+    {
+        $config = app(\Realodix\Haiku\Config\FixerConfig::class);
+
+        return $config->getFlag($name);
     }
 }

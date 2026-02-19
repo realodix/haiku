@@ -72,11 +72,9 @@ final class FixerConfig
      * @param key-of<_FixerFlags>|null $name
      * @return ($name is string ? value-of<_FixerFlags> : _FixerFlags)
      */
-    public static function getFlag(?string $name = null)
+    public function getFlag(?string $name = null)
     {
-        $config = app(self::class);
-
-        return $name === null ? $config->flags : $config->flags[$name];
+        return $name === null ? $this->flags : $this->flags[$name];
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Fixer;
 
-use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Classes\Combiner;
 use Realodix\Haiku\Fixer\Classes\ElementTidy;
 use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
@@ -32,7 +31,7 @@ final class Processor
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (FixerConfig::getFlag('remove_empty_lines') && $line === '') {
+            if (Helper::flag('remove_empty_lines') && $line === '') {
                 continue;
             }
 

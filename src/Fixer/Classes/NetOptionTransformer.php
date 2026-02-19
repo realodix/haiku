@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Helper;
 
 final class NetOptionTransformer
 {
@@ -60,7 +60,7 @@ final class NetOptionTransformer
      */
     private function transformName(string $option): string
     {
-        if (FixerConfig::getFlag('option_format') === false) {
+        if (Helper::flag('option_format') === false) {
             return $option;
         }
 
@@ -71,11 +71,11 @@ final class NetOptionTransformer
         $negated = str_starts_with($rawName, '~');
         $name = $negated ? substr($rawName, 1) : $rawName;
 
-        if (FixerConfig::getFlag('option_format') === 'long') {
+        if (Helper::flag('option_format') === 'long') {
             $name = self::OPTION_CONVERSION[$name] ?? $name;
         }
 
-        if (FixerConfig::getFlag('option_format') === 'short') {
+        if (Helper::flag('option_format') === 'short') {
             static $reverse = null;
 
             if ($reverse === null) {
@@ -97,7 +97,7 @@ final class NetOptionTransformer
      */
     private function migrateDeprecatedOptions(string $option): string
     {
-        if (!FixerConfig::getFlag('migrate_deprecated_options')) {
+        if (!Helper::flag('migrate_deprecated_options')) {
             return $option;
         }
 

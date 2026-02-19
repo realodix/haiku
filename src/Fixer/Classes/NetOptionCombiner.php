@@ -2,8 +2,8 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
-use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Helper;
 
 /**
  * Merge compatible network filter rules by combining their option sets when it
@@ -36,7 +36,7 @@ final class NetOptionCombiner
      */
     public function applyFix(array $rules): array
     {
-        if (!FixerConfig::getFlag('combine_option_sets')) {
+        if (!Helper::flag('combine_option_sets')) {
             return $rules;
         }
 
