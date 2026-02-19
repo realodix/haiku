@@ -9,18 +9,18 @@ final class NetOptionTransformer
 {
     /** @var array<string, string> */
     private const OPTION_CONVERSION = [
-        'domain' => 'from',
-        'first-party' => '1p',
-        'third-party' => '3p',
-        'strict-first-party' => 'strict1p',
-        'strict-third-party' => 'strict3p',
-        'document' => 'doc',
-        'elemhide' => 'ehide',
-        'generichide' => 'ghide',
-        'specifichide' => 'shide',
-        'stylesheet' => 'css',
-        'subdocument' => 'frame',
-        'xmlhttprequest' => 'xhr',
+        'from' => 'domain',
+        '1p' => 'first-party',
+        '3p' => 'third-party',
+        'strict1p' => 'strict-first-party',
+        'strict3p' => 'strict-third-party',
+        'css' => 'stylesheet',
+        'doc' => 'document',
+        'ehide' => 'elemhide',
+        'frame' => 'subdocument',
+        'ghide' => 'generichide',
+        'shide' => 'specifichide',
+        'xhr' => 'xmlhttprequest',
     ];
 
     /** @var _FixerFlags */
@@ -70,11 +70,11 @@ final class NetOptionTransformer
         $negated = str_starts_with($rawName, '~');
         $name = $negated ? substr($rawName, 1) : $rawName;
 
-        if ($this->flags['option_format'] === 'short') {
+        if ($this->flags['option_format'] === 'long') {
             $name = self::OPTION_CONVERSION[$name] ?? $name;
         }
 
-        if ($this->flags['option_format'] === 'long') {
+        if ($this->flags['option_format'] === 'short') {
             static $reverse = null;
 
             if ($reverse === null) {
