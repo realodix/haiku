@@ -13,6 +13,10 @@ use Symfony\Component\Filesystem\Path;
  *  header?: string,
  *  remove_duplicates?: bool,
  * }>
+ * @phpstan-type _BuilderConfig array{
+ *  output_dir?: string,
+ *  filter_list: _FilterList,
+ * }
  */
 final class BuilderConfig
 {
@@ -26,10 +30,7 @@ final class BuilderConfig
     ) {}
 
     /**
-     * @param array{
-     *  output_dir?: string,
-     *  filter_list: _FilterList,
-     * } $config User-defined configuration from the config file
+     * @param _BuilderConfig $config
      */
     public function make(array $config): self
     {
@@ -96,7 +97,7 @@ final class BuilderConfig
     }
 
     /**
-     * @param array<_FilterList>|array<string, string> $config
+     * @param _BuilderConfig $config
      */
     private function validate(array $config): void
     {
