@@ -53,14 +53,28 @@ final class DomainNormalizer
             '127.0.0.1', '0.0.0.0',
             '[::1]', '[::]',
         ];
-
         $isLocalhost = in_array($domain, $localhostDomains, true);
+        $strategy = Helper::flag('domain_order');
 
-        return [
-            $isLocalhost ? 0 : 1, // Ensure localhost-related domains first
-            $isNegated ? 0 : 1,   // Ensure negated domains ('~') first within each group
-            $domain,              // Alphabetical order
-        ];
+        return match ($strategy) {
+            'negated_first' => [
+                $isNegated ? 0 : 1,
+                $domain,
+            ],
+
+            'localhost_first' => [
+                $isLocalhost ? 0 : 1,
+                $domain,
+            ],
+
+            'localhost_negated_first' => [
+                $isLocalhost ? 0 : 1,
+                $isNegated ? 0 : 1,
+                $domain,
+            ],
+
+            default => [$domain],
+        };
     }
 
     /**

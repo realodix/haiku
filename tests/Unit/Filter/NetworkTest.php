@@ -257,11 +257,21 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function optDomain_values_sorting_localhost(): void
+    public function optDomain_values_order_mode(): void
     {
-        $input = ['*$3p,domain=example.com|~localhost|~127.0.0.1|~[::1]|0.0.0.0|[::]|local|~example.org'];
-        $expected = ['*$3p,domain=~127.0.0.1|~[::1]|~localhost|0.0.0.0|[::]|local|~example.org|example.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $input = ['*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org'];
+
+        $expected = ['*$domain=0.0.0.0|~127.0.0.1|example.com|~example.org|~localhost'];
+        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'normal']));
+
+        $expected = ['*$domain=~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
+        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'negated_first']));
+
+        $expected = ['*$domain=0.0.0.0|~127.0.0.1|~localhost|example.com|~example.org'];
+        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'localhost_first']));
+
+        $expected = ['*$domain=~127.0.0.1|~localhost|0.0.0.0|~example.org|example.com'];
+        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'localhost_negated_first']));
     }
 
     #[PHPUnit\Test]

@@ -88,29 +88,43 @@ example.com##+js(no-xhr-if, adsbygoogle.js)
 ```
 
 
-## Domain List Sorting
+## Domain List Ordering
+
+Sorts domains inside domain lists to ensure consistent and predictable output.
+
+**Config**: `fixer.flags.domain_order`, default: `negated_first`
+
+**Possible values**:
+- `normal`: Sort domains alphabetically.
+- `negated_first`: Negated domains (~domain) appear before normal domains.
+<!-- - `localhost_first`: Localhost-related domains appear first. -->
+<!-- - `localhost_negated_first`: Localhost domains first, and within each group negated domains come first. -->
 
 ```adblock
 !## BEFORE
-/ads/*$image,domain=b.com|a.com
-b.com,a.com##.ads
-[$domain=b.com|a.com]###adblock
+~b.com,~d.com,a.com,c.com##.ads
 
 !## AFTER
-/ads/*$image,domain=a.com|b.com
-a.com,b.com##.ads
-[$domain=a.com|b.com]###adblock
+! normal
+a.com,~b.com,c.com,~d.com##.ads
+
+! negated_first
+~b.com,~d.com,a.com,c.com##.ads
 ```
 
-During sorting, negated domains (`~domain`) are placed first, followed by normal domains:
-
+<!--
 ```adblock
 !## BEFORE
-~d.com,c.com,a.com,~b.com##.ad
+*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org
 
 !## AFTER
-~b.com,~d.com,a.com,c.com##.ad
+! localhost_first
+*$domain=0.0.0.0|~127.0.0.1|~localhost|example.com|~example.org
+
+! localhost_negated_first
+*$domain=~127.0.0.1|~localhost|0.0.0.0|~example.org|example.com
 ```
+-->
 
 
 ## Network Option Ordering
