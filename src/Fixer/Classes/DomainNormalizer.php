@@ -33,14 +33,38 @@ final class DomainNormalizer
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
 
-        return $domains->unique()->sortBy(function ($str) {
-            // Ensure negated domains ('~') come first
-            if (str_starts_with($str, '~')) {
-                return '/'.$str;
-            }
+        return $domains->unique()
+            ->sortBy(fn($str) => $this->domainSortPriority($str))
+            ->implode($separator);
+    }
 
-            return $str;
-        })->implode($separator);
+    /**
+     * Determine sorting priority for a domain string.
+     *
+     * Sorting rules:
+     * 1. Localhost-related domains (negated and non-negated) come first.
+     * 2. Within each group, negated domains ('~') come first.
+     * 3. Then sort alphabetically by the normalized domain value.
+     *
+     * @return list<int|string>
+     */
+    private function domainSortPriority(string $str): array
+    {
+        $isNegated = str_starts_with($str, '~');
+        $domain = ltrim($str, '~');
+        $localhostDomains = [
+            'localhost', 'local',
+            '127.0.0.1', '0.0.0.0',
+            '[::1]', '[::]',
+        ];
+
+        $isLocalhost = in_array($domain, $localhostDomains, true);
+
+        return [
+            $isLocalhost ? 0 : 1, // Ensure localhost-related domains first
+            $isNegated ? 0 : 1,   // Ensure negated domains ('~') first within each group
+            $domain,              // Alphabetical order
+        ];
     }
 
     /**

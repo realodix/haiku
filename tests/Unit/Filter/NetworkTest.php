@@ -257,6 +257,14 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function optDomain_values_sorting_localhost(): void
+    {
+        $input = ['*$3p,domain=example.com|~localhost|~127.0.0.1|~[::1]|0.0.0.0|[::]|local|~example.org'];
+        $expected = ['*$3p,domain=~127.0.0.1|~[::1]|~localhost|0.0.0.0|[::]|local|~example.org|example.com'];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
     public function optDomain_values_are_lowercase(): void
     {
         $input = [
