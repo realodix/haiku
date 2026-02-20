@@ -139,7 +139,9 @@ final class Fixer
      */
     private function hash(string $data, array $configFlags): string
     {
-        $flags = json_encode($configFlags, JSON_THROW_ON_ERROR);
+        $flags = collect($configFlags)
+            ->reject(static fn($value) => $value === false)
+            ->sortKeys()->toJson();
 
         if (str_contains(App::VERSION, '.x')) {
             $v = App::version();
