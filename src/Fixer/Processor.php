@@ -8,9 +8,6 @@ use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Helper;
 
-/**
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
- */
 final class Processor
 {
     public function __construct(
@@ -21,34 +18,20 @@ final class Processor
     ) {}
 
     /**
-     * @param _FixerFlags $flags
-     */
-    private function setFlags(array $flags): void
-    {
-        $this->elementTidy->setFlags($flags);
-        $this->networkTidy->setFlags($flags);
-        $this->combiner->setFlags($flags);
-        $this->optionCombiner->setFlags($flags);
-    }
-
-    /**
      * Processes an array of filter lines, optimizing them into a sorted
      * and combined list.
      *
      * @param array<int, string> $lines An array of raw filter lines
-     * @param _FixerFlags $flags An array of flags to control processing behavior
      * @return array<int, string> The processed and optimized list of filter lines
      */
-    public function process(array $lines, array $flags): array
+    public function process(array $lines): array
     {
-        $this->setFlags($flags);
-
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($flags['remove_empty_lines'] && $line === '') {
+            if (Helper::flag('remove_empty_lines') && $line === '') {
                 continue;
             }
 

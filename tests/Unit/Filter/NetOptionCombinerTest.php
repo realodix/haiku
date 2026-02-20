@@ -14,10 +14,8 @@ final class NetOptionCombinerTest extends TestCase
     {
         parent::setUp();
         $this->optionCombiner = new NetOptionCombiner;
-        $this->optionCombiner->setFlags(
-            app(\Realodix\Haiku\Config\FixerConfig::class)
-                ->resolveFlags(['fmode' => true]),
-        );
+        $config = app(\Realodix\Haiku\Config\FixerConfig::class);
+        $config->setFlag(['fmode' => true]);
     }
 
     #[PHPUnit\Test]

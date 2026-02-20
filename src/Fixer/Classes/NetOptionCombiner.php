@@ -3,12 +3,11 @@
 namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Helper;
 
 /**
  * Merge compatible network filter rules by combining their option sets when it
  * is safe to do so. Redundant rules are dropped. Unregistered rules are preserved.
- *
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
  */
 final class NetOptionCombiner
 {
@@ -31,24 +30,13 @@ final class NetOptionCombiner
         ['xmlhttprequest', 'xhr'],
     ];
 
-    /** @var _FixerFlags */
-    private array $flags;
-
-    /**
-     * @param _FixerFlags $flags
-     */
-    public function setFlags(array $flags): void
-    {
-        $this->flags = $flags;
-    }
-
     /**
      * @param array<int, string> $rules
      * @return array<int, string>
      */
     public function applyFix(array $rules): array
     {
-        if (!$this->flags['combine_option_sets']) {
+        if (!Helper::flag('combine_option_sets')) {
             return $rules;
         }
 

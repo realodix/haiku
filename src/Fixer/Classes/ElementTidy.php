@@ -4,24 +4,12 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\Regex;
 
-/**
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
- */
 final class ElementTidy
 {
     public function __construct(
         private DomainNormalizer $domainNormalizer,
         private AdgModifierForElement $adgModifier,
     ) {}
-
-    /**
-     * @param _FixerFlags $flags
-     */
-    public function setFlags(array $flags): void
-    {
-        $this->domainNormalizer->flags = $flags;
-        $this->adgModifier->flags = $flags;
-    }
 
     /**
      * @param string $line The rule line

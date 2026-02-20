@@ -2,14 +2,10 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
-/**
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
- */
+use Realodix\Haiku\Helper;
+
 final class DomainNormalizer
 {
-    /** @var _FixerFlags */
-    public array $flags;
-
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
         // Regex domain, don't touch
@@ -79,7 +75,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if (!$this->flags['normalize_domains']) {
+        if (!Helper::flag('normalize_domains')) {
             return $domainStr;
         }
 
@@ -101,7 +97,7 @@ final class DomainNormalizer
      */
     private function cleanDomain(string $domain): string
     {
-        if (!$this->flags['normalize_domains']) {
+        if (!Helper::flag('normalize_domains')) {
             return $domain;
         }
 
@@ -128,7 +124,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if (!$this->flags['reduce_wildcard_covered_domains']) {
+        if (!Helper::flag('reduce_wildcard_covered_domains')) {
             return $domains;
         }
 
@@ -168,7 +164,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if (!$this->flags['reduce_subdomains']) {
+        if (!Helper::flag('reduce_subdomains')) {
             return $domains;
         }
 

@@ -9,9 +9,6 @@ use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @phpstan-import-type _FixerFlags from \Realodix\Haiku\Config\FixerConfig
- */
 final class Fixer
 {
     public function __construct(
@@ -49,7 +46,7 @@ final class Fixer
     {
         $content = $this->read($path);
 
-        if ($content === null || $this->shouldSkip($path, $content, $config->flags)) {
+        if ($content === null || $this->shouldSkip($path, $content)) {
             return;
         }
 
@@ -59,11 +56,11 @@ final class Fixer
             $this->backup($path);
         }
 
-        $content = $this->processor->process($content, $config->flags);
+        $content = $this->processor->process($content);
         $content = implode("\n", $content)."\n";
         $this->fs->dumpFile($path, $content);
 
-        $this->cache->set($path, $this->hash($content, $config->flags));
+        $this->cache->set($path, $this->hash($content));
         $this->logger->processed($path);
     }
 
@@ -96,9 +93,8 @@ final class Fixer
      *
      * @param string $path Path to file
      * @param array<int, string> $content File content
-     * @param _FixerFlags $flags
      */
-    private function shouldSkip(string $path, array $content, array $flags): bool
+    private function shouldSkip(string $path, array $content): bool
     {
         // Empty file
         if (trim(implode($content)) === '') {
@@ -107,7 +103,7 @@ final class Fixer
             return true;
         }
 
-        $fingerprint = $this->hash(implode("\n", $content)."\n", $flags);
+        $fingerprint = $this->hash(implode("\n", $content)."\n");
         if ($this->cache->isValid($path, $fingerprint)) {
             $this->logger->skipped($path);
 
@@ -134,12 +130,10 @@ final class Fixer
         }
     }
 
-    /**
-     * @param _FixerFlags $configFlags
-     */
-    private function hash(string $data, array $configFlags): string
+    private function hash(string $data): string
     {
-        $flags = collect($configFlags)
+        $config = app(\Realodix\Haiku\Config\FixerConfig::class);
+        $flags = collect($config->getFlag())
             ->reject(static fn($value) => $value === false)
             ->sortKeys()->toJson();
 
