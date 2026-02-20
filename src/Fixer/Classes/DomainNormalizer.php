@@ -64,7 +64,7 @@ final class DomainNormalizer
     }
 
     /**
-     * Fix wrong separator in domain string.
+     * Fixes incorrect separators in domain strings.
      *
      * If the domain string contains an incorrect separator (e.g. '|' instead of ','),
      * replace it with the correct separator.
