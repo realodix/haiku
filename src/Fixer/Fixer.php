@@ -7,7 +7,6 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class Fixer
@@ -133,7 +132,8 @@ final class Fixer
 
     private function hash(string $data): string
     {
-        $flags = collect(Helper::flag())
+        $config = app(\Realodix\Haiku\Config\FixerConfig::class);
+        $flags = collect($config->getFlag())
             ->reject(static fn($value) => $value === false)
             ->sortKeys()->toJson();
 
