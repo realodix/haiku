@@ -48,7 +48,7 @@ final class Config
         return $this->fixer->make(
             $this->config['fixer'] ?? [],
             [
-                'paths' => $cmdOpt->path ? [$cmdOpt->path] : null,
+                'path' => $cmdOpt->path,
             ],
         );
     }

@@ -43,12 +43,12 @@ final class FixerConfig
      *   backup?: bool,
      *   flags?: _FixerFlags
      * } $config User-defined configuration from the config file
-     * @param array{paths: array<int, string>|null} $cmdOpt Command options
+     * @param array{path: string|null} $cmdOpt Command options
      */
     public function make(array $config, array $cmdOpt): self
     {
         $this->paths = $this->paths(
-            $cmdOpt['paths'] ?? $config['paths'] ?? [],
+            $cmdOpt['path'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );
 
@@ -119,13 +119,14 @@ final class FixerConfig
     }
 
     /**
-     * @param array<int, string> $paths
+     * @param array<int, string>|string $paths
      * @param array<int, string> $excludes Excludes files or dirs
      * @return array<int, string>
      */
-    private function paths(array $paths, array $excludes): array
+    private function paths(array|string $paths, array $excludes): array
     {
         $rootPath = base_path();
+        $paths = is_array($paths) ? $paths : [$paths];
         $paths = !empty($paths) ? $paths : [$rootPath];
 
         $resolvedPaths = [];
