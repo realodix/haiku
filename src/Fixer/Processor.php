@@ -107,7 +107,7 @@ final class Processor
      * Returns a string representing the order of a cosmetic rule.
      *
      * @param string $rule The cosmetic rule to determine the order for
-     * @return string The rule with the order prefix added, or the original rule if no prefix is needed.
+     * @return string The rule with the order prefix added, or the original rule if no prefix is needed
      */
     private function cosmeticRulesOrder(string $rule): string
     {
