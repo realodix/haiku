@@ -192,9 +192,14 @@ Sorting domains and modifiers in AdGuard non-basic rules modifiers.
 
 ### # Empty Lines
 
-`fixer.flags.remove_empty_lines`, enabled by default.
+Removes blank lines following configuration.
 
-Removes empty lines.
+**Config**: `fixer.flags.remove_empty_lines`, default: `true`
+
+**Possible values**:
+- `true`: Remove all empty lines.
+- `false`: Preserve all empty lines as-is.
+- `keep_before_comment`: Remove empty lines, except when the next line is a comment (`!`).
 
 ```adblock
 !## BEFORE
@@ -202,9 +207,33 @@ Removes empty lines.
 
 ##.banner
 
-!## AFTER
+! comment
+##.foo
+```
+
+```adblock
+!## AFTER - true
 ##.ads
 ##.banner
+! comment
+##.foo
+
+
+!## AFTER - false
+##.ads
+
+##.banner
+
+! comment
+##.foo
+
+
+!## AFTER - keep_before_comment
+##.ads
+##.banner
+
+! comment
+##.foo
 ```
 
 ### # Duplicate Rules

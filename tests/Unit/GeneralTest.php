@@ -66,15 +66,23 @@ class GeneralTest extends TestCase
     public function testEmptyLine()
     {
         $input = [
-            '',
+            '##.ads',
             '     ',
+            '##.banner',
+            '',
+            '',
+            '! comment',
+            '##.foo',
         ];
 
-        $expected = [];
-        $this->assertSame($expected, $this->fix($input));
+        $expected = ['##.ads', '##.banner', '! comment', '##.foo'];
+        $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => true]));
 
-        $expected = ['', ''];
+        $expected = ['##.ads', '', '##.banner', '', '', '! comment', '##.foo'];
         $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => false]));
+
+        $expected = ['##.ads', '##.banner', '', '! comment', '##.foo'];
+        $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => 'keep_before_comment']));
     }
 
     #[PHPUnit\Test]

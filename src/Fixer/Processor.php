@@ -29,11 +29,11 @@ final class Processor
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules
 
-        foreach ($lines as $line) {
+        foreach ($lines as $i => $line) {
             $line = trim($line);
 
             if ($line === '') {
-                $this->handleEmptyLine($section, $result);
+                $this->handleEmptyLine($i, $lines, $section, $result);
 
                 continue;
             }
@@ -134,15 +134,28 @@ final class Processor
      * line to the final result, ensuring that structural spacing does not get
      * mixed into rule processing.
      *
+     * @param int $index The current line index within the original input
+     * @param array<int, string> $lines The full list of input lines
      * @param array<int, string> &$section Reference to the current rule section buffer
      * @param array<int, string> &$result Reference to the final output buffer
      */
-    private function handleEmptyLine(array &$section, array &$result): void
+    private function handleEmptyLine(int $index, array $lines, array &$section, array &$result): void
     {
         $mode = Helper::flag('remove_empty_lines');
 
         if ($mode === true) {
-            return; // skip
+            return;
+        }
+
+        if ($mode === 'keep_before_comment') {
+            $next = $lines[$index + 1] ?? null;
+
+            if ($next !== null && str_starts_with(trim($next), '!')) {
+                $this->flushSection($section, $result);
+                $result[] = '';
+            }
+
+            return;
         }
 
         // mode === false

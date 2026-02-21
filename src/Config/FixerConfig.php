@@ -14,7 +14,7 @@ use Symfony\Component\Finder\Finder;
  *  option_format: null|'long'|'short',
  *  reduce_subdomains: bool,
  *  reduce_wildcard_covered_domains: bool,
- *  remove_empty_lines: bool,
+ *  remove_empty_lines: bool|'keep_before_comment',
  * }
  */
 final class FixerConfig
