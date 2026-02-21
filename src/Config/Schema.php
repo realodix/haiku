@@ -28,6 +28,7 @@ final class Schema
                 'backup' => Expect::bool(),
                 'flags' => Expect::structure([
                     'option_format' => Expect::anyOf('long', 'short'),
+                    'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
                 ])->otherItems(Expect::bool()),
             ]),
         ]);
