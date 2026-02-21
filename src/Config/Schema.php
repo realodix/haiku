@@ -27,6 +27,7 @@ final class Schema
                 'excludes' => Expect::listOf('string'),
                 'backup' => Expect::bool(),
                 'flags' => Expect::structure([
+                    'domain_order' => Expect::anyOf('normal', 'negated_first', 'localhost_first', 'localhost_negated_first'),
                     'option_format' => Expect::anyOf('long', 'short'),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
                 ])->otherItems(Expect::bool()),
