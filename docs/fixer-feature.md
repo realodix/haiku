@@ -379,13 +379,13 @@ Normalizes option names to lowercase.
 
 ### # Filter Option Format
 
-`fixer.flags.option_format`, possible values: `long`, `short`
+`fixer.flags.option_format`
 
 Normalizes option names to either their long form or short form.
 
+**Possible values**:
 - `long`: Use full-length option names
   (e.g. `$third-party`, `$document`, `$strict-first-party`)
-
 - `short`: Use abbreviated option names
   (e.g. `$3p`, `$doc`, `$strict1p`)
 
