@@ -134,7 +134,7 @@ final class Fixer
     {
         $config = app(\Realodix\Haiku\Config\FixerConfig::class);
         $flags = collect($config->getFlag())
-            ->reject(static fn($value) => $value === false)
+            ->reject(static fn($value) => $value === false || $value === null)
             ->sortKeys()->toJson();
 
         if (str_contains(App::VERSION, '.x')) {
