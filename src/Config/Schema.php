@@ -26,7 +26,9 @@ final class Schema
                 'paths' => Expect::listOf('string'),
                 'excludes' => Expect::listOf('string'),
                 'backup' => Expect::bool(),
-                'flags' => Expect::arrayOf('bool|string', 'string'),
+                'flags' => Expect::structure([
+                    'option_format' => Expect::anyOf('long', 'short'),
+                ])->otherItems(Expect::bool()),
             ]),
         ]);
     }
