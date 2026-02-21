@@ -50,6 +50,7 @@ final class Processor
                 continue;
             }
 
+            // Handle rule lines
             if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
                 $section[] = $this->elementTidy->applyFix($line, $m);
             } else {
