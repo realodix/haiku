@@ -11,7 +11,7 @@ use Symfony\Component\Finder\Finder;
  *  combine_option_sets: bool,
  *  migrate_deprecated_options: bool,
  *  normalize_domains: bool,
- *  option_format: false|'long'|'short',
+ *  option_format: null|'long'|'short',
  *  reduce_subdomains: bool,
  *  reduce_wildcard_covered_domains: bool,
  *  remove_empty_lines: bool,
@@ -30,7 +30,7 @@ final class FixerConfig
         'combine_option_sets' => false,
         'migrate_deprecated_options' => false,
         'normalize_domains' => false,
-        'option_format' => false,
+        'option_format' => null,
         'reduce_subdomains' => false,
         'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => true,
@@ -94,15 +94,9 @@ final class FixerConfig
         // Handle fmode if exists.
         if (array_key_exists('fmode', $override)) {
             $value = (bool) $override['fmode'];
-
-            foreach ($flags as $name => $_) {
-                if ($name === 'option_format') {
-                    continue;
-                }
-
-                $flags[$name] = $value;
+            foreach ($flags as $name => $defaultValue) {
+                is_bool($defaultValue) && $flags[$name] = $value;
             }
-
             unset($override['fmode']);
         }
 
