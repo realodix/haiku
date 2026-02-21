@@ -39,10 +39,7 @@ final class Processor
             // which act as section breaks.
             if ($this->isSpecialLine($line)) {
                 // Write current section if it exists and reset counters
-                if ($section) {
-                    $result = array_merge($result, $this->processSection($section));
-                    $section = [];
-                }
+                $this->flushSection($section, $result);
 
                 // Add the comment/header line to the result
                 $result[] = $line;
@@ -58,11 +55,30 @@ final class Processor
         }
 
         // Write any remaining section
-        if ($section) {
-            $result = array_merge($result, $this->processSection($section));
-        }
+        $this->flushSection($section, $result);
 
         return $result;
+    }
+
+    /**
+     * Flushes the current rule section into the final result.
+     *
+     * If the section buffer contains rules, they will be processed and appended
+     * to the result. The section buffer is then cleared to prepare for the next
+     * group of rules.
+     *
+     * This method guarantees that after execution, the section buffer will always
+     * be empty.
+     *
+     * @param array<int, string> &$section Reference to the current rule section buffer
+     * @param array<int, string> &$result Reference to the final output buffer
+     */
+    private function flushSection(array &$section, array &$result): void
+    {
+        if ($section) {
+            $result = array_merge($result, $this->processSection($section));
+            $section = [];
+        }
     }
 
     /**
