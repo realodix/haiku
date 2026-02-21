@@ -31,7 +31,10 @@ final class Processor
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (Helper::flag('remove_empty_lines') && $line === '') {
+
+            if ($line === '') {
+                $this->handleEmptyLine($section, $result);
+
                 continue;
             }
 
@@ -120,6 +123,33 @@ final class Processor
     }
 
     /**
+     * Handles an empty line according to the configured empty line policy.
+     *
+     * This method is responsible for deciding whether an empty line should be:
+     * - removed entirely,
+     * - or always preserved.
+     *
+     * The method may flush the current rule section before appending the empty
+     * line to the final result, ensuring that structural spacing does not get
+     * mixed into rule processing.
+     *
+     * @param array<int, string> &$section Reference to the current rule section buffer
+     * @param array<int, string> &$result Reference to the final output buffer
+     */
+    private function handleEmptyLine(array &$section, array &$result): void
+    {
+        $mode = Helper::flag('remove_empty_lines');
+
+        if ($mode === true) {
+            return; // skip
+        }
+
+        // mode === false
+        $this->flushSection($section, $result);
+        $result[] = '';
+    }
+
+    /**
      * Returns a string representing the order of a cosmetic rule.
      *
      * @param string $rule The cosmetic rule to determine the order for
@@ -163,6 +193,6 @@ final class Processor
             // header
             || str_starts_with($line, '[') && str_ends_with($line, ']') && !str_contains($line, '$')
             // YAML metadata
-            || trim($line, '-') === '';
+            || preg_match('/^-+$/', $line);
     }
 }
