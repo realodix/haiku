@@ -30,10 +30,11 @@ final class DomainNormalizer
             });
 
         // Domain coverage reducer
+        $domains = $domains->values()->all();
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
 
-        return $domains->unique()
+        return collect($domains)->unique()
             ->sortBy(fn($str) => $this->domainSortPriority($str))
             ->implode($separator);
     }
@@ -129,12 +130,12 @@ final class DomainNormalizer
     }
 
     /**
-     * Remove explicit domains covered by wildcard TLD domains.
+     * Remove domains covered by wildcard TLD domains
      *
-     * example.com + example.*  → example.*
+     * example.* + example.com -> keep example.*
      *
-     * @param \Illuminate\Support\Collection<int, string> $domains
-     * @return \Illuminate\Support\Collection<int, string>
+     * @param array<int, string> $domains
+     * @return array<int, string>
      */
     private function removeWildcardCoveredDomains($domains)
     {
@@ -142,39 +143,49 @@ final class DomainNormalizer
             return $domains;
         }
 
-        // Collect wildcard bases: example.*
-        $wildcardBases = $domains
-            ->filter(fn($d) => !str_starts_with($d, '~') && str_ends_with($d, '.*'))
-            ->map(fn($d) => substr($d, 0, -2))
-            ->unique();
+        // Build lookup set of wildcard prefixes (example.* -> example)
+        // Used to detect domains covered by wildcard TLD rules
+        $wildcardBases = [];
+        foreach ($domains as $d) {
+            if ($d[0] !== '~' && str_ends_with($d, '.*')) {
+                $wildcardBases[substr($d, 0, -2)] = true;
+            }
+        }
 
-        if ($wildcardBases->isEmpty()) {
+        if (!$wildcardBases) {
             return $domains;
         }
 
-        return $domains->reject(function ($d) use ($wildcardBases) {
-            if (str_starts_with($d, '~') // don't touch negated domains
+        $filtered = array_filter($domains, static function ($d) use ($wildcardBases) {
+            if (str_starts_with($d, '~') // keep negated domains
                 || str_ends_with($d, '.*') // keep wildcard domains
                 // IP never uses wildcard, but we assume the input is not always correct
                 || filter_var($d, FILTER_VALIDATE_IP) !== false
             ) {
-                return false;
+                return true;
             }
 
-            // example.com → example
-            $base = explode('.', $d, 2)[0];
+            // Extract first label prefix (example.com -> example)
+            $dotPos = strpos($d, '.');
+            if ($dotPos === false) {
+                return true;
+            }
+            $base = substr($d, 0, $dotPos);
 
-            return $wildcardBases->contains($base);
+            // Reject if covered by wildcard
+            return !isset($wildcardBases[$base]);
         });
+
+        return $filtered;
     }
 
     /**
      * Remove subdomains covered by their base domain.
      *
-     * example.com + login.example.com → example.com
+     * example.com + login.example.com -> example.com
      *
-     * @param \Illuminate\Support\Collection<int, string> $domains
-     * @return \Illuminate\Support\Collection<int, string>
+     * @param array<int, string> $domains
+     * @return array<int, string>
      */
     private function removeSubdomainCoveredDomains($domains)
     {
@@ -182,41 +193,45 @@ final class DomainNormalizer
             return $domains;
         }
 
-        // Collect base domains (non-negated, non-wildcard)
-        $baseDomains = $domains
-            ->filter(fn($d) => str_contains($d, '.')
-                && !str_starts_with($d, '~')
-                && !str_ends_with($d, '.*'),
-            )->unique();
+        // Build lookup set of candidate parent domains. Used to detect subdomains
+        // covered by their parent.
+        $baseSet = [];
 
-        if ($baseDomains->isEmpty()) {
+        foreach ($domains as $d) {
+            if ($d[0] !== '~'
+                && !str_ends_with($d, '.*')
+                && strpos($d, '.') !== false
+            ) {
+                $baseSet[$d] = true;
+            }
+        }
+
+        if (!$baseSet) {
             return $domains;
         }
 
-        $baseSet = $baseDomains->flip()->all();
-
-        return $domains->reject(function ($d) use ($baseSet) {
-            // don't touch negated domains
-            if (str_starts_with($d, '~')) {
-                return false;
+        $filtered = array_filter($domains, static function ($d) use ($baseSet) {
+            // Keep negated domains
+            if ($d[0] === '~') {
+                return true;
             }
 
-            // Check each parent domain, starting from the closest one
-            // and if parent exists, current domain is redundant.
-            //
-            // example: login.api.example.com -> api.example.com
-            //   -> example.com (found in base set -> covered)
-            $parts = explode('.', $d);
-            $count = count($parts);
-            for ($i = 1; $i < $count; $i++) {
-                $parent = implode('.', array_slice($parts, $i));
-                if (isset($baseSet[$parent])) {
-                    return true;
+            $check = $d;
+
+            // Strip leftmost label iteratively:
+            // login.api.example.com -> api.example.com -> example.com
+            while (($pos = strpos($check, '.')) !== false) {
+                $check = substr($check, $pos + 1);
+
+                if (isset($baseSet[$check])) {
+                    return false; // Covered
                 }
             }
 
-            return false;
+            return true;
         });
+
+        return $filtered;
     }
 
     /**
