@@ -41,11 +41,6 @@ final class DomainNormalizer
     /**
      * Determine sorting priority for a domain string.
      *
-     * Sorting rules:
-     * 1. Localhost-related domains (negated and non-negated) come first.
-     * 2. Within each group, negated domains ('~') come first.
-     * 3. Then sort alphabetically by the normalized domain value.
-     *
      * @return list<int|string>
      */
     private function domainSortPriority(string $str): array
@@ -111,7 +106,8 @@ final class DomainNormalizer
     }
 
     /**
-     * Removes leading and trailing slashes and dots from a domain string.
+     * Normalizes a domain string by trimming whitespace and removing leading "/"
+     * or "." and trailing "/".
      */
     private function cleanDomain(string $domain): string
     {
