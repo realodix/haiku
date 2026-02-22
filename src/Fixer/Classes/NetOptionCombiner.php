@@ -73,7 +73,7 @@ final class NetOptionCombiner
                     continue;
                 }
 
-                if ($this->isRedundant($existing, $options)) {
+                if ($this->isSubsumed($existing, $options)) {
                     continue;
                 }
 
@@ -115,31 +115,30 @@ final class NetOptionCombiner
     }
 
     /**
-     * Determines whether an incoming rule contributes no new options to an already merged
-     * option set.
+     * Determines whether the incoming option set is fully subsumed by the existing
+     * merged set.
      *
-     * The rule is considered redundant if every incoming option (including its polarity
-     * form) already exists in the merged set.
-     *
-     * This comparison is purely structural:
-     * - Option order does not matter
-     * - Polarity (`image` vs `~image`) must match exactly
-     * - No semantic normalization is performed here
+     * A rule is considered subsumed if every incoming option (including polarity) already
+     * exists in the merged set.
      *
      * Example:
-     * - Existing: image,css
-     * - Incoming: image
-     *   → redundant (no new option introduced)
+     *  Existing: image,css
+     *  Incoming: image
+     *      → subsumed (adds nothing new)
      *
-     * - Existing: image,css
-     * - Incoming: css,image
-     *   → redundant (same set, different order)
+     *  Existing: image,css
+     *  Incoming: css,image
+     *      → subsumed (same set, different order)
+     *
+     *  Existing: image,css
+     *  Incoming: script
+     *      → not subsumed
      *
      * @param array<string, bool> $existing Currently merged options
      * @param array<int, string> $incoming Incoming rule options
      * @return bool True if the incoming rule adds no new option
      */
-    private function isRedundant(array $existing, array $incoming): bool
+    private function isSubsumed(array $existing, array $incoming): bool
     {
         foreach ($incoming as $opt) {
             if (!isset($existing[$opt])) {
