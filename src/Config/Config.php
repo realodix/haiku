@@ -25,6 +25,8 @@ final class Config
     ) {}
 
     /**
+     * Loads and returns the Builder configuration.
+     *
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
      */
     public function builder($cmdOpt): BuilderConfig
@@ -39,6 +41,8 @@ final class Config
     }
 
     /**
+     * Loads and returns the Fixer configuration.
+     *
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
      */
     public function fixer($cmdOpt): FixerConfig
@@ -62,7 +66,12 @@ final class Config
     }
 
     /**
+     * Loads the YAML configuration file and parses its content.
+     *
+     * @param Section $section The context/section being loaded
      * @param string|null $path Custom path to the configuration file
+     *
+     * @throws InvalidConfigurationException If the file is mandatory but not found
      */
     private function load(Section $section, ?string $path): self
     {
@@ -97,6 +106,8 @@ final class Config
     }
 
     /**
+     * Validates the loaded configuration against the defined schema.
+     *
      * @param array<string, mixed> $config
      * @param \Realodix\Haiku\Enums\Section $section
      */

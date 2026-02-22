@@ -6,8 +6,8 @@ use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 
 /**
- * Merge compatible network filter rules by combining their option sets when it
- * is safe to do so. Redundant rules are dropped. Unregistered rules are preserved.
+ * Combines compatible network filter rules that share the same pattern
+ * by merging their option sets when it is semantically safe.
  */
 final class NetOptionCombiner
 {
@@ -95,7 +95,7 @@ final class NetOptionCombiner
     }
 
     /**
-     * Determines whether a set of network filter options is eligible to be merged.
+     * Determine whether a rule's option set is eligible for merging.
      *
      * @param array<int, string> $options Parsed option list (without `$`), possibly
      *                                    prefixed with `~`
@@ -115,19 +115,29 @@ final class NetOptionCombiner
     }
 
     /**
-     * Checks whether a new rule adds any options that are not already present
-     * in the existing merged option set.
+     * Determines whether an incoming rule contributes no new options to an already merged
+     * option set.
      *
-     * If all incoming options already exist, the rule is considered redundant
-     * and can be safely discarded.
+     * The rule is considered redundant if every incoming option (including its polarity
+     * form) already exists in the merged set.
      *
-     * This prevents duplicate rules such as:
-     * - /ads.$image,css
-     * - /ads.$image
+     * This comparison is purely structural:
+     * - Option order does not matter
+     * - Polarity (`image` vs `~image`) must match exactly
+     * - No semantic normalization is performed here
+     *
+     * Example:
+     * - Existing: image,css
+     * - Incoming: image
+     *   → redundant (no new option introduced)
+     *
+     * - Existing: image,css
+     * - Incoming: css,image
+     *   → redundant (same set, different order)
      *
      * @param array<string, bool> $existing Currently merged options
      * @param array<int, string> $incoming Incoming rule options
-     * @return bool True if the incoming rule adds no new information
+     * @return bool True if the incoming rule adds no new option
      */
     private function isRedundant(array $existing, array $incoming): bool
     {
@@ -141,10 +151,15 @@ final class NetOptionCombiner
     }
 
     /**
-     * Removes existing aliases that belong to the same alias group
-     * as the incoming option.
+     * Removes all existing options that belong to the same alias group as the given
+     * incoming option.
      *
-     * @param array<string, bool> $existing
+     * Alias groups represent semantically equivalent options (e.g. `css` and `stylesheet`).
+     * When an alias is encountered, all other aliases from the same group are removed
+     * to avoid duplication within the merged set.
+     *
+     * @param array<string, bool> $existing Current merged options (by reference)
+     * @param string $incoming The option being inserted
      */
     private function overwriteAlias(array &$existing, string $incoming): void
     {
@@ -163,9 +178,16 @@ final class NetOptionCombiner
     }
 
     /**
-     * Determines whether two option sets can be safely merged, taking option
-     * polarity into account. The check is symmetric: the order of existing and
-     * incoming options does not affect the outcome.
+     * Determines whether two option sets can be safely merged, considering polarity
+     * structure.
+     *
+     * Each set is classified as:
+     * - POS   (only positive options)
+     * - NEG   (only negated options)
+     * - MIXED (both positive and negated options)
+     *
+     * This method evaluates structural compatibility only and does not validate option
+     * correctness.
      *
      * @param array<string, bool> $existing
      * @param array<int, string> $incoming
@@ -197,13 +219,12 @@ final class NetOptionCombiner
             return (bool) array_intersect($eNeg, $iNeg);
         }
 
+        // other combinations
         return false;
     }
 
     /**
-     * Determines whether two option sets can be safely merged, taking option
-     * polarity into account. This method does not validate option correctness;
-     * it only classifies structural polarity.
+     * Classifies an option set by polarity structure.
      *
      * @param array<int, string> $pos
      * @param array<int, string> $neg
@@ -223,8 +244,13 @@ final class NetOptionCombiner
     }
 
     /**
+     * Splits an option list into positive and negated subsets.
+     *
      * @param array<int, string> $options
-     * @return list<array<int, string>>
+     * @return array{
+     *     0: array<int, string>, // positive
+     *     1: array<int, string>  // negative (without `~`)
+     * }
      */
     private function splitPolarity(array $options): array
     {
@@ -243,8 +269,9 @@ final class NetOptionCombiner
     }
 
     /**
-     * Rebuilds merged filter rules from grouped option sets. This method assumes
-     * all safety checks have already been performed.
+     * Reconstructs filter rules from grouped and merged option sets.
+     *
+     * This method assumes all safety checks have already been performed.
      *
      * @param array<string, array{
      *  pattern: string,

@@ -20,8 +20,7 @@ final class Processor
     ) {}
 
     /**
-     * Processes an array of filter lines, optimizing them into a sorted
-     * and combined list.
+     * Process raw filter lines into their normalized form.
      *
      * @param array<int, string> $lines An array of raw filter lines
      * @return array<int, string> The processed and optimized list of filter lines
@@ -67,14 +66,10 @@ final class Processor
     }
 
     /**
-     * Flushes the current rule section into the final result.
+     * Flush the current section into the final result.
      *
-     * If the section buffer contains rules, they will be processed and appended
-     * to the result. The section buffer is then cleared to prepare for the next
-     * group of rules.
-     *
-     * This method guarantees that after execution, the section buffer will always
-     * be empty.
+     * If the section buffer is non-empty, it will be processed and appended to the result
+     * in its transformed form. The section buffer is then cleared.
      *
      * @param array<int, string> &$section Reference to the current rule section buffer
      * @param array<int, string> &$result Reference to the final output buffer
@@ -88,8 +83,7 @@ final class Processor
     }
 
     /**
-     * Processes a section of filter rules by normalizing, sorting, de-duplicating
-     * and combining them into their final form.
+     * Process a logical section of rules.
      *
      * @param array<int, string> $section Tidied filter rules
      * @return array<int, string> The processed lines for the section
@@ -126,15 +120,10 @@ final class Processor
     }
 
     /**
-     * Handles an empty line according to the configured empty line policy.
+     * Handle an empty line according to the configured policy.
      *
-     * This method is responsible for deciding whether an empty line should be:
-     * - removed entirely,
-     * - or always preserved.
-     *
-     * The method may flush the current rule section before appending the empty
-     * line to the final result, ensuring that structural spacing does not get
-     * mixed into rule processing.
+     * In cases where the line is preserved, the current section is flushed beforehand
+     * to prevent structural spacing from being merged into rule logic.
      *
      * @param int $index The current line index within the original input
      * @param array<int, string> $lines The full list of input lines
@@ -197,7 +186,7 @@ final class Processor
     }
 
     /**
-     * Determines if a given filter line is a special line.
+     * Determine whether a line is structural rather than a filter rule.
      */
     public function isSpecialLine(string $line): bool
     {

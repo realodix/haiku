@@ -81,10 +81,10 @@ final class DomainNormalizer
     }
 
     /**
-     * Fixes incorrect separators in domain strings.
+     * Normalize incorrect separators in a domain list.
      *
      * If the domain string contains an incorrect separator (e.g. '|' instead of ','),
-     * replace it with the correct separator.
+     * it will be replaced with the expected separator.
      *
      * @param string $domainStr The domain string to fix
      * @param string $separator The correct separator to use
@@ -110,8 +110,7 @@ final class DomainNormalizer
     }
 
     /**
-     * Normalizes a domain string by trimming whitespace and removing leading "/"
-     * or "." and trailing "/".
+     * Normalize a single domain entry.
      */
     private function cleanDomain(string $domain): string
     {
@@ -133,9 +132,12 @@ final class DomainNormalizer
     }
 
     /**
-     * Remove domains covered by wildcard TLD domains
+     * Remove domains covered by wildcard TLD domain.
      *
-     * example.* + example.com -> keep example.*
+     * Example:
+     *   example.* + example.com -> keep example.*
+     *
+     * Negated domains and wildcard entries themselves are preserved.
      *
      * @param array<int, string> $domains
      * @return array<int, string>
@@ -147,7 +149,7 @@ final class DomainNormalizer
         }
 
         // Build lookup set of wildcard prefixes (example.* -> example)
-        // Used to detect domains covered by wildcard TLD rules
+        // Used to detect domains covered by wildcard TLD domain
         $wildcardBases = [];
         foreach ($domains as $d) {
             if ($d[0] !== '~' && str_ends_with($d, '.*')) {
@@ -183,9 +185,13 @@ final class DomainNormalizer
     }
 
     /**
-     * Remove subdomains covered by their base domain.
+     * Remove subdomains covered by an existing parent domain.
      *
-     * example.com + login.example.com -> example.com
+     * Example:
+     *   example.com + login.example.com -> keep example.com
+     *
+     * Each domain is checked iteratively by stripping the leftmost label until
+     * a parent match is found. Negated domains are never removed.
      *
      * @param array<int, string> $domains
      * @return array<int, string>
@@ -238,7 +244,8 @@ final class DomainNormalizer
     }
 
     /**
-     * Determines if a given domain string contains a regex domain.
+     * Determine whether the domain string represents or contains a regex-based domain
+     * definition.
      *
      * @param string $domainStr The domain string to check
      * @return bool True if the domain string contains a regex domain, false otherwise

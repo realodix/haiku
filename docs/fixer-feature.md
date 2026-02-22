@@ -6,7 +6,7 @@ Some transformations can be enabled or disabled via the `fixer.flags` configurat
 # Example configuration
 fixer:
   flags:
-    remove_empty_lines: false
+    remove_empty_lines: keep_before_comment
     reduce_wildcard_covered_domains: true
 ```
 
@@ -299,7 +299,7 @@ Reduces domain lists by eliminating entries that are semantically covered by mor
 
 `fixer.flags.reduce_wildcard_covered_domains`
 
-If a wildcard TLD domain (e.g., `example.*`) is present, explicit domains sharing the same base (e.g., `example.com`) are considered redundant.
+Eliminates explicit domains that are already covered by wildcard TLD domains. When a wildcard domain like `example.*` is present, specific domains like `example.com` are redundant and removed. Negated domains are preserved.
 
 ```adblock
 !## BEFORE
@@ -309,13 +309,11 @@ example.com,~example.net,example.*##.ads
 ~example.net,example.*##.ads
 ```
 
-Explicit domains covered by a wildcard domain are removed. Negated domains are preserved.
-
 #### Subdomain Coverage
 
 `fixer.flags.reduce_subdomains`
 
-If a base domain is present (e.g., `example.com`), its subdomains (e.g., `api.example.com`) are considered redundant.
+Removes subdomain entries that are covered by their parent domain. When a base domain like `example.com` is present, subdomains like `api.example.com` are redundant. Negated subdomains are preserved.
 
 ```adblock
 !## BEFORE
@@ -324,8 +322,6 @@ example.com,~ads.example.com,api.example.com,example.org##.ads
 !## AFTER
 ~ads.example.com,example.com,example.org##.ads
 ```
-
-Subdomains covered by a base domain are removed. Negated domains are preserved.
 
 ### # Superfluous Domain Separators
 
@@ -345,7 +341,7 @@ example.com,example.org##.ads
 
 `fixer.flags.normalize_domains`
 
-Remove spaces inside domain lists.
+Removes spaces in domain lists.
 
 ```adblock
 !## BEFORE
@@ -427,10 +423,10 @@ Normalizes option names to lowercase.
 Normalizes option names to either their long form or short form.
 
 **Possible values**:
-- `long`: Use full-length option names
-  (e.g. `$third-party`, `$document`, `$strict-first-party`)
-- `short`: Use abbreviated option names
-  (e.g. `$3p`, `$doc`, `$strict1p`)
+- `long`: Convert all options to long form
+  (e.g. `$third-party`, `$document`)
+- `short`: Convert all options to short form
+  (e.g. `$3p`, `$doc`)
 
 ```adblock
 ! option_format: long
@@ -446,7 +442,7 @@ Normalizes option names to either their long form or short form.
 
 `fixer.flags.migrate_deprecated_options`
 
-Migrates deprecated filter options to their modern equivalents.
+Converts deprecated filter options to their modern equivalents. This helps maintain filter lists as adblock specifications evolve.
 
 Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 

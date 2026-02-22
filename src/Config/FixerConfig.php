@@ -20,9 +20,16 @@ use Symfony\Component\Finder\Finder;
  */
 final class FixerConfig
 {
-    /** @var array<int, string> */
+    /**
+     * List of resolved absolute file paths to be processed
+     *
+     * @var array<int, string>
+     */
     public array $paths;
 
+    /**
+     * Whether to create a backup before modifying files
+     */
     public bool $backup;
 
     /** @var _FixerFlags */
@@ -39,6 +46,8 @@ final class FixerConfig
     ];
 
     /**
+     * Initializes the configuration by merging file-based config and command-line options.
+     *
      * @param array{
      *   paths?: list<string>,
      *   excludes?: list<string>,
@@ -61,6 +70,8 @@ final class FixerConfig
     }
 
     /**
+     * Updates the fixer flags.
+     *
      * @param array<string, bool|string> $flags
      */
     public function setFlag(array $flags): self
@@ -71,6 +82,8 @@ final class FixerConfig
     }
 
     /**
+     * Retrieves a specific flag value or the entire flags array.
+     *
      * @param key-of<_FixerFlags>|null $name
      * @return ($name is string ? value-of<_FixerFlags> : _FixerFlags)
      */
@@ -80,6 +93,8 @@ final class FixerConfig
     }
 
     /**
+     * Resolves and validates flag overrides.
+     *
      * @param array<string, bool|string> $override
      * @return array<string, bool|string>
      */
@@ -93,7 +108,7 @@ final class FixerConfig
             unset($override['xmode']);
         }
 
-        // Handle fmode if exists.
+        // 'fmode' acts as a bulk toggle for all boolean flags
         if (array_key_exists('fmode', $override)) {
             $value = (bool) $override['fmode'];
             foreach ($flags as $name => $defaultValue) {
@@ -102,7 +117,7 @@ final class FixerConfig
             unset($override['fmode']);
         }
 
-        // Override with specific flags.
+        // Apply specific overrides
         foreach ($override as $name => $value) {
             if (!array_key_exists($name, $flags)) {
                 throw new InvalidConfigurationException(sprintf('Unknown flag name: "%s".', $name));
@@ -115,6 +130,8 @@ final class FixerConfig
     }
 
     /**
+     * Resolves provided paths into a unique list of absolute file paths.
+     *
      * @param array<int, string>|string $paths
      * @param array<int, string> $excludes Excludes files or dirs
      * @return array<int, string>

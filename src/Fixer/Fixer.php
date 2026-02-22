@@ -89,7 +89,7 @@ final class Fixer
     }
 
     /**
-     * Check if file should be skipped.
+     * Determine whether a file should be skipped.
      *
      * @param string $path Path to file
      * @param array<int, string> $content File content
@@ -130,6 +130,12 @@ final class Fixer
         }
     }
 
+    /**
+     * Generate a deterministic content fingerprint.
+     *
+     * @param string $data The data to hash.
+     * @return string The computed hash value.
+     */
     private function hash(string $data): string
     {
         $config = app(\Realodix\Haiku\Config\FixerConfig::class);
