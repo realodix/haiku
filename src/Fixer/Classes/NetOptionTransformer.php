@@ -4,6 +4,9 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Config\FixerConfig;
 
+/**
+ * Transforms and normalizes network filter options.
+ */
 final class NetOptionTransformer
 {
     private const OPTION_CONVERSION = [
@@ -32,7 +35,7 @@ final class NetOptionTransformer
     ) {}
 
     /**
-     * Applies a set of dynamic rules to transform or remove a filter option.
+     * Transforms a list of network filter options.
      *
      * @param array<int, string> $options
      * @return array<int, string>
@@ -57,10 +60,10 @@ final class NetOptionTransformer
     }
 
     /**
-     * Transforms a filter option name according to the configured option format.
+     * Normalizes an option name according to the configured format.
      *
-     * Handles negation once, and replaces the option name with its short or
-     * long name equivalent.
+     * @param string $option Single option token
+     * @return string Normalized option token
      */
     private function transformName(string $option): string
     {
@@ -97,7 +100,10 @@ final class NetOptionTransformer
     }
 
     /**
-     * Migrates deprecated network filter options to their new equivalents.
+     * Migrates deprecated network filter options to their modern equivalents.
+     *
+     * @param string $option Single option token
+     * @return string Migrated option token
      */
     private function migrateDeprecatedOptions(string $option): string
     {

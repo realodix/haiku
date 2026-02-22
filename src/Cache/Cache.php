@@ -21,13 +21,17 @@ final class Cache
     }
 
     /**
-     * Prepare cache state before a run.
-     * - If not forced: clean stale entries (files that no longer exist)
-     * - If forced: clear entire cache, but only once per run
+     * Initializes the cache state for the current run.
      *
-     * @param array<int, string> $validKeys $validKeys A valid keys to keep
-     * @param string|null $storagePath The path where the cache is stored
+     * - If $ignoreCache is false:
+     *   Removes stale entries (keys not in $validKeys or pointing to non-existent files)
+     * - If $ignoreCache is true:
+     *   Clears the entire section cache (once per run)
+     *
+     * @param array<int, string> $validKeys $validKeys List of valid keys
+     * @param string|null $storagePath Custom cache file or directory path
      * @param bool $ignoreCache If true, the cache is ignored
+     * @param Section $section Cache section to operate on
      */
     public function prepareForRun(array $validKeys, ?string $storagePath, bool $ignoreCache = false, Section $section = Section::F): void
     {
@@ -60,7 +64,7 @@ final class Cache
     }
 
     /**
-     * Checks if a file has changed.
+     * Checks whether the stored reference for a key matches the provided reference value.
      *
      * @param string $key The cache key
      * @param string $value The reference value
@@ -73,7 +77,7 @@ final class Cache
     }
 
     /**
-     * Remove cache entries that are no longer valid.
+     * Removes cache entries that are no longer valid.
      *
      * @param array<int, string> $validKeys A valid keys to keep
      */
@@ -108,7 +112,7 @@ final class Cache
     }
 
     /**
-     * Resolves the cache file path and ensures its directory exists.
+     * Resolves the final cache file path and ensures required directories exist.
      *
      * @param string|null $path Custom cache directory path (can be relative, absolute, or null)
      * @return string The absolute path to the final cache file

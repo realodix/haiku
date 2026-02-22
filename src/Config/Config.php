@@ -27,7 +27,7 @@ final class Config
     /**
      * Loads and returns the Builder configuration.
      *
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
     public function builder($cmdOpt): BuilderConfig
     {
@@ -43,7 +43,7 @@ final class Config
     /**
      * Loads and returns the Fixer configuration.
      *
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
     public function fixer($cmdOpt): FixerConfig
     {

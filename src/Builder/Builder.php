@@ -41,8 +41,10 @@ final class Builder
     }
 
     /**
+     * Builds a single filter list.
+     *
      * @param \Realodix\Haiku\Config\ValueObject\FilterSet $filterSet
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
     private function buildFilterList($filterSet, $cmdOpt): void
     {
@@ -74,7 +76,7 @@ final class Builder
     }
 
     /**
-     * Filterlist header.
+     * Generates the final header string.
      */
     private function header(string $data): string
     {
@@ -87,7 +89,7 @@ final class Builder
     }
 
     /**
-     * Reads all source files or URLs defined in the configuration.
+     * Reads all configured source files or URLs.
      *
      * @param array<int, string> $paths
      * @return array<int, string>|null Source contents, or null if a read fails.
@@ -119,7 +121,10 @@ final class Builder
     }
 
     /**
-     * Writes the final output file from sources and metadata, and updates cache.
+     * Writes the generated filter list to disk.
+     *
+     * The content is joined using LF line endings and always ends with a trailing
+     * newline.
      *
      * @param string $outputPath The path to the output file
      * @param array<int, string> $content Source contents
@@ -135,7 +140,7 @@ final class Builder
     }
 
     /**
-     * Generates a global hash representing all source contents combined.
+     * Computes a deterministic hash for the given source contents.
      *
      * @param array<int, string> $sources Source contents.
      * @return string A hash that uniquely represents the current source state.

@@ -4,6 +4,9 @@ namespace Realodix\Haiku\Fixer\Classes;
 
 use Realodix\Haiku\Fixer\ValueObject\DomainSection;
 
+/**
+ * Combines adjacent filter rules that are identical except for their domain list.
+ */
 final class Combiner
 {
     public function __construct(
@@ -13,9 +16,9 @@ final class Combiner
     /**
      * Combines domains for (further) identical rules.
      *
-     * @param array<int, string> $filters The filter rules
+     * @param array<int, string> $filters List of filter rules
      * @param string $domainPattern The regex pattern to extract the domain part
-     * @param string $separator The separator character used between domains (`,` or `|`)
+     * @param string $separator Domain separator (`,` or `|`)
      * @return array<int, string> Combined filter rules
      */
     public function applyFix(array $filters, string $domainPattern, string $separator): array
@@ -57,12 +60,11 @@ final class Combiner
     }
 
     /**
-     * Combines two domain values into one, removing duplicates and sorting alphabetically
-     * while preserving inverse domains.
+     * Merges two domain lists into a single normalized domain list.
      *
      * @param string $currentDomain The first domain value
      * @param string $nextDomain The second domain value to combine
-     * @param string $separator The separator character used between domains (`,` or `|`)
+     * @param string $separator Domain separator (`,` or `|`)
      * @return string The combined domain value
      */
     private function combineDomains(string $currentDomain, string $nextDomain, string $separator): string
@@ -73,11 +75,11 @@ final class Combiner
     }
 
     /**
-     * Parses a filter rule into its domain and base rule parts.
+     * Extracts the domain section and base rule from a filter string.
      *
-     * @param string $filter The filter rule to analyze
+     * @param string $filter Filter rule to parse
      * @param string $domainPattern The regex pattern to extract the domain part
-     * @return \Realodix\Haiku\Fixer\ValueObject\DomainSection An object containing the extracted parts of the filter
+     * @return \Realodix\Haiku\Fixer\ValueObject\DomainSection Parsed domain components
      */
     private function parseDomain(string $filter, string $domainPattern)
     {
@@ -95,16 +97,10 @@ final class Combiner
     /**
      * Determines if two filter rules can be combined.
      *
-     * This method checks for several conditions:
-     * 1. Both rules must have a domain part.
-     * 2. The structure of the domain part must be compatible.
-     * 3. The base rules (the part of the rule without the domain) must be identical.
-     * 4. The domain types (maybeMixed or negated) must be compatible.
-     *
      * @param \Realodix\Haiku\Fixer\ValueObject\DomainSection $currentLine The analysis of the current filter rule
      * @param \Realodix\Haiku\Fixer\ValueObject\DomainSection $nextLine The analysis of the next filter rule
-     * @param string $separator The separator character used between domains (`,` or `|`)
-     * @return bool True if the rules can be combined, false otherwise
+     * @param string $separator Domain separator (`,` or `|`)
+     * @return bool True if the rules can be safely combined
      */
     private function canCombine($currentLine, $nextLine, string $separator): bool
     {
@@ -134,15 +130,19 @@ final class Combiner
     }
 
     /**
-     * Determines the type of a domain set used in a filter rule.
+     * Classifies a domain list by its polarity structure.
      *
-     * A domain set can be one of two types:
-     * - maybeMixed: contains at least 1 normal domain (e.g., ~x.com|y.com|~z.com).
-     * - negated: contains only negated domains (prefixed with `~`, e.g., ~x.com|~y.com).
+     * A domain list is classified as:
+     * - negated    : all domains are prefixed with `~`
+     * - maybeMixed : contains at least one non-negated domain
      *
-     * @param string $domainList The domain string to check
-     * @param string $separator The separator character used between domains (`,` or `|`)
-     * @return string Returns either `'maybeMixed'` or `'negated'`
+     * Note:
+     * 'maybeMixed' does not guarantee that both positive and negative domains are present.
+     * It simply indicates that at least one positive (non-negated) domain exists.
+     *
+     * @param string $domainList Domain list string
+     * @param string $separator Domain separator (`,` or `|`)
+     * @return 'maybeMixed'|'negated'
      */
     private function domainSetType(string $domainList, string $separator): string
     {

@@ -25,7 +25,7 @@ final class Repository
     ) {}
 
     /**
-     * Set the cache file path.
+     * Sets the path of the cache file to use.
      *
      * @param string $cachePath The cache file path.
      */
@@ -37,7 +37,7 @@ final class Repository
     }
 
     /**
-     * Set the section for which the cache is stored.
+     * Sets the active section within the cache file.
      *
      * @param \Realodix\Haiku\Enums\Section $section The section to set
      */
@@ -75,7 +75,7 @@ final class Repository
     }
 
     /**
-     * Saves the current cache data to the cache file.
+     * Persists the in-memory storage to disk.
      *
      * @throws \Symfony\Component\Filesystem\Exception\IOException
      */
@@ -93,7 +93,7 @@ final class Repository
     }
 
     /**
-     * Set the cached data for the given key.
+     * Stores data for the given key in the active section.
      *
      * @param string $key The key to set
      * @param array<string, mixed> $data The data to set
@@ -104,7 +104,7 @@ final class Repository
     }
 
     /**
-     * Returns the cached data for the given key, or null if the key does not exist.
+     * Retrieves stored data for the given key in the active section.
      *
      * @param string $key The key to retrieve
      * @return array<string, mixed>|null
@@ -115,7 +115,7 @@ final class Repository
     }
 
     /**
-     * Returns the entire cache for the current section as an array.
+     * Returns all entries for the active section.
      *
      * @return array<string, mixed>|array{}
      */
@@ -125,7 +125,7 @@ final class Repository
     }
 
     /**
-     * Removes the given key from the cache.
+     * Removes a key from the active section.
      *
      * @param string $key The key to remove
      */
@@ -135,7 +135,7 @@ final class Repository
     }
 
     /**
-     * Clears the cache for the current section.
+     * Clears all entries in the active section.
      */
     public function clear(): void
     {
