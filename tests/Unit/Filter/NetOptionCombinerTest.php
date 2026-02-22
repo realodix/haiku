@@ -13,7 +13,7 @@ final class NetOptionCombinerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->optionCombiner = new NetOptionCombiner;
+        $this->optionCombiner = app(NetOptionCombiner::class);
         $config = app(\Realodix\Haiku\Config\FixerConfig::class);
         $config->setFlag(['fmode' => true]);
     }

@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Config\FixerConfig;
 
 final class NetOptionTransformer
 {
@@ -26,6 +26,10 @@ final class NetOptionTransformer
         'object-subrequest' => 'object',
         'queryprune' => 'removeparam',
     ];
+
+    public function __construct(
+        private FixerConfig $config,
+    ) {}
 
     /**
      * Applies a set of dynamic rules to transform or remove a filter option.
@@ -60,7 +64,7 @@ final class NetOptionTransformer
      */
     private function transformName(string $option): string
     {
-        if (Helper::flag('option_format') === false) {
+        if ($this->config->getFlag('option_format') === false) {
             return $option;
         }
 
@@ -71,11 +75,11 @@ final class NetOptionTransformer
         $negated = str_starts_with($rawName, '~');
         $name = $negated ? substr($rawName, 1) : $rawName;
 
-        if (Helper::flag('option_format') === 'long') {
+        if ($this->config->getFlag('option_format') === 'long') {
             $name = self::OPTION_CONVERSION[$name] ?? $name;
         }
 
-        if (Helper::flag('option_format') === 'short') {
+        if ($this->config->getFlag('option_format') === 'short') {
             static $reverse = null;
 
             if ($reverse === null) {
@@ -97,7 +101,7 @@ final class NetOptionTransformer
      */
     private function migrateDeprecatedOptions(string $option): string
     {
-        if (!Helper::flag('migrate_deprecated_options')) {
+        if (!$this->config->getFlag('migrate_deprecated_options')) {
             return $option;
         }
 

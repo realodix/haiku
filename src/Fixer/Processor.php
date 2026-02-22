@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Fixer;
 
+use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Classes\Combiner;
 use Realodix\Haiku\Fixer\Classes\ElementTidy;
 use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
@@ -15,6 +16,7 @@ final class Processor
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
         private NetOptionCombiner $optionCombiner,
+        private FixerConfig $config,
     ) {}
 
     /**
@@ -141,7 +143,7 @@ final class Processor
      */
     private function handleEmptyLine(int $index, array $lines, array &$section, array &$result): void
     {
-        $mode = Helper::flag('remove_empty_lines');
+        $mode = $this->config->getFlag('remove_empty_lines');
 
         if ($mode === true) {
             return;

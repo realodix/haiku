@@ -67,8 +67,6 @@ final class FixerConfig
     {
         $this->flags = $this->resolveFlags($flags);
 
-        \Realodix\Haiku\Helper::resetConfig();
-
         return $this;
     }
 

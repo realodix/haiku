@@ -2,10 +2,14 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Config\FixerConfig;
 
 final class DomainNormalizer
 {
+    public function __construct(
+        private FixerConfig $config,
+    ) {}
+
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
         // Regex domain, don't touch
@@ -54,7 +58,7 @@ final class DomainNormalizer
             '[::1]', '[::]',
         ];
         $isLocalhost = in_array($domain, $localhostDomains, true);
-        $strategy = Helper::flag('domain_order');
+        $strategy = $this->config->getFlag('domain_order');
 
         return match ($strategy) {
             'negated_first' => [
@@ -89,7 +93,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if (!Helper::flag('normalize_domains')) {
+        if (!$this->config->getFlag('normalize_domains')) {
             return $domainStr;
         }
 
@@ -111,7 +115,7 @@ final class DomainNormalizer
      */
     private function cleanDomain(string $domain): string
     {
-        if (!Helper::flag('normalize_domains')) {
+        if (!$this->config->getFlag('normalize_domains')) {
             return $domain;
         }
 
@@ -138,7 +142,7 @@ final class DomainNormalizer
      */
     private function removeWildcardCoveredDomains($domains)
     {
-        if (!Helper::flag('reduce_wildcard_covered_domains')) {
+        if (!$this->config->getFlag('reduce_wildcard_covered_domains')) {
             return $domains;
         }
 
@@ -178,7 +182,7 @@ final class DomainNormalizer
      */
     private function removeSubdomainCoveredDomains($domains)
     {
-        if (!Helper::flag('reduce_subdomains')) {
+        if (!$this->config->getFlag('reduce_subdomains')) {
             return $domains;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
+use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
 
@@ -12,11 +13,12 @@ final class AdgModifierForElement
 {
     public function __construct(
         private NetworkTidy $networkTidy,
+        private FixerConfig $config,
     ) {}
 
     public function applyFix(string $str): string
     {
-        if (!Helper::flag('adg_non_basic_rules_modifiers')) {
+        if (!$this->config->getFlag('adg_non_basic_rules_modifiers')) {
             return $str;
         }
 
@@ -80,7 +82,7 @@ final class AdgModifierForElement
      */
     public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
     {
-        if ((!Helper::flag('adg_non_basic_rules_modifiers'))
+        if ((!$this->config->getFlag('adg_non_basic_rules_modifiers'))
             || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
         ) {
             return [];
