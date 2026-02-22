@@ -20,8 +20,7 @@ final class Processor
     ) {}
 
     /**
-     * Processes an array of filter lines, optimizing them into a sorted
-     * and combined list.
+     * Process raw filter lines into their normalized form.
      *
      * @param array<int, string> $lines An array of raw filter lines
      * @return array<int, string> The processed and optimized list of filter lines

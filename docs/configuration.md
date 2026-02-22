@@ -71,10 +71,10 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 Creates a backup of each file before applying fixes. Default is `false`.
 
 #### `flags`
-A list of flags to control processing behavior.
+Flags are configuration options that enable or disable specific processing features in the fixer pipeline.
 
-- **`remove_empty_lines`**: Removes empty lines. Default is `true`.
-- **`fmode`**: Enable all features. Default is `false`.
+- **`fmode`**: Enable all available flags at once. Default is `false`.
+- See [docs/fixer-feature.md](./docs/fixer-feature.md) for a complete list of available flags.
 
 
 ## Builder Configuration
