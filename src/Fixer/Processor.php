@@ -110,7 +110,7 @@ final class Processor
             }
         }
 
-        $cosmetic = Helper::uniqueSorted($cosmetic, fn($value) => $this->cosmeticRulesOrder($value))
+        $cosmetic = Helper::uniqueSorted($cosmetic, fn($value) => $this->cosmeticSortKey($value))
             ->all();
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
@@ -166,12 +166,12 @@ final class Processor
     }
 
     /**
-     * Returns a string representing the order of a cosmetic rule.
+     * Generate a sorting key for cosmetic rules.
      *
      * @param string $rule The cosmetic rule to determine the order for
-     * @return string The rule with the order prefix added, or the original rule if no prefix is needed
+     * @return string Sorting key
      */
-    private function cosmeticRulesOrder(string $rule): string
+    private function cosmeticSortKey(string $rule): string
     {
         preg_match(Regex::COSMETIC_DOMAIN, $rule, $m);
         $rule = isset($m[1]) ? substr($rule, strlen($m[1])) : $rule;

@@ -35,16 +35,19 @@ final class DomainNormalizer
         $domains = $this->removeSubdomainCoveredDomains($domains);
 
         return collect($domains)->unique()
-            ->sortBy(fn($str) => $this->domainSortPriority($str))
+            ->sortBy(fn($str) => $this->domainSortKey($str))
             ->implode($separator);
     }
 
     /**
-     * Determine sorting priority for a domain string.
+     * Generate a sorting key for a domain entry.
      *
-     * @return list<int|string>
+     * The returned array represents a comparison tuple used to enforce deterministic
+     * ordering according to the configured `domain_order` strategy.
+     *
+     * @return array<int,int|string> Sorting tuple
      */
-    private function domainSortPriority(string $str): array
+    private function domainSortKey(string $str): array
     {
         $isNegated = str_starts_with($str, '~');
         $domain = ltrim($str, '~');
