@@ -23,6 +23,10 @@ class NetworkTest extends TestCase
 
         arsort($input);
         $this->assertSame($expected, $this->fix($input));
+
+        $input = ['D', 'A', 'c', 'b'];
+        $expected = ['A', 'b', 'c', 'D'];
+        $this->assertSame($expected, $this->fix($input));
     }
 
     /**

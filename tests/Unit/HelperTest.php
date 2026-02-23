@@ -10,6 +10,17 @@ class HelperTest extends TestCase
 {
     use GeneralProvider;
 
+    #[PHPUnit\Test]
+    public function uniqueSortBy()
+    {
+        // '0' should not be removed by `array_filter()`
+        $input = ['0', '0'];
+        $expected = ['0'];
+        $output = Helper::uniqueSortBy($input, fn($s) => $s);
+
+        $this->assertSame($expected, $output);
+    }
+
     #[PHPUnit\DataProvider('isCosmeticRuleProvider')]
     #[PHPUnit\Test]
     public function isCosmeticRule($data)
