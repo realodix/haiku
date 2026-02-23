@@ -129,10 +129,9 @@ final class NetworkTidy
         }
 
         // 3. Transform, Remove duplicates and sort options by priority
-        return Helper::uniqueSorted(
-            $this->netOptionTransformer->applyFix($optionList),
-            fn($v) => $this->optionOrder($v),
-        );
+        $optionList = $this->netOptionTransformer->applyFix($optionList);
+
+        return Helper::uniqueSorted($optionList, fn($v) => $this->optionOrder($v));
     }
 
     /**
