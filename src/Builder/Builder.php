@@ -8,6 +8,7 @@ use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Enums\Section;
+use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class Builder
@@ -71,7 +72,7 @@ final class Builder
 
         // Step 3: Build and write
         $finalContent = array_merge([$this->header($header)], $content);
-        $this->fs->dumpFile($outputPath, ltrim(implode("\n", $finalContent))."\n");
+        $this->fs->dumpFile($outputPath, ltrim(Helper::joinLines($finalContent)));
         $this->cache->set($outputPath, $fingerprint);
         $this->logger->processed($outputPath);
     }

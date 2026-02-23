@@ -7,6 +7,7 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
+use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class Fixer
@@ -57,7 +58,7 @@ final class Fixer
         }
 
         $content = $this->processor->process($content);
-        $content = implode("\n", $content)."\n";
+        $content = Helper::joinLines($content);
         $this->fs->dumpFile($path, $content);
 
         $this->cache->set($path, $this->hash($content));
@@ -103,7 +104,7 @@ final class Fixer
             return true;
         }
 
-        $fingerprint = $this->hash(implode("\n", $content)."\n");
+        $fingerprint = $this->hash(Helper::joinLines($content));
         if ($this->cache->isValid($path, $fingerprint)) {
             $this->logger->skipped($path);
 

@@ -40,4 +40,15 @@ final class Helper
 
         return $basic || $advanced;
     }
+
+    /**
+     * Joins an array of strings into a single string with line breaks.
+     *
+     * @param array<int, string> $lines The array of strings to join
+     * @return string The joined string with line breaks
+     */
+    public static function joinLines(array $lines): string
+    {
+        return implode("\n", $lines)."\n";
+    }
 }
