@@ -57,7 +57,7 @@ final class NetOptionCombiner
             $pattern = $m[1];
             $options = explode(',', $m[2]);
 
-            if (!$this->isMergeable($options)) {
+            if (!$this->hasSupportedOptions($options)) {
                 $passthrough[] = $rule;
 
                 continue;
@@ -91,13 +91,12 @@ final class NetOptionCombiner
     }
 
     /**
-     * Determine whether a rule's option set is eligible for merging.
+     * Checks whether all options belong to the supported merge set.
      *
      * @param array<int, string> $options Parsed option list (without `$`), possibly
      *                                    prefixed with `~`
-     * @return bool True if the options are safe to merge
      */
-    private function isMergeable(array $options): bool
+    private function hasSupportedOptions(array $options): bool
     {
         foreach ($options as $opt) {
             $clean = ltrim($opt, '~');
