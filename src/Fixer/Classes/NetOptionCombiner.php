@@ -6,8 +6,8 @@ use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 
 /**
- * Combines compatible network filter rules that share the same pattern
- * by merging their option sets when it is semantically safe.
+ * Combines compatible network filter rules that share the same pattern by merging
+ * their option sets when it is semantically safe.
  */
 final class NetOptionCombiner
 {
