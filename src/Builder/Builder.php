@@ -61,9 +61,9 @@ final class Builder
 
         // Step 2: Preparing content
         $content = Cleaner::clean($rawContent, $filterSet->unique);
-        $sourceHash = $this->sourceHash($content, [$header]);
+        $fingerprint = $this->sourceHash($content, [$header]);
 
-        if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $sourceHash)) {
+        if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $fingerprint)) {
             $this->logger->skipped($outputPath);
 
             return;
@@ -71,12 +71,13 @@ final class Builder
 
         // Step 3: Build and write
         $finalContent = array_merge([$this->header($header)], $content);
-        $this->write($outputPath, $finalContent, $sourceHash);
+        $this->fs->dumpFile($outputPath, ltrim(implode("\n", $finalContent))."\n");
+        $this->cache->set($outputPath, $fingerprint);
         $this->logger->processed($outputPath);
     }
 
     /**
-     * Generates the final header string.
+     * Generates the header string.
      */
     private function header(string $data): string
     {
@@ -89,7 +90,7 @@ final class Builder
     }
 
     /**
-     * Reads all configured source files or URLs.
+     * Reads all source files or URLs.
      *
      * @param array<int, string> $paths
      * @return array<int, string>|null Source contents, or null if a read fails.
@@ -118,25 +119,6 @@ final class Builder
         }
 
         return Arr::flatten($text);
-    }
-
-    /**
-     * Writes the generated filter list to disk.
-     *
-     * The content is joined using LF line endings and always ends with a trailing
-     * newline.
-     *
-     * @param string $outputPath The path to the output file
-     * @param array<int, string> $content Source contents
-     * @param string $sourceHash The hash representing the current source state
-     *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
-     */
-    private function write(string $outputPath, array $content, string $sourceHash): void
-    {
-        $this->fs->dumpFile($outputPath, ltrim(implode("\n", $content))."\n");
-
-        $this->cache->set($outputPath, $sourceHash);
     }
 
     /**
