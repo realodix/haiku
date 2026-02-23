@@ -180,14 +180,6 @@ final class NetOptionCombiner
      * Determines whether two option sets can be safely merged, considering polarity
      * structure.
      *
-     * Each set is classified as:
-     * - POS   (only positive options)
-     * - NEG   (only negated options)
-     * - MIXED (both positive and negated options)
-     *
-     * This method evaluates structural compatibility only and does not validate option
-     * correctness.
-     *
      * @param array<string, bool> $existing
      * @param array<int, string> $incoming
      */
@@ -199,27 +191,23 @@ final class NetOptionCombiner
         $eState = $this->polarityState($ePos, $eNeg);
         $iState = $this->polarityState($iPos, $iNeg);
 
-        // allowed
-        if ($eState === $iState && $eState !== 'MIXED') {
-            return true;
-        }
+        return match ([$eState, $iState]) {
+            ['POS', 'POS'] => true,
+            ['NEG', 'NEG'] => true,
 
-        // pos + mixed
-        // Allowed only if they share at least one positive option
-        if ($eState === 'POS' && $iState === 'MIXED'
-            || $eState === 'MIXED' && $iState === 'POS') {
-            return (bool) array_intersect($ePos, $iPos);
-        }
+            // pos + mixed
+            // Allowed only if they share at least one positive option
+            ['POS', 'MIXED'] => (bool) array_intersect($ePos, $iPos),
+            ['MIXED', 'POS'] => (bool) array_intersect($ePos, $iPos),
 
-        // neg + mixed
-        // Allowed only if they share at least one negated option
-        if ($eState === 'NEG' && $iState === 'MIXED'
-            || $eState === 'MIXED' && $iState === 'NEG') {
-            return (bool) array_intersect($eNeg, $iNeg);
-        }
+            // neg + mixed
+            // Allowed only if they share at least one negated option
+            ['NEG', 'MIXED'] => (bool) array_intersect($eNeg, $iNeg),
+            ['MIXED', 'NEG'] => (bool) array_intersect($eNeg, $iNeg),
 
-        // other combinations
-        return false;
+            // other combinations
+            default => false,
+        };
     }
 
     /**
