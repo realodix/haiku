@@ -55,8 +55,7 @@ final class NetOptionCombiner
             }
 
             $pattern = $m[1];
-            $optionRaw = $m[2];
-            $options = explode(',', $optionRaw);
+            $options = explode(',', $m[2]);
 
             if (!$this->isMergeable($options)) {
                 $passthrough[] = $rule;
