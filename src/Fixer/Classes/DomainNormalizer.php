@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Fixer\Classes;
 
+use Illuminate\Support\Arr;
 use Realodix\Haiku\Config\FixerConfig;
 
 final class DomainNormalizer
@@ -19,24 +20,27 @@ final class DomainNormalizer
 
         $domainStr = $this->fixWrongSeparator($domainStr, $separator);
 
-        $domains = collect(explode($separator, $domainStr))
-            ->filter(fn($d) => $d !== '')
-            ->map(function ($domainStr) use ($caseSensitive) {
-                if ($caseSensitive === false) {
-                    $domainStr = strtolower($domainStr);
-                }
+        $domains = explode($separator, $domainStr);
+        foreach ($domains as $key => $d) {
+            if ($d === '') {
+                unset($domains[$key]);
 
-                return $this->cleanDomain($domainStr);
-            });
+                continue;
+            }
 
-        // Domain coverage reducer
-        $domains = $domains->values()->all();
+            if (!$caseSensitive) {
+                $d = strtolower($d);
+            }
+
+            $domains[$key] = $this->cleanDomain($d);
+        }
+
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
+        $domains = array_unique($domains);
+        $domains = Arr::sort($domains, fn($value) => $this->domainSortKey($value));
 
-        return collect($domains)->unique()
-            ->sortBy(fn($str) => $this->domainSortKey($str))
-            ->implode($separator);
+        return implode($separator, $domains);
     }
 
     /**
