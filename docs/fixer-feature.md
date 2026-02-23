@@ -155,15 +155,12 @@ Rules that are structurally compatible are merged to reduce redundancy and impro
 
 ```adblock
 !## BEFORE
-*$image
-*$script
 /ads/*$image,domain=example.com
 /ads/*$image,domain=example.org
 example.com##.ads
 example.org##.ads
 
 !## AFTER
-*$image,script
 /ads/*$image,domain=example.com|example.org
 example.com,example.org##.ads
 ```
@@ -191,7 +188,7 @@ When multiple network filters share the same pattern but differ only in their op
 
 `fixer.flags.adg_non_basic_rules_modifiers`
 
-Sorting domains and modifiers in AdGuard non-basic rules modifiers.
+Sort domains and modifiers in AdGuard non-basic rules modifiers.
 
 ```adblock
 !## BEFORE
