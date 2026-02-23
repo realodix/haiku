@@ -73,10 +73,6 @@ final class NetOptionCombiner
                     continue;
                 }
 
-                if ($this->isSubsumed($existing, $options)) {
-                    continue;
-                }
-
                 // Overwrite existing aliases with the incoming ones
                 foreach ($options as $opt) {
                     $this->overwriteAlias($groups[$pattern]['options'], $opt);
@@ -84,6 +80,7 @@ final class NetOptionCombiner
                 }
             }
 
+            // Store options as a keyed set for fast lookup and deduplication
             foreach ($options as $opt) {
                 $groups[$pattern]['options'][$opt] = true;
             }
@@ -107,41 +104,6 @@ final class NetOptionCombiner
             $clean = ltrim($opt, '~');
 
             if (!in_array($clean, self::OPTIONS, true)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Determines whether the incoming option set is fully subsumed by the existing
-     * merged set.
-     *
-     * A rule is considered subsumed if every incoming option (including polarity) already
-     * exists in the merged set.
-     *
-     * Example:
-     *  Existing: image,css
-     *  Incoming: image
-     *      → subsumed (adds nothing new)
-     *
-     *  Existing: image,css
-     *  Incoming: css,image
-     *      → subsumed (same set, different order)
-     *
-     *  Existing: image,css
-     *  Incoming: script
-     *      → not subsumed
-     *
-     * @param array<string, bool> $existing Currently merged options
-     * @param array<int, string> $incoming Incoming rule options
-     * @return bool True if the incoming rule adds no new option
-     */
-    private function isSubsumed(array $existing, array $incoming): bool
-    {
-        foreach ($incoming as $opt) {
-            if (!isset($existing[$opt])) {
                 return false;
             }
         }

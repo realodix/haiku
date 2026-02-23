@@ -55,6 +55,10 @@ final class NetOptionCombinerTest extends TestCase
         $actual = ['/ads.$font,stylesheet,script', '/ads.$image,stylesheet,xhr'];
         $expected = ['/ads.$font,script,image,stylesheet,xhr'];
         $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+
+        $actual = ['/ads.$image,css', '/ads.$image,script'];
+        $expected = ['/ads.$image,css,script'];
+        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
     }
 
     public function testIgnoreOptionOrderDifferences(): void
