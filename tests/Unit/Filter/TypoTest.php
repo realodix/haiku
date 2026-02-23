@@ -28,7 +28,7 @@ class TypoTest extends TestCase
     {
         $input = [
             ',a.com,,b.com,##.ads',
-            '||example.com^$domain=|a.com||b.com|',
+            '||example.com^$domain=|a.com| |b.com|',
         ];
         $expected = [
             '||example.com^$domain=a.com|b.com',

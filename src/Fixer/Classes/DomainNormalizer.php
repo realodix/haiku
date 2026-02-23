@@ -22,6 +22,8 @@ final class DomainNormalizer
 
         $domains = explode($separator, $domainStr);
         foreach ($domains as $key => $d) {
+            $d = trim($d);
+
             if ($d === '') {
                 unset($domains[$key]);
 
@@ -121,8 +123,6 @@ final class DomainNormalizer
         if (!$this->config->getFlag('normalize_domains')) {
             return $domain;
         }
-
-        $domain = trim($domain);
 
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
             $domain = substr($domain, 1);
