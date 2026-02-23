@@ -68,7 +68,7 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function combines_rules_based_on_rules(): void
+    public function combine_rules_based_on_rules(): void
     {
         $input = [
             '-banner-$image,domain=a.com',
@@ -99,7 +99,20 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function combines_rules_based_on_domain_type(): void
+    public function combine_not_compatible(): void
+    {
+        $input = [
+            '-ads-',
+            '-ads-$domain=a.com',
+            '-banner-$domain=a.com',
+            '-banner-$image',
+        ];
+
+        $this->assertSame($input, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
+    public function combine_rules_based_on_domain_type(): void
     {
         // maybeMixed & maybeMixed
         $input = [

@@ -157,11 +157,11 @@ class CosmeticTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function combines_rules_based_on_rules(): void
+    public function combine_rules_based_on_rules(): void
     {
         $input = [
             'a.com##.ad',
-            'a.com,b.com##.ad',
+            'b.com##.ad',
             'a.com##.adRight',
             'a.com,b.com##.adRight',
         ];
@@ -186,7 +186,18 @@ class CosmeticTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function combines_rules_based_on_domain_type(): void
+    public function combine_not_compatible(): void
+    {
+        $input = [
+            '##.ad',
+            'a.com##.ad',
+        ];
+
+        $this->assertSame($input, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
+    public function combine_rules_based_on_domain_type(): void
     {
         // maybeMixed & maybeMixed
         $input = [
