@@ -67,7 +67,7 @@ final class NetOptionCombiner
             $existing = $groups[$pattern]['options'] ?? [];
 
             if ($existing) {
-                if (!$this->canMergeConsideringPolarity($existing, $options)) {
+                if (!$this->canMerge($existing, $options)) {
                     $passthrough[] = $rule;
 
                     continue;
@@ -77,7 +77,7 @@ final class NetOptionCombiner
                     continue;
                 }
 
-                // overwrite existing aliases with the incoming ones
+                // Overwrite existing aliases with the incoming ones
                 foreach ($options as $opt) {
                     $this->overwriteAlias($groups[$pattern]['options'], $opt);
                     $groups[$pattern]['options'][$opt] = true;
@@ -177,13 +177,13 @@ final class NetOptionCombiner
     }
 
     /**
-     * Determines whether two option sets can be safely merged, considering polarity
+     * Determines whether two option sets can be safely merged based on their polarity
      * structure.
      *
      * @param array<string, bool> $existing
      * @param array<int, string> $incoming
      */
-    private function canMergeConsideringPolarity(array $existing, array $incoming): bool
+    private function canMerge(array $existing, array $incoming): bool
     {
         [$ePos, $eNeg] = $this->splitPolarity(array_keys($existing));
         [$iPos, $iNeg] = $this->splitPolarity($incoming);
@@ -221,9 +221,9 @@ final class NetOptionCombiner
     {
         // @phpstan-ignore match.unhandled
         return match (true) {
-            // contains only positive options ($image)
+            // only positive ($image)
             $pos !== [] && $neg === [] => 'POS',
-            // contains only negated options ($~image)
+            // only negated ($~image)
             $pos === [] && $neg !== [] => 'NEG',
             // contains both positive and negated options
             $pos !== [] && $neg !== [] => 'MIXED',
