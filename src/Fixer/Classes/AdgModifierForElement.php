@@ -61,8 +61,8 @@ final class AdgModifierForElement
                     $value = $domainString;
                 } else {
                     $value = explode('|', $domainString);
-                    $value = Helper::uniqueSorted($value, fn($d) => ltrim($d, '~'))
-                        ->implode('|');
+                    $value = Helper::uniqueSortBy($value, fn($d) => ltrim($d, '~'));
+                    $value = implode('|', $value);
                 }
 
                 $parsed['modifiers'][] = $name.'='.$value;

@@ -61,7 +61,7 @@ final class NetworkTidy
         $filterText = $m[1];
         $optionList = $this->normalizeOption($m[2]);
 
-        return $filterText.'$'.$optionList->implode(',');
+        return $filterText.'$'.implode(',', $optionList);
     }
 
     /**
@@ -82,7 +82,7 @@ final class NetworkTidy
      * Normalizes and sorts the network filter options.
      *
      * @param string $optionString Parsed options from parseOptions()
-     * @return \Illuminate\Support\Collection<int, string>
+     * @return list<string>
      */
     private function normalizeOption(string $optionString)
     {
@@ -131,7 +131,7 @@ final class NetworkTidy
         // 3. Transform, Remove duplicates and sort options by priority
         $optionList = $this->netOptionTransformer->applyFix($optionList);
 
-        return Helper::uniqueSorted($optionList, fn($v) => $this->optionOrder($v));
+        return Helper::uniqueSortBy($optionList, fn($v) => $this->optionOrder($v));
     }
 
     /**

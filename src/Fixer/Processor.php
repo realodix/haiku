@@ -104,16 +104,15 @@ final class Processor
             }
         }
 
-        $cosmetic = Helper::uniqueSorted($cosmetic, fn($value) => $this->cosmeticSortKey($value))
-            ->all();
+        $cosmetic = Helper::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
 
         $network = $this->optionCombiner->applyFix($network);
-        $network = Helper::uniqueSorted(
+        $network = Helper::uniqueSortBy(
             $network,
             fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
             SORT_STRING | SORT_FLAG_CASE,
-        )->all();
+        );
         $network = $this->combiner->applyFix($network, Regex::NET_OPTION_DOMAIN, '|');
 
         return array_merge($network, $cosmetic);

@@ -7,22 +7,25 @@ final class Helper
     /**
      * Returns a sorted, unique array of strings.
      *
-     * @param array<int, string> $value The array of strings to process
-     * @param callable|null $sortBy The sorting function to use
-     * @param int $flags The sorting flags
-     * @return \Illuminate\Support\Collection<int, string>
+     * @param array<int, string> $value
+     * @return list<string>
      */
-    public static function uniqueSorted(array $value, ?callable $sortBy = null, $flags = SORT_REGULAR)
+    public static function uniqueSortBy(array $value, ?callable $callback, int $flags = SORT_REGULAR): array
     {
-        $c = collect($value)
-            ->filter(fn($s) => $s !== '')
-            ->unique();
+        $v = array_filter($value, static fn($s) => $s !== '');
+        $v = array_unique($v);
 
-        $c = is_callable($sortBy)
-            ? $c->sortBy($sortBy, $flags)
-            : $c->sort();
+        // Sort by callback
+        $results = [];
+        foreach ($v as $key => $value) {
+            $results[$key] = $callback($value, $key);
+        }
+        asort($results, $flags);
+        foreach (array_keys($results) as $key) {
+            $results[$key] = $v[$key];
+        }
 
-        return $c->values();
+        return array_values($results);
     }
 
     /**
