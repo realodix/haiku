@@ -9,11 +9,13 @@ final readonly class CommandOptions
      * @param string|null $configFile Custom path to the configuration file
      * @param bool $ignoreCache If true, the cache is ignored
      * @param string|null $path File or directory path to process
+     * @param bool $parallel If true, the Fixer is run in parallel
      */
     public function __construct(
         public ?string $cachePath = null,
         public ?string $configFile = null,
         public bool $ignoreCache = false,
         public ?string $path = null,
+        public bool $parallel = false,
     ) {}
 }

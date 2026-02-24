@@ -29,6 +29,8 @@ vendor/bin/haiku fix [options]
   Ignore cache and process all files regardless of whether they have changed.
 - `--config <path>`
   Custom configuration file path.
+- `--parallel`
+  Run in parallel
 - `--help`
   Show help message.
 - `--verbose`

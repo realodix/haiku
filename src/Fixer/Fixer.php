@@ -15,6 +15,7 @@ final class Fixer
 
     public function __construct(
         private Processor $processor,
+        private ParallelRunner $parallel,
         private Config $config,
         private Filesystem $fs,
         private Cache $cache,
@@ -32,8 +33,12 @@ final class Fixer
         $this->initializeHashPrefix($config);
         $this->cache->prepareForRun($config->paths, $cmdOpt);
 
-        foreach ($config->paths as $path) {
-            $this->processFile($path, $config);
+        if ($cmdOpt->parallel && count($config->paths) >= 10) {
+            $this->parallel->run($this, $config, $cmdOpt);
+        } else {
+            foreach ($config->paths as $path) {
+                $this->record($this->processFile($path, $config));
+            }
         }
 
         $this->cache->repository()->save();
@@ -42,13 +47,18 @@ final class Fixer
     /**
      * @param string $path Path to file
      * @param \Realodix\Haiku\Config\FixerConfig $config Fixer configuration
+     * @return array{path: string, status: string, hash?: string}
      */
-    private function processFile(string $path, $config): void
+    public function processFile(string $path, $config): array
     {
         $content = $this->read($path);
 
-        if ($content === null || $this->shouldSkip($path, $content)) {
-            return;
+        if ($content === null) {
+            return ['status' => 'error', 'path' => $path];
+        }
+
+        if ($this->shouldSkip($path, $content)) {
+            return ['status' => 'skipped', 'path' => $path];
         }
 
         $this->logger->processing($path);
@@ -61,8 +71,11 @@ final class Fixer
         $content = Helper::joinLines($content);
         $this->fs->dumpFile($path, $content);
 
-        $this->cache->set($path, $this->hash($content));
-        $this->logger->processed($path);
+        return [
+            'status' => 'processed',
+            'path' => $path,
+            'hash' => $this->hash($content),
+        ];
     }
 
     /**
@@ -168,5 +181,18 @@ final class Fixer
     public function stats()
     {
         return $this->logger->stats();
+    }
+
+    /**
+     * Record the result of a file processing.
+     *
+     * @param array{path: string, status: string, hash?: string} $result
+     */
+    public function record(array $result): void
+    {
+        if ($result['status'] === 'processed') {
+            $this->cache->set($result['path'], $result['hash']);
+            $this->logger->processed($result['path']);
+        }
     }
 }
