@@ -31,6 +31,7 @@ class FixCommand extends Command
             ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and process all files')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
             ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
+            ->addOption('parallel', null, InputOption::VALUE_NONE, 'Run in parallel')
             ->addOption('x', null, InputOption::VALUE_NONE, 'Enable experimental features');
     }
 
@@ -59,6 +60,7 @@ class FixCommand extends Command
                 configFile: $input->getOption('config'),
                 ignoreCache: $input->getOption('force'),
                 path: $input->getOption('path'),
+                parallel: $input->getOption('parallel'),
             ),
         );
 

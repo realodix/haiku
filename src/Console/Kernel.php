@@ -31,6 +31,7 @@ class Kernel
         \Realodix\Haiku\Console\InitCommand::class,
         \Realodix\Haiku\Console\BuildCommand::class,
         \Realodix\Haiku\Console\FixCommand::class,
+        \Realodix\Haiku\Console\Command\WorkerCommand::class,
     ];
 
     public function __construct()
