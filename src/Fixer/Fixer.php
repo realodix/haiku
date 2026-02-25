@@ -69,6 +69,23 @@ final class Fixer
     }
 
     /**
+     * Create a backup of the file at the given path.
+     *
+     * @param string $filePath Path to file
+     */
+    private function backup(string $filePath): void
+    {
+        $timestamp = date('Ymd-His');
+        $backupPath = $filePath."_{$timestamp}.bak";
+
+        try {
+            $this->fs->copy($filePath, $backupPath);
+        } catch (\RuntimeException $e) {
+            $this->logger->error("Failed to create backup for: {$filePath}");
+        }
+    }
+
+    /**
      * Read file content.
      *
      * @param string $filePath Path to file
@@ -115,23 +132,6 @@ final class Fixer
         }
 
         return false;
-    }
-
-    /**
-     * Create a backup of the file at the given path.
-     *
-     * @param string $filePath Path to file
-     */
-    private function backup(string $filePath): void
-    {
-        $timestamp = date('Ymd-His');
-        $backupPath = $filePath."_{$timestamp}.bak";
-
-        try {
-            $this->fs->copy($filePath, $backupPath);
-        } catch (\RuntimeException $e) {
-            $this->logger->error("Failed to create backup for: {$filePath}");
-        }
     }
 
     /**
