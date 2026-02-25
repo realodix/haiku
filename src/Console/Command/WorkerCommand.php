@@ -85,6 +85,10 @@ class WorkerCommand extends Command
                     $config = $this->config->fixer($cmdOpt);
                 }
 
+                if (isset($data['hashPrefix'])) {
+                    $fixer->setHashPrefix($data['hashPrefix']);
+                }
+
                 $result = $fixer->processFile($data['path'], $config);
                 $encoder->write($result);
             });
