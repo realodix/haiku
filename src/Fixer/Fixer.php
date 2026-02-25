@@ -12,6 +12,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class Fixer
 {
+    private string $hashPrefix;
+
     public function __construct(
         private Processor $processor,
         private Config $config,
@@ -26,6 +28,7 @@ final class Fixer
     public function handle(CommandOptions $cmdOpt): void
     {
         $config = $this->config->fixer($cmdOpt);
+        $this->initializeHashPrefix($config);
         $this->cache->prepareForRun(
             $config->paths,
             $this->config->getCachePath($cmdOpt->cachePath),
@@ -139,7 +142,14 @@ final class Fixer
      */
     private function hash(string $data): string
     {
-        $config = app(\Realodix\Haiku\Config\FixerConfig::class);
+        return hash('xxh128', $data.$this->hashPrefix);
+    }
+
+    /**
+     * @param \Realodix\Haiku\Config\FixerConfig $config
+     */
+    private function initializeHashPrefix($config): string
+    {
         $flags = collect($config->getFlag())
             ->reject(static fn($value) => $value === false || $value === null)
             ->sortKeys()->toJson();
@@ -152,7 +162,7 @@ final class Fixer
             $v = implode('.', array_slice($v, 0, 2));
         }
 
-        return hash('xxh128', $data.$v.$flags);
+        return $this->hashPrefix = $v.$flags;
     }
 
     /**
