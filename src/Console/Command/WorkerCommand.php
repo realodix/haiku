@@ -69,17 +69,23 @@ class WorkerCommand extends Command
             $decoder = new Decoder($connection);
             $encoder = new Encoder($connection);
             $fixer = app(Fixer::class);
+            $config = null; // Cache the configuration to avoid redundant parsing for every file
 
-            $decoder->on('data', function ($data) use ($encoder, $fixer) {
+            $decoder->on('data', function ($data) use ($encoder, $fixer, &$config) {
                 $data = (array) $data;
-                $cmdOpt = new CommandOptions(
-                    cachePath: $data['cachePath'] ?? null,
-                    configFile: $data['configFile'] ?? null,
-                    ignoreCache: $data['ignoreCache'] ?? false,
-                    path: $data['path'],
-                );
 
-                $config = $this->config->fixer($cmdOpt);
+                // Lazily initialize config & cache ONCE
+                if ($config === null) {
+                    $cmdOpt = new CommandOptions(
+                        cachePath: $data['cachePath'] ?? null,
+                        configFile: $data['configFile'] ?? null,
+                        ignoreCache: $data['ignoreCache'] ?? false,
+                        path: $data['path'],
+                    );
+
+                    $config = $this->config->fixer($cmdOpt);
+                }
+
                 $result = $fixer->processFile($data['path'], $config);
                 $encoder->write($result);
             });

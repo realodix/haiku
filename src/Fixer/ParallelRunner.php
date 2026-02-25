@@ -94,7 +94,8 @@ final class ParallelRunner
      * server, and the path to the configuration file (if provided).
      *
      * @param string $address The address of the socket server to connect to.
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The command options to use when constructing the command.
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The command options to use when
+     *                                                       constructing the command.
      */
     private function spawnPersistentWorker(string $address, $cmdOpt): void
     {
@@ -108,12 +109,7 @@ final class ParallelRunner
             $command .= ' --config='.escapeshellarg($cmdOpt->configFile);
         }
 
-        // On Windows, pipes are not supported by react/child-process.
-        // We pass empty pipe descriptors to avoid the error.
         $process = new Process($command, null, null, []);
         $process->start($this->loop);
-
-        // We don't need to listen to stdout/stderr here as the worker
-        // should be silent and communicate via the socket.
     }
 }
