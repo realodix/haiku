@@ -202,6 +202,16 @@ final class Fixer
         return hash('xxh128', $data.$this->hashPrefix);
     }
 
+    public function setHashPrefix(string $hashPrefix): void
+    {
+        $this->hashPrefix = $hashPrefix;
+    }
+
+    public function getHashPrefix(): string
+    {
+        return $this->hashPrefix;
+    }
+
     /**
      * @param \Realodix\Haiku\Config\FixerConfig $config
      */

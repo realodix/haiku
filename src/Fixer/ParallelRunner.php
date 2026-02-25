@@ -48,7 +48,7 @@ final class ParallelRunner
                 $decoder = new Decoder($connection);
                 $encoder = new Encoder($connection);
 
-                $sendNextTask = function () use ($encoder, &$pendingFiles, $cmdOpt) {
+                $sendNextTask = function () use ($encoder, &$pendingFiles, $cmdOpt, $fixer) {
                     if (empty($pendingFiles)) {
                         return false;
                     }
@@ -59,6 +59,7 @@ final class ParallelRunner
                         'cachePath' => $cmdOpt->cachePath,
                         'configFile' => $cmdOpt->configFile,
                         'ignoreCache' => $cmdOpt->ignoreCache,
+                        'hashPrefix' => $fixer->getHashPrefix(),
                     ]);
 
                     return true;
