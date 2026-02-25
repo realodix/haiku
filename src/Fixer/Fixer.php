@@ -79,6 +79,27 @@ final class Fixer
     }
 
     /**
+     * Record the result of a file processing.
+     *
+     * @param array{path: string, status: string, hash?: string} $result
+     */
+    public function record(array $result): void
+    {
+        if ($result['status'] === 'processed') {
+            $this->cache->set($result['path'], $result['hash']);
+            $this->logger->processed($result['path']);
+        }
+
+        if ($result['status'] === 'skipped') {
+            $this->logger->skipped($result['path']);
+        }
+
+        if ($result['status'] === 'error') {
+            $this->logger->error("Cannot read: {$result['path']}");
+        }
+    }
+
+    /**
      * Create a backup of the file at the given path.
      *
      * @param string $filePath Path to file
@@ -104,15 +125,11 @@ final class Fixer
     private function read(string $filePath): ?array
     {
         if (!is_readable($filePath)) {
-            $this->logger->error("Cannot read: {$filePath}");
-
             return null;
         }
 
         $rawContent = file($filePath, FILE_IGNORE_NEW_LINES);
         if ($rawContent === false) {
-            $this->logger->error("Failed to read file: {$filePath}");
-
             return null;
         }
 
@@ -166,19 +183,12 @@ final class Fixer
     {
         // Empty file
         if (trim(implode($content)) === '') {
-            $this->logger->skipped($path);
-
             return true;
         }
 
         $fingerprint = $this->hash(Helper::joinLines($content));
-        if ($this->cache->isValid($path, $fingerprint)) {
-            $this->logger->skipped($path);
 
-            return true;
-        }
-
-        return false;
+        return $this->cache->isValid($path, $fingerprint);
     }
 
     /**
@@ -218,18 +228,5 @@ final class Fixer
     public function stats()
     {
         return $this->logger->stats();
-    }
-
-    /**
-     * Record the result of a file processing.
-     *
-     * @param array{path: string, status: string, hash?: string} $result
-     */
-    public function record(array $result): void
-    {
-        if ($result['status'] === 'processed') {
-            $this->cache->set($result['path'], $result['hash']);
-            $this->logger->processed($result['path']);
-        }
     }
 }
