@@ -7,6 +7,7 @@ use Clue\React\NDJson\Encoder;
 use React\EventLoop\Loop;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
+use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Fixer\Fixer;
@@ -26,6 +27,7 @@ class WorkerCommand extends Command
 {
     public function __construct(
         private Config $config,
+        private Cache $cache,
     ) {
         parent::__construct();
     }
@@ -83,6 +85,7 @@ class WorkerCommand extends Command
                     );
 
                     $config = $this->config->fixer($cmdOpt);
+                    $this->cache->prepareForRun($config->paths, $cmdOpt, pruning: false);
                 }
 
                 if (isset($data['hashPrefix'])) {

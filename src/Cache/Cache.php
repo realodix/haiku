@@ -33,11 +33,13 @@ final class Cache
      * @param array<int, string> $validKeys $validKeys List of valid keys
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      * @param Section $section Cache section to operate on
+     * @param bool $pruning If true, stale entries are removed and cache can be cleared
      */
     public function prepareForRun(
         array $validKeys,
         $cmdOpt,
         Section $section = Section::F,
+        bool $pruning = true,
     ): void {
         $resolvedPath = $this->resolvePath($cmdOpt->cachePath);
 
@@ -46,11 +48,11 @@ final class Cache
             ->setSection($section)
             ->load();
 
-        if ($cmdOpt->ignoreCache === false) {
+        if ($pruning && $cmdOpt->ignoreCache === false) {
             $this->cleanStaleEntries($validKeys);
         }
 
-        if ($cmdOpt->ignoreCache && !$this->cacheCleared) {
+        if ($pruning && $cmdOpt->ignoreCache && !$this->cacheCleared) {
             $this->repository()->clear();
             $this->cacheCleared = true;
         }
