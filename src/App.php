@@ -34,5 +34,8 @@ class App
     {
         $app->singleton(\Realodix\Haiku\Config\Config::class);
         $app->singleton(\Realodix\Haiku\Config\FixerConfig::class);
+
+        // parallel processing
+        $app->singleton(\Realodix\Haiku\Cache\Cache::class);
     }
 }
