@@ -50,8 +50,10 @@ final class ParallelRunner
                 $decoder = new Decoder($connection);
                 $encoder = new Encoder($connection);
 
-                $sendNextTask = function () use ($encoder, &$pendingFiles, $cmdOpt, $fixer) {
+                $sendNextTask = function () use ($encoder, &$pendingFiles, $cmdOpt, $fixer, $connection) {
                     if (empty($pendingFiles)) {
+                        $connection->end();
+
                         return false;
                     }
 

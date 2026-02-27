@@ -70,6 +70,9 @@ class WorkerCommand extends Command
         $connector->connect($address)->then(function (ConnectionInterface $connection) {
             $decoder = new Decoder($connection);
             $encoder = new Encoder($connection);
+
+            $connection->on('close', fn() => exit(0));
+
             $fixer = app(Fixer::class);
             $config = null; // Cache the configuration to avoid redundant parsing for every file
 
