@@ -32,6 +32,7 @@ class App
      */
     public function register(Container $app): void
     {
+        $app->singleton(\Realodix\Haiku\Config\Config::class);
         $app->singleton(\Realodix\Haiku\Config\FixerConfig::class);
     }
 }

@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Test\Feature;
 use Illuminate\Container\Container;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Cache\Repository;
+use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Filesystem\Path;
 
@@ -22,6 +23,9 @@ class CacheTest extends TestCase
         $container->flush();
 
         parent::setUp();
+
+        $container->singleton(\Realodix\Haiku\Config\Config::class);
+        $container->make(\Realodix\Haiku\Config\Config::class)->cacheDir = null;
 
         $this->cache = $container->build(Cache::class);
         $this->repository = $this->cache->repository();
@@ -128,7 +132,7 @@ class CacheTest extends TestCase
     // Test prepareForRun scenarios
     public function testPrepareForRunWithNoForceAndNoExistingCache(): void
     {
-        $this->cache->prepareForRun([], $this->testCacheFile);
+        $this->cache->prepareForRun([], new CommandOptions(cachePath: $this->testCacheFile));
         $this->assertEmpty($this->repository->all());
     }
 
@@ -145,7 +149,7 @@ class CacheTest extends TestCase
             $this->fs->remove($staleFile);
         }
 
-        $this->cache->prepareForRun([], $this->testCacheFile);
+        $this->cache->prepareForRun([], new CommandOptions(cachePath: $this->testCacheFile));
         $this->assertEmpty($this->repository->all()); // Stale entry should be cleaned
     }
 
@@ -155,7 +159,7 @@ class CacheTest extends TestCase
         $this->repository->set('key1', ['data1']); // Add some data
         $this->repository->save();
 
-        $this->cache->prepareForRun([], $this->testCacheFile, ignoreCache: true);
+        $this->cache->prepareForRun([], new CommandOptions(cachePath: $this->testCacheFile, ignoreCache: true));
         $this->assertEmpty($this->repository->all()); // Cache should be cleared
         // $this->assertFalse($this->fs->exists($this->testCacheFile)); // Cache file should be removed
     }
@@ -166,7 +170,7 @@ class CacheTest extends TestCase
         $this->repository->set('key1', ['data1']);
         $this->repository->save();
 
-        $this->cache->prepareForRun([], $this->testCacheFile, ignoreCache: true);
+        $this->cache->prepareForRun([], new CommandOptions(cachePath: $this->testCacheFile, ignoreCache: true));
         $this->assertEmpty($this->repository->all());
         // $this->assertFalse($this->fs->exists($this->testCacheFile));
     }
@@ -177,7 +181,7 @@ class CacheTest extends TestCase
         $this->repository->set('key1', ['data1']);
         $this->repository->save();
 
-        $this->cache->prepareForRun([], $this->testCacheFile, ignoreCache: true);
+        $this->cache->prepareForRun([], new CommandOptions(cachePath: $this->testCacheFile, ignoreCache: true));
         $this->assertEmpty($this->repository->all());
         // $this->assertFalse($this->fs->exists($this->testCacheFile));
 
@@ -185,7 +189,7 @@ class CacheTest extends TestCase
         $this->repository->set('key2', ['data2']);
         $this->repository->save();
 
-        $this->cache->prepareForRun([], $this->testCacheFile, ignoreCache: true);
+        $this->cache->prepareForRun([], new CommandOptions(cachePath: $this->testCacheFile, ignoreCache: true));
         $this->assertNotEmpty($this->repository->all()); // Should not clear again
         $this->assertTrue($this->fs->exists($this->testCacheFile));
     }

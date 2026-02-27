@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Cache;
 
+use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -13,6 +14,7 @@ final class Cache
     public function __construct(
         private Repository $repository,
         private Filesystem $fs,
+        private Config $config,
     ) {}
 
     public function repository(): Repository
@@ -29,22 +31,26 @@ final class Cache
      *   Clears the entire section cache (once per run)
      *
      * @param array<int, string> $validKeys $validKeys List of valid keys
-     * @param string|null $storagePath Custom cache file or directory path
-     * @param bool $ignoreCache If true, the cache is ignored
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      * @param Section $section Cache section to operate on
      */
-    public function prepareForRun(array $validKeys, ?string $storagePath, bool $ignoreCache = false, Section $section = Section::F): void
-    {
+    public function prepareForRun(
+        array $validKeys,
+        $cmdOpt,
+        Section $section = Section::F,
+    ): void {
+        $resolvedPath = $this->resolvePath($cmdOpt->cachePath);
+
         $this->repository()
-            ->setCacheFile($this->resolvePath($storagePath))
+            ->setCacheFile($resolvedPath)
             ->setSection($section)
             ->load();
 
-        if ($ignoreCache === false) {
+        if ($cmdOpt->ignoreCache === false) {
             $this->cleanStaleEntries($validKeys);
         }
 
-        if ($ignoreCache && !$this->cacheCleared) {
+        if ($cmdOpt->ignoreCache && !$this->cacheCleared) {
             $this->repository()->clear();
             $this->cacheCleared = true;
         }
@@ -119,6 +125,8 @@ final class Cache
      */
     private function resolvePath(?string $path): string
     {
+        $path = $this->config->getCachePath($path);
+
         // 1. Default: no path provided -> use default cache file in baseDir
         if (empty($path)) {
             return Repository::DEFAULT_FILENAME;

@@ -29,11 +29,7 @@ final class Fixer
     {
         $config = $this->config->fixer($cmdOpt);
         $this->initializeHashPrefix($config);
-        $this->cache->prepareForRun(
-            $config->paths,
-            $this->config->getCachePath($cmdOpt->cachePath),
-            $cmdOpt->ignoreCache,
-        );
+        $this->cache->prepareForRun($config->paths, $cmdOpt);
 
         foreach ($config->paths as $path) {
             $this->processFile($path, $config);

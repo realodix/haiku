@@ -29,8 +29,7 @@ final class Builder
         $this->cache->prepareForRun(
             // builder.filter_list.filename
             array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
-            $this->config->getCachePath(),
-            $cmdOpt->ignoreCache,
+            $cmdOpt,
             Section::B,
         );
 
