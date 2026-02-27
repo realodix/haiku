@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Builder;
 use Illuminate\Support\Arr;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
-use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Helper;
@@ -22,8 +21,10 @@ final class Builder
 
     /**
      * Main entry point for building filter lists.
+     *
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
-    public function handle(CommandOptions $cmdOpt): void
+    public function handle($cmdOpt): void
     {
         $filterSets = $this->config->builder($cmdOpt)->filterSet;
         $this->cache->prepareForRun(

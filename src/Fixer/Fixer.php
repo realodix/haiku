@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Fixer;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
-use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
@@ -24,8 +23,10 @@ final class Fixer
 
     /**
      * Entry point for file or directory processing.
+     *
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
-    public function handle(CommandOptions $cmdOpt): void
+    public function handle($cmdOpt): void
     {
         $config = $this->config->fixer($cmdOpt);
         $this->initializeHashPrefix($config);
