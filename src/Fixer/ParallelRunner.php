@@ -11,9 +11,19 @@ use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\SocketServer;
 
+/**
+ * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Console\Command\WorkerCommand
+ */
 final class ParallelRunner
 {
     private LoopInterface $loop;
+
+    /** @var array<int, string> */
+    private array $pendingFiles = [];
+
+    private int $processedCount = 0;
+
+    private int $fileCount = 0;
 
     public function __construct()
     {
@@ -29,58 +39,21 @@ final class ParallelRunner
      */
     public function run($fixer, $config, $cmdOpt): void
     {
-        $files = $config->paths;
-        $fileCount = count($files);
+        $this->pendingFiles = $config->paths;
+        $this->fileCount = count($this->pendingFiles);
 
-        if ($fileCount === 0) {
+        if ($this->fileCount === 0) {
             return;
         }
 
         $server = new SocketServer('127.0.0.1:0', [], $this->loop);
         $address = $server->getAddress();
-        $cores = (new CpuCoreCounter)->getCount();
-        $poolSize = min($cores, $fileCount);
-
-        $pendingFiles = $files;
-        $processedCount = 0;
+        $poolSize = min((new CpuCoreCounter)->getCount(), $this->fileCount);
 
         $server->on(
             'connection',
-            function (ConnectionInterface $connection) use (&$pendingFiles, &$processedCount, $cmdOpt, $fixer, $fileCount) {
-                $decoder = new Decoder($connection);
-                $encoder = new Encoder($connection);
-
-                $sendNextTask = function () use ($encoder, &$pendingFiles, $cmdOpt, $fixer, $connection) {
-                    if (empty($pendingFiles)) {
-                        $connection->end();
-
-                        return false;
-                    }
-
-                    $file = array_shift($pendingFiles);
-                    $encoder->write([
-                        'path' => $file,
-                        'cachePath' => $cmdOpt->cachePath,
-                        'configFile' => $cmdOpt->configFile,
-                        'ignoreCache' => $cmdOpt->ignoreCache,
-                        'hashPrefix' => $fixer->getHashPrefix(),
-                    ]);
-
-                    return true;
-                };
-
-                $decoder->on('data', function ($data) use ($sendNextTask, &$processedCount, $fixer, $fileCount) {
-                    $data = (array) $data;
-                    $fixer->record($data);
-
-                    $processedCount++;
-
-                    if (!$sendNextTask() && $processedCount === $fileCount) {
-                        $this->loop->stop();
-                    }
-                });
-
-                $sendNextTask();
+            function (ConnectionInterface $connection) use ($cmdOpt, $fixer) {
+                $this->handleConnection($connection, $cmdOpt, $fixer);
             },
         );
 
@@ -92,6 +65,50 @@ final class ParallelRunner
     }
 
     /**
+     * Handles an incoming worker connection.
+     *
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt
+     * @param \Realodix\Haiku\Fixer\Fixer $fixer
+     */
+    private function handleConnection(ConnectionInterface $connection, $cmdOpt, $fixer): void
+    {
+        $decoder = new Decoder($connection);
+        $encoder = new Encoder($connection);
+
+        $sendNextTask = function () use ($encoder, $cmdOpt, $fixer, $connection) {
+            if (empty($this->pendingFiles)) {
+                $connection->end();
+
+                return false;
+            }
+
+            $file = array_shift($this->pendingFiles);
+            $encoder->write([
+                'path' => $file,
+                'cachePath' => $cmdOpt->cachePath,
+                'configFile' => $cmdOpt->configFile,
+                'ignoreCache' => $cmdOpt->ignoreCache,
+                'hashPrefix' => $fixer->getHashPrefix(),
+            ]);
+
+            return true;
+        };
+
+        /** * @param _WorkerPayload $data */
+        $decoder->on('data', function ($data) use ($sendNextTask, $fixer) {
+            $fixer->record((array) $data);
+
+            $this->processedCount++;
+
+            if (!$sendNextTask() && $this->processedCount === $this->fileCount) {
+                $this->loop->stop();
+            }
+        });
+
+        $sendNextTask();
+    }
+
+    /**
      * Spawns a persistent worker process.
      *
      * This function will construct a command to run the worker process, and then start it.
@@ -99,7 +116,8 @@ final class ParallelRunner
      * server, and the path to the configuration file (if provided).
      *
      * @param string $address The address of the socket server to connect to.
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The command options to use when constructing the command.
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The command options to use when
+     *                                                       constructing the command.
      */
     private function spawnPersistentWorker(string $address, $cmdOpt): void
     {
@@ -113,12 +131,7 @@ final class ParallelRunner
             $command .= ' --config='.escapeshellarg($cmdOpt->configFile);
         }
 
-        // On Windows, pipes are not supported by react/child-process.
-        // We pass empty pipe descriptors to avoid the error.
         $process = new Process($command, null, null, []);
         $process->start($this->loop);
-
-        // We don't need to listen to stdout/stderr here as the worker
-        // should be silent and communicate via the socket.
     }
 }

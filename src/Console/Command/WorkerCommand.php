@@ -18,6 +18,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @phpstan-type _WorkerPayload array{
+ *   path: string,
+ *   cachePath?: string,
+ *   configFile?: string,
+ *   ignoreCache?: bool,
+ *   hashPrefix?: string
+ * }
+ */
 #[AsCommand(
     name: 'worker',
     description: 'Internal command for running Fixer in parallel.',
@@ -25,13 +34,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class WorkerCommand extends Command
 {
-    public function __construct(
-        private Config $config,
-        private Cache $cache,
-    ) {
-        parent::__construct();
-    }
-
     protected function configure(): void
     {
         $this
@@ -76,6 +78,7 @@ class WorkerCommand extends Command
             $fixer = app(Fixer::class);
             $config = null; // Cache the configuration to avoid redundant parsing for every file
 
+            /** @param _WorkerPayload $data  */
             $decoder->on('data', function ($data) use ($encoder, $fixer, &$config) {
                 $data = (array) $data;
 
@@ -87,8 +90,8 @@ class WorkerCommand extends Command
                         path: $data['path'],
                     );
 
-                    $config = $this->config->fixer($cmdOpt);
-                    $this->cache->prepareForRun($config->paths, $cmdOpt, pruning: false);
+                    $config = app(Config::class)->fixer($cmdOpt);
+                    app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
                 }
 
                 if (isset($data['hashPrefix'])) {
