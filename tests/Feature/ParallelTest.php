@@ -16,17 +16,18 @@ class ParallelTest extends TestCase
      */
     public function testParallelExecution(): void
     {
-        // Create 4 files by copying the static large_file.txt
-        $sourceFile = Path::join(base_path('tests/Integration'), 'large_file.txt');
-
+        // Create some files
         for ($i = 1; $i <= 4; $i++) {
-            $this->fs->copy($sourceFile, Path::join($this->tmpDir, "file{$i}.txt"), true);
+            $this->fs->dumpFile(
+                Path::join($this->tmpDir, "file_parallel{$i}.txt"),
+                "foo\n",
+            );
         }
 
-        // First run: should process all 4 files in parallel
+        // First run: should process all files in parallel
         $tester = $this->runFixCommand([
             '--path' => $this->tmpDir,
-            '--parallel' => true,
+            '--force-parallel' => true,
         ]);
 
         $output = $tester->getDisplay();
@@ -36,7 +37,7 @@ class ParallelTest extends TestCase
         // Second run: should skip all 4 files due to cache
         $tester = $this->runFixCommand([
             '--path' => $this->tmpDir,
-            '--parallel' => true,
+            '--force-parallel' => true,
         ]);
 
         $output = $tester->getDisplay();
