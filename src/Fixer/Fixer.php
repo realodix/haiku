@@ -144,6 +144,10 @@ final class Fixer
      */
     private function shouldRunParallel($config, $cmdOpt): bool
     {
+        if ($cmdOpt->forceParallel) {
+            return true;
+        }
+
         if (!$cmdOpt->parallel && !$cmdOpt->ignoreCache) {
             return false;
         }
