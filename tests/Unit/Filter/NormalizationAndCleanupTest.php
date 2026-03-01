@@ -111,6 +111,11 @@ class NormalizationAndCleanupTest extends TestCase
         ];
         $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
 
+        // The parent domain is the negated domain.
+        $input = [ '*$domain=example.com|~example.net|~example.*', ];
+        $expected = [ '*$domain=~example.*|~example.net|example.com', ];
+        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+
         // Just in case the user enters invalid input
         $input = ['192.*,192.168.1.1##.ads'];
         $this->assertSame($input, $this->fix($input, ['fmode' => true]));
@@ -140,6 +145,11 @@ class NormalizationAndCleanupTest extends TestCase
             'example.com,example.org##.ads',
             '~ads.example.com##.ads',
         ];
+        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+
+        // The parent domain is the negated domain.
+        $input = [ '*$domain=~ads.example.co.uk|api.example.co.uk|~example.co.uk', ];
+        $expected = [ '*$domain=~ads.example.co.uk|~example.co.uk|api.example.co.uk', ];
         $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
     }
 }
