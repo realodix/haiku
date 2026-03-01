@@ -96,7 +96,7 @@ Sorts domains inside domain lists to ensure consistent and predictable output.
 
 **Possible values**:
 - `normal`: Sort domains alphabetically.
-- `negated_first`: Negated domains (~domain) appear before normal domains.
+- `negated_first`: Group all negated domains (~domain) and place them before non-negated domains.
 <!-- - `localhost_first`: Localhost-related domains appear first. -->
 <!-- - `localhost_negated_first`: Localhost domains first, and within each group negated domains come first. -->
 
@@ -134,7 +134,7 @@ Options are not sorted purely alphabetically. Instead, they are grouped by seman
 Ordering rules:
 1. `badfilter`, `important`, `match-case`
 2. **Party modifiers**: (`strict-first-party`, `1p`, `3p`, ...)
-3. **Basic modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
+3. **Type modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
 4. **Key-value modifiers**: (`domain=`, `denyallow=`, `from=`, ...)
 5. `reason=`, always placed last
 
@@ -203,7 +203,7 @@ Sort domains and modifiers in AdGuard non-basic rules modifiers.
 
 ### # Empty Lines
 
-Removes blank lines following configuration.
+Removes empty lines based on the specified configuration.
 
 **Config**: `fixer.flags.remove_empty_lines`, default: `true`
 
@@ -338,7 +338,7 @@ example.com,example.org##.ads
 
 `fixer.flags.normalize_domains`
 
-Removes spaces in domain lists.
+Removes unnecessary spaces within domain lists.
 
 ```adblock
 !## BEFORE
@@ -368,11 +368,11 @@ example.com|example.org##.ads
 example.com,example.org##.ads
 ```
 
-### # Domain Symbol
+### # Domain Sanitization
 
 `fixer.flags.normalize_domains`
 
-Removes extraneous symbols accidentally included in domain strings (often caused by copy-paste errors).
+Removes trailing slashes, leading dots, or other invalid characters accidentally included in domain strings.
 
 ```adblock
 !## BEFORE
@@ -445,7 +445,7 @@ Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 
 ```adblock
 !## BEFORE
-*$mp4
+*$queryprune=utm_source
 
 !## AFTER
-*$media,redirect=noopmp4-1s
+*$removeparam=utm_source
