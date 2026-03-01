@@ -186,7 +186,7 @@ When multiple network filters share the same pattern but differ only in their op
 
 ##  AdGuard Non-basic Rules Modifiers
 
-`fixer.flags.adg_non_basic_rules_modifiers`
+`fixer.flags.adg_non_basic_rule_modifier`
 
 Sort domains and modifiers in AdGuard non-basic rules modifiers.
 

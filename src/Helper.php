@@ -54,4 +54,25 @@ final class Helper
     {
         return implode("\n", $lines)."\n";
     }
+
+    /**
+     * @param array<string, bool|string> $override
+     * @return array<string, bool|string>
+     */
+    public static function deprecatedFlags(array $override): array
+    {
+        $renames = [
+            'xmode'                         => 'fmode',
+            'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
+        ];
+
+        foreach ($renames as $old => $new) {
+            if (array_key_exists($old, $override)) {
+                $override[$new] = $override[$old];
+                unset($override[$old]);
+            }
+        }
+
+        return $override;
+    }
 }

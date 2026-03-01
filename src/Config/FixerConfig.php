@@ -2,12 +2,13 @@
 
 namespace Realodix\Haiku\Config;
 
+use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @phpstan-type _FixerFlags array{
- *  adg_non_basic_rules_modifiers: bool,
+ *  adg_non_basic_rule_modifier: bool,
  *  combine_option_sets: bool,
  *  domain_order: null|'normal'|'negated_first'|'localhost_first'|'localhost_negated_first',
  *  migrate_deprecated_options: bool,
@@ -34,7 +35,7 @@ final class FixerConfig
 
     /** @var _FixerFlags */
     private array $flags = [
-        'adg_non_basic_rules_modifiers' => false,
+        'adg_non_basic_rule_modifier' => false,
         'combine_option_sets' => false,
         'domain_order' => 'negated_first',
         'migrate_deprecated_options' => false,
@@ -101,12 +102,7 @@ final class FixerConfig
     private function resolveFlags(array $override = []): array
     {
         $flags = $this->flags;
-
-        // @deprecated
-        if (array_key_exists('xmode', $override)) {
-            $override['fmode'] = $override['xmode'];
-            unset($override['xmode']);
-        }
+        $override = Helper::deprecatedFlags($override);
 
         // 'fmode' acts as a bulk toggle for all boolean flags
         if (array_key_exists('fmode', $override)) {
