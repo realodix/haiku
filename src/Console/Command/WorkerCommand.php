@@ -95,7 +95,7 @@ class WorkerCommand extends Command
                 }
 
                 if (isset($data['hashPrefix'])) {
-                    $fixer->setHashPrefix($data['hashPrefix']);
+                    $fixer->hashPrefix = $data['hashPrefix'];
                 }
 
                 $result = $fixer->processFile($data['path'], $config);

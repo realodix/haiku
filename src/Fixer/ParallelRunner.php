@@ -88,7 +88,7 @@ final class ParallelRunner
                 'cachePath' => $cmdOpt->cachePath,
                 'configFile' => $cmdOpt->configFile,
                 'ignoreCache' => $cmdOpt->ignoreCache,
-                'hashPrefix' => $fixer->getHashPrefix(),
+                'hashPrefix' => $fixer->hashPrefix,
             ]);
 
             return true;

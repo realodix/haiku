@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class Fixer
 {
-    private string $hashPrefix;
+    public string $hashPrefix;
 
     public function __construct(
         private Processor $processor,
@@ -204,16 +204,6 @@ final class Fixer
     private function hash(string $data): string
     {
         return hash('xxh128', $data.$this->hashPrefix);
-    }
-
-    public function setHashPrefix(string $hashPrefix): void
-    {
-        $this->hashPrefix = $hashPrefix;
-    }
-
-    public function getHashPrefix(): string
-    {
-        return $this->hashPrefix;
     }
 
     /**
