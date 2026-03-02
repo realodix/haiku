@@ -10,6 +10,7 @@ use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\SocketServer;
+use Realodix\Haiku\Fixer\ValueObject\Result;
 
 /**
  * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Console\Command\WorkerCommand
@@ -25,6 +26,9 @@ final class ParallelRunner
 
     private int $fileCount = 0;
 
+    /** @var \Realodix\Haiku\Fixer\ValueObject\Result[] */
+    private array $results = [];
+
     public function __construct()
     {
         $this->loop = Loop::get();
@@ -36,14 +40,15 @@ final class ParallelRunner
      * @param \Realodix\Haiku\Fixer\Fixer $fixer The Fixer instance
      * @param \Realodix\Haiku\Config\FixerConfig $config The Fixer configuration
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The CLI runtime options
+     * @return \Realodix\Haiku\Fixer\ValueObject\Result[]
      */
-    public function run($fixer, $config, $cmdOpt): void
+    public function run($fixer, $config, $cmdOpt): array
     {
         $this->pendingFiles = $config->paths;
         $this->fileCount = count($this->pendingFiles);
 
         if ($this->fileCount === 0) {
-            return;
+            return [];
         }
 
         $server = new SocketServer('127.0.0.1:0', [], $this->loop);
@@ -62,6 +67,8 @@ final class ParallelRunner
         }
 
         $this->loop->run();
+
+        return $this->results;
     }
 
     /**
@@ -94,9 +101,17 @@ final class ParallelRunner
             return true;
         };
 
-        /** * @param _WorkerPayload $data */
         $decoder->on('data', function ($data) use ($sendNextTask, $fixer) {
-            $fixer->record((array) $data);
+            $data = (array) $data;
+
+            $result = new Result(
+                $data['path'],
+                $data['status'],
+                $data['hash'] ?? null,
+            );
+
+            $fixer->record($result);
+            $this->results[] = $result;
 
             $this->processedCount++;
 

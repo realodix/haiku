@@ -10,7 +10,7 @@ use React\Socket\Connector;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Fixer\FileFixer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -60,7 +60,7 @@ class WorkerCommand extends Command
      * Run the persistent worker for the given socket address.
      *
      * This function sets up an event loop to continuously receive tasks from the main
-     * process over the given socket address, and then processes them.
+     * process over the given socket address, processes them, and sends back the results.
      *
      * @param string $address The socket address to connect to for tasks.
      */
@@ -73,15 +73,17 @@ class WorkerCommand extends Command
             $decoder = new Decoder($connection);
             $encoder = new Encoder($connection);
 
-            $connection->on('close', fn() => exit(0));
+            // Exit cleanly when main process closes the socket
+            $connection->on('close', static fn() => exit(0));
 
-            $fixer = app(Fixer::class);
-            $config = null; // Cache the configuration to avoid redundant parsing for every file
+            $fileFixer = app(FileFixer::class);
+            $config = null;
 
-            /** @param _WorkerPayload $data  */
-            $decoder->on('data', function ($data) use ($encoder, $fixer, &$config) {
+            /** @param _WorkerPayload $data */
+            $decoder->on('data', function ($data) use ($encoder, $fileFixer, &$config) {
                 $data = (array) $data;
 
+                // Lazily initialize config & cache ONCE
                 if ($config === null) {
                     $cmdOpt = new CommandOptions(
                         cachePath: $data['cachePath'] ?? null,
@@ -91,15 +93,23 @@ class WorkerCommand extends Command
                     );
 
                     $config = app(Config::class)->fixer($cmdOpt);
+
+                    // Important: NO pruning in worker
                     app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
                 }
 
-                if (isset($data['hashPrefix'])) {
-                    $fixer->hashPrefix = $data['hashPrefix'];
-                }
+                $result = $fileFixer->fix(
+                    $data['path'],
+                    $config,
+                    $data['hashPrefix'] ?? '',
+                );
 
-                $result = $fixer->processFile($data['path'], $config);
-                $encoder->write($result);
+                // Send plain payload back to main process
+                $encoder->write([
+                    'path' => $result->path,
+                    'status' => $result->status,
+                    'hash' => $result->hash,
+                ]);
             });
         });
 
