@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Test;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Console\BuildCommand;
-use Realodix\Haiku\Console\FixCommand;
+use Realodix\Haiku\Console\Command\BuildCommand;
+use Realodix\Haiku\Console\Command\FixCommand;
 use Realodix\Haiku\Fixer\Processor;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;

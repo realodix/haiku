@@ -1,9 +1,10 @@
 <?php
 
-namespace Realodix\Haiku\Console;
+namespace Realodix\Haiku\Console\Command;
 
 use Realodix\Haiku\App;
 use Realodix\Haiku\Config\InvalidConfigurationException;
+use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Fixer\Fixer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

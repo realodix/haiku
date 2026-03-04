@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit;
 
 use Realodix\Haiku\App;
-use Realodix\Haiku\Console\FixCommand;
+use Realodix\Haiku\Console\Command\FixCommand;
 use Realodix\Haiku\Console\Kernel;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Console\Application;

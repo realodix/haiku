@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Console;
+namespace Realodix\Haiku\Console\Command;
 
 use Realodix\Haiku\Config\Config;
 use Symfony\Component\Console\Attribute\AsCommand;

@@ -28,9 +28,9 @@ class Kernel
      * @var array<class-string>
      */
     protected array $commands = [
-        \Realodix\Haiku\Console\InitCommand::class,
-        \Realodix\Haiku\Console\BuildCommand::class,
-        \Realodix\Haiku\Console\FixCommand::class,
+        \Realodix\Haiku\Console\Command\InitCommand::class,
+        \Realodix\Haiku\Console\Command\BuildCommand::class,
+        \Realodix\Haiku\Console\Command\FixCommand::class,
         \Realodix\Haiku\Console\Command\WorkerCommand::class,
     ];
 
