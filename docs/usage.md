@@ -30,7 +30,7 @@ vendor/bin/haiku fix [options]
 - `--config <path>`
   Custom configuration file path.
 - `--help`
-  Show help message
+  Show help message.
 - `--verbose`
   Enable verbose logging.
 - `--silent`
@@ -64,7 +64,7 @@ vendor/bin/haiku build [options]
 - `--config <path>`
   Custom configuration file path.
 - `--help`
-  Show help message
+  Show help message.
 - `--verbose`
   Enable verbose logging.
 - `--silent`
