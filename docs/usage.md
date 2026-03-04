@@ -30,7 +30,7 @@ vendor/bin/haiku fix [options]
 - `--config <path>`
   Custom configuration file path.
 - `--parallel`
-  Run in parallel
+  Run in parallel.
 - `--help`
   Show help message.
 - `--verbose`
