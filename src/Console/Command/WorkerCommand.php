@@ -92,11 +92,7 @@ class WorkerCommand extends Command
                     app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
                 }
 
-                $result = $fixer->fixFile(
-                    $data['path'],
-                    $config,
-                    $data['hashPrefix'],
-                );
+                $result = $fixer->fixFile($data['path'], $config);
 
                 // Send plain payload back to main process
                 $encoder->write([

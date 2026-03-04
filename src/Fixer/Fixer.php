@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Fixer;
 
-use Realodix\Haiku\App;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
@@ -18,8 +17,6 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class Fixer
 {
-    public string $hashPrefix;
-
     /** @var _FixResult[] */
     public array $results;
 
@@ -40,7 +37,6 @@ final class Fixer
     public function handle($cmdOpt): void
     {
         $config = $this->config->fixer($cmdOpt);
-        $this->initializeHashPrefix($config);
         $this->cache->prepareForRun($config->paths, $cmdOpt);
 
         $results = [];
@@ -48,7 +44,7 @@ final class Fixer
             $results = $this->parallel->run($this, $config, $cmdOpt);
         } else {
             foreach ($config->paths as $path) {
-                $result = $this->fixFile($path, $config, $this->hashPrefix);
+                $result = $this->fixFile($path, $config);
 
                 $this->record($result);
                 $results[] = $result;
@@ -64,7 +60,7 @@ final class Fixer
      * @param \Realodix\Haiku\Config\FixerConfig $config
      * @return _FixResult
      */
-    public function fixFile(string $path, $config, string $hashPrefix): array
+    public function fixFile(string $path, $config): array
     {
         $content = $this->read($path);
 
@@ -72,7 +68,7 @@ final class Fixer
             return ['status' => 'error', 'path' => $path];
         }
 
-        if ($this->shouldSkip($path, $content, $hashPrefix)) {
+        if ($this->shouldSkip($path, $content, $config)) {
             return ['status' => 'skipped', 'path' => $path];
         }
 
@@ -88,7 +84,7 @@ final class Fixer
         return [
             'status' => 'processed',
             'path' => $path,
-            'hash' => $this->hash($content, $hashPrefix),
+            'hash' => $this->hash($content, $config),
         ];
     }
 
@@ -152,14 +148,15 @@ final class Fixer
      *
      * @param string $path Path to file
      * @param array<int, string> $content File content
+     * @param \Realodix\Haiku\Config\FixerConfig $config
      */
-    private function shouldSkip(string $path, array $content, string $hashPrefix): bool
+    private function shouldSkip(string $path, array $content, $config): bool
     {
         if (trim(implode($content)) === '') {
             return true;
         }
 
-        $fingerprint = $this->hash(Helper::joinLines($content), $hashPrefix);
+        $fingerprint = $this->hash(Helper::joinLines($content), $config);
 
         return $this->cache->isValid($path, $fingerprint);
     }
@@ -209,31 +206,12 @@ final class Fixer
      * Generate a deterministic content fingerprint.
      *
      * @param string $data The data to hash
+     * @param \Realodix\Haiku\Config\FixerConfig $config
      * @return string The computed hash value
      */
-    private function hash(string $data, string $hashPrefix): string
+    private function hash(string $data, $config): string
     {
-        return hash('xxh128', $data.$hashPrefix);
-    }
-
-    /**
-     * @param \Realodix\Haiku\Config\FixerConfig $config
-     */
-    private function initializeHashPrefix($config): void
-    {
-        $flags = collect($config->getFlag())
-            ->reject(static fn($value) => $value === false || $value === null)
-            ->sortKeys()->toJson();
-
-        if (str_contains(App::VERSION, '.x')) {
-            $v = App::version();
-        } else {
-            // get major and minor version
-            $v = explode('.', App::version());
-            $v = implode('.', array_slice($v, 0, 2));
-        }
-
-        $this->hashPrefix = $v.$flags;
+        return hash('xxh128', $data.$config->fingerprintSeed());
     }
 
     /**

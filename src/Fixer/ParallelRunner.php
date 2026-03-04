@@ -18,7 +18,6 @@ use React\Socket\SocketServer;
  *   cachePath: string,
  *   configFile: string,
  *   ignoreCache: bool,
- *   hashPrefix: string
  * }
  */
 final class ParallelRunner
@@ -56,7 +55,7 @@ final class ParallelRunner
                 $encoder = new Encoder($connection);
 
                 // 1. Dispatch next file to worker
-                $sendNextTask = function () use ($encoder, $cmdOpt, $fixer, $connection, &$pendingFiles) {
+                $sendNextTask = function () use ($encoder, $cmdOpt, $connection, &$pendingFiles) {
                     // Stop sending tasks if queue is empty
                     if (empty($pendingFiles)) {
                         $connection->end();
@@ -70,7 +69,6 @@ final class ParallelRunner
                         'cachePath' => $cmdOpt->cachePath,
                         'configFile' => $cmdOpt->configFile,
                         'ignoreCache' => $cmdOpt->ignoreCache,
-                        'hashPrefix' => $fixer->hashPrefix,
                     ];
                     $encoder->write($workerPayload);
 
