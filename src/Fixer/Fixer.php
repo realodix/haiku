@@ -9,9 +9,19 @@ use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @phpstan-type _FixResult array{
+ *   path: string,
+ *   status: string,
+ *   hash?: string,
+ * }
+ */
 final class Fixer
 {
-    private string $hashPrefix;
+    public string $hashPrefix;
+
+    /** @var _FixResult[] */
+    public array $results;
 
     public function __construct(
         private Processor $processor,
@@ -33,23 +43,28 @@ final class Fixer
         $this->initializeHashPrefix($config);
         $this->cache->prepareForRun($config->paths, $cmdOpt);
 
+        $results = [];
         if ($this->shouldRunParallel($config, $cmdOpt)) {
-            $this->parallel->run($this, $config, $cmdOpt);
+            $results = $this->parallel->run($this, $config, $cmdOpt);
         } else {
             foreach ($config->paths as $path) {
-                $this->record($this->processFile($path, $config));
+                $result = $this->fixFile($path, $config, $this->hashPrefix);
+
+                $this->record($result);
+                $results[] = $result;
             }
         }
 
         $this->cache->repository()->save();
+
+        $this->results = $results;
     }
 
     /**
-     * @param string $path Path to file
-     * @param \Realodix\Haiku\Config\FixerConfig $config Fixer configuration
-     * @return array{path: string, status: string, hash?: string}
+     * @param \Realodix\Haiku\Config\FixerConfig $config
+     * @return _FixResult
      */
-    public function processFile(string $path, $config): array
+    public function fixFile(string $path, $config, string $hashPrefix): array
     {
         $content = $this->read($path);
 
@@ -57,11 +72,9 @@ final class Fixer
             return ['status' => 'error', 'path' => $path];
         }
 
-        if ($this->shouldSkip($path, $content)) {
+        if ($this->shouldSkip($path, $content, $hashPrefix)) {
             return ['status' => 'skipped', 'path' => $path];
         }
-
-        $this->logger->processing($path);
 
         if ($config->backup) {
             $this->backup($path);
@@ -69,21 +82,22 @@ final class Fixer
 
         $content = $this->processor->process($content);
         $content = Helper::joinLines($content);
+
         $this->fs->dumpFile($path, $content);
 
         return [
             'status' => 'processed',
             'path' => $path,
-            'hash' => $this->hash($content),
+            'hash' => $this->hash($content, $hashPrefix),
         ];
     }
 
     /**
      * Record the result of a file processing.
      *
-     * @param array{path: string, status: string, hash?: string} $result
+     * @param _FixResult $result
      */
-    public function record(array $result): void
+    public function record($result): void
     {
         if ($result['status'] === 'processed') {
             $this->cache->set($result['path'], $result['hash']);
@@ -100,23 +114,6 @@ final class Fixer
     }
 
     /**
-     * Create a backup of the file at the given path.
-     *
-     * @param string $filePath Path to file
-     */
-    private function backup(string $filePath): void
-    {
-        $timestamp = date('Ymd-His');
-        $backupPath = $filePath."_{$timestamp}.bak";
-
-        try {
-            $this->fs->copy($filePath, $backupPath);
-        } catch (\RuntimeException $e) {
-            $this->logger->error("Failed to create backup for: {$filePath}");
-        }
-    }
-
-    /**
      * Read file content.
      *
      * @param string $filePath Path to file
@@ -128,12 +125,43 @@ final class Fixer
             return null;
         }
 
-        $rawContent = file($filePath, FILE_IGNORE_NEW_LINES);
-        if ($rawContent === false) {
-            return null;
+        $content = file($filePath, FILE_IGNORE_NEW_LINES);
+
+        return $content === false ? null : $content;
+    }
+
+    /**
+     * Create a backup of the file at the given path.
+     *
+     * @param string $filePath Path to file
+     */
+    private function backup(string $filePath): void
+    {
+        $timestamp = date('Ymd-His');
+        $backupPath = $filePath."_{$timestamp}.bak";
+
+        try {
+            $this->fs->copy($filePath, $backupPath, true);
+        } catch (\RuntimeException $e) {
+            $this->logger->error("Failed to create backup for: {$filePath}");
+        }
+    }
+
+    /**
+     * Determine whether a file should be skipped.
+     *
+     * @param string $path Path to file
+     * @param array<int, string> $content File content
+     */
+    private function shouldSkip(string $path, array $content, string $hashPrefix): bool
+    {
+        if (trim(implode($content)) === '') {
+            return true;
         }
 
-        return $rawContent;
+        $fingerprint = $this->hash(Helper::joinLines($content), $hashPrefix);
+
+        return $this->cache->isValid($path, $fingerprint);
     }
 
     /**
@@ -178,48 +206,20 @@ final class Fixer
     }
 
     /**
-     * Determine whether a file should be skipped.
-     *
-     * @param string $path Path to file
-     * @param array<int, string> $content File content
-     */
-    private function shouldSkip(string $path, array $content): bool
-    {
-        // Empty file
-        if (trim(implode($content)) === '') {
-            return true;
-        }
-
-        $fingerprint = $this->hash(Helper::joinLines($content));
-
-        return $this->cache->isValid($path, $fingerprint);
-    }
-
-    /**
      * Generate a deterministic content fingerprint.
      *
-     * @param string $data The data to hash.
-     * @return string The computed hash value.
+     * @param string $data The data to hash
+     * @return string The computed hash value
      */
-    private function hash(string $data): string
+    private function hash(string $data, string $hashPrefix): string
     {
-        return hash('xxh128', $data.$this->hashPrefix);
-    }
-
-    public function setHashPrefix(string $hashPrefix): void
-    {
-        $this->hashPrefix = $hashPrefix;
-    }
-
-    public function getHashPrefix(): string
-    {
-        return $this->hashPrefix;
+        return hash('xxh128', $data.$hashPrefix);
     }
 
     /**
      * @param \Realodix\Haiku\Config\FixerConfig $config
      */
-    private function initializeHashPrefix($config): string
+    private function initializeHashPrefix($config): void
     {
         $flags = collect($config->getFlag())
             ->reject(static fn($value) => $value === false || $value === null)
@@ -233,7 +233,7 @@ final class Fixer
             $v = implode('.', array_slice($v, 0, 2));
         }
 
-        return $this->hashPrefix = $v.$flags;
+        $this->hashPrefix = $v.$flags;
     }
 
     /**

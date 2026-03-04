@@ -11,6 +11,9 @@ use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\SocketServer;
 
+/**
+ * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Fixer
+ */
 final class ParallelRunner
 {
     private LoopInterface $loop;
@@ -24,31 +27,30 @@ final class ParallelRunner
      * @param \Realodix\Haiku\Fixer\Fixer $fixer The Fixer instance
      * @param \Realodix\Haiku\Config\FixerConfig $config The Fixer configuration
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The CLI runtime options
+     * @return _FixResult[]
      */
-    public function run($fixer, $config, $cmdOpt): void
+    public function run($fixer, $config, $cmdOpt): array
     {
-        $files = $config->paths;
-        $fileCount = count($files);
+        $pendingFiles = $config->paths;
+        $fileCount = count($pendingFiles);
+        $processedCount = 0;
+        $results = [];
 
         if ($fileCount === 0) {
-            return;
+            return [];
         }
 
         $server = new SocketServer('127.0.0.1:0', [], $this->loop);
         $address = $server->getAddress();
-        $cores = (new CpuCoreCounter)->getCount();
-        $poolSize = min($cores, $fileCount);
-
-        $pendingFiles = $files;
-        $processedCount = 0;
+        $poolSize = min((new CpuCoreCounter)->getCount(), $fileCount);
 
         $server->on(
             'connection',
-            function (ConnectionInterface $connection) use (&$pendingFiles, &$processedCount, $cmdOpt, $fixer, $fileCount) {
+            function (ConnectionInterface $connection) use ($cmdOpt, $fixer, &$pendingFiles, &$processedCount, &$results, $fileCount) {
                 $decoder = new Decoder($connection);
                 $encoder = new Encoder($connection);
 
-                $sendNextTask = function () use ($encoder, &$pendingFiles, $cmdOpt, $fixer, $connection) {
+                $sendNextTask = function () use ($encoder, $cmdOpt, $fixer, $connection, &$pendingFiles) {
                     if (empty($pendingFiles)) {
                         $connection->end();
 
@@ -61,16 +63,18 @@ final class ParallelRunner
                         'cachePath' => $cmdOpt->cachePath,
                         'configFile' => $cmdOpt->configFile,
                         'ignoreCache' => $cmdOpt->ignoreCache,
-                        'hashPrefix' => $fixer->getHashPrefix(),
+                        'hashPrefix' => $fixer->hashPrefix,
                     ]);
 
                     return true;
                 };
 
-                $decoder->on('data', function ($data) use ($sendNextTask, &$processedCount, $fixer, $fileCount) {
-                    $data = (array) $data;
-                    $fixer->record($data);
+                $decoder->on('data', function ($data) use ($sendNextTask, $fixer, &$processedCount, &$results, $fileCount) {
+                    /** @var _FixResult */
+                    $result = (array) $data;
 
+                    $fixer->record($result);
+                    $results[] = $result;
                     $processedCount++;
 
                     if (!$sendNextTask() && $processedCount === $fileCount) {
@@ -87,6 +91,8 @@ final class ParallelRunner
         }
 
         $this->loop->run();
+
+        return $results;
     }
 
     /**

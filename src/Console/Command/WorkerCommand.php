@@ -18,6 +18,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @phpstan-type _WorkerPayload array{
+ *   path: string,
+ *   cachePath: string,
+ *   configFile: string,
+ *   ignoreCache: bool,
+ *   hashPrefix: string
+ * }
+ */
 #[AsCommand(
     name: 'worker',
     description: 'Internal command for running Fixer in parallel.',
@@ -25,13 +34,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class WorkerCommand extends Command
 {
-    public function __construct(
-        private Config $config,
-        private Cache $cache,
-    ) {
-        parent::__construct();
-    }
-
     protected function configure(): void
     {
         $this
@@ -78,27 +80,36 @@ class WorkerCommand extends Command
             $config = null; // Cache the configuration to avoid redundant parsing for every file
 
             $decoder->on('data', function ($data) use ($encoder, $fixer, &$config) {
+                /** @var _WorkerPayload $data */
                 $data = (array) $data;
 
                 // Lazily initialize config & cache ONCE
                 if ($config === null) {
                     $cmdOpt = new CommandOptions(
-                        cachePath: $data['cachePath'] ?? null,
-                        configFile: $data['configFile'] ?? null,
-                        ignoreCache: $data['ignoreCache'] ?? false,
+                        cachePath: $data['cachePath'],
+                        configFile: $data['configFile'],
+                        ignoreCache: $data['ignoreCache'],
                         path: $data['path'],
                     );
 
-                    $config = $this->config->fixer($cmdOpt);
-                    $this->cache->prepareForRun($config->paths, $cmdOpt, pruning: false);
+                    $config = app(Config::class)->fixer($cmdOpt);
+
+                    // Important: NO pruning in worker
+                    app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
                 }
 
-                if (isset($data['hashPrefix'])) {
-                    $fixer->setHashPrefix($data['hashPrefix']);
-                }
+                $result = $fixer->fixFile(
+                    $data['path'],
+                    $config,
+                    $data['hashPrefix'],
+                );
 
-                $result = $fixer->processFile($data['path'], $config);
-                $encoder->write($result);
+                // Send plain payload back to main process
+                $encoder->write([
+                    'status' => $result['status'],
+                    'path' => $result['path'],
+                    'hash' => $result['hash'] ?? null,
+                ]);
             });
         });
 
