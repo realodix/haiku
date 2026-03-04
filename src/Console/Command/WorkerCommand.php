@@ -19,13 +19,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @phpstan-type _WorkerPayload array{
- *   path: string,
- *   cachePath: string,
- *   configFile: string,
- *   ignoreCache: bool,
- *   hashPrefix: string
- * }
+ * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Fixer\ParallelRunner
  */
 #[AsCommand(
     name: 'worker',

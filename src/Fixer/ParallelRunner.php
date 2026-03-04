@@ -13,6 +13,13 @@ use React\Socket\SocketServer;
 
 /**
  * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Fixer
+ * @phpstan-type _WorkerPayload array{
+ *   path: string,
+ *   cachePath: string,
+ *   configFile: string,
+ *   ignoreCache: bool,
+ *   hashPrefix: string
+ * }
  */
 final class ParallelRunner
 {
@@ -40,35 +47,37 @@ final class ParallelRunner
             return [];
         }
 
+        // 2. Setup Socket Server
         $server = new SocketServer('127.0.0.1:0', [], $this->loop);
-        $address = $server->getAddress();
-        $poolSize = min((new CpuCoreCounter)->getCount(), $fileCount);
-
         $server->on(
             'connection',
             function (ConnectionInterface $connection) use ($cmdOpt, $fixer, &$pendingFiles, &$processedCount, &$results, $fileCount) {
                 $decoder = new Decoder($connection);
                 $encoder = new Encoder($connection);
 
+                // 1. Dispatch next file to worker
                 $sendNextTask = function () use ($encoder, $cmdOpt, $fixer, $connection, &$pendingFiles) {
+                    // Stop sending tasks if queue is empty
                     if (empty($pendingFiles)) {
                         $connection->end();
 
                         return false;
                     }
 
-                    $file = array_shift($pendingFiles);
-                    $encoder->write([
-                        'path' => $file,
+                    /** @var _WorkerPayload */
+                    $workerPayload = [
+                        'path' => array_shift($pendingFiles),
                         'cachePath' => $cmdOpt->cachePath,
                         'configFile' => $cmdOpt->configFile,
                         'ignoreCache' => $cmdOpt->ignoreCache,
                         'hashPrefix' => $fixer->hashPrefix,
-                    ]);
+                    ];
+                    $encoder->write($workerPayload);
 
                     return true;
                 };
 
+                // 2. Handle worker result
                 $decoder->on('data', function ($data) use ($sendNextTask, $fixer, &$processedCount, &$results, $fileCount) {
                     /** @var _FixResult */
                     $result = (array) $data;
@@ -77,19 +86,25 @@ final class ParallelRunner
                     $results[] = $result;
                     $processedCount++;
 
+                    // If no more tasks AND all files processed, stop event loop
                     if (!$sendNextTask() && $processedCount === $fileCount) {
                         $this->loop->stop();
                     }
                 });
 
+                // Send initial task to worker
                 $sendNextTask();
             },
         );
 
+        // 3. Spawn persistent worker processes
+        $poolSize = min((new CpuCoreCounter)->getCount(), $fileCount);
+        $address = $server->getAddress();
         for ($i = 0; $i < $poolSize; $i++) {
             $this->spawnPersistentWorker($address, $cmdOpt);
         }
 
+        // 4. Start event loop
         $this->loop->run();
 
         return $results;
