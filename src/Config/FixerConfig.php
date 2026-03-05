@@ -118,9 +118,9 @@ final class FixerConfig
      * Resolves and validates flag overrides.
      *
      * @param array<string, bool|string> $override
-     * @return array<string, bool|string>
+     * @return _FixerFlags
      */
-    private function resolveFlags(array $override = []): array
+    private function resolveFlags(array $override): array
     {
         $flags = $this->flags;
         $override = Helper::deprecatedFlags($override);
