@@ -10,7 +10,7 @@ use React\Socket\Connector;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Fixer\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Fixer
+ * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Runner
  * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Fixer\ParallelRunner
  */
 #[AsCommand(
@@ -71,10 +71,10 @@ class WorkerCommand extends Command
             // Exit cleanly when main process closes the socket
             $connection->on('close', static fn() => exit(0));
 
-            $fixer = app(Fixer::class);
+            $runner = app(Runner::class);
             $config = null; // Cache the configuration to avoid redundant parsing for every file
 
-            $decoder->on('data', function ($data) use ($encoder, $fixer, &$config) {
+            $decoder->on('data', function ($data) use ($encoder, $runner, &$config) {
                 /** @var _WorkerPayload $data */
                 $payload = (array) $data;
 
@@ -94,7 +94,7 @@ class WorkerCommand extends Command
                         app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
                     }
 
-                    $result = $fixer->fixFile($payload['path'], $config);
+                    $result = $runner->fixFile($payload['path'], $config);
 
                     // Send result back to main process
                     /** @var _FixResult */

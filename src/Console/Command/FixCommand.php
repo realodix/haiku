@@ -5,7 +5,7 @@ namespace Realodix\Haiku\Console\Command;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Fixer\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class FixCommand extends Command
 {
     public function __construct(
-        private Fixer $fixer,
+        private Runner $runner,
     ) {
         parent::__construct();
     }
@@ -55,7 +55,7 @@ class FixCommand extends Command
 
         // ---- Execute ----
         $startTime = microtime(true);
-        $this->fixer->handle(
+        $this->runner->run(
             new CommandOptions(
                 cachePath: $input->getOption('cache'),
                 configFile: $input->getOption('config'),
@@ -65,7 +65,7 @@ class FixCommand extends Command
             ),
         );
 
-        $stats = $this->fixer->stats();
+        $stats = $this->runner->stats();
         if ($stats->allSkipped()) {
             $io->writeln('<info>All files have been processed.</info>');
             $io->newLine();

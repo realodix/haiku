@@ -16,7 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *  message?: string,
  * }
  */
-final class Fixer
+final class Runner
 {
     /** @var _FixResult[] */
     public array $results;
@@ -35,7 +35,7 @@ final class Fixer
      *
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
-    public function handle($cmdOpt): void
+    public function run($cmdOpt): void
     {
         $config = $this->config->fixer($cmdOpt);
         $this->cache->prepareForRun($config->paths, $cmdOpt);

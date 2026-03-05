@@ -12,7 +12,7 @@ use React\Socket\ConnectionInterface;
 use React\Socket\SocketServer;
 
 /**
- * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Fixer
+ * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Runner
  * @phpstan-type _WorkerPayload array{
  *  path: string,
  *  cachePath: string,
@@ -30,12 +30,12 @@ final class ParallelRunner
     }
 
     /**
-     * @param \Realodix\Haiku\Fixer\Fixer $fixer The Fixer instance
+     * @param \Realodix\Haiku\Fixer\Runner $runner The Fixer instance
      * @param \Realodix\Haiku\Config\FixerConfig $config The Fixer configuration
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The CLI runtime options
      * @return _FixResult[]
      */
-    public function run($fixer, $config, $cmdOpt): array
+    public function run($runner, $config, $cmdOpt): array
     {
         $pendingFiles = $config->paths;
         $fileCount = count($pendingFiles);
@@ -49,7 +49,7 @@ final class ParallelRunner
         $server = new SocketServer('127.0.0.1:0', [], $this->loop);
         $server->on(
             'connection',
-            function (ConnectionInterface $connection) use ($cmdOpt, $fixer, &$pendingFiles, &$processedCount, &$results, $fileCount) {
+            function (ConnectionInterface $connection) use ($cmdOpt, $runner, &$pendingFiles, &$processedCount, &$results, $fileCount) {
                 $decoder = new Decoder($connection);
                 $encoder = new Encoder($connection);
 
@@ -75,11 +75,11 @@ final class ParallelRunner
                 };
 
                 // 2. Handle worker result
-                $decoder->on('data', function ($data) use ($sendNextTask, $fixer, &$processedCount, &$results, $fileCount) {
+                $decoder->on('data', function ($data) use ($sendNextTask, $runner, &$processedCount, &$results, $fileCount) {
                     /** @var _FixResult */
                     $result = (array) $data;
 
-                    $fixer->record($result);
+                    $runner->record($result);
                     $results[] = $result;
                     $processedCount++;
 

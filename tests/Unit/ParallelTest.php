@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit;
 
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Fixer\Runner;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Filesystem\Path;
 
@@ -20,22 +20,22 @@ class ParallelTest extends TestCase
         }
 
         // First run: should process all files in parallel
-        $fixer = app(Fixer::class);
+        $runner = app(Runner::class);
         $cmdOpt = new CommandOptions(
             cachePath: $this->cacheFile,
             path: $this->tmpDir,
             forceParallel: true,
         );
 
-        $fixer->handle($cmdOpt);
-        foreach ($fixer->results as $result) {
+        $runner->run($cmdOpt);
+        foreach ($runner->results as $result) {
             $this->assertSame('processed', $result['status']);
         }
 
         // Second run: should be skipped (cache hit)
-        $fixer = app(Fixer::class);
-        $fixer->handle($cmdOpt);
-        foreach ($fixer->results as $result) {
+        $runner = app(Runner::class);
+        $runner->run($cmdOpt);
+        foreach ($runner->results as $result) {
             $this->assertSame('skipped', $result['status']);
         }
     }
