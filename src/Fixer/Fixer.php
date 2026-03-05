@@ -217,29 +217,34 @@ final class Fixer
     }
 
     /**
-     * Dumps content to a file with a retry mechanism.
+     * Dumps content to a file with an incremental retry mechanism.
      *
-     * This is particularly useful in parallel execution on Windows, where
-     * transient file locks can cause temporary access denied errors.
+     * This is particularly useful in environments like Windows, where transient
+     * file locks can cause temporary access denied errors.
      *
      * @param string $path The target file path
      * @param string $content The content to write
+     *
+     * @throws \Symfony\Component\Filesystem\Exception\IOException If all retry attempts fail
      */
     private function safeDumpFile(string $path, string $content): void
     {
-        $maxRetries = 3;
-        $retryDelay = 50000; // 50ms
+        $maxRetries = 10;
+        $baseRetryDelay = 50000; // 50ms in microseconds
 
-        for ($i = 0; $i < $maxRetries; $i++) {
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
                 $this->fs->dumpFile($path, $content);
 
                 return;
-            } catch (\Exception $e) {
-                if ($i === $maxRetries - 1) {
+            } catch (\Symfony\Component\Filesystem\Exception\IOException $e) {
+                // If this was the final attempt, re-throw the exception
+                if ($attempt === $maxRetries) {
                     throw $e;
                 }
-                usleep($retryDelay);
+
+                // Incremental delay: 50ms, 100ms, 150ms, etc.
+                usleep($attempt * $baseRetryDelay);
             }
         }
     }
