@@ -32,10 +32,11 @@ if (!function_exists('base_path')) {
      */
     function base_path(string $path = ''): string
     {
-        $basePath = dirname(array_values(array_filter(
+        // symfony/polyfill-php85
+        $basePath = dirname(array_first(array_filter(
             array_keys(ClassLoader::getRegisteredLoaders()),
             fn($pharPath) => !str_starts_with($pharPath, 'phar://'),
-        ))[0]);
+        )));
 
         return Path::join($basePath, $path);
     }
