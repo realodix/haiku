@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
 use Realodix\Haiku\Console\Command\FixCommand;
-use Realodix\Haiku\Fixer\Processor;
+use Realodix\Haiku\Fixer\Fixer;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -44,7 +44,7 @@ abstract class TestCase extends BaseTestCase
             app(FixerConfig::class)->setFlag($flags);
         }
 
-        return app(Processor::class)->process($value);
+        return app(Fixer::class)->fix($value);
     }
 
     protected function runBuildCommand(array $options = [])

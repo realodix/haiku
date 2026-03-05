@@ -9,7 +9,7 @@ use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Classes\NetworkTidy;
 use Realodix\Haiku\Helper;
 
-final class Processor
+final class Fixer
 {
     public function __construct(
         private Combiner $combiner,
@@ -25,7 +25,7 @@ final class Processor
      * @param array<int, string> $lines An array of raw filter lines
      * @return array<int, string> The processed and optimized list of filter lines
      */
-    public function process(array $lines): array
+    public function fix(array $lines): array
     {
         $result = []; // Stores the final processed rules
         $section = []; // Temporary storage for a section of rules

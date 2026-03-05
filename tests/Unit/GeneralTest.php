@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Processor;
+use Realodix\Haiku\Fixer\Fixer;
 use Realodix\Haiku\Test\TestCase;
 
 class GeneralTest extends TestCase
@@ -142,14 +142,14 @@ class GeneralTest extends TestCase
     #[PHPUnit\Test]
     public function isSpecialLine($data)
     {
-        $this->assertTrue(app(Processor::class)->isSpecialLine($data));
+        $this->assertTrue(app(Fixer::class)->isSpecialLine($data));
     }
 
     #[PHPUnit\DataProvider('isNotSpecialLineProvider')]
     #[PHPUnit\Test]
     public function isNotSpecialLine($data)
     {
-        $this->assertFalse(app(Processor::class)->isSpecialLine($data));
+        $this->assertFalse(app(Fixer::class)->isSpecialLine($data));
     }
 
     #[PHPUnit\Test]

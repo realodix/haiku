@@ -22,7 +22,7 @@ final class Runner
     public array $results;
 
     public function __construct(
-        private Processor $processor,
+        private Fixer $fixer,
         private ParallelRunner $parallel,
         private Config $config,
         private Filesystem $fs,
@@ -77,7 +77,7 @@ final class Runner
             $this->backup($path);
         }
 
-        $content = $this->processor->process($content);
+        $content = $this->fixer->fix($content);
         $content = Helper::joinLines($content);
 
         $this->safeDumpFile($path, $content);
