@@ -25,7 +25,10 @@ class CacheTest extends TestCase
         parent::setUp();
 
         $container->singleton(\Realodix\Haiku\Config\Config::class);
-        $container->make(\Realodix\Haiku\Config\Config::class)->cacheDir = null;
+        $config = $container->make(\Realodix\Haiku\Config\Config::class);
+        $reflection = new \ReflectionClass($config);
+        $property = $reflection->getProperty('cacheDir');
+        $property->setValue($config, null);
 
         $this->cache = $container->build(Cache::class);
         $this->repository = $this->cache->repository();

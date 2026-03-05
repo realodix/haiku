@@ -19,7 +19,7 @@ use Symfony\Component\Filesystem\Filesystem;
 final class Runner
 {
     /** @var _FixResult[] */
-    public array $results;
+    public private(set) array $results;
 
     public function __construct(
         private Fixer $fixer,

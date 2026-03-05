@@ -27,12 +27,12 @@ final class FixerConfig
      *
      * @var array<int, string>
      */
-    public array $paths;
+    public private(set) array $paths;
 
     /**
      * Whether to create a backup before modifying files
      */
-    public bool $backup;
+    public private(set) bool $backup;
 
     /** @var _FixerFlags */
     private array $flags = [

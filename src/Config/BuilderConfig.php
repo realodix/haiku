@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Path;
 final class BuilderConfig
 {
     /** @var list<FilterSet> */
-    public array $filterSet;
+    public private(set) array $filterSet;
 
     private string $outputDir;
 

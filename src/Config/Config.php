@@ -12,7 +12,7 @@ final class Config
 {
     const DEFAULT_FILENAME = 'haiku.yml';
 
-    public ?string $cacheDir;
+    public private(set) ?string $cacheDir;
 
     /** @var array<string, mixed> */
     private array $config;
