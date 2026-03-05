@@ -10,9 +10,10 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @phpstan-type _FixResult array{
- *   path: string,
- *   status: string,
- *   hash?: string,
+ *  status: string,
+ *  path: string,
+ *  hash?: string,
+ *  message?: string,
  * }
  */
 final class Fixer
@@ -79,7 +80,7 @@ final class Fixer
         $content = $this->processor->process($content);
         $content = Helper::joinLines($content);
 
-        $this->fs->dumpFile($path, $content);
+        $this->safeDumpFile($path, $content);
 
         return [
             'status' => 'processed',
@@ -105,7 +106,8 @@ final class Fixer
         }
 
         if ($result['status'] === 'error') {
-            $this->logger->error("Cannot read: {$result['path']}");
+            $message = $result['message'] ?? "Cannot read: {$result['path']}";
+            $this->logger->error($message);
         }
     }
 
@@ -212,6 +214,34 @@ final class Fixer
     private function hash(string $data, $config): string
     {
         return hash('xxh128', $data.$config->fingerprintSeed());
+    }
+
+    /**
+     * Dumps content to a file with a retry mechanism.
+     *
+     * This is particularly useful in parallel execution on Windows, where
+     * transient file locks can cause temporary access denied errors.
+     *
+     * @param string $path The target file path
+     * @param string $content The content to write
+     */
+    private function safeDumpFile(string $path, string $content): void
+    {
+        $maxRetries = 3;
+        $retryDelay = 50000; // 50ms
+
+        for ($i = 0; $i < $maxRetries; $i++) {
+            try {
+                $this->fs->dumpFile($path, $content);
+
+                return;
+            } catch (\Exception $e) {
+                if ($i === $maxRetries - 1) {
+                    throw $e;
+                }
+                usleep($retryDelay);
+            }
+        }
     }
 
     /**

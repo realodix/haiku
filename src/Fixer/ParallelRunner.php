@@ -14,10 +14,10 @@ use React\Socket\SocketServer;
 /**
  * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Fixer
  * @phpstan-type _WorkerPayload array{
- *   path: string,
- *   cachePath: string,
- *   configFile: string,
- *   ignoreCache: bool,
+ *  path: string,
+ *  cachePath: string,
+ *  configFile: string,
+ *  ignoreCache: bool,
  * }
  */
 final class ParallelRunner
@@ -46,7 +46,6 @@ final class ParallelRunner
             return [];
         }
 
-        // 2. Setup Socket Server
         $server = new SocketServer('127.0.0.1:0', [], $this->loop);
         $server->on(
             'connection',
@@ -90,19 +89,30 @@ final class ParallelRunner
                     }
                 });
 
+                // 3. Handle worker disconnection
+                $connection->on('close', function () use (&$pendingFiles, &$processedCount, $fileCount) {
+                    if ($processedCount < $fileCount) {
+                        // This shouldn't normally happen unless a worker crashes.
+                        // If no files are currently being processed (deadlock), stop.
+                        if ($processedCount + count($pendingFiles) === $fileCount) {
+                            $this->loop->stop();
+                        }
+                    }
+                });
+
                 // Send initial task to worker
                 $sendNextTask();
             },
         );
 
-        // 3. Spawn persistent worker processes
+        // 4. Spawn persistent worker processes
         $poolSize = min((new CpuCoreCounter)->getCount(), $fileCount);
         $address = $server->getAddress();
         for ($i = 0; $i < $poolSize; $i++) {
             $this->spawnPersistentWorker($address, $cmdOpt);
         }
 
-        // 4. Start event loop
+        // 5. Start event loop
         $this->loop->run();
 
         return $results;

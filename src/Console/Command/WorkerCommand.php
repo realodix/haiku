@@ -19,6 +19,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Fixer
  * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Fixer\ParallelRunner
  */
 #[AsCommand(
@@ -75,31 +76,43 @@ class WorkerCommand extends Command
 
             $decoder->on('data', function ($data) use ($encoder, $fixer, &$config) {
                 /** @var _WorkerPayload $data */
-                $data = (array) $data;
+                $payload = (array) $data;
 
-                // Lazily initialize config & cache ONCE
-                if ($config === null) {
-                    $cmdOpt = new CommandOptions(
-                        cachePath: $data['cachePath'],
-                        configFile: $data['configFile'],
-                        ignoreCache: $data['ignoreCache'],
-                        path: $data['path'],
-                    );
+                try {
+                    // Lazily initialize config & cache ONCE
+                    if ($config === null) {
+                        $cmdOpt = new CommandOptions(
+                            cachePath: $payload['cachePath'],
+                            configFile: $payload['configFile'],
+                            ignoreCache: $payload['ignoreCache'],
+                            path: $payload['path'],
+                        );
 
-                    $config = app(Config::class)->fixer($cmdOpt);
+                        $config = app(Config::class)->fixer($cmdOpt);
 
-                    // Important: NO pruning in worker
-                    app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
+                        // Important: NO pruning in worker
+                        app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
+                    }
+
+                    $result = $fixer->fixFile($payload['path'], $config);
+
+                    // Send result back to main process
+                    /** @var _FixResult */
+                    $resultData = [
+                        'status' => $result['status'],
+                        'path' => $result['path'],
+                        'hash' => $result['hash'] ?? null,
+                    ];
+                    $encoder->write($resultData);
+                } catch (\Throwable $e) {
+                    /** @var _FixResult */
+                    $resultData = [
+                        'status' => 'error',
+                        'path' => $payload['path'],
+                        'message' => $e->getMessage(),
+                    ];
+                    $encoder->write($resultData);
                 }
-
-                $result = $fixer->fixFile($data['path'], $config);
-
-                // Send plain payload back to main process
-                $encoder->write([
-                    'status' => $result['status'],
-                    'path' => $result['path'],
-                    'hash' => $result['hash'] ?? null,
-                ]);
             });
         });
 
