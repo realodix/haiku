@@ -67,7 +67,7 @@ final class NetOptionTransformer
      */
     private function transformName(string $option): string
     {
-        if ($this->config->getFlag('option_format') === null) {
+        if ($this->config->flags['option_format'] === null) {
             return $option;
         }
 
@@ -78,11 +78,11 @@ final class NetOptionTransformer
         $negated = str_starts_with($rawName, '~');
         $name = $negated ? substr($rawName, 1) : $rawName;
 
-        if ($this->config->getFlag('option_format') === 'long') {
+        if ($this->config->flags['option_format'] === 'long') {
             $name = self::OPTION_CONVERSION[$name] ?? $name;
         }
 
-        if ($this->config->getFlag('option_format') === 'short') {
+        if ($this->config->flags['option_format'] === 'short') {
             static $reverse = null;
 
             if ($reverse === null) {
@@ -107,7 +107,7 @@ final class NetOptionTransformer
      */
     private function migrateDeprecatedOptions(string $option): string
     {
-        if (!$this->config->getFlag('migrate_deprecated_options')) {
+        if (!$this->config->flags['migrate_deprecated_options']) {
             return $option;
         }
 

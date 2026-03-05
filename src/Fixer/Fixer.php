@@ -131,7 +131,7 @@ final class Fixer
      */
     private function handleEmptyLine(int $index, array $lines, array &$section, array &$result): void
     {
-        $mode = $this->config->getFlag('remove_empty_lines');
+        $mode = $this->config->flags['remove_empty_lines'];
 
         if ($mode === true) {
             return;

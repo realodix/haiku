@@ -18,7 +18,7 @@ final class AdgModifierForElement
 
     public function applyFix(string $str): string
     {
-        if (!$this->config->getFlag('adg_non_basic_rule_modifier')) {
+        if (!$this->config->flags['adg_non_basic_rule_modifier']) {
             return $str;
         }
 
@@ -82,7 +82,7 @@ final class AdgModifierForElement
      */
     public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
     {
-        if ((!$this->config->getFlag('adg_non_basic_rule_modifier'))
+        if ((!$this->config->flags['adg_non_basic_rule_modifier'])
             || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
         ) {
             return [];

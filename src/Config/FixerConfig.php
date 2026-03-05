@@ -35,7 +35,7 @@ final class FixerConfig
     public private(set) bool $backup;
 
     /** @var _FixerFlags */
-    private array $flags = [
+    public array $flags = [
         'adg_non_basic_rule_modifier' => false,
         'combine_option_sets' => false,
         'domain_order' => 'negated_first',
@@ -45,7 +45,12 @@ final class FixerConfig
         'reduce_subdomains' => false,
         'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => true,
-    ];
+    ] {
+        /** @param array<string, mixed> $value */
+        set(array $value) {
+            $this->flags = $this->resolveFlags($value);
+        }
+    }
 
     /**
      * Initializes the configuration by merging file-based config and command-line options.
@@ -66,32 +71,9 @@ final class FixerConfig
         );
 
         $this->backup = $config['backup'] ?? false;
-        $this->setFlag($config['flags'] ?? []);
+        $this->flags = $config['flags'] ?? [];
 
         return $this;
-    }
-
-    /**
-     * Updates the fixer flags.
-     *
-     * @param array<string, bool|string> $flags
-     */
-    public function setFlag(array $flags): self
-    {
-        $this->flags = $this->resolveFlags($flags);
-
-        return $this;
-    }
-
-    /**
-     * Retrieves a specific flag value or the entire flags array.
-     *
-     * @param key-of<_FixerFlags>|null $name
-     * @return ($name is string ? value-of<_FixerFlags> : _FixerFlags)
-     */
-    public function getFlag(?string $name = null)
-    {
-        return $name === null ? $this->flags : $this->flags[$name];
     }
 
     /**
@@ -99,7 +81,7 @@ final class FixerConfig
      */
     public function fingerprintSeed(): string
     {
-        $flags = collect($this->getFlag())
+        $flags = collect($this->flags)
             ->reject(static fn($value) => $value === false || $value === null)
             ->sortKeys()->toJson();
 
@@ -117,7 +99,7 @@ final class FixerConfig
     /**
      * Resolves and validates flag overrides.
      *
-     * @param array<string, bool|string> $override
+     * @param array<string, mixed> $override
      * @return _FixerFlags
      */
     private function resolveFlags(array $override): array
