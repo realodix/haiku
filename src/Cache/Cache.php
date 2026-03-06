@@ -52,7 +52,7 @@ final class Cache
             $this->cleanStaleEntries($validKeys);
         }
 
-        if ($pruning && $cmdOpt->ignoreCache && !$this->cacheCleared) {
+        if ($cmdOpt->ignoreCache && !$this->cacheCleared) {
             $this->repository()->clear();
             $this->cacheCleared = true;
         }
