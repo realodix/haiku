@@ -3,10 +3,10 @@
 namespace Realodix\Haiku\Fixer;
 
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Classes\Combiner;
-use Realodix\Haiku\Fixer\Classes\ElementTidy;
-use Realodix\Haiku\Fixer\Classes\NetOptionCombiner;
-use Realodix\Haiku\Fixer\Classes\NetworkTidy;
+use Realodix\Haiku\Fixer\Components\Combiner;
+use Realodix\Haiku\Fixer\Components\ElementTidy;
+use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
+use Realodix\Haiku\Fixer\Components\NetworkTidy;
 use Realodix\Haiku\Helper;
 
 final class Fixer

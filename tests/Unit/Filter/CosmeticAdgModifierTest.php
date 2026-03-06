@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Filter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Classes\AdgModifierForElement;
+use Realodix\Haiku\Fixer\Components\AdgModifierForElement;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Test\TestCase;
 

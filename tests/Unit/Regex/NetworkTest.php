@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Regex;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Classes\NetworkTidy;
+use Realodix\Haiku\Fixer\Components\NetworkTidy;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Test\TestCase;
 

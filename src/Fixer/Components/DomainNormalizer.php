@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Classes;
+namespace Realodix\Haiku\Fixer\Components;
 
 use Illuminate\Support\Arr;
 use Realodix\Haiku\Config\FixerConfig;

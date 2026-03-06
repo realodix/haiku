@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Classes;
+namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
