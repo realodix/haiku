@@ -95,9 +95,8 @@ final class Fixer
 
         // categorize the line as either an element rule or a network filter
         foreach ($section as $rule) {
-            if (preg_match(Regex::COSMETIC_RULE, $rule)) {
-                $cosmetic[] = $rule;
-            } elseif (preg_match(Regex::AG_JS_RULE, $rule)) {
+            if (preg_match(Regex::COSMETIC_RULE, $rule)
+                || preg_match(Regex::AG_JS_RULE, $rule)) {
                 $cosmetic[] = $rule;
             } else {
                 $network[] = $rule;
