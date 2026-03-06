@@ -133,7 +133,7 @@ final class ParallelRunner
     {
         $command = sprintf(
             'php %s worker --socket=%s',
-            escapeshellarg(base_path('haiku')),
+            escapeshellarg(dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'haiku'),
             escapeshellarg($address),
         );
 
