@@ -70,8 +70,8 @@ class GeneralTest extends TestCase
             '     ',
             '##.banner',
             '',
-            '',
-            '! comment',
+            ' ',
+            ' ! comment',
             '##.foo',
         ];
 
