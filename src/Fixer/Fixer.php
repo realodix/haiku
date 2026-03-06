@@ -77,7 +77,10 @@ final class Fixer
     private function flushSection(array &$section, array &$result): void
     {
         if ($section) {
-            $result = array_merge($result, $this->processSection($section));
+            foreach ($this->processSection($section) as $line) {
+                $result[] = $line;
+            }
+
             $section = [];
         }
     }
