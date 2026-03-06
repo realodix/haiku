@@ -78,7 +78,7 @@ final class AdgModifierForElement
     /**
      * Handle complicated AdGuard modifier and re-parse rule.
      *
-     * @return array{0:string,1:string,2:string,3:string}|array{}
+     * @return array<int, string>|array{}
      */
     public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
     {
