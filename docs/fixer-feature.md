@@ -1,6 +1,6 @@
 This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
 
-Some transformations can be enabled or disabled via the `fixer.flags` configuration option.
+Some transformations can be toggled via the `fixer.flags` configuration option.
 
 ```yml
 # Example configuration
@@ -19,19 +19,17 @@ In addition to being preserved, these lines also act as section boundaries. They
 
 ### # Types
 
-The following lines are preserved unchanged and treated as section separators:
+The following lines are treated as immutable section separators:
 
 - Comments (`! comment` or `# comment`)
 - Preprocessor directives (`!#include /includedfile.txt`, `!#if (conditions)` , etc)
 
 ### # Section Boundary Behavior
 
-Rules located on different sides of a preserved line are processed independently.
-
-This means:
-- Rules are not combined across the boundary
-- Sorting restarts after the boundary
-- Each section is optimized in isolation
+Rules located on different sides of a preserved line are processed independently. This ensures that:
+- Rules are not merged across boundaries.
+- Sorting logic restarts after each boundary.
+- Each section is optimized in isolation.
 
 ```adblock
 !## BEFORE
@@ -46,7 +44,7 @@ a.com,b.com##.ads
 c.com##.ads
 ```
 
-In the example above, the comment line (`!`) acts as a hard separator. Although all three rules are compatible, `c.com##.ads` cannot be merged with the rules above because it belongs to a different section.
+In the example above, the comment line (`!`) acts as a hard separator. Even though all three rules are compatible, `c.com##.ads` is not merged because it belongs to a separate section.
 
 ### # Rationale
 
