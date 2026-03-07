@@ -171,11 +171,12 @@ final class Runner
      */
     private function shouldRunParallel($config, $cmdOpt): bool
     {
+        // for internal testing
         if ($cmdOpt->forceParallel) {
             return true;
         }
 
-        if (!$cmdOpt->parallel && !$cmdOpt->ignoreCache) {
+        if (!$cmdOpt->parallel) {
             return false;
         }
 
