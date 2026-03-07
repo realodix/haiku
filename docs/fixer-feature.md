@@ -52,6 +52,60 @@ This behavior preserves:
 - Intentional grouping created by the filter author
 - Safety when comments or directives imply semantic separation
 
+aaaaaaaaaa
+
+## Preserved Lines and Section Boundaries
+
+When processing filter lists, Haiku treats certain lines as **preserved lines**.
+These lines act as **hard boundaries** that divide the file into independent sections.
+
+A preserved line itself is never modified, and it also prevents rules on different
+sides of the line from being combined or reordered together.
+
+### Preserved Line Types
+
+The following lines are treated as preserved lines:
+
+- **Comments**
+  Lines starting with `!` or `#`.
+
+- **Preprocessor directives**
+  For example:
+  - `!#include /includedfile.txt`
+  - `!#if (conditions)`
+  - other `!#` directives.
+
+These lines are kept exactly as they appear in the original file.
+
+### Section Boundaries
+
+Each preserved line defines a **section boundary**.
+Rules located on different sides of a preserved line belong to different sections
+and are processed independently.
+
+Within each section, Haiku may perform optimizations such as:
+
+- Combining compatible rules
+- Sorting domains
+- Normalizing rule structure
+
+However, these optimizations **never cross a preserved line**.
+
+As a result:
+
+- Rules are **not merged across boundaries**
+- Sorting logic **restarts after each boundary**
+- Each section is **optimized in isolation**
+
+### Example
+
+```adblock
+!## BEFORE
+a.com##.ads
+b.com##.ads
+!
+c.com##.ads
+```
 
 ## Sorting & Structural Grouping
 
@@ -66,6 +120,7 @@ Rules are always sorted in the following order:
   ├─ CSS & Extended CSS
   └─ Scriptlet
 ```
+
 
 ```adblock
 !## BEFORE
