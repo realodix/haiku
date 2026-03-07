@@ -41,7 +41,7 @@ final class Runner
         $this->cache->prepareForRun($config->paths, $cmdOpt);
 
         $results = [];
-        if ($this->shouldRunParallel($config, $cmdOpt)) {
+        if ($cmdOpt->parallel) {
             $results = $this->parallel->run($this, $config, $cmdOpt);
         } else {
             foreach ($config->paths as $path) {
@@ -161,48 +161,6 @@ final class Runner
         $fingerprint = $this->hash(Helper::joinLines($content), $config);
 
         return $this->cache->isValid($path, $fingerprint);
-    }
-
-    /**
-     * Determine whether a file should be processed in parallel.
-     *
-     * @param \Realodix\Haiku\Config\FixerConfig $config Fixer configuration
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
-     */
-    private function shouldRunParallel($config, $cmdOpt): bool
-    {
-        // for internal testing
-        if ($cmdOpt->forceParallel) {
-            return true;
-        }
-
-        if (!$cmdOpt->parallel) {
-            return false;
-        }
-
-        $minFiles = 4; // Minimum number of files
-        $minAvgSize = 7 * 1024; // Minimum average file size in KB
-        $paths = $config->paths;
-
-        // Minimum file threshold
-        $fileCount = count($paths);
-        if ($fileCount < $minFiles) {
-            return false;
-        }
-
-        // Calculate average file size (sample up to 20 files)
-        $sampleSize = min(20, $fileCount);
-        $totalSize = 0;
-        for ($i = 0; $i < $sampleSize; $i++) {
-            $size = @filesize($paths[$i]);
-            if ($size !== false) {
-                $totalSize += $size;
-            }
-        }
-
-        $avgSize = $totalSize / $sampleSize;
-
-        return $avgSize >= $minAvgSize;
     }
 
     /**

@@ -24,7 +24,7 @@ class ParallelTest extends TestCase
         $cmdOpt = new CommandOptions(
             cachePath: $this->cacheFile,
             path: $this->tmpDir,
-            forceParallel: true,
+            parallel: true,
         );
 
         $runner->run($cmdOpt);
