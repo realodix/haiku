@@ -20,7 +20,7 @@ class TypoTest extends TestCase
             '||example.com^$domain=a.com|b.com',
             'a.com,b.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -41,7 +41,7 @@ class TypoTest extends TestCase
     #[PHPUnit\Test]
     public function domain_wrong_separator($input, $expected): void
     {
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
     }
 
     public static function domainWrongSeparatorProvider(): array
@@ -95,8 +95,6 @@ class TypoTest extends TestCase
     #[PHPUnit\Test]
     public function domain_value(): void
     {
-        $flags = ['fmode' => true];
-
         $input = [
             '-ads.$domain=example.com',
             '-ads.$domain=.Example.com/',
@@ -108,7 +106,7 @@ class TypoTest extends TestCase
             '-ads.$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->fix($input));
 
         // complex
         $input = [
@@ -119,13 +117,13 @@ class TypoTest extends TestCase
             '/ads.$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->fix($input));
 
         // regex
         $input = [
             '/ads.$domain=/REGEX/',
             '/REGEX/##.ads',
         ];
-        $this->assertSame($input, $this->fix($input, $flags));
+        $this->assertSame($input, $this->fix($input));
     }
 }

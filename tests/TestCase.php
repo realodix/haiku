@@ -40,9 +40,8 @@ abstract class TestCase extends BaseTestCase
 
     protected function fix(array $value, array $flags = []): mixed
     {
-        if ($flags !== []) {
-            app(FixerConfig::class)->flags = $flags;
-        }
+        $flags = array_merge(['fmode' => true], $flags);
+        app(FixerConfig::class)->flags = $flags;
 
         return app(Fixer::class)->fix($value);
     }

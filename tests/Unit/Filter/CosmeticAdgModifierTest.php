@@ -12,8 +12,6 @@ use Realodix\Haiku\Test\TestCase;
  */
 class CosmeticAdgModifierTest extends TestCase
 {
-    const FLAGS = ['fmode' => true];
-
     #[PHPUnit\DataProvider('parseProvider')]
     #[PHPUnit\Test]
     public function parse(
@@ -67,7 +65,7 @@ class CosmeticAdgModifierTest extends TestCase
             '[$app=~org.example.app1|~org.example.app2]example.com##.textad',
             '[$path=/\/(maps|navi|web-maps)/]ya.ru,yandex.*#%#//scriptlet(...)',
         ];
-        $this->assertSame($input, $this->fix($input, self::FLAGS));
+        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -85,7 +83,7 @@ class CosmeticAdgModifierTest extends TestCase
             'example.com#?#div:has(> a[target="_blank"][rel="nofollow"])',
             'example.com##+js(nobab)',
         ];
-        $this->assertSame($expected, $this->fix($input, self::FLAGS));
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -101,7 +99,7 @@ class CosmeticAdgModifierTest extends TestCase
             '[$path=/page.html]example.com,example.org##.textad',
             '[$path=/page.html]example.com,example.org#%#//scriptlet(...)',
         ];
-        $this->assertSame($expected, $this->fix($input, self::FLAGS));
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -115,13 +113,13 @@ class CosmeticAdgModifierTest extends TestCase
             '[$app=com.apple.Safari|test_app,domain=a.com|b.com]##selector',
             '[$domain=a.com|b.com]##selector',
         ];
-        $this->assertSame($expected, $this->fix($input, self::FLAGS));
+        $this->assertSame($expected, $this->fix($input));
 
         // https://github.com/AdguardTeam/AdguardFilters/blob/280282dcf6/TurkishFilter/sections/antiadblock.txt#L159
         $input = [
             '[$domain=/(^\|.+\.)canlitribun\d+\.live/]#%#//scriptlet(\'prevent-xhr\', \'/advert.js\')',
         ];
-        $this->assertSame($input, $this->fix($input, self::FLAGS));
+        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -135,7 +133,7 @@ class CosmeticAdgModifierTest extends TestCase
             '[$app=com.apple.Safari,domain=a.com,path=/page.html,url=||example.com/content/*]##selector',
         ];
 
-        $this->assertSame($expected, $this->fix($input, self::FLAGS));
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -180,13 +178,13 @@ class CosmeticAdgModifierTest extends TestCase
         $input = ['[$app=/[a-z]/]example.org,0.0.0.0##.ads'];
         $this->assertSame(
             ['[$app=/[a-z]/]0.0.0.0,example.org##.ads'],
-            $this->fix($input, self::FLAGS),
+            $this->fix($input),
         );
 
         $input = ['[$app=/^org\.example\.[ab].*/]example.com,~[::]##div[class="ads"]'];
         $this->assertSame(
             ['[$app=/^org\.example\.[ab].*/]~[::],example.com##div[class="ads"]'],
-            $this->fix($input, self::FLAGS),
+            $this->fix($input),
         );
     }
 

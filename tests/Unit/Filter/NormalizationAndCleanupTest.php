@@ -90,13 +90,13 @@ class NormalizationAndCleanupTest extends TestCase
             '*$domain=~example.net|example.*',
             '~example.net,example.*##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
 
         $input = [
             '*$domain=api.example.com|example.*',
             'api.example.com,example.*##.ads',
         ];
-        $this->assertSame($input, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($input, $this->fix($input));
 
         $input = [
             '*$domain=example.com|~example.net',
@@ -109,16 +109,16 @@ class NormalizationAndCleanupTest extends TestCase
             'example.*##.ads',
             '~example.net##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
 
         // The parent domain is the negated domain.
         $input = ['*$domain=example.com|~example.net|~example.*'];
         $expected = ['*$domain=~example.*|~example.net|example.com'];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
 
         // Just in case the user enters invalid input
         $input = ['192.*,192.168.1.1##.ads'];
-        $this->assertSame($input, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($input, $this->fix($input));
     }
 
     #[PHPUnit\Test]
@@ -132,7 +132,7 @@ class NormalizationAndCleanupTest extends TestCase
             '*$domain=~ads.example.co.uk|example.co.uk',
             '~ads.example.com,example.com,example.org##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
 
         $input = [
             '*$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk',
@@ -145,11 +145,11 @@ class NormalizationAndCleanupTest extends TestCase
             'example.com,example.org##.ads',
             '~ads.example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
 
         // The parent domain is the negated domain.
         $input = ['*$domain=~ads.example.co.uk|api.example.co.uk|~example.co.uk'];
         $expected = ['*$domain=~ads.example.co.uk|~example.co.uk|api.example.co.uk'];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
     }
 }

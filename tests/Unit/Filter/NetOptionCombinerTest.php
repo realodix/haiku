@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Filter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
 use Realodix\Haiku\Test\TestCase;
 
@@ -14,7 +15,7 @@ final class NetOptionCombinerTest extends TestCase
     {
         parent::setUp();
         $this->optionCombiner = app(NetOptionCombiner::class);
-        $config = app(\Realodix\Haiku\Config\FixerConfig::class);
+        $config = app(FixerConfig::class);
         $config->flags = ['fmode' => true];
     }
 
@@ -38,7 +39,7 @@ final class NetOptionCombinerTest extends TestCase
             '||example.com/banner/',
             '||example.org/banner/',
         ];
-        $this->assertSame($expected, $this->fix($input, ['fmode' => true]));
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]
