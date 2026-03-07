@@ -84,6 +84,20 @@ class CosmeticTest extends TestCase
                 '.ads',
             ],
             [
+                '/^https?:\/\/[a-z]{8,15}\.com\/[%0-9a-zA-Z]{170,}$/##.ads',
+                '/^https?:\/\/[a-z]{8,15}\.com\/[%0-9a-zA-Z]{170,}$/##.ads',
+                '/^https?:\/\/[a-z]{8,15}\.com\/[%0-9a-zA-Z]{170,}$/',
+                '##',
+                '.ads',
+            ],
+            [
+                '~/^https?:\/\/[a-z]{8,15}\.com\/[%0-9a-zA-Z]{170,}$/##.ads',
+                '~/^https?:\/\/[a-z]{8,15}\.com\/[%0-9a-zA-Z]{170,}$/##.ads',
+                '~/^https?:\/\/[a-z]{8,15}\.com\/[%0-9a-zA-Z]{170,}$/',
+                '##',
+                '.ads',
+            ],
+            [
                 'example.com,~auth.example.com#@#.ads',
                 'example.com,~auth.example.com#@#.ads',
                 'example.com,~auth.example.com',
