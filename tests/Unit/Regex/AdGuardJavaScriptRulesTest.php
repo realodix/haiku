@@ -11,42 +11,6 @@ use Realodix\Haiku\Test\TestCase;
  */
 class AdGuardJavaScriptRulesTest extends TestCase
 {
-    #[PHPUnit\Test]
-    public function isAdGuardJavaScriptRules()
-    {
-        $str = '#%#window.__gaq = undefined;';
-        $this->assertTrue((bool) preg_match(Regex::AG_JS_RULE, $str));
-
-        $str = 'example.com#@%#window.__gaq = undefined;';
-        $this->assertTrue((bool) preg_match(Regex::AG_JS_RULE, $str));
-
-        $str = '#@%#window.__gaq = undefined;';
-        $this->assertTrue((bool) preg_match(Regex::AG_JS_RULE, $str));
-    }
-
-    #[PHPUnit\Test]
-    public function scriptletIsNotJavaScriptRules()
-    {
-        $str = "example.org#%#//scriptlet('abort-on-property-read', 'alert')";
-        $this->assertFalse((bool) preg_match(Regex::AG_JS_RULE, $str));
-
-        $str = "example.org#%#//scriptlet('remove-class', 'branding', 'div[class^=\"inner\"]')";
-        $this->assertFalse((bool) preg_match(Regex::AG_JS_RULE, $str));
-    }
-
-    #[PHPUnit\DataProvider('regexMatchProvider')]
-    #[PHPUnit\Test]
-    public function regex_match(
-        $rule, $expectedMatch, $expectedDomain, $expectedSeparator, $expectedRule,
-    ) {
-        preg_match(Regex::AG_JS_RULE, $rule, $m);
-
-        $this->assertSame($expectedMatch, $m[0], "Full match: $rule");
-        $this->assertSame($expectedDomain, $m[1], "Extracted domain: $rule");
-        $this->assertSame($expectedSeparator, $m[2], "Extracted separator: $rule");
-        $this->assertSame($expectedRule, $m[3], "Extracted rule: $rule");
-    }
-
     public static function regexMatchProvider(): array
     {
         return [

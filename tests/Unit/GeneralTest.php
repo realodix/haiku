@@ -63,6 +63,27 @@ class GeneralTest extends TestCase
         $this->assertSame($expected, $output);
     }
 
+    #[PHPUnit\Test]
+    public function multiple_sections_are_processed_correctly_2()
+    {
+        $input = [
+            'example.*,~/example\.([a-z]{1,2}|[a-z]{4,16})/##body > *',
+            'example.com##ads',
+            '||example.com^',
+            'example.com#@%#ads',
+            '#%#window.__gaq = undefined;',
+        ];
+
+        $expected = [
+            '||example.com^',
+            'example.com##ads',
+            '#%#window.__gaq = undefined;',
+            'example.com#@%#ads',
+            'example.*,~/example\.([a-z]{1,2}|[a-z]{4,16})/##body > *',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
     public function testEmptyLine()
     {
         $input = [

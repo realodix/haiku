@@ -54,6 +54,10 @@ final class Fixer
             // Handle rule lines
             if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
                 $section[] = $this->elementTidy->applyFix($line, $m);
+            }
+            // Fallback if `Regex: COSMETIC_RULE` fails
+            elseif (preg_match(Regex::COSMETIC_RULE_WIDE, $line, $m)) {
+                $section[] = $line;
             } else {
                 $section[] = $this->networkTidy->applyFix($line);
             }
@@ -98,8 +102,7 @@ final class Fixer
 
         // categorize the line as either an element rule or a network filter
         foreach ($section as $rule) {
-            if (preg_match(Regex::COSMETIC_RULE, $rule)
-                || preg_match(Regex::AG_JS_RULE, $rule)) {
+            if (preg_match(Regex::COSMETIC_RULE_WIDE, $rule)) {
                 $cosmetic[] = $rule;
             } else {
                 $network[] = $rule;
