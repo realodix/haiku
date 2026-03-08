@@ -191,24 +191,27 @@ final class NetworkTidy
         }
 
         $hadStar = false;
+        $len = strlen($line);
 
         // Trim leading '*', keep 1 char
         // Example: "*example.com" -> "example.com"
-        while (strlen($line) > 1 && $line[0] === '*') {
+        while ($len > 1 && $line[0] === '*') {
             $line = substr($line, 1);
+            $len--;
             $hadStar = true;
         }
 
         // Trim trailing '*', keep 1 char
         // Example: "example.com*" -> "example.com"
-        while (strlen($line) > 1 && $line[strlen($line) - 1] === '*') {
-            $prevChar = $line[strlen($line) - 2];
+        while ($len > 1 && $line[$len - 1] === '*') {
+            $prevChar = $line[$len - 2];
             // unless preceded by the anchor '|'
             if ($prevChar === '|') {
                 break;
             }
 
             $line = substr($line, 0, -1);
+            $len--;
             $hadStar = true;
         }
 
