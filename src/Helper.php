@@ -64,6 +64,7 @@ final class Helper
         $renames = [
             'xmode'                         => 'fmode',
             'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
+            'migrate_deprecated_options' => 'migrate_deprecated_option',
         ];
 
         foreach ($renames as $old => $new) {

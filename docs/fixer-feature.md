@@ -449,7 +449,7 @@ Normalizes option names to either their long form or short form.
 
 ### # Deprecated Filter Options
 
-`fixer.flags.migrate_deprecated_options`
+`fixer.flags.migrate_deprecated_option`
 
 Converts deprecated filter options to their modern equivalents. This helps maintain filter lists as adblock specifications evolve.
 
