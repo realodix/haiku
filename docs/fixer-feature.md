@@ -334,8 +334,6 @@ example.com,example.org##.ads
 
 ### # Space In Domain List
 
-`fixer.flags.normalize_domains`
-
 Removes unnecessary spaces within domain lists.
 
 ```adblock
