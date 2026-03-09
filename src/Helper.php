@@ -64,6 +64,7 @@ final class Helper
         $renames = [
             'xmode' => 'fmode',
             'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
+            'normalize_domains' => 'normalize_domain',
         ];
 
         foreach ($renames as $old => $new) {
