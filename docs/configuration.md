@@ -71,10 +71,12 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 Creates a backup of each file before applying fixes. Default is `false`.
 
 #### `flags`
-Flags are configuration options that enable or disable specific processing features in the fixer pipeline.
+Flags control how the fixer processes and transforms rules during the fixing pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
 
-- **`fmode`**: Enable all available flags at once. Default is `false`.
-- See [docs/fixer-feature.md](./docs/fixer-feature.md) for a complete list of available flags.
+Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./fixer-feature.md#-filter-option-format)).
+
+- **`fmode`**: Bulk toggle for all boolean flags. Default is `false`.
+- See [docs/fixer-feature.md](./fixer-feature.md) for a complete list of available flags.
 
 
 ## Builder Configuration
@@ -124,4 +126,4 @@ builder:
 ## Real-World Example
 
 For a production configuration example, see
-[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/ca03961fc3/haiku.yml)
+[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/d76cf06307/haiku.yml)

@@ -413,9 +413,9 @@ Normalizes option names to lowercase.
 
 ### # Filter Option Format
 
-`fixer.flags.option_format`
-
 Normalizes option names to either their long form or short form.
+
+**Config**: `fixer.flags.option_format`
 
 **Possible values**:
 - `long`: Convert all options to long form
