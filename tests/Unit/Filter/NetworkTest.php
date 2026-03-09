@@ -373,4 +373,31 @@ class NetworkTest extends TestCase
             ],
         ];
     }
+
+    #[PHPUnit\DataProvider('removeUnnecessaryWildcardProvider')]
+    #[PHPUnit\Test]
+    public function removeUnnecessaryWildcard($actual, $expected): void
+    {
+        $this->assertSame([$expected], $this->fix([$actual]));
+    }
+
+    public static function removeUnnecessaryWildcardProvider(): array
+    {
+        return [
+            ['*example.com*', 'example.com'],
+            ['*example.com^', 'example.com^'],
+            ['*/banner123/*', '/banner123/*'],
+            ['*/banner/*/', '/banner/*/*'],
+
+            // Preserve
+            ['*$domain=github.com', '*$domain=github.com'],
+            ['@@*example.com***', '@@*example.com'],
+            ['/regex/', '/regex/'],
+            ['/banner123/*', '/banner123/*'],
+            ['img.gif|*', 'img.gif|*'],
+
+            // Syntax error, we'll leave it as is
+            ['*', '*'],
+        ];
+    }
 }
