@@ -408,20 +408,6 @@ Normalizes option names to lowercase.
 *$image
 ```
 
-### # Remove Unnecessary Wildcards
-
-`fixer.flags.remove_unnecessary_wildcard`
-
-Removes unnecessary wildcards (`*`).
-
-```adblock
-!## BEFORE
-*/banner123/*
-
-!## AFTER
-/banner123/*
-```
-
 
 ## Migrations
 

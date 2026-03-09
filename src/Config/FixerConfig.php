@@ -18,7 +18,6 @@ use Symfony\Component\Finder\Finder;
  *  reduce_subdomains: bool,
  *  reduce_wildcard_covered_domains: bool,
  *  remove_empty_lines: bool|'keep_before_comment',
- *  remove_unnecessary_wildcard: bool,
  * }
  */
 final class FixerConfig
@@ -46,7 +45,6 @@ final class FixerConfig
         'reduce_subdomains' => false,
         'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => true,
-        'remove_unnecessary_wildcard' => false,
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {

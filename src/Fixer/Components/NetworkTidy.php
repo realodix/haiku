@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
-use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
 
@@ -48,7 +47,6 @@ final class NetworkTidy
     public function __construct(
         private DomainNormalizer $domainNormalizer,
         private NetOptionTransformer $netOptionTransformer,
-        private FixerConfig $config,
     ) {}
 
     /**
@@ -57,10 +55,10 @@ final class NetworkTidy
     public function applyFix(string $line): string
     {
         if (!preg_match(Regex::NET_OPTION, $line, $m)) {
-            return $this->removeUnnecessaryWildcard($line);
+            return $line;
         }
 
-        $filterText = $this->removeUnnecessaryWildcard($m[1]);
+        $filterText = $m[1];
         $optionList = $this->normalizeOption($m[2]);
 
         return $filterText.'$'.implode(',', $optionList);
@@ -174,53 +172,5 @@ final class NetworkTidy
 
         // P2: basic options
         return '3'.$option;
-    }
-
-    /**
-     * Removes unnecessary wildcard characters ('*') from a filter rule.
-     *
-     * @param string $line The filter text.
-     * @return string string The filter text with unnecessary wildcards removed.
-     */
-    private function removeUnnecessaryWildcard(string $line): string
-    {
-        if (!$this->config->flags['remove_unnecessary_wildcard']
-            || !str_contains($line, '*')
-        ) {
-            return $line;
-        }
-
-        $hadStar = false;
-        $len = strlen($line);
-
-        // Trim leading '*', keep 1 char
-        // Example: "*example.com" -> "example.com"
-        while ($len > 1 && $line[0] === '*') {
-            $line = substr($line, 1);
-            $len--;
-            $hadStar = true;
-        }
-
-        // Trim trailing '*', keep 1 char
-        // Example: "example.com*" -> "example.com"
-        while ($len > 1 && $line[$len - 1] === '*') {
-            $prevChar = $line[$len - 2];
-            // unless preceded by the anchor '|'
-            if ($prevChar === '|') {
-                break;
-            }
-
-            $line = substr($line, 0, -1);
-            $len--;
-            $hadStar = true;
-        }
-
-        // If wildcards were removed and the result is a regex pattern /.../,
-        // append a '*' to the end
-        if ($hadStar && str_starts_with($line, '/') && str_ends_with($line, '/')) {
-            $line .= '*';
-        }
-
-        return $line;
     }
 }
