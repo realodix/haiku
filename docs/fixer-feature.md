@@ -348,7 +348,7 @@ example.com,example.org##.ads
 
 ### # Wrong Domain Separator
 
-`fixer.flags.normalize_domains`
+`fixer.flags.normalize_domain_separators`
 
 Corrects incorrect separator usage:
 - `|` is used for network rule domain lists
