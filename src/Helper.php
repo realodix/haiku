@@ -62,7 +62,7 @@ final class Helper
     public static function deprecatedFlags(array $override): array
     {
         $renames = [
-            'xmode'                         => 'fmode',
+            'xmode' => 'fmode',
             'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
             'migrate_deprecated_options' => 'migrate_deprecated_option',
         ];
