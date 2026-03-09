@@ -373,4 +373,39 @@ class NetworkTest extends TestCase
             ],
         ];
     }
+
+    #[PHPUnit\DataProvider('removeUnnecessaryWildcardProvider')]
+    #[PHPUnit\Test]
+    public function removeUnnecessaryWildcard($actual, $expected): void
+    {
+        $this->assertSame([$expected], $this->fix([$actual]));
+    }
+
+    public static function removeUnnecessaryWildcardProvider(): array
+    {
+        return [
+            ['*example.com*', 'example.com'],
+            ['*example.com^', 'example.com^'],
+            ['*/banner123/*', '/banner123/*'],
+            ['*/banner/*/', '/banner/*/*'],
+            ['||example.*$all', '||example.$all'],
+
+            // Preserve
+            ['*$domain=example.com', '*$domain=example.com'],
+            ['@@*xample.com***', '@@*xample.com'],
+            ['/regex/', '/regex/'],
+            ['/banner123/*', '/banner123/*'],
+            ['@@/ads/*', '@@/ads/*'],
+            ['img.gif|*', 'img.gif|*'],
+            // Some people usually add `*` in front to avoid being considered a comment
+            ['*#*/ad/$image,redirect-rule=1x1.gif', '*#*/ad/$image,redirect-rule=1x1.gif'],
+
+            // uBlacklist
+            ['*://*.be/*', '*://*.be/*'],
+            ['@*://*.diplomatie.be/*', '@*://*.diplomatie.be/*'],
+
+            // Syntax error, we'll leave it as is
+            ['*', '*'],
+        ];
+    }
 }
