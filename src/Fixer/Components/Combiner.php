@@ -2,8 +2,6 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
-use Realodix\Haiku\Fixer\ValueObject\DomainSection;
-
 /**
  * Combines adjacent filter rules that are identical except for their domain list.
  */
@@ -32,7 +30,7 @@ final class Combiner
 
             $currentLineParse = $this->parseDomain($currentLine, $domainPattern);
 
-            if ($nextLine === null || $currentLineParse->fullMatch === '') {
+            if ($nextLine === null || $currentLineParse['full_match'] === '') {
                 $combined[] = $currentLine;
 
                 continue;
@@ -42,13 +40,13 @@ final class Combiner
 
             if ($this->canCombine($currentLineParse, $nextLineParse, $separator)) {
                 $newDomain = $this->combineDomains(
-                    $currentLineParse->domainList,
-                    $nextLineParse->domainList,
+                    $currentLineParse['domain'],
+                    $nextLineParse['domain'],
                     $separator,
                 );
 
                 // Replace the domain in `$currentLine` and insert it into `$nextLine`.
-                $newFullMatch = str_replace($currentLineParse->domainList, $newDomain, $currentLineParse->fullMatch);
+                $newFullMatch = str_replace($currentLineParse['domain'], $newDomain, $currentLineParse['full_match']);
                 /** @var array<int, string> $filters */
                 $filters[$i + 1] = preg_replace($domainPattern, $newFullMatch, $currentLine);
             } else {
@@ -79,52 +77,56 @@ final class Combiner
      *
      * @param string $filter Filter rule to parse
      * @param string $domainPattern The regex pattern to extract the domain part
-     * @return \Realodix\Haiku\Fixer\ValueObject\DomainSection Parsed domain components
+     * @return array{
+     *  full_match: string, // The full matched domain part (e.g., $domains=example.com|~example.net)
+     *  domain: string,     // The domain list (e.g., example.com|~example.net)
+     *  pattern: string     // The filter rule without the domain part. (e.g., ||example.com^)
+     * } Parsed domain components
      */
-    private function parseDomain(string $filter, string $domainPattern)
+    private function parseDomain(string $filter, string $domainPattern): array
     {
         if (preg_match($domainPattern, $filter, $matches)) {
-            return new DomainSection(
-                fullMatch: $matches[0],
-                domainList: $matches[1] ?? '',
-                baseRule: preg_replace($domainPattern, '', $filter),
-            );
+            return [
+                'full_match' => $matches[0],
+                'domain' => $matches[1] ?? '',
+                'pattern' => preg_replace($domainPattern, '', $filter),
+            ];
         }
 
-        return new DomainSection('', '', $filter);
+        return ['full_match' => '', 'domain' => '', 'pattern' => $filter];
     }
 
     /**
      * Determines if two filter rules can be combined.
      *
-     * @param \Realodix\Haiku\Fixer\ValueObject\DomainSection $currentLine The analysis of the current filter rule
-     * @param \Realodix\Haiku\Fixer\ValueObject\DomainSection $nextLine The analysis of the next filter rule
+     * @param array{full_match: string, domain: string, pattern: string} $currentLine The analysis of the current filter rule
+     * @param array{full_match: string, domain: string, pattern: string} $nextLine The analysis of the next filter rule
      * @param string $separator Domain separator (`,` or `|`)
      * @return bool True if the rules can be safely combined
      */
-    private function canCombine($currentLine, $nextLine, string $separator): bool
+    private function canCombine(array $currentLine, array $nextLine, string $separator): bool
     {
-        if ($nextLine->fullMatch === '' || $currentLine->domainList === '' || $nextLine->domainList === ''
-            || str_starts_with($currentLine->domainList, '/') || str_starts_with($nextLine->domainList, '/')
+        if ($nextLine['full_match'] === '' || $currentLine['domain'] === '' || $nextLine['domain'] === ''
+            || str_starts_with($currentLine['domain'], '/') || str_starts_with($nextLine['domain'], '/')
         ) {
             return false;
         }
 
         // Check domain structure compatibility
-        $replaced = str_replace($currentLine->domainList, $nextLine->domainList, $currentLine->fullMatch);
-        if ($replaced !== $nextLine->fullMatch) {
+        $replaced = str_replace($currentLine['domain'], $nextLine['domain'], $currentLine['full_match']);
+        if ($replaced !== $nextLine['full_match']) {
             return false;
         }
 
         // Check if the base filter parts (without domains) are identical
-        if ($currentLine->baseRule !== $nextLine->baseRule) {
+        if ($currentLine['pattern'] !== $nextLine['pattern']) {
             return false;
         }
 
         // Both domain parts must share the same polarity:
         // either both maybeMixed (e.g., example.com) or both negated (e.g., ~example.org).
-        $currentType = $this->domainSetType($currentLine->domainList, $separator);
-        $nextType = $this->domainSetType($nextLine->domainList, $separator);
+        $currentType = $this->domainSetType($currentLine['domain'], $separator);
+        $nextType = $this->domainSetType($nextLine['domain'], $separator);
 
         return $currentType === $nextType;
     }
