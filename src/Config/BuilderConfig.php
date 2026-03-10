@@ -8,9 +8,9 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * @phpstan-type _FilterList list<array{
- *  filename: string, header?: string,
- *  source: array<int, string>,
+ *  filename: string,
  *  header?: string,
+ *  source: array<int, string>,
  *  remove_duplicates?: bool,
  * }>
  * @phpstan-type _BuilderConfig array{
