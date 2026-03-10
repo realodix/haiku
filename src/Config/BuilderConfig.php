@@ -2,12 +2,17 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\Config\ValueObject\FilterSet;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * @phpstan-type _FilterList list<array{
+ * @phpstan-type _FilterSet array{
+ *  output_path: string,
+ *  header: string,
+ *  source: array<int, string>,
+ *  remove_duplicates: bool,
+ * }
+ * @phpstan-type _FilterSetInput list<array{
  *  filename: string,
  *  header?: string,
  *  source: array<int, string>,
@@ -15,12 +20,12 @@ use Symfony\Component\Filesystem\Path;
  * }>
  * @phpstan-type _BuilderConfig array{
  *  output_dir?: string,
- *  filter_list: _FilterList,
+ *  filter_list: _FilterSetInput,
  * }
  */
 final class BuilderConfig
 {
-    /** @var list<FilterSet> */
+    /** @var list<_FilterSet> */
     public private(set) array $filterSet;
 
     private string $outputDir;
@@ -78,19 +83,19 @@ final class BuilderConfig
     /**
      * Resolves the filter list configuration for each filter list.
      *
-     * @param _FilterList $filterLists
-     * @return list<FilterSet>
+     * @param _FilterSetInput $filterLists
+     * @return list<_FilterSet>
      */
     private function filterSets(array $filterLists): array
     {
         $filters = [];
         foreach ($filterLists as $list) {
-            $filters[] = new FilterSet(
-                outputPath: Path::join($this->outputDir, $list['filename']),
-                header: $list['header'] ?? '',
-                source: $list['source'],
-                unique: $list['remove_duplicates'] ?? false,
-            );
+            $filters[] = [
+                'output_path' => Path::join($this->outputDir, $list['filename']),
+                'header' => $list['header'] ?? '',
+                'source' => $list['source'],
+                'remove_duplicates' => $list['remove_duplicates'] ?? false,
+            ];
         }
 
         return $filters;

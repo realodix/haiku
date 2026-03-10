@@ -10,6 +10,9 @@ use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @phpstan-import-type _FilterSet from \Realodix\Haiku\Config\BuilderConfig
+ */
 final class Builder
 {
     public function __construct(
@@ -29,7 +32,7 @@ final class Builder
         $filterSets = $this->config->builder($cmdOpt)->filterSet;
         $this->cache->prepareForRun(
             // builder.filter_list.filename
-            array_map(fn($filterSet) => $filterSet->outputPath, $filterSets),
+            array_map(fn($filterSet) => $filterSet['output_path'], $filterSets),
             $cmdOpt,
             Section::B,
         );
@@ -44,15 +47,15 @@ final class Builder
     /**
      * Builds a single filter list.
      *
-     * @param \Realodix\Haiku\Config\ValueObject\FilterSet $filterSet
+     * @param _FilterSet $filterSet
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
-    private function buildFilterList($filterSet, $cmdOpt): void
+    private function buildFilterList(array $filterSet, $cmdOpt): void
     {
         // Step 1: Read all source files or URLs
-        $outputPath = $filterSet->outputPath;
-        $header = $filterSet->header;
-        $rawContent = $this->read($filterSet->source);
+        $outputPath = $filterSet['output_path'];
+        $header = $filterSet['header'];
+        $rawContent = $this->read($filterSet['source']);
 
         if ($rawContent === null) {
             $this->logger->skipped($outputPath);
@@ -61,7 +64,7 @@ final class Builder
         }
 
         // Step 2: Preparing content
-        $content = Cleaner::clean($rawContent, $filterSet->unique);
+        $content = Cleaner::clean($rawContent, $filterSet['remove_duplicates']);
         $fingerprint = $this->sourceHash($content, [$header]);
 
         if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $fingerprint)) {
