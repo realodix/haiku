@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Path;
  *  source: array<int, string>,
  *  remove_duplicates?: bool,
  * }>
- * @phpstan-type _BuilderConfig array{
+ * @phpstan-type _BuilderConfigInput array{
  *  output_dir?: string,
  *  filter_list: _FilterSetInput,
  * }
@@ -35,7 +35,7 @@ final class BuilderConfig
     ) {}
 
     /**
-     * @param _BuilderConfig $config
+     * @param _BuilderConfigInput $config
      */
     public function make(array $config): self
     {
@@ -102,7 +102,7 @@ final class BuilderConfig
     }
 
     /**
-     * @param _BuilderConfig $config
+     * @param _BuilderConfigInput $config
      */
     private function validate(array $config): void
     {
