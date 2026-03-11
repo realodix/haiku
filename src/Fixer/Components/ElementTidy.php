@@ -2,8 +2,6 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
-use Realodix\Haiku\Fixer\Regex;
-
 final class ElementTidy
 {
     public function __construct(
