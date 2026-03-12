@@ -16,6 +16,12 @@
             "problemMatcher": []
         },
         {
+            "label": "[Tests] PHPBench",
+            "type": "shell",
+            "command": "./vendor/bin/phpbench run",
+            "problemMatcher": []
+        },
+        {
             "label": "[CS] PHP CS Fixer",
             "type": "shell",
             "command": "./vendor/bin/php-cs-fixer fix -v",

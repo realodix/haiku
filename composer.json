@@ -23,6 +23,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.6",
+        "phpbench/phpbench": "^1.5",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^13.0",
         "realodix/relax": "^1.20"
@@ -62,6 +63,7 @@
         ],
         "cs": "./vendor/bin/php-cs-fixer fix -v",
         "sa": "./vendor/bin/phpstan analyse",
-        "test": "./vendor/bin/phpunit"
+        "test": "./vendor/bin/phpunit",
+        "bench": "./vendor/bin/phpbench run --report=default"
     }
 }
