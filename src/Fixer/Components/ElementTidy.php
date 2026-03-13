@@ -40,8 +40,7 @@ final class ElementTidy
 
     private function normalizeSelector(string $str): string
     {
-        // Remove leading spaces
-        $str = ltrim($str);
+        $str = ltrim($str); // Remove leading spaces
 
         return $str;
     }
