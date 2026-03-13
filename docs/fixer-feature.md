@@ -384,7 +384,7 @@ example.org##.ads2
 
 ### # Lowercase Domain
 
-Normalizes domain names to lowercase.
+Domain names must be in lowercase.
 
 ```adblock
 !## BEFORE
@@ -396,7 +396,7 @@ example.com##.ad
 
 ### # Lowercase Option Name
 
-Normalizes option names to lowercase.
+Option names must be in lowercase.
 
 ```adblock
 !## BEFORE
@@ -421,7 +421,7 @@ Removes unnecessary wildcards (`*`).
 ```
 
 
-## Migrations
+## Conversions
 
 ### # Filter Option Format
 
