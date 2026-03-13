@@ -3,9 +3,7 @@
 namespace Realodix\Haiku\Test\Bench;
 
 use PhpBench\Attributes as Bench;
-use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Console\Command\FixCommand;
-use Realodix\Haiku\Fixer\Fixer;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -13,12 +11,9 @@ use Symfony\Component\Filesystem\Path;
 
 #[Bench\BeforeMethods('setUp')]
 #[Bench\AfterMethods('tearDown')]
-class GeneralBench
+class FixFileBench
 {
-    private Fixer $fixer;
-
     private array $input;
-
     private Filesystem $fs;
 
     private string $tmpDir;
@@ -33,9 +28,6 @@ class GeneralBench
             $this->fs->mkdir($this->tmpDir);
         }
 
-        app()->instance(FixerConfig::class, new FixerConfig);
-        $this->fixer = app(Fixer::class);
-
         $this->inputFile = base_path('tests/Bench/storage/filter.txt');
         $this->input = file($this->inputFile, FILE_IGNORE_NEW_LINES);
 
@@ -47,27 +39,12 @@ class GeneralBench
     }
 
     /**
-     * Benchmark the core fix() method.
-     */
-    #[Bench\Revs(50)]
-    #[Bench\Iterations(5)]
-    public function benchFixMethod(): void
-    {
-        app(FixerConfig::class)->flags = [
-            'fmode' => true,
-            'domain_order' => 'negated_first',
-            'option_format' => 'long',
-        ];
-
-        $this->fixer->fix($this->input);
-    }
-
-    /**
      * Benchmark the full fix command (file I/O, app overhead).
      */
-    #[Bench\Revs(10)]
+    #[Bench\Revs(1)]
     #[Bench\Iterations(5)]
-    #[Bench\RetryThreshold(5.0)]
+    #[Bench\Warmup(1)]
+    #[Bench\RetryThreshold(10.0)]
     public function benchComparesFilesFull(): void
     {
         $processingFile = Path::join($this->tmpDir, 'bench_general_actual.txt');

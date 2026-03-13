@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<phpbench xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5.1">
+  <suite tag="" context="" date="2026-03-13T17:58:22+00:00" config-path="G:\laragon\www\_PHP-Package\haiku/phpbench.json" uuid="13525d9207ddb665d21c6877a829a3931aba0336">
+    <env>
+      <uname>
+        <value name="os" type="string">Windows NT</value>
+        <value name="host" type="string">DESKTOP-UOQUGD8</value>
+        <value name="release" type="string">10.0</value>
+        <value name="version" type="string">build 19045 (Windows 10)</value>
+        <value name="machine" type="string">AMD64</value>
+      </uname>
+      <php>
+        <value name="xdebug" type="boolean">1</value>
+        <value name="version" type="string">8.4.14</value>
+        <value name="ini" type="string">G:\laragon\bin\php\php-8.4.14-vs17\php.ini</value>
+        <value name="extensions" type="string">Core, bcmath, calendar, ctype, date, hash, iconv, json, pcre, random, readline, Reflection, SPL, session, tokenizer, zlib, libxml, dom, filter, standard, PDO, openssl, mysqlnd, SimpleXML, xml, xmlreader, xmlwriter, curl, fileinfo, gd, gmp, intl, mbstring, exif, mysqli, Phar, pdo_mysql, pdo_sqlite, sockets, sodium, sqlite3, xsl, zip, Zend OPcache, xdebug</value>
+      </php>
+      <opcache>
+        <value name="extension_loaded" type="boolean">1</value>
+        <value name="enabled" type="boolean"></value>
+      </opcache>
+      <vcs>
+        <value name="system" type="string">git</value>
+        <value name="branch" type="string">Bench-baseline</value>
+        <value name="version" type="string">c594eb496de5678d70daf45e8cfe6cf2e4056969</value>
+      </vcs>
+      <sampler>
+        <value name="nothing" type="double">0.13208389282227</value>
+        <value name="md5" type="double">0.5950927734375</value>
+        <value name="file_rw" type="double">19.795894622803</value>
+      </sampler>
+    </env>
+    <benchmark class="\Realodix\Haiku\Test\Bench\FixBench">
+      <subject name="benchFixMethod">
+        <executor name="remote">
+          <parameter name="php_config" type="collection"/>
+          <parameter name="safe_parameters" value="1" type="boolean"/>
+          <parameter name="executor" value="remote" type="string"/>
+        </executor>
+        <variant sleep="0" output-time-unit="milliseconds" output-time-precision="" output-mode="time" revs="1000" warmup="1" retry-threshold="">
+          <parameter-set name=""/>
+          <iteration time-net="2597388" time-revs="1000" time-avg="2597.388" mem-peak="6590664" mem-real="8388608" mem-final="6458904" comp-z-value="1.7641613752857" comp-deviation="1.233484296928"/>
+          <iteration time-net="2566262" time-revs="1000" time-avg="2566.262" mem-peak="6590664" mem-real="8388608" mem-final="6458904" comp-z-value="0.029097959994281" comp-deviation="0.020345007678094"/>
+          <iteration time-net="2567836" time-revs="1000" time-avg="2567.836" mem-peak="6590664" mem-real="8388608" mem-final="6458904" comp-z-value="0.11683778572415" comp-deviation="0.081691831596325"/>
+          <iteration time-net="2545799" time-revs="1000" time-avg="2545.799" mem-peak="6590664" mem-real="8388608" mem-final="6458904" comp-z-value="-1.1115755177127" comp-deviation="-0.7772026783696"/>
+          <iteration time-net="2551415" time-revs="1000" time-avg="2551.415" mem-peak="6590664" mem-real="8388608" mem-final="6458904" comp-z-value="-0.79852160329145" comp-deviation="-0.55831845783284"/>
+          <stats max="2597.388" mean="2565.74" min="2545.799" mode="2558.7214892368" rstdev="0.69919017285379" stdev="17.939401940979" sum="12828.7" variance="321.822142"/>
+        </variant>
+      </subject>
+    </benchmark>
+    <result key="time" class="PhpBench\Model\Result\TimeResult"/>
+    <result key="mem" class="PhpBench\Model\Result\MemoryResult"/>
+    <result key="comp" class="PhpBench\Model\Result\ComputedResult"/>
+    <benchmark class="\Realodix\Haiku\Test\Bench\FixFileBench">
+      <subject name="benchComparesFilesFull">
+        <executor name="remote">
+          <parameter name="php_config" type="collection"/>
+          <parameter name="safe_parameters" value="1" type="boolean"/>
+          <parameter name="executor" value="remote" type="string"/>
+        </executor>
+        <variant sleep="0" output-time-unit="milliseconds" output-time-precision="" output-mode="time" revs="1" warmup="1" retry-threshold="10">
+          <parameter-set name=""/>
+          <iteration time-net="10361" time-revs="1" time-avg="10361" mem-peak="9844456" mem-real="10485760" mem-final="9801760" comp-z-value="0.30564604498466" comp-deviation="0.87036099536586"/>
+          <iteration time-net="10571" time-revs="1" time-avg="10571" mem-peak="9844456" mem-real="10485760" mem-final="9801760" comp-z-value="1.0236065533379" comp-deviation="2.9148331321313"/>
+          <iteration time-net="10334" time-revs="1" time-avg="10334" mem-peak="9844456" mem-real="10485760" mem-final="9801760" comp-z-value="0.21333683676782" comp-deviation="0.60750029206744"/>
+          <iteration time-net="10381" time-revs="1" time-avg="10381" mem-peak="9844456" mem-real="10485760" mem-final="9801760" comp-z-value="0.3740232362564" comp-deviation="1.0650726274388"/>
+          <iteration time-net="9711" time-revs="1" time-avg="9711" mem-peak="9844456" mem-real="10485760" mem-final="9801760" comp-z-value="-1.9166126713468" comp-deviation="-5.4577670470034"/>
+          <stats max="10571" mean="10271.6" min="9711" mode="10401.019569471" rstdev="2.8476108546064" stdev="292.49519654176" sum="51358" variance="85553.44"/>
+        </variant>
+      </subject>
+    </benchmark>
+  </suite>
+</phpbench>

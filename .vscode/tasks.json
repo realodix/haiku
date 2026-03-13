@@ -18,7 +18,13 @@
         {
             "label": "[Tests] PHPBench",
             "type": "shell",
-            "command": "./vendor/bin/phpbench run",
+            "command": "./vendor/bin/phpbench run --file=tests/bench/storage/baseline.xml --report=aggregate",
+            "problemMatcher": []
+        },
+        {
+            "label": "[Tests] PHPBench: Create baseline",
+            "type": "shell",
+            "command": "./vendor/bin/phpbench run --dump-file=tests/bench/storage/baseline.xml",
             "problemMatcher": []
         },
         {
