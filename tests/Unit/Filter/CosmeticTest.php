@@ -242,6 +242,45 @@ class CosmeticTest extends TestCase
         $this->assertSame($input, $this->fix($input));
     }
 
+    #[PHPUnit\Test]
+    public function convertExactAttributeSelector(): void
+    {
+        $flags = ['exact_attr_to_css_selector' => true];
+
+        $input = [
+            '##[id="adsId"] div[class="ads-Class"]',
+            '##div[id="adsId"] + div[class="ads_Class"]',
+            '##div[id="adsId"][class="adsClass"]',
+            '!',
+            'example.com##[id="adsId"] div[class="adsClass"]',
+            'example.com##div[id="adsId"] + div[class="adsClass"]',
+            'example.com##div[id="adsId"][class="adsClass"]',
+        ];
+        $expected = [
+            '###adsId div.ads-Class',
+            '##div#adsId + div.ads_Class',
+            '##div#adsId.adsClass',
+            '!',
+            'example.com###adsId div.adsClass',
+            'example.com##div#adsId + div.adsClass',
+            'example.com##div#adsId.adsClass',
+        ];
+        $this->assertSame($expected, $this->fix($input, $flags));
+
+        // partially converted
+        $input = ['##div[id*="teaser"] div[class="adsClass"]'];
+        $expected = ['##div[id*="teaser"] div.adsClass'];
+        $this->assertSame($expected, $this->fix($input, $flags));
+
+        // not converted
+        $input = [
+            '##div[id="teaser 1"]',
+            '##div[id="teaser" i]',
+            '##div[id^="teaser"]',
+        ];
+        $this->assertSame($input, $this->fix($input, $flags));
+    }
+
     // ========================================================================
     // Scriptlet Tests (`elementtidy`)
     // ========================================================================

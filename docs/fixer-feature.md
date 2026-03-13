@@ -423,6 +423,22 @@ Removes unnecessary wildcards (`*`).
 
 ## Conversions
 
+### # Exact Attribute to CSS Selector
+
+`fixer.flags.exact_attr_to_css_selector`
+
+Converts exact `id` and `class` attribute selectors into their equivalent CSS selector forms.
+
+Only selectors with an exact match (`=`) are converted. Other attribute operators such as `^=`, `$=`, or `*=` are not modified.
+
+```adblock
+!## BEFORE
+example.com##[id="adsId"] div[class="adsClass"]
+
+!## AFTER
+example.com###adsId div.adsClass
+```
+
 ### # Filter Option Format
 
 Normalizes option names to either their long form or short form.
