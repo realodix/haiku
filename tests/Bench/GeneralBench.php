@@ -11,9 +11,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-
 #[Bench\BeforeMethods('setUp')]
-#[Bench\AfterMethods("tearDown")]
+#[Bench\AfterMethods('tearDown')]
 class GeneralBench
 {
     private Fixer $fixer;
