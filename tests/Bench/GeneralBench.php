@@ -53,6 +53,12 @@ class GeneralBench
     #[Bench\Iterations(5)]
     public function benchFixMethod(): void
     {
+        app(FixerConfig::class)->flags = [
+            'fmode' => true,
+            'domain_order' => 'negated_first',
+            'option_format' => 'long',
+        ];
+
         $this->fixer->fix($this->input);
     }
 
