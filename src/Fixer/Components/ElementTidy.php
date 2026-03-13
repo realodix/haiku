@@ -67,7 +67,7 @@ final class ElementTidy
 
         $selector = preg_replace_callback(
             // https://regex101.com/r/aKP06x
-            '/\[(class|id)="([^"\s]+)"\]/',
+            '/\[(class|id)="([\w-]+)"\]/',
             function ($m) {
                 [$full, $attr, $value] = $m;
 

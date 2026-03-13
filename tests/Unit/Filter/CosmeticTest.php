@@ -277,6 +277,10 @@ class CosmeticTest extends TestCase
             '##div[id="teaser 1"]',
             '##div[id="teaser" i]',
             '##div[id^="teaser"]',
+            '!',
+            // tailwind css
+            '##div[class="print:hidden"]',
+            '##div[class="xl:max-w-[850px]"]',
         ];
         $this->assertSame($input, $this->fix($input, $flags));
     }
