@@ -8,57 +8,6 @@ use Realodix\Haiku\Test\TestCase;
 class CosmeticTest extends TestCase
 {
     // ========================================================================
-    // General & File Structure Tests
-    // ========================================================================
-
-    #[PHPUnit\DataProvider('removeExtraSpacesProvider')]
-    #[PHPUnit\Test]
-    public function removeExtraSpaces($actual, $expected): void
-    {
-        $this->assertSame([$expected], $this->fix([$actual]));
-    }
-
-    public static function removeExtraSpacesProvider(): array
-    {
-        return [
-            // remove trailing spaces
-            [
-                'example.com## .ads',
-                'example.com##.ads',
-            ],
-            [
-                'example.com##^ ads',
-                'example.com##^ads',
-            ],
-            [
-                'example.com$$ ads',
-                'example.com$$ads',
-            ],
-            // this will be considered a comment
-            [
-                '## ads',
-                '## ads',
-            ],
-            [
-                '## .ads',
-                '## .ads',
-            ],
-            [
-                '## #ads',
-                '## #ads',
-            ],
-
-            // In the future, if the removal of extra spaces is implemented,
-            // this test should not fail.
-            // remove extra spaces
-            [
-                'example.com##[class="ads   ads-header"]',
-                'example.com##[class="ads   ads-header"]',
-            ],
-        ];
-    }
-
-    // ========================================================================
     // Element Hiding Tests (`elementtidy`)
     // ========================================================================
 
@@ -242,8 +191,59 @@ class CosmeticTest extends TestCase
         $this->assertSame($input, $this->fix($input));
     }
 
+    // ========================================================================
+    // Selector Normalization
+    // ========================================================================
+
+    #[PHPUnit\DataProvider('selector_removeleadingSpasesProvider')]
     #[PHPUnit\Test]
-    public function convertExactAttributeSelector(): void
+    public function selector_removeleadingSpases($actual, $expected): void
+    {
+        $this->assertSame([$expected], $this->fix([$actual]));
+    }
+
+    public static function selector_removeleadingSpasesProvider(): array
+    {
+        return [
+            // remove trailing spaces
+            [
+                'example.com## .ads',
+                'example.com##.ads',
+            ],
+            [
+                'example.com##^ ads',
+                'example.com##^ads',
+            ],
+            [
+                'example.com$$ ads',
+                'example.com$$ads',
+            ],
+            // this will be considered a comment
+            [
+                '## ads',
+                '## ads',
+            ],
+            [
+                '## .ads',
+                '## .ads',
+            ],
+            [
+                '## #ads',
+                '## #ads',
+            ],
+
+            // In the future, if the removal of extra spaces is implemented,
+            // this test should not fail.
+            // remove extra spaces
+            [
+                'example.com##[class="ads   ads-header"]',
+                'example.com##[class="ads   ads-header"]',
+            ],
+        ];
+    }
+
+    #[PHPUnit\Test]
+    public function selector_convertExactAttributeSelector(): void
     {
         $flags = ['exact_attr_to_css_selector' => true];
 
