@@ -65,18 +65,23 @@ final class ElementTidy
             return $selector;
         }
 
-        return preg_replace_callback(
-            '/\[class="([^"\s]+)"\]/',
+        $selector = preg_replace_callback(
+            // https://regex101.com/r/aKP06x
+            '/\[(class|id)="([^"\s]+)"\]/',
             function ($m) {
-                // Pastikan benar-benar hanya [class="ads"]
-                // tanpa modifier, tanpa spasi, tanpa operator (^, *, $)
-                if ($m[0] === '[class="'.$m[1].'"]') {
-                    return '.'.$m[1];
+                [$full, $attr, $value] = $m;
+
+                // Ensure strict [attr="value"] form only
+                // no operators, modifiers, or spaces
+                if ($full !== '['.$attr.'="'.$value.'"]') {
+                    return $full;
                 }
 
-                return $m[0];
+                return ($attr === 'class' ? '.' : '#').$value;
             },
             $selector,
         );
+
+        return $selector;
     }
 }
