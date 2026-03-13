@@ -29,7 +29,7 @@ class CommandTest extends TestCase
     public function fixer_custom_config_not_found(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The configuration file does not exist.');
+        $this->expectExceptionMessage('Cannot read config file "notfound.yml".');
 
         $this->runFixCommand(['--config' => 'notfound.yml']);
     }

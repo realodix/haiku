@@ -38,8 +38,9 @@ class FixCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($input->getOption('config') && !file_exists($input->getOption('config'))) {
-            throw new InvalidConfigurationException('The configuration file does not exist.');
+        $iConfig = $input->getOption('config');
+        if ($iConfig && !file_exists($iConfig)) {
+            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
         }
 
         // @deprecated
