@@ -272,15 +272,26 @@ class CosmeticTest extends TestCase
         $expected = ['##div[id*="teaser"] div.adsClass'];
         $this->assertSame($expected, $this->fix($input, $flags));
 
+        // special case
+        $input = [
+            '##div[class="xl:max-w-[850px]"]',
+            '!', '##div[class="aspect-3/2"]',
+            '!', '##div[id="aspect-[calc(4*3+1)/3]"]',
+            '!', '##div[id="will-change-[top,left]"]',
+        ];
+        $expected = [
+            '##div.xl\:max-w-\[850px\]',
+            '!', '##div.aspect-3\/2',
+            '!', '##div#aspect-\[calc\(4\*3\+1\)\/3\]',
+            '!', '##div#will-change-\[top\,left\]',
+        ];
+        $this->assertSame($expected, $this->fix($input, $flags));
+
         // not converted
         $input = [
             '##div[id="teaser 1"]',
             '##div[id="teaser" i]',
             '##div[id^="teaser"]',
-            '!',
-            // tailwind css
-            '##div[class="print:hidden"]',
-            '##div[class="xl:max-w-[850px]"]',
         ];
         $this->assertSame($input, $this->fix($input, $flags));
     }

@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Helper;
 
 final class ElementTidy
 {
@@ -67,7 +68,7 @@ final class ElementTidy
 
         $selector = preg_replace_callback(
             // https://regex101.com/r/aKP06x
-            '/\[(class|id)="([\w-]+)"\]/',
+            '/\[(class|id)="([\x{0021}\x{0023}-\x{007E}]+)"\]/',
             function ($m) {
                 [$full, $attr, $value] = $m;
 
@@ -76,6 +77,8 @@ final class ElementTidy
                 if ($full !== '['.$attr.'="'.$value.'"]') {
                     return $full;
                 }
+
+                $value = Helper::cssEscape($value);
 
                 return ($attr === 'class' ? '.' : '#').$value;
             },
