@@ -14,6 +14,7 @@ use Symfony\Component\Filesystem\Path;
 class FixFileBench
 {
     private array $input;
+
     private Filesystem $fs;
 
     private string $tmpDir;
