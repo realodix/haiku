@@ -13,8 +13,6 @@ use Symfony\Component\Filesystem\Path;
 #[Bench\AfterMethods('tearDown')]
 class FixFileBench
 {
-    private array $input;
-
     private Filesystem $fs;
 
     private string $tmpDir;
@@ -30,7 +28,6 @@ class FixFileBench
         }
 
         $this->inputFile = base_path('tests/Bench/storage/filter.txt');
-        $this->input = file($this->inputFile, FILE_IGNORE_NEW_LINES);
 
         // Silent output for command
         app()->singleton(
