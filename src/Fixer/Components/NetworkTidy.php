@@ -18,8 +18,8 @@ final class NetworkTidy
         'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason',
         'redirect-rule', 'redirect', 'replace', 'rewrite', 'to', 'urlskip', 'urltransform', 'uritransform',
         // basic
-        'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font',
-        'inline-script', 'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
+        'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font', 'inline-script',
+        'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
         '1p', 'first-party', 'strict1p', 'strict-first-party', '3p', 'third-party', 'strict3p', 'strict-third-party',
         'css', 'stylesheet', 'doc', 'document', 'ehide', 'elemhide', 'frame', 'subdocument', 'ghide', 'generichide',
         'object', 'ping', 'beacon', 'removeparam', 'shide', 'specifichide',
