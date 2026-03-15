@@ -38,12 +38,17 @@ abstract class TestCase extends BaseTestCase
         app()->instance(FixerConfig::class, new FixerConfig);
     }
 
-    protected function fix(array $value, array $flags = []): mixed
+    private function applyFlags(array $flags = [])
     {
         app(FixerConfig::class)->flags = array_merge([
             'fmode' => true,
             'exact_attr_to_css_selector' => false,
         ], $flags);
+    }
+
+    protected function fix(array $value, array $flags = []): mixed
+    {
+        $this->applyFlags($flags);
 
         return app(Fixer::class)->fix($value);
     }
@@ -67,6 +72,8 @@ abstract class TestCase extends BaseTestCase
         $application->addCommand(app(FixCommand::class));
         $command = $application->find('fix');
         $commandTester = new CommandTester($command);
+
+        $this->applyFlags();
 
         $commandTester->execute(array_merge([
             '--cache' => isset($options['--cache']) ? $options['--cache'] : $this->cacheFile,
