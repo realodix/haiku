@@ -127,23 +127,26 @@ a.com,~b.com,c.com,~d.com##.ads
 
 ## Network Option Ordering
 
-Options are not sorted purely alphabetically. Instead, they are grouped by semantic role and emitted in fixed positions to ensure consistent, readable and visually predictable output.
+Sort network options using configured order.
 
-Ordering rules:
-1. `badfilter`, `important`, `match-case`
-2. **Party modifiers**: (`strict-first-party`, `1p`, `3p`, ...)
-3. **Type modifiers**: (`script`, `image`, `css`, ...), sorted alphabetically
-4. **Key-value modifiers**: (`domain=`, `denyallow=`, `from=`, ...)
-5. `reason=`, always placed last
+**Config**: `fixer.flags.option_order`, default: `by_type`
+
+**Possible values**:
+- `by_name`: Sort options alphabetically by name.
+- `by_type`: Options are grouped by type. The group order is fixed, and options inside each group are sorted alphabetically.
 
 ```adblock
 !## BEFORE
-*$image,script,css,badfilter
--ads-$domain=~example.com,~image,third-party,xmlhttprequest
+*$image,script,css,badfilter,domain=example.com
+-ads-$domain=~example.com,~image,third-party,xmlhttprequest,reason=disreputable
 
-!## AFTER
-*$badfilter,css,image,script
--ads-$third-party,~image,xmlhttprequest,domain=~example.com
+!## AFTER - by_name
+*$badfilter,css,domain=example.com,image,script
+-ads-$domain=~example.com,~image,reason=disreputable,third-party,xmlhttprequest
+
+!## AFTER - by_type
+*$badfilter,css,image,script,domain=example.com
+-ads-$third-party,~image,xmlhttprequest,domain=~example.com,reason=disreputable
 ```
 
 
