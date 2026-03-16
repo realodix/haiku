@@ -56,8 +56,6 @@ final class BuilderConfig
      * - If no "output_dir" is provided, the project base path will be used.
      *
      * @param string|null $dir The output directory
-     *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
      */
     private function outputDir(?string $dir): string
     {

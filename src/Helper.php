@@ -56,28 +56,6 @@ final class Helper
     }
 
     /**
-     * @param array<string, bool|string> $override
-     * @return array<string, bool|string>
-     */
-    public static function deprecatedFlags(array $override): array
-    {
-        $renames = [
-            'xmode' => 'fmode',
-            'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
-            'normalize_domains' => 'normalize_domain',
-        ];
-
-        foreach ($renames as $old => $new) {
-            if (array_key_exists($old, $override)) {
-                $override[$new] = $override[$old];
-                unset($override[$old]);
-            }
-        }
-
-        return $override;
-    }
-
-    /**
      * Escapes a string of characters according to the CSS escape rules.
      *
      * https://github.com/tailwindlabs/tailwindcss/blob/a4be98386/packages/tailwindcss/src/utils/escape.ts
@@ -93,7 +71,7 @@ final class Helper
         $firstCodeUnit = $length > 0 ? ord($str[0]) : null;
 
         // If the character is the first character and is a `-` (U+002D), and
-        // there is no second character, […]
+        // there is no second character.
         if ($length === 1 && $firstCodeUnit === 0x002D) {
             return '\\'.$str;
         }

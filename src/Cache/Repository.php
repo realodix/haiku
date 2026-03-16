@@ -76,8 +76,6 @@ final class Repository
 
     /**
      * Persists the in-memory storage to disk.
-     *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
      */
     public function save(): void
     {

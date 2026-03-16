@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Config;
 
 use Realodix\Haiku\App;
-use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
@@ -111,7 +110,7 @@ final class FixerConfig
     private function resolveFlags(array $override): array
     {
         $flags = $this->flags;
-        $override = Helper::deprecatedFlags($override);
+        $override = $this->deprecatedFlags($override);
 
         // 'fmode' acts as a bulk toggle for all boolean flags
         if (array_key_exists('fmode', $override)) {
@@ -191,5 +190,32 @@ final class FixerConfig
             ->notPath($excludes);
 
         return $finder;
+    }
+
+    /**
+     * Converts deprecated flags to their new names.
+     *
+     * @param array<string, bool|string> $override
+     * @return array<string, bool|string>
+     */
+    private function deprecatedFlags(array $override): array
+    {
+        $renames = [
+            // since v1.11.0
+            'xmode' => 'fmode',
+            // since v1.11.3
+            'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
+            // since v1.12.0
+            'normalize_domains' => 'normalize_domain',
+        ];
+
+        foreach ($renames as $old => $new) {
+            if (array_key_exists($old, $override)) {
+                $override[$new] = $override[$old];
+                unset($override[$old]);
+            }
+        }
+
+        return $override;
     }
 }
