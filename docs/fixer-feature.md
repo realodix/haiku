@@ -206,9 +206,9 @@ Removes empty lines based on the specified configuration.
 **Config**: `fixer.flags.remove_empty_lines`, default: `true`
 
 **Possible values**:
-- `true`: Remove all empty lines.
-- `false`: Preserve all empty lines as-is.
+- `true`: Remove empty lines.
 - `keep_before_comment`: Remove empty lines, except when the next line is a comment (`!`).
+- `false`: Disable this rule.
 
 ```adblock
 !## BEFORE
