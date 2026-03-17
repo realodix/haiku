@@ -19,14 +19,14 @@ class ParallelTest extends TestCase
             );
         }
 
-        // First run: should process all files in parallel
-        $runner = app(Runner::class);
         $cmdOpt = new CommandOptions(
             cachePath: $this->cacheFile,
             path: $this->tmpDir,
             parallel: true,
         );
 
+        // First run: should process all files in parallel
+        $runner = app(Runner::class);
         $runner->run($cmdOpt);
         foreach ($runner->results as $result) {
             $this->assertSame('processed', $result['status']);

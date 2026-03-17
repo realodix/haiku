@@ -3,8 +3,11 @@
 namespace Realodix\Haiku\Test\Unit;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Fixer\Runner;
 use Realodix\Haiku\Test\TestCase;
+use Symfony\Component\Filesystem\Path;
 
 class GeneralTest extends TestCase
 {
@@ -15,7 +18,16 @@ class GeneralTest extends TestCase
         $inputFile = base_path('tests/Integration/general_actual.txt');
         $expectedFile = base_path('tests/Integration/general_expected.txt');
 
-        $this->assertFilter($expectedFile, $inputFile);
+        $targetFile = Path::join($this->tmpDir, basename($inputFile));
+        $this->fs->copy($inputFile, $targetFile, true);
+
+        $this->applyFlags();
+        app(Runner::class)->run(new CommandOptions(
+            cachePath: $this->cacheFile,
+            path: $targetFile,
+        ));
+
+        $this->assertFileEquals($expectedFile, $targetFile);
     }
 
     #[PHPUnit\Test]

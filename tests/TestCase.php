@@ -38,7 +38,7 @@ abstract class TestCase extends BaseTestCase
         app()->instance(FixerConfig::class, new FixerConfig);
     }
 
-    private function applyFlags(array $flags = [])
+    protected function applyFlags(array $flags = [])
     {
         app(FixerConfig::class)->flags = array_merge([
             'fmode' => true,
@@ -80,18 +80,6 @@ abstract class TestCase extends BaseTestCase
         ], $options));
 
         return $commandTester;
-    }
-
-    protected function assertFilter(string $expectedFile, string $actualFile, array $options = [])
-    {
-        $processingFile = Path::join($this->tmpDir, basename($actualFile));
-        $this->fs->copy($actualFile, $processingFile, true);
-
-        $this->runFixCommand(array_merge([
-            '--path' => $processingFile,
-        ], $options));
-
-        $this->assertFileEquals($expectedFile, $processingFile);
     }
 
     /**
