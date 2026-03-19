@@ -465,7 +465,7 @@ Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 
 `fixer.flags.convert_legacy_remove_action`
 
-Converts legacy property-based `remove` actions (used by ABP/AdGuard) into uBO’s operator-style syntax.
+Converts legacy property-based `remove` actions (used by ABP/AdGuard) into uBO's operator-style syntax.
 
 ```adblock
 !## BEFORE
