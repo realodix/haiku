@@ -308,6 +308,21 @@ class CosmeticTest extends TestCase
         $this->assertSame($expected, $this->fix($input, $flags));
     }
 
+    #[PHPUnit\Test]
+    public function convertAbpExtendedSelectors(): void
+    {
+        $flags = ['convert_abp_extended_selectors' => true];
+        $input = [
+            'example.com#?#div:-abp-has(> span:-abp-contains(Advertisment))',
+            '!', 'example.com#@?#div:-abp-has(> span:-abp-contains(Advertisment))',
+        ];
+        $expected = [
+            'example.com##div:has(> span:has-text(Advertisment))',
+            '!', 'example.com#@#div:has(> span:has-text(Advertisment))',
+        ];
+        $this->assertSame($expected, $this->fix($input, $flags));
+    }
+
     // ========================================================================
     // Scriptlet Tests (`elementtidy`)
     // ========================================================================
