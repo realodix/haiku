@@ -27,7 +27,6 @@ example8.com##.ads
 example9.com##.ads
 example10.com##.ads
 
-
 *$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk|example.co.uk|login.example.co.uk
 /ads.$image,css
 /ads.$image
