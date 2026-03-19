@@ -461,6 +461,20 @@ Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 *$removeparam=utm_source
 ```
 
+### # Convert Legacy Remove Action
+
+`fixer.flags.convert_legacy_remove_action`
+
+Converts legacy property-based `remove` actions (used by ABP/AdGuard) into uBO's operator-style syntax.
+
+```adblock
+!## BEFORE
+example.com##.banner { remove: true; }
+
+!## AFTER
+example.com##.banner:remove()
+```
+
 ### # Exact Attribute to CSS Selector
 
 `fixer.flags.exact_attr_to_css_selector`

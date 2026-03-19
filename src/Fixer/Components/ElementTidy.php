@@ -46,6 +46,7 @@ final class ElementTidy
     {
         $str = ltrim($str); // Remove leading spaces
         $str = $this->convertExactAttributeSelector($str);
+        $str = $this->convertLegacyRemoveAction($str);
 
         return $str;
     }
@@ -86,5 +87,29 @@ final class ElementTidy
         );
 
         return $selector;
+    }
+
+    /**
+     * Convert ABP/AG remove action to uBO format.
+     *
+     * Example:
+     * - .ads { remove: true; } -> .ads:remove()
+     *
+     * https://help.adblockplus.org/hc/en-us/articles/360062733293-How-to-write-filters#elemhide_css
+     * https://adguard.com/kb/general/ad-filtering/create-own-filters/#remove-pseudos
+     * https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#subjectremove
+     */
+    private function convertLegacyRemoveAction(string $selector): string
+    {
+        if (!$this->config->flags['convert_legacy_remove_action']) {
+            return $selector;
+        }
+
+        return preg_replace(
+            // https://regex101.com/r/XGKbVr
+            '/\s*\{\s*remove\s*:\s*true[; ]*\}$/',
+            ':remove()',
+            $selector,
+        );
     }
 }
