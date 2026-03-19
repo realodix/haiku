@@ -296,6 +296,18 @@ class CosmeticTest extends TestCase
         $this->assertSame($input, $this->fix($input, $flags));
     }
 
+    #[PHPUnit\Test]
+    public function selector_convertLegacyRemoveAction(): void
+    {
+        $flags = ['convert_legacy_remove_action' => true];
+
+        $expected = ['example.com##.banner:remove()'];
+        $input = ['example.com##.banner { remove: true ; } '];
+        $this->assertSame($expected, $this->fix($input, $flags));
+        $input = ['example.com##.banner {remove:true;}'];
+        $this->assertSame($expected, $this->fix($input, $flags));
+    }
+
     // ========================================================================
     // Scriptlet Tests (`elementtidy`)
     // ========================================================================
