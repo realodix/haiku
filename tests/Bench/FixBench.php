@@ -18,11 +18,6 @@ class FixBench
     public function setUp(): void
     {
         app()->instance(FixerConfig::class, new FixerConfig);
-        app(FixerConfig::class)->flags = [
-            'fmode' => true,
-            'domain_order' => 'negated_first',
-            'option_format' => 'long',
-        ];
 
         $this->fixer = app(Fixer::class);
         $this->inputFile = base_path('tests/Bench/storage/filter.txt');
@@ -35,11 +30,27 @@ class FixBench
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
-    #[Bench\Assert('
-        (mode(variant.time.avg) < mode(baseline.time.avg) +/- 2%)
-    ')]
-    public function benchFixMethod(): void
+    #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 2%)')]
+    public function benchFix(): void
     {
+        $this->fixer->fix($this->input);
+    }
+
+    /**
+     * Benchmark the core fix() method.
+     */
+    #[Bench\Revs(1000)]
+    #[Bench\Iterations(5)]
+    #[Bench\Warmup(1)]
+    #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 2%)')]
+    public function benchMaximumFix(): void
+    {
+        app(FixerConfig::class)->flags = [
+            'fmode' => true,
+            'domain_order' => 'negated_first',
+            'option_format' => 'long',
+        ];
+
         $this->fixer->fix($this->input);
     }
 }
