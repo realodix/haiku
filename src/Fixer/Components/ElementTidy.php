@@ -102,7 +102,7 @@ final class ElementTidy
      */
     private function convertLegacyRemoveAction(string $selector): string
     {
-        if (!$this->config->flags['convert_legacy_remove_action']) {
+        if (!$this->config->flags['no_legacy_remove_action']) {
             return $selector;
         }
 
@@ -123,7 +123,7 @@ final class ElementTidy
      */
     private function convertAbpExtendedSelectors(string $selector, string $separator): array
     {
-        if (!$this->config->flags['convert_abp_extended_selectors']
+        if (!$this->config->flags['no_legacy_ext_selectors']
             || !str_contains($selector, ':-abp-')
         ) {
             return [$selector, $separator];

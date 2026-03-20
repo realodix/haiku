@@ -463,7 +463,7 @@ Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 
 ### # Convert Legacy Remove Action
 
-`fixer.flags.convert_legacy_remove_action`
+`fixer.flags.no_legacy_remove_action`
 
 Converts legacy property-based `remove` actions (used by ABP/AdGuard) to uBlock Origin syntax.
 
@@ -477,7 +477,7 @@ example.com##.banner:remove()
 
 ### # Convert ABP extended selectors
 
-`fixer.flags.convert_abp_extended_selectors`
+`fixer.flags.no_legacy_ext_selectors`
 
 Converts Adblock Plus extended selector syntax to uBlock Origin syntax.
 

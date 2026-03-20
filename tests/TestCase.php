@@ -42,9 +42,9 @@ abstract class TestCase extends BaseTestCase
     {
         app(FixerConfig::class)->flags = array_merge([
             'fmode' => true,
-            'convert_abp_extended_selectors' => false,
-            'convert_legacy_remove_action' => false,
             'exact_attr_to_css_selector' => false,
+            'no_legacy_ext_selectors' => false,
+            'no_legacy_remove_action' => false,
         ], $flags);
     }
 

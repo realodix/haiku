@@ -299,7 +299,7 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function selector_convertLegacyRemoveAction(): void
     {
-        $flags = ['convert_legacy_remove_action' => true];
+        $flags = ['no_legacy_remove_action' => true];
 
         $expected = ['example.com##.banner:remove()'];
         $input = ['example.com##.banner { remove: true ; } '];
@@ -311,7 +311,7 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function convertAbpExtendedSelectors(): void
     {
-        $flags = ['convert_abp_extended_selectors' => true];
+        $flags = ['no_legacy_ext_selectors' => true];
         $input = [
             'example.com#?#div:-abp-has(> span:-abp-contains(Advertisment))',
             '!', 'example.com#@?#div:-abp-has(> span:-abp-contains(Advertisment))',
