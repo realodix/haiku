@@ -479,7 +479,7 @@ example.com##.banner:remove()
 
 `fixer.flags.convert_abp_extended_selectors`
 
-Converts Adblock Plus (ABP) extended selector syntax to uBlock Origin syntax.
+Converts Adblock Plus extended selector syntax to uBlock Origin syntax.
 
 ```adblock
 !## BEFORE
