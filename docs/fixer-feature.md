@@ -475,6 +475,20 @@ example.com##.banner { remove: true; }
 example.com##.banner:remove()
 ```
 
+### # Convert ABP extended selectors
+
+`fixer.flags.convert_abp_extended_selectors`
+
+Converts Adblock Plus extended selector syntax to uBlock Origin syntax.
+
+```adblock
+!## BEFORE
+example.com#?#div:-abp-has(> span:-abp-contains(Advertisment))
+
+!## AFTER
+example.com##div:has(> span:has-text(Advertisment))
+```
+
 ### # Exact Attribute to CSS Selector
 
 `fixer.flags.exact_attr_to_css_selector`

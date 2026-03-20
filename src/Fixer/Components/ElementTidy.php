@@ -37,6 +37,7 @@ final class ElementTidy
 
         $modifier = $this->adgModifier->applyFix($modifier);
         $domain = $this->domainNormalizer->applyFix($domain, ',');
+        [$selector, $separator] = $this->convertAbpExtendedSelectors($selector, $separator);
         $selector = $this->normalizeSelector($selector);
 
         return $modifier.$domain.$separator.$selector;
@@ -111,5 +112,36 @@ final class ElementTidy
             ':remove()',
             $selector,
         );
+    }
+
+    /**
+     * Convert ABP extended selectors to uBO format.
+     *
+     * https://adblockplus.org/filter-cheatsheet#elementhidingemulation-selectors
+     *
+     * @return list<string>
+     */
+    private function convertAbpExtendedSelectors(string $selector, string $separator): array
+    {
+        if (!$this->config->flags['convert_abp_extended_selectors']
+            || !str_contains($selector, ':-abp-')
+        ) {
+            return [$selector, $separator];
+        }
+
+        static $separatorMap = [
+            '#?#' => '##',
+            '#@?#' => '#@#',
+        ];
+
+        static $selectorMap = [
+            ':-abp-contains(' => ':has-text(',
+            ':-abp-has(' => ':has(',
+        ];
+
+        $separator = str_replace(array_keys($separatorMap), array_values($separatorMap), $separator);
+        $selector = str_replace(array_keys($selectorMap), array_values($selectorMap), $selector);
+
+        return [$selector, $separator];
     }
 }
