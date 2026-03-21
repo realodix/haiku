@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Config;
 
 use Realodix\Haiku\App;
+use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
@@ -128,7 +129,12 @@ final class FixerConfig
         // Apply specific overrides
         foreach ($override as $name => $value) {
             if (!array_key_exists($name, $flags)) {
-                throw new InvalidConfigurationException(sprintf('Unknown flag name: "%s".', $name));
+                $hint = Helper::getSuggestion(array_merge(array_keys($flags), ['fmode']), $name);
+                throw new InvalidConfigurationException(sprintf(
+                    'Unknown flag: "%s"'.($hint ? ", did you mean '%s'?" : '.'),
+                    $name,
+                    $hint,
+                ));
             }
 
             $flags[$name] = $value;

@@ -130,4 +130,26 @@ final class Helper
 
         return $result;
     }
+
+    /**
+     * Finds the string from $possibilities most similar to $value using Levenshtein distance,
+     * or null if none is close enough.
+     *
+     * https://github.com/nette/utils/blob/dd5725782/src/Utils/Helpers.php#L80
+     *
+     * @param array<int, string> $possibilities
+     */
+    public static function getSuggestion(array $possibilities, string $value): ?string
+    {
+        $best = null;
+        $min = (strlen($value) / 4 + 1) * 10 + .1;
+        foreach (array_unique($possibilities) as $item) {
+            if ($item !== $value && ($len = levenshtein($item, $value, 10, 11, 10)) < $min) {
+                $min = $len;
+                $best = $item;
+            }
+        }
+
+        return $best;
+    }
 }
