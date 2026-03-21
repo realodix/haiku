@@ -245,7 +245,7 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function selector_convertAttributeSelector(): void
     {
-        $flags = ['attr_to_simple_selector' => 'loose'];
+        $flags = ['attr_to_basic_selector' => 'loose'];
 
         $input = [
             '##[id="adsId"] div[class="ads-Class"]',
@@ -305,7 +305,7 @@ class CosmeticTest extends TestCase
         ];
         $this->assertSame($input, $this->fix($input, $flags));
         $input = ['##div[class="ads-Class"]'];
-        $this->assertSame($input, $this->fix($input, ['attr_to_simple_selector' => 'strict']));
+        $this->assertSame($input, $this->fix($input, ['attr_to_basic_selector' => 'strict']));
     }
 
     #[PHPUnit\Test]

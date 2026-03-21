@@ -53,7 +53,7 @@ final class ElementTidy
     }
 
     /**
-     * Converts attribute selectors into simple selectors.
+     * Converts attribute selectors into basic selectors.
      *
      * Mode:
      * - 'strict': Only allow ~= for class selectors
@@ -64,7 +64,7 @@ final class ElementTidy
      */
     private function convertAttributeSelector(string $selector): string
     {
-        $mode = $this->config->flags['attr_to_simple_selector'];
+        $mode = $this->config->flags['attr_to_basic_selector'];
 
         if (!$mode) {
             return $selector;

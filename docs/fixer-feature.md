@@ -489,11 +489,11 @@ example.com#?#div:-abp-has(> span:-abp-contains(Advertisment))
 example.com##div:has(> span:has-text(Advertisment))
 ```
 
-### # Attribute to Simple Selector
+### # Attribute to Basic Selector
 
-Converts `id` and `class` attribute selectors into their equivalent CSS simple selector forms.
+Converts `id` and `class` attribute selectors into their equivalent CSS basic selector forms.
 
-**Config**: `fixer.flags.attr_to_simple_selector`
+**Config**: `fixer.flags.attr_to_basic_selector`
 
 **Possible values**:
 - `strict`: Only applies transformations that are fully semantically equivalent.
