@@ -46,33 +46,44 @@ final class ElementTidy
     private function normalizeSelector(string $str): string
     {
         $str = ltrim($str); // Remove leading spaces
-        $str = $this->convertExactAttributeSelector($str);
+        $str = $this->convertAttributeSelector($str);
         $str = $this->convertLegacyRemoveAction($str);
 
         return $str;
     }
 
     /**
-     * Converts an exact attribute selector to a CSS selector.
+     * Converts attribute selectors into basic selectors.
      *
-     * Example:
-     * - [class="ads"] -> .ads
-     * - [id="ads"] -> #ads
+     * Mode:
+     * - 'strict': Only allow ~= for class selectors
+     * - 'loose': Allow both = and ~= for class
      *
      * @param string $selector The selector to be converted
      * @return string The converted CSS selector
      */
-    private function convertExactAttributeSelector(string $selector): string
+    private function convertAttributeSelector(string $selector): string
     {
-        if (!$this->config->flags['exact_attr_to_css_selector']) {
+        $mode = $this->config->flags['attr_to_basic_selector'];
+
+        if (!$mode) {
             return $selector;
         }
 
         $selector = preg_replace_callback(
-            // https://regex101.com/r/aKP06x
-            '/\[(class|id)="([\x{0021}\x{0023}-\x{007E}]+)"\]/',
-            function ($m) {
-                [$full, $attr, $value] = $m;
+            // https://regex101.com/r/lg5nfI/
+            '/\[(class|id)(=|~=)"([\x{0021}\x{0023}-\x{007E}]+)"\]/',
+            function ($m) use ($mode) {
+                [$full, $attr, $op, $value] = $m;
+
+                if (// Never convert [id~="..."]
+                    // "~=" implies token matching, which is not valid for id semantics
+                    ($attr === 'id' && $op === '~=')
+                    // Strict mode: only allow ~= for class selectors
+                    || ($mode === 'strict' && $attr === 'class' && $op !== '~=')
+                ) {
+                    return $full;
+                }
 
                 $value = Helper::cssEscape($value);
 

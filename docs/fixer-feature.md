@@ -489,18 +489,25 @@ example.com#?#div:-abp-has(> span:-abp-contains(Advertisment))
 example.com##div:has(> span:has-text(Advertisment))
 ```
 
-### # Exact Attribute to CSS Selector
+### # Attribute to Basic Selector
 
-`fixer.flags.exact_attr_to_css_selector`
+Converts `id` and `class` attribute selectors into their equivalent CSS basic selector forms.
 
-Converts exact `id` and `class` attribute selectors into their equivalent CSS selector forms.
+**Config**: `fixer.flags.attr_to_basic_selector`
 
-Only selectors with an exact match (`=`) are converted. Other attribute operators such as `^=`, `$=`, or `*=` are not modified.
+**Possible values**:
+- `strict`: Only applies transformations that are fully semantically equivalent.
+- `loose`: Applies additional normalization that may broaden the match set.
+
+Other attribute operators such as `^=`, `$=`, `*=` are not modified.
 
 ```adblock
 !## BEFORE
-example.com##[id="adsId"] div[class="adsClass"]
+example.com##div[class="foo"] div[class~="bar"]
 
-!## AFTER
-example.com###adsId div.adsClass
+!## AFTER - strict
+example.com##div[class="foo"] div.bar
+
+!## AFTER - loose
+example.com##div.foo div.bar
 ```
