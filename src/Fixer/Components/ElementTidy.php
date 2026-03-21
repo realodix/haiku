@@ -55,9 +55,9 @@ final class ElementTidy
     /**
      * Converts attribute selectors into simple selectors.
      *
-     * Example:
-     * - [class="ads"] -> .ads
-     * - [id="ads"] -> #ads
+     * Mode:
+     * - 'strict': Only allow ~= for class selectors
+     * - 'loose': Allow both = and ~= for class
      *
      * @param string $selector The selector to be converted
      * @return string The converted CSS selector
@@ -76,22 +76,15 @@ final class ElementTidy
             function ($m) use ($mode) {
                 [$full, $attr, $op, $value] = $m;
 
-                // Never convert [id~="..."]
-                // "~=" implies token matching, which is not valid for id semantics
-                if ($attr === 'id' && $op === '~=') {
+                if (// Never convert [id~="..."]
+                    // "~=" implies token matching, which is not valid for id semantics
+                    ($attr === 'id' && $op === '~=')
+
+                    // Strict mode: only allow ~= for class selectors
+                    || ($mode === 'strict' && $attr === 'class' && $op !== '~=')
+                ) {
                     return $full;
                 }
-
-                // STRICT MODE:
-                // Only apply transformations that are 100% semantically equivalent
-                // [class~="foo"] → .foo (safe)
-                if ($mode === 'strict' && $attr === 'class' && $op !== '~=') {
-                    return $full;
-                }
-
-                // LOOSE MODE:
-                // Allows normalization even if it broadens the match set
-                // [class="foo"] → .foo (not strictly equivalent, but commonly acceptable)
 
                 $value = Helper::cssEscape($value);
 
