@@ -74,12 +74,6 @@ final class ElementTidy
             function ($m) {
                 [$full, $attr, $value] = $m;
 
-                // Ensure strict [attr="value"] form only
-                // no operators, modifiers, or spaces
-                if ($full !== '['.$attr.'="'.$value.'"]') {
-                    return $full;
-                }
-
                 $value = Helper::cssEscape($value);
 
                 return ($attr === 'class' ? '.' : '#').$value;
