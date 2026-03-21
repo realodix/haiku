@@ -165,14 +165,16 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function option_order(): void
     {
+        $flags = ['option_order' => 'type'];
+
         // badfilter, important & match-case
         $input = ['*$important,domain=3p.com,css,badfilter,match-case'];
         $expected = ['*$badfilter,important,match-case,css,domain=3p.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->fix($input, $flags));
 
         $input = ['*$css,~3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
         $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,~3p,first-party,third-party,css'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->fix($input, $flags));
 
         $input = [
             '$css,domain=x.com,reason="foo",redirect-rule=noopjs,script,',
@@ -180,7 +182,16 @@ class NetworkTest extends TestCase
         $expected = [
             '$css,script,redirect-rule=noopjs,domain=x.com,reason="foo"',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->fix($input, $flags));
+
+        $flags = ['option_order' => 'name'];
+        $input = ['*$css,~3p,third-party,strict3p,domain=3p.com,reason="foo"'];
+        $expected = ['*$~3p,css,domain=3p.com,reason="foo",strict3p,third-party'];
+        $this->assertSame($expected, $this->fix($input, $flags));
+
+        $flags = ['option_order' => false];
+        $input = ['*$css,~3p,third-party,strict3p,domain=3p.com,reason="foo"'];
+        $this->assertSame($input, $this->fix($input, $flags));
     }
 
     #[PHPUnit\DataProvider('optionOrdeDomainValueProvider')]

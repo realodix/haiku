@@ -148,8 +148,14 @@ final class NetworkTidy
 
         // 3. Post-processing
         $optionList = $this->netOptionTransformer->applyFix($optionList);
+        $optionList = array_filter($optionList, static fn($s) => $s !== '');
+        $optionList = array_unique($optionList);
 
-        return Helper::uniqueSortBy($optionList, fn($v) => $this->optionOrder($v));
+        if (!$this->config->flags['option_order']) {
+            return $optionList;
+        }
+
+        return Helper::sortBy($optionList, fn($v) => $this->optionOrder($v));
     }
 
     /**
@@ -158,6 +164,10 @@ final class NetworkTidy
     private function optionOrder(string $option): string
     {
         $option = ltrim($option, '~');
+
+        if ($this->config->flags['option_order'] === 'name') {
+            return $option;
+        }
 
         // P1: 'important' and 'party' options should always be at the front/beginning
         if ($option === 'important' || $option === 'badfilter' || $option === 'match-case') {
