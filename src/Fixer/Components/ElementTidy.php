@@ -79,7 +79,6 @@ final class ElementTidy
                 if (// Never convert [id~="..."]
                     // "~=" implies token matching, which is not valid for id semantics
                     ($attr === 'id' && $op === '~=')
-
                     // Strict mode: only allow ~= for class selectors
                     || ($mode === 'strict' && $attr === 'class' && $op !== '~=')
                 ) {
