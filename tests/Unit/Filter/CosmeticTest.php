@@ -267,12 +267,22 @@ class CosmeticTest extends TestCase
         ];
         $this->assertSame($expected, $this->fix($input, $flags));
 
+        // tilde matches
+        $input = ['##div[id~="teaser"] div[class~="adsClass"]'];
+        $expected = ['##div[id~="teaser"] div.adsClass'];
+        $this->assertSame($expected, $this->fix($input, $flags));
+
         // partially converted
         $input = ['##div[id*="teaser"] div[class="adsClass"]'];
         $expected = ['##div[id*="teaser"] div.adsClass'];
         $this->assertSame($expected, $this->fix($input, $flags));
 
-        // special case
+        // multiple selectors
+        $input = ['##div[id="a"], span[class="b"]'];
+        $expected = ['##div#a, span.b'];
+        $this->assertSame($expected, $this->fix($input, $flags));
+
+        // escape
         $input = [
             '##div[class="xl:max-w-[850px]"]',
             '!', '##div[class="aspect-3/2"]',

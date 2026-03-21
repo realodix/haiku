@@ -61,6 +61,8 @@ final class ElementTidy
      *
      * @param string $selector The selector to be converted
      * @return string The converted CSS selector
+     *
+     * Lihat https://github.com/AdguardTeam/AGLint/issues/266
      */
     private function convertExactAttributeSelector(string $selector): string
     {
@@ -69,10 +71,15 @@ final class ElementTidy
         }
 
         $selector = preg_replace_callback(
-            // https://regex101.com/r/aKP06x
-            '/\[(class|id)="([\x{0021}\x{0023}-\x{007E}]+)"\]/',
+            // https://regex101.com/r/hv0Q0C
+            '/\[(class|id)(=|~=)"([\x{0021}\x{0023}-\x{007E}]+)"\]/',
             function ($m) {
-                [$full, $attr, $value] = $m;
+                [$full, $attr, $op, $value] = $m;
+
+                // Do not modify if the ID uses ~=
+                if ($attr === 'id' && $op === '~=') {
+                    return $full;
+                }
 
                 $value = Helper::cssEscape($value);
 
