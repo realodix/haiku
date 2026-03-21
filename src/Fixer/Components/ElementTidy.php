@@ -46,14 +46,14 @@ final class ElementTidy
     private function normalizeSelector(string $str): string
     {
         $str = ltrim($str); // Remove leading spaces
-        $str = $this->convertExactAttributeSelector($str);
+        $str = $this->convertAttributeSelector($str);
         $str = $this->convertLegacyRemoveAction($str);
 
         return $str;
     }
 
     /**
-     * Converts an exact attribute selector to a CSS selector.
+     * Converts attribute selectors into simple selectors.
      *
      * Example:
      * - [class="ads"] -> .ads
@@ -61,25 +61,37 @@ final class ElementTidy
      *
      * @param string $selector The selector to be converted
      * @return string The converted CSS selector
-     *
-     * Lihat https://github.com/AdguardTeam/AGLint/issues/266
      */
-    private function convertExactAttributeSelector(string $selector): string
+    private function convertAttributeSelector(string $selector): string
     {
-        if (!$this->config->flags['exact_attr_to_css_selector']) {
+        $mode = $this->config->flags['attr_to_simple_selector'];
+
+        if (!$mode) {
             return $selector;
         }
 
         $selector = preg_replace_callback(
-            // https://regex101.com/r/hv0Q0C
+            // https://regex101.com/r/lg5nfI/
             '/\[(class|id)(=|~=)"([\x{0021}\x{0023}-\x{007E}]+)"\]/',
-            function ($m) {
+            function ($m) use ($mode) {
                 [$full, $attr, $op, $value] = $m;
 
-                // Do not modify if the ID uses ~=
+                // Never convert [id~="..."]
+                // "~=" implies token matching, which is not valid for id semantics
                 if ($attr === 'id' && $op === '~=') {
                     return $full;
                 }
+
+                // STRICT MODE:
+                // Only apply transformations that are 100% semantically equivalent
+                // [class~="foo"] → .foo (safe)
+                if ($mode === 'strict' && $attr === 'class' && $op !== '~=') {
+                    return $full;
+                }
+
+                // LOOSE MODE:
+                // Allows normalization even if it broadens the match set
+                // [class="foo"] → .foo (not strictly equivalent, but commonly acceptable)
 
                 $value = Helper::cssEscape($value);
 

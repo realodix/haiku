@@ -243,9 +243,9 @@ class CosmeticTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function selector_convertExactAttributeSelector(): void
+    public function selector_convertAttributeSelector(): void
     {
-        $flags = ['exact_attr_to_css_selector' => true];
+        $flags = ['attr_to_simple_selector' => 'loose'];
 
         $input = [
             '##[id="adsId"] div[class="ads-Class"]',
@@ -304,6 +304,8 @@ class CosmeticTest extends TestCase
             '##div[id^="teaser"]',
         ];
         $this->assertSame($input, $this->fix($input, $flags));
+        $input = ['##div[class="ads-Class"]'];
+        $this->assertSame($input, $this->fix($input, ['attr_to_simple_selector' => 'strict']));
     }
 
     #[PHPUnit\Test]

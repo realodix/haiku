@@ -9,9 +9,9 @@ use Symfony\Component\Finder\Finder;
 /**
  * @phpstan-type _FixerFlags array{
  *  adg_non_basic_rule_modifier: bool,
+ *  attr_to_simple_selector: null|'strict'|'loose',
  *  combine_option_sets: bool,
  *  domain_order: null|'normal'|'negated_first'|'localhost_first'|'localhost_negated_first',
- *  exact_attr_to_css_selector: bool,
  *  migrate_deprecated_options: bool,
  *  no_legacy_ext_selectors: bool,
  *  no_legacy_remove_action: bool,
@@ -41,11 +41,11 @@ final class FixerConfig
     /** @var _FixerFlags */
     public array $flags = [
         'adg_non_basic_rule_modifier' => false,
+        'attr_to_simple_selector' => null,
         'combine_option_sets' => false,
         'no_legacy_ext_selectors' => false,
         'no_legacy_remove_action' => false,
         'domain_order' => 'negated_first',
-        'exact_attr_to_css_selector' => false,
         'migrate_deprecated_options' => false,
         'normalize_domain' => false,
         'normalize_domain_separators' => false,
