@@ -126,4 +126,4 @@ builder:
 ## Real-World Example
 
 For a production configuration example, see
-[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/49a0742d5/haiku.yml)
+[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/main/haiku.yml)
