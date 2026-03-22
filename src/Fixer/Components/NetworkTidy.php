@@ -97,7 +97,7 @@ final class NetworkTidy
             $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;
 
-            // multi-value option
+            // Option: multi value
             if (isset(self::MULTI_VALUE[$name]) && $value !== null) {
                 // First occurrence defines the position of the aggregated node
                 if (!isset($multiIndexes[$name])) {
@@ -112,10 +112,10 @@ final class NetworkTidy
             }
 
             if ($value !== null) {
-                // single-value option
+                // Option: single value
                 $nodes[] = ['name' => $name, 'values' => [$value]];
             } else {
-                // non-value option
+                // Option: non value
                 $nodes[] = ['name' => $name, 'values' => []];
             }
         }
@@ -126,7 +126,7 @@ final class NetworkTidy
             $name = $node['name'];
             $values = $node['values'];
 
-            // multi-value option
+            // Option: multi value
             if (isset(self::MULTI_VALUE[$name]) && $values !== []) {
                 $caseSensitive = self::MULTI_VALUE[$name]['case_sensitive'] ?? false;
                 $value = $this->domainNormalizer->applyFix(implode('|', $values), '|', $caseSensitive);
@@ -135,14 +135,14 @@ final class NetworkTidy
                 continue;
             }
 
-            // single-value option
+            // Option: single value
             if (count($values) === 1) {
                 $optionList[] = $name.'='.$values[0];
 
                 continue;
             }
 
-            // non-value option
+            // Option: non value
             $optionList[] = $name;
         }
 
