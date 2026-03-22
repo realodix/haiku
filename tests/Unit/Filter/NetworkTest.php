@@ -217,6 +217,23 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function option_duplicate(): void
+    {
+        $input = ['||example.com^$css,css'];
+        $expected = ['||example.com^$css'];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = ['||example.com^$domain=a.com|c.com,css,domain=b.com'];
+        $expected = ['||example.com^$css,domain=a.com|b.com|c.com'];
+        $this->assertSame($expected, $this->fix($input));
+
+        // Except for "multi-value options", they cannot be combined
+        $input = ['||example.com^$redirect=1x1.gif,css,redirect=noopjs'];
+        $expected = ['||example.com^$css,redirect=1x1.gif,redirect=noopjs'];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
     public function lowercase_the_option_name(): void
     {
         $input = ['||example.com^$ALL'];
