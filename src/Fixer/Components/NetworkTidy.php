@@ -84,53 +84,69 @@ final class NetworkTidy
      * Normalizes and sorts the network filter options.
      *
      * @param string $optionString Parsed options from parseOptions()
-     * @return list<string>
+     * @return array<int, string>
      */
     private function normalizeOption(string $optionString)
     {
-        // Initialize buckets for basic options
-        $optionList = [];
+        $nodes = [];
 
-        // Initialize buckets for multi-value options
-        $multiValueOpts = [];
-        foreach (self::MULTI_VALUE as $key => $_config) {
-            $multiValueOpts[$key] = [];
-        }
-
-        // 1. Split raw option string and classify each option.
+        // 1. Parse raw option string into structured nodes
+        $multiIndexes = []; // map: option name -> index of its node in $nodes
         foreach ($this->splitOptions($optionString) as $option) {
             $parts = explode('=', $option, 2);
             $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;
 
-            // if option supports multiple values, collect them
-            if (isset($multiValueOpts[$name]) && $value !== null) {
-                $multiValueOpts[$name][] = $value;
+            // Option: multi value
+            if (isset(self::MULTI_VALUE[$name]) && $value !== null) {
+                // First occurrence defines the position of the aggregated node
+                if (!isset($multiIndexes[$name])) {
+                    $nodes[] = ['name' => $name, 'values' => []];
+                    $multiIndexes[$name] = array_key_last($nodes);
+                }
+
+                // Subsequent occurrences only contribute values
+                $nodes[$multiIndexes[$name]]['values'][] = $value;
 
                 continue;
             }
 
-            // otherwise treat it as a basic option
             if ($value !== null) {
-                $name .= '='.$value;
+                // Option: single value
+                $nodes[] = ['name' => $name, 'values' => [$value]];
+            } else {
+                // Option: non value
+                $nodes[] = ['name' => $name, 'values' => []];
+            }
+        }
+
+        // 2. Convert nodes back into string
+        $optionList = [];
+        foreach ($nodes as $node) {
+            $name = $node['name'];
+            $values = $node['values'];
+
+            // Option: multi value
+            if (isset(self::MULTI_VALUE[$name]) && $values !== []) {
+                $caseSensitive = self::MULTI_VALUE[$name]['case_sensitive'] ?? false;
+                $value = $this->domainNormalizer->applyFix(implode('|', $values), '|', $caseSensitive);
+                $optionList[] = $name.'='.$value;
+
+                continue;
             }
 
+            // Option: single value
+            if (count($values) === 1) {
+                $optionList[] = $name.'='.$values[0];
+
+                continue;
+            }
+
+            // Option: non value
             $optionList[] = $name;
         }
 
-        // 2. Rebuild consolidated multi-value options (domain=, from=, etc.)
-        foreach ($multiValueOpts as $name => $values) {
-            if ($values === []) {
-                continue;
-            }
-
-            $caseSensitive = self::MULTI_VALUE[$name]['case_sensitive'] ?? false;
-            $value = $this->domainNormalizer->applyFix(implode('|', $values), '|', $caseSensitive);
-
-            $optionList[] = $name.'='.$value;
-        }
-
-        // 3. Transform, Remove duplicates and sort options by priority
+        // 3. Post-processing
         $optionList = $this->netOptionTransformer->applyFix($optionList);
 
         return Helper::uniqueSortBy($optionList, fn($v) => $this->optionOrder($v));
