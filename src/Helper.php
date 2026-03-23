@@ -17,8 +17,7 @@ final class Helper
             $results[$key] = $callback($value, $key);
         }
 
-        $flags ??= SORT_REGULAR;
-        asort($results, $flags);
+        asort($results, $flags ?? SORT_REGULAR);
         foreach (array_keys($results) as $key) {
             $results[$key] = $values[$key];
         }
