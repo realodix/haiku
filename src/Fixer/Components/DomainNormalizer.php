@@ -51,7 +51,7 @@ final class DomainNormalizer
      * The returned array represents a comparison tuple used to enforce deterministic
      * ordering according to the configured `domain_order` strategy.
      *
-     * @return array<int,int|string> Sorting tuple
+     * @return array<int, int|string> Sorting tuple
      */
     private function domainSortKey(string $str): array
     {

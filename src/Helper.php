@@ -5,7 +5,7 @@ namespace Realodix\Haiku;
 final class Helper
 {
     /**
-     * Returns a sorted array.
+     * Sort the array using the given callback.
      *
      * @param array<int, string> $values
      * @return array<int, string>
@@ -26,7 +26,7 @@ final class Helper
     }
 
     /**
-     * Returns a sorted, unique array.
+     * Sort the array using the given callback and remove duplicates.
      *
      * @param array<int, string> $value
      * @return list<string>
