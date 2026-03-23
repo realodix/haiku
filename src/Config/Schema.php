@@ -30,6 +30,7 @@ final class Schema
                     'attr_to_basic_selector' => Expect::anyOf('strict', 'loose'),
                     'domain_order' => Expect::anyOf('normal', 'negated_first', 'localhost_first', 'localhost_negated_first'),
                     'option_format' => Expect::anyOf('long', 'short'),
+                    'option_order' => Expect::anyOf('name', 'type', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
                 ])->otherItems(Expect::bool()),
             ]),

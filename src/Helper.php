@@ -5,27 +5,39 @@ namespace Realodix\Haiku;
 final class Helper
 {
     /**
-     * Returns a sorted, unique array of strings.
+     * Returns a sorted array.
+     *
+     * @param array<int, string> $values
+     * @return array<int, string>
+     */
+    public static function sortBy(array $values, ?callable $callback, ?int $flags = null): array
+    {
+        $results = [];
+        foreach ($values as $key => $value) {
+            $results[$key] = $callback($value, $key);
+        }
+
+        asort($results, $flags ?? SORT_REGULAR);
+        foreach (array_keys($results) as $key) {
+            $results[$key] = $values[$key];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Returns a sorted, unique array.
      *
      * @param array<int, string> $value
      * @return list<string>
      */
-    public static function uniqueSortBy(array $value, ?callable $callback, int $flags = SORT_REGULAR): array
+    public static function uniqueSortBy(array $value, ?callable $callback, ?int $flags = null): array
     {
         $v = array_filter($value, static fn($s) => $s !== '');
         $v = array_unique($v);
+        $v = self::sortBy($v, $callback, $flags);
 
-        // Sort by callback
-        $results = [];
-        foreach ($v as $key => $value) {
-            $results[$key] = $callback($value, $key);
-        }
-        asort($results, $flags);
-        foreach (array_keys($results) as $key) {
-            $results[$key] = $v[$key];
-        }
-
-        return array_values($results);
+        return array_values($v);
     }
 
     /**
