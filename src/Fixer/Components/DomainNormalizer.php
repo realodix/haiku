@@ -2,8 +2,8 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
-use Illuminate\Support\Arr;
 use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Helper;
 
 final class DomainNormalizer
 {
@@ -40,7 +40,7 @@ final class DomainNormalizer
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
         $domains = array_unique($domains);
-        $domains = Arr::sort($domains, fn($value) => $this->domainSortKey($value));
+        $domains = Helper::sortBy($domains, fn($value) => $this->domainSortKey($value));
 
         return implode($separator, $domains);
     }
