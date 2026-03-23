@@ -82,6 +82,8 @@ final class DomainNormalizer
                 $domain,
             ],
 
+            // 'name'|'normal'
+            // 'normal' is deprecated since v1.12.3
             default => [$domain],
         };
     }

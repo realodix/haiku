@@ -12,7 +12,7 @@ use Symfony\Component\Finder\Finder;
  *  adg_non_basic_rule_modifier: bool,
  *  attr_to_basic_selector: null|'strict'|'loose',
  *  combine_option_sets: bool,
- *  domain_order: null|'normal'|'negated_first'|'localhost_first'|'localhost_negated_first',
+ *  domain_order: null|'name'|'normal'|'negated_first'|'localhost_first'|'localhost_negated_first',
  *  migrate_deprecated_options: bool,
  *  no_legacy_ext_selectors: bool,
  *  no_legacy_remove_action: bool,
