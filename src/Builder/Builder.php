@@ -85,7 +85,7 @@ final class Builder
      */
     private function header(string $data): string
     {
-        $date = new \DateTime()->format(\DateTimeInterface::RFC7231);
+        $date = new \DateTime()->format('D, d M Y H:i:s \G\M\T');
 
         $data = str_replace('%timestamp%', $date, $data);
         $data = rtrim($data);
