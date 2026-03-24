@@ -211,7 +211,7 @@ Sort domains and modifiers in AdGuard non-basic rules modifiers.
 
 Removes empty lines based on the specified configuration.
 
-**Config**: `fixer.flags.remove_empty_lines`, default: `true`
+**Config**: `fixer.flags.remove_empty_lines`, default: `keep_before_comment`
 
 **Possible values**:
 - `true`: Remove empty lines.

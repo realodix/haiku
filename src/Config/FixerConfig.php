@@ -55,7 +55,7 @@ final class FixerConfig
         'option_order' => 'type',
         'reduce_subdomains' => false,
         'reduce_wildcard_covered_domains' => false,
-        'remove_empty_lines' => true,
+        'remove_empty_lines' => 'keep_before_comment',
         'remove_unnecessary_wildcard' => false,
     ] {
         /** @param array<string, mixed> $value */
