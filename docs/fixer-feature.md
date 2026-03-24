@@ -215,7 +215,7 @@ Removes empty lines based on the specified configuration.
 
 **Possible values**:
 - `true`: Remove empty lines.
-- `keep_before_comment`: Remove empty lines, except when the next line is a comment (`!`).
+- `keep_before_comment`: Remove empty lines, except when the next line is a comment.
 - `false`: Disable this rule.
 
 ```adblock

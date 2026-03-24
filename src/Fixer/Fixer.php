@@ -145,7 +145,8 @@ final class Fixer
         if ($mode === 'keep_before_comment') {
             $next = $lines[$index + 1] ?? null;
 
-            if ($next !== null && str_starts_with(trim($next), '!')) {
+            // https://regex101.com/r/llsloM/
+            if ($next !== null && preg_match('/^(!|#\s|####)/', trim($next))) {
                 $this->flushSection($section, $result);
                 $result[] = '';
             }
