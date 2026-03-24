@@ -6,7 +6,7 @@ Some transformations can be toggled via the `fixer.flags` configuration option.
 # Example configuration
 fixer:
   flags:
-    remove_empty_lines: keep_before_comment
+    option_format: short
     reduce_wildcard_covered_domains: true
 ```
 
@@ -21,8 +21,8 @@ In addition to being preserved, these lines also act as section boundaries. They
 
 The following lines are treated as immutable section separators:
 
-- Comments (`! comment` or `# comment`)
-- Preprocessor directives (`!#include /includedfile.txt`, `!#if (conditions)` , etc)
+- Comments (e.g. `! comment` or `# comment`)
+- Preprocessor directives (e.g.`!#include /includedfile.txt`, `!#if (conditions)` , etc)
 
 ### # Section Boundary Behavior
 
