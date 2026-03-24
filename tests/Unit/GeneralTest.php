@@ -117,7 +117,7 @@ class GeneralTest extends TestCase
         $expected = ['##.ads', '##.banner', '', '! comment', '##.foo'];
         $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => 'keep_before_comment']));
 
-        $input = array_map(fn ($value) => str_replace('! ', '# ', $value), $input);
+        $input = array_map(fn($value) => str_replace('! ', '# ', $value), $input);
         $expected = ['##.ads', '##.banner', '', '# comment', '##.foo'];
         $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => 'keep_before_comment']));
     }
