@@ -56,7 +56,7 @@ final class Fixer
                 $section[] = $this->elementTidy->applyFix($line, $m);
             }
             // Fallback if `Regex: COSMETIC_RULE` fails
-            elseif (preg_match(Regex::COSMETIC_RULE_WIDE, $line, $m)) {
+            elseif (preg_match(Regex::COSMETIC_RULE_WIDE, $line)) {
                 $section[] = $line;
             } else {
                 $section[] = $this->networkTidy->applyFix($line);
