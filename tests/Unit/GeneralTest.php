@@ -31,7 +31,26 @@ class GeneralTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function multiple_sections_are_processed_correctly()
+    public function sort()
+    {
+        $input = [
+            'a',
+            'B',
+            'A',
+            'b',
+        ];
+
+        $expected = [
+            'a',
+            'A',
+            'B',
+            'b',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
+    public function multiple_sections_are_ordered_correctly()
     {
         $input = [
             '[$app=org.example.app]example.com##.textad',
@@ -76,7 +95,7 @@ class GeneralTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function multiple_sections_are_processed_correctly_2()
+    public function multiple_sections_are_ordered_correctly_2()
     {
         $input = [
             'example.*,~/example\.([a-z]{1,2}|[a-z]{4,16})/##body > *',
