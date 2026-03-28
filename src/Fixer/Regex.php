@@ -34,7 +34,7 @@ final class Regex
     /**
      * COSMETIC_RULE fallback.
      */
-    const COSMETIC_RULE_WIDE = '/#[@?$%]{1,3}#|\$@?\$|##/';
+    const IS_COSMETIC_RULE = '/#[@?$%]{1,3}#|\$@?\$|##/';
 
     /**
      * Regex to find domains in element-hiding rules.

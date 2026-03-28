@@ -51,25 +51,17 @@ final class Fixer
             if ($this->isSpecialLine($line)) {
                 // Write current section if it exists and reset counters
                 $this->flushSection($section, $result);
-                // Add the comment/header line to the result
                 $result[] = $line;
 
                 continue;
             }
 
-            // Handle rule lines
-            if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
-                $section[] = [
-                    'type' => 'cosmetic',
-                    'value' => $this->elementTidy->applyFix($line, $m),
-                ];
-            }
-            // Fallback if `Regex: COSMETIC_RULE` fails
-            elseif (preg_match(Regex::COSMETIC_RULE_WIDE, $line)) {
-                $section[] = [
-                    'type' => 'cosmetic',
-                    'value' => $line,
-                ];
+            if (preg_match(Regex::IS_COSMETIC_RULE, $line)) {
+                if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
+                    $line = $this->elementTidy->applyFix($line, $m);
+                }
+
+                $section[] = ['type' => 'cosmetic', 'value' => $line];
             } else {
                 $section[] = [
                     'type' => 'network',
