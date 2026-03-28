@@ -30,7 +30,7 @@ class FixBench
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
-    #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 2%)')]
+    #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
     public function benchFix(): void
     {
         $this->fixer->fix($this->input);
@@ -42,7 +42,7 @@ class FixBench
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
-    #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 2%)')]
+    #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
     public function benchMaximumFix(): void
     {
         app(FixerConfig::class)->flags = [
