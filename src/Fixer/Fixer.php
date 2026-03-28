@@ -9,6 +9,12 @@ use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Components\NetworkTidy;
 use Realodix\Haiku\Helper;
 
+/**
+ * @phpstan-type SectionItem array{
+ *     type: 'cosmetic'|'network',
+ *     value: string
+ * }
+ */
 final class Fixer
 {
     public function __construct(
@@ -28,6 +34,7 @@ final class Fixer
     public function fix(array $lines): array
     {
         $result = []; // Stores the final processed rules
+        /** @var list<SectionItem> $section */
         $section = []; // Temporary storage for a section of rules
 
         foreach ($lines as $i => $line) {
@@ -52,13 +59,22 @@ final class Fixer
 
             // Handle rule lines
             if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
-                $section[] = $this->elementTidy->applyFix($line, $m);
+                $section[] = [
+                    'type' => 'cosmetic',
+                    'value' => $this->elementTidy->applyFix($line, $m),
+                ];
             }
             // Fallback if `Regex: COSMETIC_RULE` fails
             elseif (preg_match(Regex::COSMETIC_RULE_WIDE, $line)) {
-                $section[] = $line;
+                $section[] = [
+                    'type' => 'cosmetic',
+                    'value' => $line,
+                ];
             } else {
-                $section[] = $this->networkTidy->applyFix($line);
+                $section[] = [
+                    'type' => 'network',
+                    'value' => $this->networkTidy->applyFix($line),
+                ];
             }
         }
 
@@ -74,7 +90,7 @@ final class Fixer
      * If the section buffer is non-empty, it will be processed and appended to the result
      * in its transformed form. The section buffer is then cleared.
      *
-     * @param array<int, string> &$section Reference to the current rule section buffer
+     * @param list<SectionItem> &$section Reference to the current rule section buffer
      * @param array<int, string> &$result Reference to the final output buffer
      */
     private function flushSection(array &$section, array &$result): void
@@ -93,7 +109,7 @@ final class Fixer
     /**
      * Process a logical section of rules.
      *
-     * @param array<int, string> $section Tidied filter rules
+     * @param list<SectionItem> $section Tidied filter rules
      * @return array<int, string> The processed lines for the section
      */
     private function processSection(array $section): array
@@ -101,12 +117,11 @@ final class Fixer
         $cosmetic = [];
         $network = [];
 
-        // categorize the line as either an element rule or a network filter
-        foreach ($section as $rule) {
-            if (preg_match(Regex::COSMETIC_RULE_WIDE, $rule)) {
-                $cosmetic[] = $rule;
+        foreach ($section as $item) {
+            if ($item['type'] === 'cosmetic') {
+                $cosmetic[] = $item['value'];
             } else {
-                $network[] = $rule;
+                $network[] = $item['value'];
             }
         }
 
@@ -133,7 +148,7 @@ final class Fixer
      *
      * @param int $index The current line index within the original input
      * @param array<int, string> $lines The full list of input lines
-     * @param array<int, string> &$section Reference to the current rule section buffer
+     * @param list<SectionItem> &$section Reference to the current rule section buffer
      * @param array<int, string> &$result Reference to the final output buffer
      */
     private function handleEmptyLine(int $index, array $lines, array &$section, array &$result): void
