@@ -50,7 +50,7 @@ final class Fixer
             // which act as section breaks.
             if ($this->isSpecialLine($line)) {
                 // Write current section if it exists and reset counters
-                $this->flushSection($section, $result);
+                $this->commitSection($section, $result);
                 $result[] = $line;
 
                 continue;
@@ -71,21 +71,18 @@ final class Fixer
         }
 
         // Write any remaining section
-        $this->flushSection($section, $result);
+        $this->commitSection($section, $result);
 
         return $result;
     }
 
     /**
-     * Flush the current section into the final result.
-     *
-     * If the section buffer is non-empty, it will be processed and appended to the result
-     * in its transformed form. The section buffer is then cleared.
+     * Process and commit the current section.
      *
      * @param list<SectionItem> &$section Reference to the current rule section buffer
      * @param array<int, string> &$result Reference to the final output buffer
      */
-    private function flushSection(array &$section, array &$result): void
+    private function commitSection(array &$section, array &$result): void
     {
         if ($section === []) {
             return;
@@ -95,11 +92,12 @@ final class Fixer
             $result[] = $line;
         }
 
+        // Clear the buffer
         $section = [];
     }
 
     /**
-     * Process a logical section of rules.
+     * Apply the transformation pipeline to a section.
      *
      * @param list<SectionItem> $section Tidied filter rules
      * @return array<int, string> The processed lines for the section
@@ -156,7 +154,7 @@ final class Fixer
 
             // https://regex101.com/r/llsloM/
             if ($next !== null && preg_match('/^(!|#\s|####)/', trim($next))) {
-                $this->flushSection($section, $result);
+                $this->commitSection($section, $result);
                 $result[] = '';
             }
 
@@ -164,7 +162,7 @@ final class Fixer
         }
 
         // mode === false
-        $this->flushSection($section, $result);
+        $this->commitSection($section, $result);
         $result[] = '';
     }
 

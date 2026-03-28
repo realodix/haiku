@@ -229,7 +229,6 @@ final class NetOptionCombiner
     private function rebuild(array $groups): array
     {
         $out = [];
-
         foreach ($groups as $g) {
             $out[] = $g['pattern'].'$'.implode(',', array_keys($g['options']));
         }
