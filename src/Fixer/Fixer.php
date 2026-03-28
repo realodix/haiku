@@ -44,7 +44,6 @@ final class Fixer
             if ($this->isSpecialLine($line)) {
                 // Write current section if it exists and reset counters
                 $this->flushSection($section, $result);
-
                 // Add the comment/header line to the result
                 $result[] = $line;
 
@@ -80,13 +79,15 @@ final class Fixer
      */
     private function flushSection(array &$section, array &$result): void
     {
-        if ($section) {
-            foreach ($this->processSection($section) as $line) {
-                $result[] = $line;
-            }
-
-            $section = [];
+        if ($section === []) {
+            return;
         }
+
+        foreach ($this->processSection($section) as $line) {
+            $result[] = $line;
+        }
+
+        $section = [];
     }
 
     /**
@@ -109,9 +110,10 @@ final class Fixer
             }
         }
 
+        // Cosmetic pipeline
         $cosmetic = Helper::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
-
+        // Network pipeline
         $network = $this->optionCombiner->applyFix($network);
         $network = Helper::uniqueSortBy(
             $network,
