@@ -38,6 +38,7 @@ final class AdgModifierForElement
             $parsed[$key] = [];
         }
 
+        // parse
         foreach ($this->networkTidy->splitOptions($modifiers) as $option) {
             $parts = explode('=', $option, 2);
             $name = ltrim($parts[0], '~');
@@ -80,7 +81,7 @@ final class AdgModifierForElement
      *
      * @return list<string>|array{}
      */
-    public function resolveComplicated(string $line, string $domainBlock, string $modifier): array
+    public function resolveComplicated(string $domainBlock, string $modifier): array
     {
         if ((!$this->config->flags['adg_non_basic_rule_modifier'])
             || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
@@ -94,13 +95,9 @@ final class AdgModifierForElement
             return [];
         }
 
-        $line = substr($line, strlen($modifier));
+        $domain = substr($domainBlock, strlen($modifier));
 
-        if (!preg_match(Regex::COSMETIC_RULE, $line, $m)) {
-            return [];
-        }
-
-        return [$modifier, $m[3], $m[4], $m[5]];
+        return [$modifier, $domain];
     }
 
     /**

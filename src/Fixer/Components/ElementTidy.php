@@ -31,8 +31,8 @@ final class ElementTidy
         $selector = $m[5];       // .ads
 
         // Handle complicated AdGuard modifier (delegated)
-        if ($resolved = $this->adgModifier->resolveComplicated($line, $domainBlock, $modifier)) {
-            [$modifier, $domain, $separator, $selector] = $resolved;
+        if ($resolved = $this->adgModifier->resolveComplicated($domainBlock, $modifier)) {
+            [$modifier, $domain] = $resolved;
         }
 
         $modifier = $this->adgModifier->applyFix($modifier);
