@@ -76,104 +76,11 @@ final class AdgModifierForElement
         return '[$'.$modifiers.']';
     }
 
-    /**
-     * Handle complicated AdGuard modifier and re-parse rule.
-     *
-     * @return list<string>|array{}
-     */
-    public function resolveComplicated(string $domainBlock, string $modifier): array
+    public function verify(string $modifier): bool
     {
-        if ((!$this->config->flags['adg_non_basic_rule_modifier'])
-            || !str_starts_with($modifier, '[$') || !$this->isComplicated($modifier)
-        ) {
-            return [];
-        }
-
-        $modifier = $this->extract($domainBlock);
-
-        if ($modifier === null) {
-            return [];
-        }
-
-        $domain = substr($domainBlock, strlen($modifier));
-
-        return [$modifier, $domain];
-    }
-
-    /**
-     * Extract AdGuard modifier using backward scan.
-     */
-    private function extract(string $str): ?string
-    {
-        $len = strlen($str);
-        $open = null; // '/'
-
-        for ($i = $len - 1; $i >= 0; $i--) {
-            $c = $str[$i];
-
-            // ===== REGEX =====
-            if ($c === '/') {
-                if ($open === $c) {
-                    $open = null;
-                } elseif ($open === null) {
-                    $open = $c;
-                }
-
-                continue;
-            }
-
-            // ===== CLOSING BRACKET =====
-            if ($open === null && $c === ']') {
-                // IPv6 literal? -> skip
-                $ipv6Start = $this->isIpv6Literal($str, $i);
-                if ($ipv6Start !== null) {
-                    $i = $ipv6Start;
-
-                    continue;
-                }
-
-                // this is modifier end
-                return substr($str, 0, $i + 1);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks if a given AdGuard modifier is complicated. i.e., contains regex string
-     * or Regex::COSMETIC_RULE fails to extract.
-     */
-    private function isComplicated(string $modifier): bool
-    {
-        return
-            // contains regex
-            substr_count($modifier, '/]') > 0
+        return !$this->config->flags['adg_non_basic_rule_modifier']
+            || !str_starts_with($modifier, '[$')
             // bracket count mismatch
-            || substr_count($modifier, '[') != substr_count($modifier, ']');
-    }
-
-    private function isIpv6Literal(string $str, int $end): ?int
-    {
-        for ($i = $end - 1; $i >= 0; $i--) {
-            $c = $str[$i];
-
-            if ($c === '[') {
-                $inside = substr($str, $i + 1, $end - $i - 1);
-
-                // only hex digits and colon
-                if ($inside !== '' && preg_match('/^[0-9a-fA-F:]+$/', $inside)) {
-                    return $i; // opening bracket position
-                }
-
-                return null;
-            }
-
-            if (!ctype_xdigit($c) && $c !== ':') {
-                return null;
-            }
-        }
-
-        return null;
+            || !(substr_count($modifier, '[') != substr_count($modifier, ']'));
     }
 }

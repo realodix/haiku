@@ -24,15 +24,13 @@ final class ElementTidy
             return $line;
         }
 
-        $domainBlock = $m[1];    // [$adg-modifiers]example.com
         $modifier = $m[2] ?? ''; // [$adg-modifiers]
         $domain = $m[3];         // example.com
         $separator = $m[4];      // ##
         $selector = $m[5];       // .ads
 
-        // Handle complicated AdGuard modifier (delegated)
-        if ($resolved = $this->adgModifier->resolveComplicated($domainBlock, $modifier)) {
-            [$modifier, $domain] = $resolved;
+        if (!$this->adgModifier->verify($modifier)) {
+            return $line;
         }
 
         $modifier = $this->adgModifier->applyFix($modifier);
