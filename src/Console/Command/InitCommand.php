@@ -73,6 +73,26 @@ builder:
       source: # Required
         - blocklists/general/local-rules.txt
         - https://cdn.example.org/blocklists/general.txt
+
+# Settings for the `lint` command
+linter:
+  paths:
+    - some/dir/SomeFile.php
+    - other/dir
+  excludes:
+    - some/dir/SomeFile.php
+    - other/dir
+  rules:
+    no_dupe_domains: false
+  ignoreErrors:
+    - messages:
+      - 'foo'
+      - 'bar'
+    - path: 'some/dir/SomeFile.php'
+    - path: 'some/dir/SomeFile.php'
+      messages:
+        - 'foo'
+        - 'bar'
 YML;
 
         file_put_contents($configFile, $content);

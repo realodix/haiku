@@ -18,5 +18,8 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="Linter">
+            <directory>tests/Linter</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
