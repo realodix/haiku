@@ -433,24 +433,27 @@ Removes unnecessary wildcards (`*`).
 
 ### # Filter Option Format
 
-Normalizes option names to either their long form or short form.
+Normalizes network filter option names into a consistent format.
 
 **Config**: `fixer.flags.option_format`
 
 **Possible values**:
-- `long`: Convert all options to long form
-  (e.g. `$third-party`, `$document`)
-- `short`: Convert all options to short form
-  (e.g. `$3p`, `$doc`)
+- `long`: Converts all options to their descriptive (long) form.
+- `short`: Converts all options to their abbreviated (short) form.
+- `native`: Converts all options to their native form.
 
 ```adblock
-! option_format: long
-
 !## BEFORE
-*$3p
+*$1p,document
 
-!## AFTER
-*$third-party
+!## AFTER - long
+*$first-party,document
+
+!## AFTER - short
+*$1p,doc
+
+!## AFTER - native
+*$~third-party,document
 ```
 
 ### # Deprecated Filter Options

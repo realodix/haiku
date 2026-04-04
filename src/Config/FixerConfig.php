@@ -18,7 +18,7 @@ use Symfony\Component\Finder\Finder;
  *  no_legacy_remove_action: bool,
  *  normalize_domain: bool,
  *  normalize_domain_separators: bool,
- *  option_format: null|'long'|'short',
+ *  option_format: null|'native'|'long'|'short',
  *  option_order: false|'name'|'type',
  *  reduce_subdomains: bool,
  *  reduce_wildcard_covered_domains: bool,
