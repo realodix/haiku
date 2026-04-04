@@ -9,11 +9,11 @@ final class Regex
      *
      * @example ||example.com^$script,domain=example.org
      *
-     * @link https://regex101.com/r/t2MFGs/1
+     * @link https://regex101.com/r/t2MFGs/2
      */
     // const NET_OPTION = '/^(.*)\$(~?[\w\-]+(?:=[^,\s]+)?(?:,~?[\w\-]+(?:=[^,\s]+)?)*)$/';
     // const NET_OPTION = '/^(.*)\$(~?[\w\-]+(?:=[^\s]+)?(?:,~?[\w\-]+(?:=[^\s]+)?)*)$/';
-    const NET_OPTION = '/^(.*)\$(~?[\w\-]+(?:=.+)?(?:,~?[\w\-]+(?:=.+)?)*)$/';
+    const NET_OPTION = '/^(.*)(?<!\\\)\$(~?[\w\-]+(?:=.+)?(?:,~?[\w\-]+(?:=.+)?)*)$/';
 
     /**
      * Regex to find domain-related options in a network filter.
