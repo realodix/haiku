@@ -15,8 +15,8 @@ final class NetworkTidy
      */
     const KNOWN_OPTIONS = [
         // must assign values
-        'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason',
-        'redirect-rule', 'redirect', 'replace', 'rewrite', 'to', 'urlskip', 'urltransform', 'uritransform',
+        'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason', 'redirect-rule',
+        'redirect', 'replace', 'requestheader', 'responseheader', 'rewrite', 'to', 'urlskip', 'urltransform', 'uritransform',
         // basic
         'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font', 'inline-script',
         'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
