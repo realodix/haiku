@@ -26,23 +26,26 @@ final class Linter
     public function run($cmdOpt, ?callable $onStart = null, ?callable $onAdvance = null): ErrorReporter
     {
         $config = $this->config->linter($cmdOpt);
+        $ignoredErrors = new IgnoredErrors($config->ignoreErrors);
 
         if ($onStart !== null) {
             $onStart(count($config->paths));
         }
 
         foreach ($config->paths as $path) {
-            $this->analyseFile($path);
+            $this->analyseFile($path, $ignoredErrors);
 
             if ($onAdvance !== null) {
                 $onAdvance();
             }
         }
 
+        $ignoredErrors->reportUnmatched($this->errorReporter);
+
         return $this->errorReporter;
     }
 
-    private function analyseFile(string $path): void
+    private function analyseFile(string $path, IgnoredErrors $ignoredErrors): void
     {
         $content = $this->read($path);
 
@@ -54,6 +57,9 @@ final class Linter
 
         foreach ($this->rules as $rule) {
             foreach ($rule->check($content) as $error) {
+                if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
+                    continue;
+                }
                 $this->errorReporter->add($path, $error);
             }
         }

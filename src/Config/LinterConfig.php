@@ -30,6 +30,9 @@ final class LinterConfig
      */
     public private(set) array $paths;
 
+    /** @var list<mixed> */
+    public array $ignoreErrors = [];
+
     /** @var _LinterRules */
     public array $rules = [
         'check_id_selector_start' => false,
@@ -54,7 +57,8 @@ final class LinterConfig
      * @param array{
      *   paths?: list<string>,
      *   excludes?: list<string>,
-     *   rules?: _LinterRules
+     *   rules?: _LinterRules,
+     *   ignoreErrors?: list<mixed>
      * } $config User-defined configuration from the config file
      * @param array{path: string|null} $cmdOpt Command options
      */
@@ -66,6 +70,7 @@ final class LinterConfig
         );
 
         $this->rules = $config['rules'] ?? [];
+        $this->ignoreErrors = $config['ignoreErrors'] ?? [];
 
         return $this;
     }

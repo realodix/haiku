@@ -10,6 +10,9 @@ final class ErrorReporter
     /** @var array<string, list<_RuleError>> */
     private array $errors = [];
 
+    /** @var list<string> */
+    private array $globalErrors = [];
+
     /**
      * @param string $path File path
      * @param _RuleError $error
@@ -27,8 +30,21 @@ final class ErrorReporter
         return $this->errors;
     }
 
+    public function addGlobalError(string $message): void
+    {
+        $this->globalErrors[] = $message;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getGlobalErrors(): array
+    {
+        return $this->globalErrors;
+    }
+
     public function count(): int
     {
-        return array_sum(array_map('count', $this->errors));
+        return array_sum(array_map('count', $this->errors)) + count($this->globalErrors);
     }
 }

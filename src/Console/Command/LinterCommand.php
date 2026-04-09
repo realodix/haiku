@@ -84,8 +84,9 @@ class LinterCommand extends Command
     private function renderErrors(SymfonyStyle $io, $errorReporter): void
     {
         $errors = $errorReporter->getErrors();
+        $globalErrors = $errorReporter->getGlobalErrors();
 
-        if (empty($errors)) {
+        if (empty($errors) && empty($globalErrors)) {
             $io->success('No errors found!');
 
             return;
@@ -117,6 +118,16 @@ class LinterCommand extends Command
                 $io->writeln($this->meta("{$path}:{$issue['line']}", '✏️ '));
                 $io->newLine();
             }
+        }
+
+        if (!empty($globalErrors)) {
+            $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
+            $io->writeln('     Error');
+            $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
+            foreach ($globalErrors as $error) {
+                $io->writeln(sprintf('     %s', $error));
+            }
+            $io->newLine();
         }
 
         $io->error(sprintf('Found %d errors', $errorReporter->count()));

@@ -91,6 +91,9 @@ linter:
     - vendor
   rules:
     no_extra_blank_lines: 5
+  ignoreErrors:
+    - messages:
+      - 'Deprecated filter option: "empty"'
 ```
 
 #### `paths`
@@ -98,6 +101,34 @@ A list of files or directories to analyze. Paths are relative to the project roo
 
 #### `excludes`
 A list of files or directories to exclude from analysis. If root-level paths are provided, the `vendor` directory is automatically excluded.
+
+#### `ignoreErrors`
+Errors can be ignored by adding a regular expression to the configuration file under the `ignoreErrors` key. To ignore an error by a regular expression, add a string entry:
+
+```yml
+linter:
+  ignoreErrors:
+    - '#Deprecated filter option: "(empty|object-subrequest)"#'
+```
+
+To ignore errors by a regular expression only in a specific file, add an entry with `message` or `messages` and `path` or `paths` keys.
+
+```yml
+linter:
+  ignoreErrors:
+    - messages:
+        - 'Error message 1'
+        - 'Error message 2'
+    - paths:
+        - SomeFile.txt
+        - SomeOtherFile.txt
+    - path: File1.txt
+      messages:
+        - 'Error message 1'
+        - 'Error message 2'
+    - path: File2.txt
+      message: 'Error message 2'
+```
 
 #### `rules`
 A set of options used to configure the linter.

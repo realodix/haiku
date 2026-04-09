@@ -74,6 +74,17 @@ final class Schema
                         ])->castTo('array'),
                     ),
                 ])->otherItems(Expect::bool()),
+                'ignoreErrors' => Expect::listOf(
+                    Expect::anyOf(
+                        Expect::string(),
+                        Expect::structure([
+                            'message' => Expect::string(),
+                            'messages' => Expect::listOf('string'),
+                            'path' => Expect::string(),
+                            'paths' => Expect::listOf('string'),
+                        ])->castTo('array'),
+                    ),
+                ),
             ]),
         ]);
     }
