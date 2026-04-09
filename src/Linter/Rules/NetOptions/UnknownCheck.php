@@ -39,15 +39,6 @@ final class UnknownCheck implements Rule
                     continue;
                 }
 
-                if ($actualName === 'xml') {
-                    $errors[] = RuleErrorBuilder::message(sprintf('Invalid filter option: "%s".'))
-                        ->line($index + 1)
-                        ->tip('Did you mean "xhr"?')
-                        ->build();
-
-                    continue;
-                }
-
                 if (!in_array($actualName, $knownOptions, true)) {
                     $builder = RuleErrorBuilder::message(sprintf('Unknown filter option: "%s".', $actualName))
                         ->line($index + 1);
@@ -55,6 +46,8 @@ final class UnknownCheck implements Rule
                     $hint = Helper::getSuggestion($knownOptions, $actualName);
                     if ($hint) {
                         $builder->tip(sprintf('Did you mean "%s"?', $hint));
+                    } elseif ($actualName === 'xml') {
+                        $builder->tip('Did you mean "xhr"?');
                     }
 
                     $errors[] = $builder->build();
@@ -83,7 +76,6 @@ final class UnknownCheck implements Rule
 
         for ($i = 0; $i < $len; $i++) {
             $c = $optionString[$i];
-            $prev = $i > 0 ? $optionString[$i - 1] : null;
 
             // escape
             if ($escaped) {
@@ -118,12 +110,8 @@ final class UnknownCheck implements Rule
             // regex handling
             if (!$inSingleQuote && !$inDoubleQuote && $c === '/') {
                 if (!$inRegex) {
-                    // start regex
-                    if ($prev === '=' || $prev === ',' || $prev === null) {
-                        $inRegex = true;
-                    }
-                } else {
-                    // end regex
+                    $inRegex = true;
+                } elseif ($inRegex && $this->isRegexEnd($optionString, $i)) {
                     $inRegex = false;
                 }
 
@@ -150,67 +138,31 @@ final class UnknownCheck implements Rule
         return $result;
     }
 
-    // For now, let's skip `$replace`
-    // private function splitOptions(string $optionString): array
-    // {
-    //     $result = [];
-    //     $buffer = '';
-    //     $len = strlen($optionString);
+    private function isRegexEnd(string $str, int $i): bool
+    {
+        $len = strlen($str);
 
-    //     $inRegex = false;
-    //     $bracketDepth = 0;
-    //     $escaped = false;
+        // Must be a forward slash
+        if ($str[$i] !== '/') {
+            return false;
+        }
 
-    //     for ($i = 0; $i < $len; $i++) {
-    //         $c = $optionString[$i];
+        // Do not treat escaped slash as regex end
+        if ($i > 0 && $str[$i - 1] === '\\') {
+            return false;
+        }
 
-    //         // Handle escape
-    //         if ($escaped) {
-    //             $buffer .= $c;
-    //             $escaped = false;
+        $j = $i + 1;
 
-    //             continue;
-    //         }
+        // Skip regex flags (e.g. i, g, m, s, u)
+        while ($j < $len && ctype_alpha($str[$j])) {
+            $j++;
+        }
 
-    //         if ($c === '\\') {
-    //             $buffer .= $c;
-    //             $escaped = true;
-
-    //             continue;
-    //         }
-
-    //         // Detect regex
-    //         if ($c === '/' && $bracketDepth === 0) {
-    //             $inRegex = !$inRegex;
-    //             $buffer .= $c;
-
-    //             continue;
-    //         }
-
-    //         // Track bracket depth
-    //         if (!$inRegex) {
-    //             if ($c === '[' || $c === '(') {
-    //                 $bracketDepth++;
-    //             } elseif ($c === ']' || $c === ')') {
-    //                 $bracketDepth--;
-    //             }
-    //         }
-
-    //         // Split only if safe
-    //         if ($c === ',' && !$inRegex && $bracketDepth === 0) {
-    //             $result[] = $buffer;
-    //             $buffer = '';
-
-    //             continue;
-    //         }
-
-    //         $buffer .= $c;
-    //     }
-
-    //     if ($buffer !== '') {
-    //         $result[] = $buffer;
-    //     }
-
-    //     return $result;
-    // }
+        // A regex is considered closed if:
+        // - we reached the end of the string
+        // - the next meaningful character is a comma (next option)
+        // - the next character is '$' (end anchor in filter syntax)
+        return $j >= $len || $str[$j] === ',' || $str[$j] === '$';
+    }
 }
