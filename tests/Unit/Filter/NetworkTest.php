@@ -196,7 +196,7 @@ class NetworkTest extends TestCase
 
     #[PHPUnit\DataProvider('optionOrdeDomainValueProvider')]
     #[PHPUnit\Test]
-    public function option_orde__domain_value(array $input, array $expected): void
+    public function option_order__domain_value(array $input, array $expected): void
     {
         $this->assertSame($expected, $this->fix($input));
     }
