@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Test\Linter\Rules\NetOptions;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Linter\Rules\NetOptions\GeneralCheck;
 use Realodix\Haiku\Test\TestCase;
 
 class GeneralCheckTest extends TestCase
@@ -73,7 +74,7 @@ class GeneralCheckTest extends TestCase
 
         $this->analyse($lines, [
             [2, '$denyallow requires $domain.'],
-        ]);
+        ], [GeneralCheck::class]);
     }
 
     #[PHPUnit\Test]

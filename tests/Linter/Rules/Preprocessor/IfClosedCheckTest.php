@@ -27,7 +27,7 @@ class IfClosedCheckTest extends TestCase
             '!#endif',
         ];
 
-        $this->analyse($lines);
+        $this->analyse($lines, onlyRules: self::RULE);
 
         // both if-s are closed properly
         $lines = [
@@ -135,7 +135,7 @@ class IfClosedCheckTest extends TestCase
 
         $this->analyse($lines, [
             [5, 'Found "!#endif" without matching "!#if".'],
-        ]);
+        ], self::RULE);
     }
 
     /**

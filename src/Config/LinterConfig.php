@@ -18,6 +18,7 @@ use Symfony\Component\Finder\Finder;
  *  no_extra_blank_lines: bool|int,
  *  no_short_rules: bool|int,
  *  net_pattern_anchor: bool,
+ *  no_dupe_rules: bool,
  *  preprocessor_directives: bool,
  * }
  */
@@ -44,6 +45,7 @@ final class LinterConfig
         'no_dupe_domains' => true,
         'no_dupe_options' => true,
         'no_extra_blank_lines' => false,
+        'no_dupe_rules' => true,
         'no_short_rules' => false,
         'preprocessor_directives' => true,
     ] {

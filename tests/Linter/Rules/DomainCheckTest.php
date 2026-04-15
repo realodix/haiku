@@ -3,10 +3,15 @@
 namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Linter\Rules\DomainCheck;
 use Realodix\Haiku\Test\TestCase;
 
 class DomainCheckTest extends TestCase
 {
+    private const RULE = [
+        DomainCheck::class,
+    ];
+
     #[PHPUnit\Test]
     public function empty_domain(): void
     {
@@ -24,7 +29,7 @@ class DomainCheckTest extends TestCase
             [4, 'Unexpected empty domain in cosmetic rule.'],
             [5, 'Unexpected empty domain in cosmetic rule.'],
             [6, 'Unexpected empty domain in network filter.'],
-        ]);
+        ], self::RULE);
     }
 
     #[PHPUnit\Test]
@@ -133,7 +138,7 @@ class DomainCheckTest extends TestCase
             [1, 'Contradictory domain example.com detected.'],
             [2, 'Contradictory domain example.com detected.'],
             [3, 'Contradictory domain example.com detected.'],
-        ]);
+        ], self::RULE);
     }
 
     #[PHPUnit\Test]

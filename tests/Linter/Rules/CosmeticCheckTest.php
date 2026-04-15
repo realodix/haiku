@@ -4,10 +4,15 @@ namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Config\LinterConfig;
+use Realodix\Haiku\Linter\Rules\CosmeticCheck;
 use Realodix\Haiku\Test\TestCase;
 
 class CosmeticCheckTest extends TestCase
 {
+    private const RULE = [
+        CosmeticCheck::class,
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,7 +38,7 @@ class CosmeticCheckTest extends TestCase
             [3, 'Invalid filter: ID selector #1800number_bo cannot start with a number.'],
             [3, 'Invalid filter: ID selector #13_3623 cannot start with a number.'],
             [4, 'Invalid filter: ID selector #1800number_bo cannot start with a number.'],
-        ]);
+        ], self::RULE);
 
         $lines = [
             'example.com###module-293\#3-0-0',

@@ -35,7 +35,9 @@ class FoundationTest extends TestCase
             '*##._popIn_recommend_article_ad',
         ];
 
-        $this->analyse($lines);
+        $this->analyse($lines, [
+            [3, 'Redundant filter: \'example.com$$advertisement-module\' is redundant as it is already covered by \'$$advertisement-module\' on line 2.'],
+        ]);
     }
 
     #[PHPUnit\Test]
