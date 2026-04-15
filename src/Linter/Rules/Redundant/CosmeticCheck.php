@@ -75,9 +75,9 @@ final class CosmeticCheck implements Rule
             // Exact duplicate detection
             if (isset($exactSeen[$line])) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    "Redundant filter: '%s' already defined on line %d.",
-                    $lineTrim,
-                    $exactSeen[$lineTrim],
+                    'Redundant filter: %s already defined on line %d.',
+                    $line,
+                    $exactSeen[$line],
                 ))->line($lineNum)->build();
 
                 continue;
@@ -179,14 +179,14 @@ final class CosmeticCheck implements Rule
 
         if ($rule['selector'] === $parent['selector']) {
             $message = sprintf(
-                "Redundant filter: '%s' already covered by '%s' on line %d.",
+                'Redundant filter: %s already covered by %s on line %d.',
                 $rule['content'],
                 $parent['separator'].$parent['selector'],
                 $parent['line'],
             );
         } else {
             $message = sprintf(
-                "Redundant filter: '%s' is redundant due to more general selector on line %d.",
+                'Redundant filter: %s is redundant due to more general selector on line %d.',
                 $rule['content'],
                 $parent['line'],
             );
@@ -205,10 +205,13 @@ final class CosmeticCheck implements Rule
         $message = '';
 
         if ($rule['selector'] === $parent['selector']) {
-            $message = sprintf("Redundant filter: domain '%s' already covered on line %d.", $domain, $parent['line']);
+            $message = sprintf(
+                'Redundant filter: domain %s already covered on line %d.',
+                $domain, $parent['line'],
+            );
         } else {
             $message = sprintf(
-                "Redundant filter: domain '%s' in '%s' already covered on line %d.",
+                'Redundant filter: domain %s in %s already covered on line %d.',
                 $domain,
                 $domain.$rule['separator'].$rule['selector'],
                 $parent['line'],
