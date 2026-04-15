@@ -108,4 +108,28 @@ class GeneralTest extends TestCase
 
         $this->analyse($lines, [], self::RULE);
     }
+
+    #[PHPUnit\Test]
+    public function redundant_7(): void
+    {
+        $lines = [
+            '||example.com^$image,script',
+            '||example.com^$script,image',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ||example.com^$script,image already defined on line 1.'],
+        ], self::RULE);
+    }
+
+    #[PHPUnit\Test]
+    public function redundant_8(): void
+    {
+        $lines = [
+            '||1xikk.world^',
+            '||1xikk.world^$popup',
+        ];
+
+        $this->analyse($lines, [], self::RULE);
+    }
 }

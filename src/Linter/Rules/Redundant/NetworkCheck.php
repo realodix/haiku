@@ -26,7 +26,7 @@ final class NetworkCheck implements Rule
         $errors = [];
         $exactSeen = [];
         $genericNet = [];   // Mixed Casing Pattern -> LineNum
-        $patternOptionsSeen = []; // Mixed Casing Pattern -> Normalized Options -> [Lowercase Domain -> LineNum]
+        $patternOptionsSeen = []; // Mixed Casing Pattern -> Normalized Options -> [Type -> [Lowercase Domain -> LineNum]]
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -74,7 +74,16 @@ final class NetworkCheck implements Rule
                 // No options. Global for this pattern.
                 $genericNet[$pattern] = $lineNum;
             } else {
-                if (isset($genericNet[$pattern])) {
+                // Check if global rule covers this one
+                $isSpecial = false;
+                foreach ($options as $opt) {
+                    if (strtolower(trim($opt)) === 'popup') {
+                        $isSpecial = true;
+                        break;
+                    }
+                }
+
+                if (isset($genericNet[$pattern]) && !$isSpecial) {
                     $errors[] = RuleErrorBuilder::message(sprintf(
                         'Redundant filter: %s already covered by %s on line %d.',
                         $line, $m[1], $genericNet[$pattern],
@@ -114,7 +123,14 @@ final class NetworkCheck implements Rule
                     $optionsKey = implode(',', $nonDomainOptions);
 
                     if (empty($domains)) {
-                        $patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'] = $lineNum;
+                        if (isset($patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'])) {
+                            $errors[] = RuleErrorBuilder::message(sprintf(
+                                'Redundant filter: %s already defined on line %d.',
+                                $line, $patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'],
+                            ))->line($lineNum)->build();
+                        } else {
+                            $patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'] = $lineNum;
+                        }
                     } else {
                         if (isset($patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'])) {
                             $errors[] = RuleErrorBuilder::message(sprintf("Redundant filter: '%s' is redundant.", $line))
