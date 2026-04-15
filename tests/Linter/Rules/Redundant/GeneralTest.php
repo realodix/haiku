@@ -25,7 +25,7 @@ class GeneralTest extends TestCase
 
         $this->analyse($lines, [
             [2, "Redundant filter: domain 'x.com' already covered on line 1."],
-            [3, "Redundant filter: domain 'example.com' already covered on line 1."],
+            [3, "Redundant filter: 'example.com##.ads' already covered by '##.ads' on line 1."],
         ], self::RULE);
 
         $this->assertSame([

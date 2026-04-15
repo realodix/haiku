@@ -45,9 +45,9 @@ class CosmeticAttrSelectorCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: \'##a[title="Ads-1" i]\' is redundant due to more general selector on line 2.'],
-            [3, 'Redundant filter: \'##a[title="ads-2"]\' already covered by a previous selector on line 2.'],
+            [3, 'Redundant filter: \'##a[title="ads-2"]\' is redundant due to more general selector on line 2.'],
             [5, 'Redundant filter: \'##img[alt="advertising"]\' is redundant due to more general selector on line 6.'],
-            [7, 'Redundant filter: \'##img[alt="Advertisement"]\' already covered by a previous selector on line 6.'],
+            [7, 'Redundant filter: \'##img[alt="Advertisement"]\' is redundant due to more general selector on line 6.'],
         ], self::RULE);
     }
 
@@ -73,10 +73,11 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             'a.com,x.com,b.com##a[title="Adv-1" i]',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: domain \'example.com\' already covered on line 1.'],
+            [2, 'Redundant filter: \'example.com##a\' already covered by \'##a\' on line 1.'],
             [3, 'Redundant filter: domain \'a.com\' in \'a.com##a[title="Ads-1" i]\' already covered on line 4.'],
             [3, 'Redundant filter: domain \'b.com\' in \'b.com##a[title="Ads-1" i]\' already covered on line 4.'],
             [6, 'Redundant filter: domain \'a.com\' in \'a.com##a[title="Adv-1" i]\' already covered on line 5.'],
+            [6, 'Redundant filter: domain \'b.com\' in \'b.com##a[title="Adv-1" i]\' already covered on line 5.'],
         ], self::RULE);
     }
 
@@ -94,7 +95,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: \'##[href^="https://example.site"]\' is redundant due to more general selector on line 2.'],
             [3, 'Redundant filter: \'##[href$="https://example.site"]\' is redundant due to more general selector on line 4.'],
-            [6, 'Redundant filter: \'##[href*="https://x.com"]\' already covered by a previous selector on line 5.'],
+            [6, 'Redundant filter: \'##[href*="https://x.com"]\' is redundant due to more general selector on line 5.'],
         ], self::RULE);
 
         $lines = [
@@ -102,7 +103,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             '##[href^="https://example.com/"]',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: \'##[href^="https://example.com/"]\' already covered by a previous selector on line 1.'],
+            [2, 'Redundant filter: \'##[href^="https://example.com/"]\' is redundant due to more general selector on line 1.'],
         ], self::RULE);
     }
 
@@ -115,9 +116,17 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             'a.com,b.com##a[title*="Ads"]',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: domain \'a.com\' in \'a.com##a[title="Ads-1"]\' already covered on line 2.'],
+            [1, 'Redundant filter: \'a.com,b.com##a[title="Ads-1"]\' is redundant due to more general selector on line 3.'],
+            [2, 'Redundant filter: \'a.com,b.com##a[title^="Ads"]\' is redundant due to more general selector on line 3.'],
+        ], self::RULE);
+
+        $lines = [
+            'a.com,b.com,c.com##a[title="Ads-1"]',
+            'a.com,b.com,d.com##a[title^="Ads"]',
+            'a.com,b.com##a[title*="Ads"]',
+        ];
+        $this->analyse($lines, [
             [1, 'Redundant filter: domain \'a.com\' in \'a.com##a[title="Ads-1"]\' already covered on line 3.'],
-            [1, 'Redundant filter: domain \'b.com\' in \'b.com##a[title="Ads-1"]\' already covered on line 2.'],
             [1, 'Redundant filter: domain \'b.com\' in \'b.com##a[title="Ads-1"]\' already covered on line 3.'],
             [2, 'Redundant filter: domain \'a.com\' in \'a.com##a[title^="Ads"]\' already covered on line 3.'],
             [2, 'Redundant filter: domain \'b.com\' in \'b.com##a[title^="Ads"]\' already covered on line 3.'],
@@ -136,7 +145,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: \'##img[alt^="ABC"]\' is redundant due to more general selector on line 2.'],
-            [4, 'Redundant filter: \'##img[alt^="FOO"]\' already covered by a previous selector on line 3.'],
+            [4, 'Redundant filter: \'##img[alt^="FOO"]\' is redundant due to more general selector on line 3.'],
         ], self::RULE);
     }
 
@@ -152,11 +161,11 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             '##img[alt^="foo_bar" i]',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: \'##img[alt^="FOO_BAR" i]\' is redundant due to more general selector on line 6.'],
-            [2, 'Redundant filter: \'##img[alt^="Foo_Bar_1" i]\' already covered by a previous selector on line 1.'],
-            [3, 'Redundant filter: \'##img[alt^="Foo_Bar_2" i]\' already covered by a previous selector on line 1.'],
-            [4, 'Redundant filter: \'##img[alt^="Foo_Bar_3" i]\' already covered by a previous selector on line 1.'],
-            [5, 'Redundant filter: \'##img[alt^="foo_bar_2" i]\' already covered by a previous selector on line 1.'],
+            [2, 'Redundant filter: \'##img[alt^="Foo_Bar_1" i]\' is redundant due to more general selector on line 1.'],
+            [3, 'Redundant filter: \'##img[alt^="Foo_Bar_2" i]\' is redundant due to more general selector on line 1.'],
+            [4, 'Redundant filter: \'##img[alt^="Foo_Bar_3" i]\' is redundant due to more general selector on line 1.'],
+            [5, 'Redundant filter: \'##img[alt^="foo_bar_2" i]\' is redundant due to more general selector on line 1.'],
+            [6, 'Redundant filter: \'##img[alt^="foo_bar" i]\' is redundant due to more general selector on line 1.'],
         ], self::RULE);
 
         $lines = [
@@ -169,10 +178,10 @@ class CosmeticAttrSelectorCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: \'##img[alt^="FOO_BAR" i]\' is redundant due to more general selector on line 6.'],
-            [2, 'Redundant filter: \'##img[alt^="Foo_Bar_1" i]\' already covered by a previous selector on line 1.'],
-            [3, 'Redundant filter: \'##img[alt^="Foo_Bar_2" i]\' already covered by a previous selector on line 1.'],
-            [4, 'Redundant filter: \'##img[alt^="Foo_Bar_3" i]\' already covered by a previous selector on line 1.'],
-            [5, 'Redundant filter: \'##img[alt^="foo_bar_2" i]\' already covered by a previous selector on line 1.'],
+            [2, 'Redundant filter: \'##img[alt^="Foo_Bar_1" i]\' is redundant due to more general selector on line 6.'],
+            [3, 'Redundant filter: \'##img[alt^="Foo_Bar_2" i]\' is redundant due to more general selector on line 6.'],
+            [4, 'Redundant filter: \'##img[alt^="Foo_Bar_3" i]\' is redundant due to more general selector on line 6.'],
+            [5, 'Redundant filter: \'##img[alt^="foo_bar_2" i]\' is redundant due to more general selector on line 6.'],
         ], self::RULE);
     }
 }

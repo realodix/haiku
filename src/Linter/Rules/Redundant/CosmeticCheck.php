@@ -39,24 +39,19 @@ final class CosmeticCheck implements Rule
             return [];
         }
 
-        /** @var list<_RuleError> */
         $errors = [];
-
-        /** @var array<string, int> */
+        $rules = [];
         $exactSeen = [];
 
-        /** @var array<string, int> */
-        $genericCosm = []; // Separator + Selector -> LineNum
+        // Optimization: Map rules to groups that might interact (cover each other).
+        // Standard selectors group by exact selector string.
+        // Attribute selectors group by tag and attribute name.
+        $interactionMap = [];
 
-        /** @var array<string, array<string, int>> */
-        $domainSeen = [];  // Separator + Selector -> [Lowercase Domain -> LineNum]
-
-        /** @var array<string, list<_SeenAttrSelector>> */
-        $selectorSeen = [];
-
+        // Pass 1: Parsing and Collection
         foreach ($content as $index => $line) {
-            $line = trim($line);
             $lineNum = $index + 1;
+            $line = trim($line);
 
             if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
                 continue;
@@ -66,12 +61,12 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            // 1. Exact duplicate detection (case-sensitive)
+            // Exact duplicate detection
             if (isset($exactSeen[$line])) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     "Redundant filter: '%s' already defined on line %d.",
-                    $line,
-                    $exactSeen[$line],
+                    $lineTrim,
+                    $exactSeen[$lineTrim],
                 ))->line($lineNum)->build();
 
                 continue;
@@ -85,113 +80,192 @@ final class CosmeticCheck implements Rule
             $domainStr = trim($m[3]);
             $separator = $m[4];
             $selector = $m[5];
-            $sepSelector = $separator.$selector; // e.g. "##.ads"
+            $domains = $this->parseDomains($domainStr);
+            $attrData = $this->parseAttributeSelector($selector);
+            $attrKey = $attrData ? $separator.'|'.$attrData['tag'].'|'.$attrData['attr'] : null;
 
-            $currDomains = $this->parseDomains($domainStr);
+            $ruleIndex = count($rules);
+            $rules[] = [
+                'line' => $lineNum,
+                'content' => $line,
+                'domains' => $domains,
+                'separator' => $separator,
+                'selector' => $selector,
+                'attrData' => $attrData,
+                'attrKey' => $attrKey,
+            ];
 
-            // 2. Global vs domain redundancy
-            if ($domainStr === '') {
-                $genericCosm[$sepSelector] = $lineNum;
-            } else {
-                if (isset($genericCosm[$sepSelector])) {
-                    $errors[] = RuleErrorBuilder::message(sprintf(
-                        "Redundant filter: '%s' already covered by '%s' on line %d.",
-                        $line,
-                        $sepSelector,
-                        $genericCosm[$sepSelector],
-                    ))->line($lineNum)->build();
-                } else {
-                    foreach ($currDomains as $d => $_) {
-                        if (isset($domainSeen[$sepSelector][$d])) {
-                            $errors[] = RuleErrorBuilder::message(sprintf(
-                                "Redundant filter: domain '%s' already covered on line %d.",
-                                $d,
-                                $domainSeen[$sepSelector][$d],
-                            ))->line($lineNum)->build();
-                        } else {
-                            $domainSeen[$sepSelector][$d] = $lineNum;
+            // Use 'A' prefix for Attribute Key and 'S' for Standard Selector Key to avoid collisions
+            $interactionKey = $attrKey ? 'A|'.$attrKey : 'S|'.$separator.$selector;
+            $interactionMap[$interactionKey][] = $ruleIndex;
+        }
+
+        // Pass 2: Redundancy Analysis (Optimized with grouping)
+        foreach ($rules as $i => $a) {
+            $domains = $a['domains'] ?: ['' => true];
+            /** @var array<int, list<string>> */
+            $coverageMap = []; // parentLine -> list of covered domains
+            /** @var array<int, array<string, mixed>> */
+            $parentMap = [];
+
+            // Only look specifically at rules in the same interaction group
+            $interactionKey = $a['attrKey'] ? 'A|'.$a['attrKey'] : 'S|'.$a['separator'].$a['selector'];
+            $candidates = $interactionMap[$interactionKey] ?? [];
+
+            foreach ($domains as $domain => $_) {
+                /** @var array<string, mixed>|null */
+                $bestParent = null;
+
+                foreach ($candidates as $j) {
+                    if ($i === $j) {
+                        continue;
+                    }
+
+                    $b = $rules[$j];
+
+                    if (!$this->isCovered($a, $b, $domain)) {
+                        continue;
+                    }
+
+                    if ($this->isBetter($b, $a)) {
+                        if ($bestParent === null || $this->isBetter($b, $bestParent)) {
+                            $bestParent = $b;
                         }
                     }
+                }
+
+                if ($bestParent) {
+                    $coverageMap[$bestParent['line']][] = $domain;
+                    $parentMap[$bestParent['line']] = $bestParent;
                 }
             }
 
-            // 3. Attribute selector dominance check
-            // Detects redundancy based on semantic coverage between attribute selectors.
-            // This is NOT a full CSS selector analysis.
-            $parsed = $this->parseAttributeSelector($selector);
+            foreach ($coverageMap as $parentLine => $coveredDomains) {
+                $parent = $parentMap[$parentLine];
+                $allDomainsCovered = count($coveredDomains) === count($domains);
 
-            if ($parsed !== null) {
-                // Group by separator, tag, and attribute to compare semantic coverage
-                $attrKey = $separator.'|'.$parsed['tag'].'|'.$parsed['attr'];
-                $list = $selectorSeen[$attrKey] ?? [];
-
-                foreach ($list as $prev) {
-                    $prevDomains = $prev['domains'];
-
-                    // Case: previous covered by current (THIS IS YOUR CASE)
-                    if ($this->isAttrCoveredBy($prev['data'], $parsed)) {
-                        // GLOBAL current → previous fully redundant
-                        if ($currDomains === []) {
-                            $errors[] = RuleErrorBuilder::message(sprintf(
-                                "Redundant filter: '%s' is redundant due to more general selector on line %d.",
-                                $content[$prev['line'] - 1],
-                                $lineNum,
-                            ))->line($prev['line'])->build();
-
-                            continue;
-                        }
-
-                        // Partial domain check
-                        foreach ($prevDomains as $d => $_) {
-                            if (isset($currDomains[$d])) {
-                                $errors[] = RuleErrorBuilder::message(sprintf(
-                                    "Redundant filter: domain '%s' in '%s' already covered on line %d.",
-                                    $d,
-                                    // $content[$prev['line'] - 1],
-                                    $d.$separator.$prev['selector'],
-                                    $lineNum,
-                                ))->line($prev['line'])->build();
-                            }
-                        }
-                    }
-
-                    // Case: current covered by previous
-                    if ($this->isAttrCoveredBy($parsed, $prev['data'])) {
-                        if ($prevDomains === []) {
-                            $errors[] = RuleErrorBuilder::message(sprintf(
-                                "Redundant filter: '%s' already covered by a previous selector on line %d.",
-                                $line,
-                                $prev['line'],
-                            ))->line($lineNum)->build();
-
-                            continue 2;
-                        }
-
-                        foreach ($currDomains as $d => $_) {
-                            if (isset($prevDomains[$d])) {
-                                $errors[] = RuleErrorBuilder::message(sprintf(
-                                    "Redundant filter: domain '%s' in '%s' already covered on line %d.",
-                                    $d,
-                                    $d.$separator.$selector,
-                                    $prev['line'],
-                                ))->line($lineNum)->build();
-
-                                continue 2;
-                            }
-                        }
+                if ($allDomainsCovered) {
+                    $errors[] = $this->buildWholeRuleError($a, $parent);
+                } else {
+                    foreach ($coveredDomains as $domain) {
+                        $errors[] = $this->buildDomainError($a, $parent, $domain);
                     }
                 }
-
-                $selectorSeen[$attrKey][] = [
-                    'data' => $parsed,
-                    'line' => $lineNum,
-                    'domains' => $currDomains,
-                    'selector' => $selector,
-                ];
             }
         }
 
         return $errors;
+    }
+
+    /**
+     * @param array<string, mixed> $rule
+     * @param array<string, mixed> $parent
+     * @return _RuleError
+     */
+    private function buildWholeRuleError(array $rule, array $parent): array
+    {
+        $message = '';
+
+        if ($rule['selector'] === $parent['selector']) {
+            $message = sprintf(
+                "Redundant filter: '%s' already covered by '%s' on line %d.",
+                $rule['content'],
+                $parent['separator'].$parent['selector'],
+                $parent['line'],
+            );
+        } else {
+            $message = sprintf(
+                "Redundant filter: '%s' is redundant due to more general selector on line %d.",
+                $rule['content'],
+                $parent['line'],
+            );
+        }
+
+        return RuleErrorBuilder::message($message)->line($rule['line'])->build();
+    }
+
+    /**
+     * @param array<string, mixed> $rule
+     * @param array<string, mixed> $parent
+     * @return _RuleError
+     */
+    private function buildDomainError(array $rule, array $parent, string $domain): array
+    {
+        $message = '';
+
+        if ($rule['selector'] === $parent['selector']) {
+            $message = sprintf("Redundant filter: domain '%s' already covered on line %d.", $domain, $parent['line']);
+        } else {
+            $message = sprintf(
+                "Redundant filter: domain '%s' in '%s' already covered on line %d.",
+                $domain,
+                $domain.$rule['separator'].$rule['selector'],
+                $parent['line'],
+            );
+        }
+
+        return RuleErrorBuilder::message($message)->line($rule['line'])->build();
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @param array<string, mixed> $b
+     */
+    private function isCovered(array $a, array $b, string $domain): bool
+    {
+        if ($a['separator'] !== $b['separator']) {
+            return false;
+        }
+
+        // B must cover the target domain (either global or specific)
+        if ($b['domains'] !== [] && !isset($b['domains'][$domain])) {
+            return false;
+        }
+
+        // Case A: Exact same selector
+        if ($a['selector'] === $b['selector']) {
+            return true;
+        }
+
+        // Case B: Attribute selector dominance
+        if ($a['attrData'] && $b['attrData'] && $a['attrKey'] === $b['attrKey']) {
+            return $this->isAttrCoveredBy($a['attrData'], $b['attrData']);
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if parent B is "better" (more general or earlier) than parent C.
+     *
+     * @param array<string, mixed> $b
+     * @param array<string, mixed> $c
+     */
+    private function isBetter(array $b, array $c): bool
+    {
+        // 1. Semantic generality (for attribute selectors)
+        if ($b['attrData'] && $c['attrData'] && $b['attrKey'] === $c['attrKey']) {
+            $bCoversC = $this->isAttrCoveredBy($c['attrData'], $b['attrData']);
+            $cCoversB = $this->isAttrCoveredBy($b['attrData'], $c['attrData']);
+
+            if ($bCoversC && !$cCoversB) {
+                return true; // B is strictly more general
+            }
+            if (!$bCoversC && $cCoversB) {
+                return false; // C is strictly more general
+            }
+        }
+
+        // 2. Globalness (Global rules are better references than domain-specific ones)
+        if ($b['domains'] === [] && $c['domains'] !== []) {
+            return true;
+        }
+        if ($b['domains'] !== [] && $c['domains'] === []) {
+            return false;
+        }
+
+        // 3. Line number (Earlier rules are preferred as reference points)
+        return $b['line'] < $c['line'];
     }
 
     /**
