@@ -23,9 +23,9 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [3, "Redundant filter: 'example.com##.ads' is redundant as it is already covered by '##.ads' on line 1."],
-            [4, "Redundant filter: 'example.com##.ads' is already defined on line 3."],
-            [6, 'Redundant filter: \'##[id^="div-gpt-ad"]\' is already defined on line 5.'],
+            [3, "Redundant filter: 'example.com##.ads' already covered by '##.ads' on line 1."],
+            [4, "Redundant filter: 'example.com##.ads' already defined on line 3."],
+            [6, 'Redundant filter: \'##[id^="div-gpt-ad"]\' already defined on line 5.'],
         ], self::RULE);
     }
 
@@ -35,10 +35,15 @@ class CosmeticCheckTest extends TestCase
         $lines = [
             '##.ads',
             'example.com##.ads', // Redundant
+            // '!',
+            // '##.adv',
+            // '##div.adv', // Redundant by ##.adv
+            // '##.menu > .adv', // Redundant by ##.adv
+            // '##.menu .adv', // Redundant by ##.adv
         ];
 
         $this->analyse($lines, [
-            [2, "Redundant filter: 'example.com##.ads' is redundant as it is already covered by '##.ads' on line 1."],
+            [2, "Redundant filter: 'example.com##.ads' already covered by '##.ads' on line 1."],
         ], self::RULE);
 
         $lines = [
@@ -64,8 +69,8 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [5, "Redundant filter: '##.ads' is already defined on line 1."],
-            [7, "Redundant filter: '##.ads' is already defined on line 1."],
+            [5, "Redundant filter: '##.ads' already defined on line 1."],
+            [7, "Redundant filter: '##.ads' already defined on line 1."],
         ], self::RULE);
     }
 
@@ -80,7 +85,7 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [4, "Redundant filter: '##.ads' is already defined on line 1."],
+            [4, "Redundant filter: '##.ads' already defined on line 1."],
         ], self::RULE);
     }
 }

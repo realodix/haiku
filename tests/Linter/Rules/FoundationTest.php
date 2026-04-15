@@ -36,7 +36,7 @@ class FoundationTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [3, 'Redundant filter: \'example.com$$advertisement-module\' is redundant as it is already covered by \'$$advertisement-module\' on line 2.'],
+            [3, 'Redundant filter: \'example.com$$advertisement-module\' already covered by \'$$advertisement-module\' on line 2.'],
         ]);
     }
 

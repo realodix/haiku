@@ -24,8 +24,8 @@ class GeneralTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [2, "Redundant filter: domain 'x.com' is redundant as it is already covered on line 1."],
-            [3, "Redundant filter: domain 'example.com' is redundant as it is already covered on line 1."],
+            [2, "Redundant filter: domain 'x.com' already covered on line 1."],
+            [3, "Redundant filter: domain 'example.com' already covered on line 1."],
         ], self::RULE);
 
         $this->assertSame([
