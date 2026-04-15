@@ -47,6 +47,7 @@ final class CosmeticCheck implements Rule
         // Standard selectors group by exact selector string.
         // Attribute selectors group by tag and attribute name.
         $interactionMap = [];
+        $ghideExceptions = [];
 
         // Pass 1: Parsing and Collection
         foreach ($content as $index => $line) {
@@ -54,6 +55,16 @@ final class CosmeticCheck implements Rule
             $line = trim($line);
 
             if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+                continue;
+            }
+
+            // Extract ghide exceptions into the map; skip to next line if processed
+            $ghideDomains = $this->parseGhideDomains($line);
+            if ($ghideDomains !== []) {
+                foreach ($ghideDomains as $domain) {
+                    $ghideExceptions[$domain] = true;
+                }
+
                 continue;
             }
 
@@ -123,7 +134,7 @@ final class CosmeticCheck implements Rule
 
                     $b = $rules[$j];
 
-                    if (!$this->isCovered($a, $b, $domain)) {
+                    if (!$this->isCovered($a, $b, $domain, $ghideExceptions)) {
                         continue;
                     }
 
@@ -210,15 +221,21 @@ final class CosmeticCheck implements Rule
     /**
      * @param array<string, mixed> $a
      * @param array<string, mixed> $b
+     * @param array<string, bool> $ghideExceptions
      */
-    private function isCovered(array $a, array $b, string $domain): bool
+    private function isCovered(array $a, array $b, string $domain, array $ghideExceptions): bool
     {
         if ($a['separator'] !== $b['separator']) {
             return false;
         }
 
         // B must cover the target domain (either global or specific)
-        if ($b['domains'] !== [] && !isset($b['domains'][$domain])) {
+        if ($b['domains'] !== []) {
+            if (!isset($b['domains'][$domain])) {
+                return false;
+            }
+        } elseif (isset($ghideExceptions[$domain])) {
+            // Global rule B does NOT cover domain if generic hiding is disabled for it.
             return false;
         }
 
@@ -286,6 +303,60 @@ final class CosmeticCheck implements Rule
         }
 
         return $result;
+    }
+
+    /**
+     * Parse a line for ghide exceptions.
+     *
+     * @param string $line The line to parse.
+     * @return list<string> Returns a list of domains, or an empty list if not a ghide rule.
+     */
+    private function parseGhideDomains(string $line): array
+    {
+        if (!str_starts_with($line, '@@')) {
+            return [];
+        }
+
+        // Form 1: @@||example.com^$ghide
+        if (preg_match('/^@@\|\|([a-z0-9.-]+)\^?\$g(?:eneric)?hide(?:,|$)/i', $line, $m)) {
+            return [strtolower($m[1])];
+        }
+
+        // Form 2: @@*$ghide,domain=example.com
+        if (preg_match(Regex::NET_OPTION, $line, $m)) {
+            $options = Util::splitOptions($m[2]);
+            $isGhide = false;
+            $domains = [];
+
+            foreach ($options as $opt) {
+                $opt = trim($opt);
+                $opt = strtolower($opt);
+
+                if (in_array($opt, ['ghide', 'generichide'], true)) {
+                    $isGhide = true;
+
+                    continue;
+                }
+
+                if (preg_match('/^(domain|from|to)=(.+)$/i', $opt, $dm)) {
+                    $domains = explode('|', $dm[2]);
+                }
+            }
+
+            if ($isGhide && $domains !== []) {
+                $validDomains = [];
+                foreach ($domains as $d) {
+                    $d = trim($d);
+                    if ($d !== '' && !str_starts_with($d, '~')) {
+                        $validDomains[] = strtolower($d);
+                    }
+                }
+
+                return $validDomains;
+            }
+        }
+
+        return [];
     }
 
     /**
