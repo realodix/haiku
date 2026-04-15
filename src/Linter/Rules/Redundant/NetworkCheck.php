@@ -25,8 +25,8 @@ final class NetworkCheck implements Rule
 
         $errors = [];
         $exactSeen = [];
-        $genericNet = [];   // Lowercase Pattern -> LineNum
-        $patternOptionsSeen = []; // Lowercase Pattern -> Normalized Options -> [Lowercase Domain -> LineNum]
+        $genericNet = [];   // Mixed Casing Pattern -> LineNum
+        $patternOptionsSeen = []; // Mixed Casing Pattern -> Normalized Options -> [Lowercase Domain -> LineNum]
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -40,21 +40,35 @@ final class NetworkCheck implements Rule
                 continue;
             }
 
-            // 1. Exact duplicate check (case-insensitive)
-            $lowLine = strtolower($line);
-            if (isset($exactSeen[$lowLine])) {
+            // Determine if the rule is case-sensitive
+            $isNetwork = preg_match(Regex::NET_OPTION, $line, $m);
+            $optionsStr = $isNetwork ? $m[2] : '';
+            $options = $isNetwork ? Util::splitOptions($optionsStr) : [];
+            $hasMatchCase = false;
+            foreach ($options as $opt) {
+                if (strtolower(trim($opt)) === 'match-case') {
+                    $hasMatchCase = true;
+                    break;
+                }
+            }
+
+            // 1. Exact duplicate check
+            $exactKey = $hasMatchCase ? $line : strtolower($line);
+            if (isset($exactSeen[$exactKey])) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
-                    $line, $exactSeen[$lowLine],
+                    $line, $exactSeen[$exactKey],
                 ))->line($lineNum)->build();
 
                 continue;
             }
-            $exactSeen[$lowLine] = $lineNum;
+            $exactSeen[$exactKey] = $lineNum;
 
             // 2. Redundancy check
-            $isNetwork = preg_match(Regex::NET_OPTION, $line, $m);
-            $pattern = strtolower($isNetwork ? $m[1] : $line);
+            $pattern = $isNetwork ? $m[1] : $line;
+            if (!$hasMatchCase) {
+                $pattern = strtolower($pattern);
+            }
 
             if (!$isNetwork) {
                 // No options. Global for this pattern.
@@ -67,11 +81,10 @@ final class NetworkCheck implements Rule
                     ))->line($lineNum)->build();
                 } else {
                     // Check for domain-level redundancy
-                    $options = Util::splitOptions($m[2]);
                     $nonDomainOptions = [];
                     $domains = [];
-
                     $domainTypes = [];
+
                     foreach ($options as $opt) {
                         $opt = trim($opt);
                         if (preg_match('/^(domain|from|to|denyallow)=(.+)$/i', $opt, $dm)) {
@@ -90,7 +103,7 @@ final class NetworkCheck implements Rule
                                 ];
                             }
                         } else {
-                            $nonDomainOptions[] = strtolower($opt);
+                            $nonDomainOptions[] = $hasMatchCase ? $opt : strtolower($opt);
                         }
                     }
 

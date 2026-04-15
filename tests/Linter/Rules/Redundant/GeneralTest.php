@@ -97,4 +97,15 @@ class GeneralTest extends TestCase
             [4, "Redundant filter: domain 'a.com' already covered on line 3."],
         ], self::RULE);
     }
+
+    #[PHPUnit\Test]
+    public function redundant_6(): void
+    {
+        $lines = [
+            '?url=http/$doc,to=com|io|net,match-case,urlskip=?url',
+            '?URL=http/$doc,to=com|io|net,match-case,urlskip=?URL',
+        ];
+
+        $this->analyse($lines, [], self::RULE);
+    }
 }
