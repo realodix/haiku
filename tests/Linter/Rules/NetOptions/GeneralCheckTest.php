@@ -78,6 +78,23 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function checkDenyallowValue(): void
+    {
+        $lines = [
+            '*$script,denyallow=x.com|~y.com|z.com,domain=a.com',
+            '*$script,denyallow=x.com|y.*|z.com,domain=a.com',
+            '*$script,denyallow=~foo.*,domain=a.com',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Domains in the $denyallow value cannot be negated: "~y.com".'],
+            [2, 'Domains in the $denyallow value cannot have a wildcard TLD: "y.*".'],
+            [3, 'Domains in the $denyallow value cannot be negated: "~foo.*".'],
+            [3, 'Domains in the $denyallow value cannot have a wildcard TLD: "~foo.*".'],
+        ], [GeneralCheck::class]);
+    }
+
+    #[PHPUnit\Test]
     public function checkDeprecatedOptions(): void
     {
         $lines = [
@@ -109,7 +126,7 @@ class GeneralCheckTest extends TestCase
         ]);
 
         $lines = [
-            '*$domain=a.com|b.com,denyallow=~b.com',
+            '*$domain=a.com|b.com,denyallow=c.com',
             '*$from=a.com,to=a.com|b.com',
             '*$script,3p,denyallow=example.com,domain=example.com',
         ];

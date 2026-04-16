@@ -65,6 +65,7 @@ final class GeneralCheck implements Rule
             $this->checkExceptionOptions($errors, $lineNum, $opts, $line);
             $this->checkInterOptionDomainContradiction($errors, $lineNum, $opts);
 
+            $this->checkDenyallowValue($errors, $lineNum, $opts);
             $this->checkDenyallowAndToConflict($errors, $lineNum, $opts);
             $this->checkDenyallowRequiresDomain($errors, $lineNum, $opts);
         }
@@ -390,6 +391,44 @@ final class GeneralCheck implements Rule
                     "Option \$to contradicts {$contradictor} for: %s",
                     implode(', ', $conflicts),
                 ))->line($lineNum)->build();
+            }
+        }
+    }
+
+    /**
+     * @param list<_RuleError> $errors
+     * @param array<string, list<string|null>> $opts
+     */
+    private function checkDenyallowValue(array &$errors, int $lineNum, array $opts): void
+    {
+        if (!isset($opts['denyallow'])) {
+            return;
+        }
+
+        foreach ($opts['denyallow'] as $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            foreach (explode('|', $value) as $domain) {
+                $domain = trim($domain);
+                if ($domain === '') {
+                    continue;
+                }
+
+                if (str_starts_with($domain, '~')) {
+                    $errors[] = RuleErrorBuilder::message(sprintf(
+                        'Domains in the $denyallow value cannot be negated: "%s".',
+                        $domain,
+                    ))->line($lineNum)->build();
+                }
+
+                if (str_ends_with($domain, '.*')) {
+                    $errors[] = RuleErrorBuilder::message(sprintf(
+                        'Domains in the $denyallow value cannot have a wildcard TLD: "%s".',
+                        $domain,
+                    ))->line($lineNum)->build();
+                }
             }
         }
     }
