@@ -166,7 +166,7 @@ final class DomainCheck implements Rule
      */
     private function checkLowercase(array &$errors, int $lineNum, string $domain): void
     {
-        if (!$this->config->rules['lowercase_domains']) {
+        if (!$this->config->rules['domain_case']) {
             return;
         }
 

@@ -8,18 +8,17 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @phpstan-type _LinterRules array{
- *  check_id_selector_start: bool,
- *  check_unknown_scriptlet: bool|array{known: list<string>},
- *  denyallow_requires: bool,
- *  if_closed: bool,
- *  lowercase_domains: bool,
+ *  cosm_id_selector_start: bool,
+ *  domain_case: bool,
+ *  net_pattern_anchor: bool,
  *  no_dupe_domains: bool,
  *  no_dupe_options: bool,
+ *  no_dupe_rules: bool,
  *  no_extra_blank_lines: bool|int,
  *  no_short_rules: bool|int,
- *  net_pattern_anchor: bool,
- *  no_dupe_rules: bool,
- *  preprocessor_directives: bool,
+ *  pp_if_closed: bool,
+ *  pp_value: bool,
+ *  scriptlet_unknown: bool|array{known: list<string>},
  * }
  */
 final class LinterConfig
@@ -36,18 +35,17 @@ final class LinterConfig
 
     /** @var _LinterRules */
     public array $rules = [
-        'check_id_selector_start' => false,
-        'check_unknown_scriptlet' => true,
-        'denyallow_requires' => true,
-        'if_closed' => true,
-        'lowercase_domains' => true,
+        'cosm_id_selector_start' => false,
+        'domain_case' => true,
         'net_pattern_anchor' => true,
         'no_dupe_domains' => true,
         'no_dupe_options' => true,
-        'no_extra_blank_lines' => false,
         'no_dupe_rules' => true,
+        'no_extra_blank_lines' => false,
         'no_short_rules' => false,
-        'preprocessor_directives' => true,
+        'pp_if_closed' => true,
+        'pp_value' => true,
+        'scriptlet_unknown' => true,
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {

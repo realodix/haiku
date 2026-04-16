@@ -461,10 +461,6 @@ final class GeneralCheck implements Rule
      */
     private function checkDenyallowRequiresDomain(array &$errors, int $lineNum, array $opts): void
     {
-        if (!$this->config->rules['denyallow_requires']) {
-            return;
-        }
-
         if (isset($opts['denyallow'])
             && !isset($opts['domain'])
             && !isset($opts['from'])

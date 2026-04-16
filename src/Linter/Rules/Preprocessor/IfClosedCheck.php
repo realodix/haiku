@@ -14,7 +14,7 @@ final class IfClosedCheck implements Rule
 
     public function check(array $content): array
     {
-        if (!$this->config->rules['if_closed']) {
+        if (!$this->config->rules['pp_if_closed']) {
             return [];
         }
 

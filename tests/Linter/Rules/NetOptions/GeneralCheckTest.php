@@ -65,7 +65,7 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function denyallow_requires_domain(): void
+    public function opt_denyallow_requires_domain(): void
     {
         $lines = [
             '*$3p,script,denyallow=x.com|y.com,domain=a.com|b.com',

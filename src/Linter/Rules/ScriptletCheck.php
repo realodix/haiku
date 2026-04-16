@@ -70,7 +70,7 @@ final class ScriptletCheck implements Rule
      */
     private function checkUnknown(int $lineNum, string $value)
     {
-        if ($this->config->rules['check_unknown_scriptlet'] === false) {
+        if ($this->config->rules['scriptlet_unknown'] === false) {
             return null;
         }
 
@@ -97,7 +97,7 @@ final class ScriptletCheck implements Rule
      */
     private function getScriptletNames(): array
     {
-        $config = $this->config->rules['check_unknown_scriptlet'];
+        $config = $this->config->rules['scriptlet_unknown'];
 
         $names = [];
         foreach (Util::flatten(Registry::RESOURCES) as $name) {

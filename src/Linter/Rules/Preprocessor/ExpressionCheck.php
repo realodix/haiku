@@ -16,7 +16,7 @@ final class ExpressionCheck implements Rule
 
     public function check(array $content): array
     {
-        if (!$this->config->rules['preprocessor_directives']) {
+        if (!$this->config->rules['pp_value']) {
             return [];
         }
 

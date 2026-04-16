@@ -51,7 +51,7 @@ final class CosmeticCheck implements Rule
         string $selector,
         string $separator,
     ): void {
-        if (!$this->config->rules['check_id_selector_start']
+        if (!$this->config->rules['cosm_id_selector_start']
             || !($separator === '##' || $separator === '#@#')
         ) {
             return;

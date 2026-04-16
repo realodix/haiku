@@ -155,7 +155,7 @@ A set of options used to configure the linter.
   - `false`: rule is disabled.
   - `int`: minimum rule length.
 
-- `check_unknown_scriptlet`
+- `scriptlet_unknown`
 
   Checks for unknown scriptlet names to help catch typos.
 
@@ -171,7 +171,7 @@ A set of options used to configure the linter.
   ```yml
   linter:
     rules:
-      check_unknown_scriptlet:
+      scriptlet_unknown:
         known:
           - my-custom-scriptlet
   ```
