@@ -119,9 +119,16 @@ final class CosmeticCheck implements Rule
             /** @var array<int, array<string, mixed>> */
             $parentMap = [];
 
-            // Only look specifically at rules in the same interaction group
             $interactionKey = $a['attrKey'] ? 'A|'.$a['attrKey'] : 'S|'.$a['separator'].$a['selector'];
+
+            // Gather candidates: same group (tag+attr) AND global group (attr only)
             $candidates = $interactionMap[$interactionKey] ?? [];
+            if ($a['attrData'] && $a['attrData']['tag'] !== '') {
+                $globalAttrKey = 'A|'.$a['separator'].'||'.$a['attrData']['attr'];
+                if ($globalAttrKey !== $interactionKey) {
+                    $candidates = array_merge($candidates, $interactionMap[$globalAttrKey] ?? []);
+                }
+            }
 
             foreach ($domains as $domain => $_) {
                 /** @var array<string, mixed>|null */
@@ -248,7 +255,7 @@ final class CosmeticCheck implements Rule
         }
 
         // Case B: Attribute selector dominance
-        if ($a['attrData'] && $b['attrData'] && $a['attrKey'] === $b['attrKey']) {
+        if ($a['attrData'] && $b['attrData']) {
             return $this->isAttrCoveredBy($a['attrData'], $b['attrData']);
         }
 
@@ -264,7 +271,7 @@ final class CosmeticCheck implements Rule
     private function isBetter(array $b, array $c): bool
     {
         // 1. Semantic generality (for attribute selectors)
-        if ($b['attrData'] && $c['attrData'] && $b['attrKey'] === $c['attrKey']) {
+        if ($b['attrData'] && $c['attrData']) {
             $bCoversC = $this->isAttrCoveredBy($c['attrData'], $b['attrData']);
             $cCoversB = $this->isAttrCoveredBy($b['attrData'], $c['attrData']);
 
@@ -372,21 +379,44 @@ final class CosmeticCheck implements Rule
      */
     private function parseAttributeSelector(string $selector): ?array
     {
-        if (!preg_match(
+        // Explicit attribute selector: tag[attr op "value" mod]
+        if (preg_match(
             '/^(?:(?<tag>[a-z0-9_-]+))?\[(?<attr>[a-z0-9_-]+)\s*(?<op>\^=|\$=|\*=|=)\s*"(?<val>[^"]+)"\s*(?<mod>i)?\]$/i',
             $selector,
             $m,
         )) {
-            return null;
+            return [
+                'tag' => strtolower($m['tag']),
+                'attr' => strtolower($m['attr']),
+                'operator' => $m['op'],
+                'value' => $m['val'],
+                'modifier' => strtolower($m['mod'] ?? ''),
+            ];
         }
 
-        return [
-            'tag' => strtolower($m['tag']),
-            'attr' => strtolower($m['attr']),
-            'operator' => $m['op'],
-            'value' => $m['val'],
-            'modifier' => strtolower($m['mod'] ?? ''),
-        ];
+        // Class selector: [tag]?.className
+        if (preg_match('/^(?:(?<tag>[a-z0-9_-]+))?\.(?<val>[a-z0-9_-]+)$/i', $selector, $m)) {
+            return [
+                'tag' => strtolower($m['tag']),
+                'attr' => 'class',
+                'operator' => '~=',
+                'value' => $m['val'],
+                'modifier' => '',
+            ];
+        }
+
+        // ID selector: [tag]?#idName
+        if (preg_match('/^(?:(?<tag>[a-z0-9_-]+))?#(?<val>[a-z0-9_-]+)$/i', $selector, $m)) {
+            return [
+                'tag' => strtolower($m['tag']),
+                'attr' => 'id',
+                'operator' => '=',
+                'value' => $m['val'],
+                'modifier' => '',
+            ];
+        }
+
+        return null;
     }
 
     /**
@@ -407,7 +437,12 @@ final class CosmeticCheck implements Rule
      */
     private function isAttrCoveredBy(array $a, array $b): bool
     {
-        if ($a['attr'] !== $b['attr'] || $a['tag'] !== $b['tag']) {
+        if ($a['attr'] !== $b['attr']) {
+            return false;
+        }
+
+        // B covers A if B has no tag (global) or same tag as A.
+        if ($b['tag'] !== '' && $a['tag'] !== $b['tag']) {
             return false;
         }
 
@@ -421,34 +456,36 @@ final class CosmeticCheck implements Rule
         $valA = $caseInsensitive ? strtolower($a['value']) : $a['value'];
         $valB = $caseInsensitive ? strtolower($b['value']) : $b['value'];
 
-        // Exact match
+        // Exact match of operator and value
         if ($a['operator'] === $b['operator'] && $valA === $valB) {
             return true;
         }
 
-        // "*="
+        // B: "*=" (substring)
+        // Covers any A where the matched value A contains substring B.
         if ($b['operator'] === '*=') {
             return str_contains($valA, $valB);
         }
 
-        // "^="
-        if ($a['operator'] === '^=' && $b['operator'] === '^=') {
-            return str_starts_with($valA, $valB);
+        // B: "^=" (starts with)
+        // Covers A if A is "=" or "^=" and valA starts with valB
+        if ($b['operator'] === '^=') {
+            return ($a['operator'] === '=' || $a['operator'] === '^=')
+                && str_starts_with($valA, $valB);
         }
 
-        // "$="
-        if ($a['operator'] === '$=' && $b['operator'] === '$=') {
-            return str_ends_with($valA, $valB);
+        // B: "$=" (ends with)
+        // Covers A if A is "=" or "$=" and valA ends with valB
+        if ($b['operator'] === '$=') {
+            return ($a['operator'] === '=' || $a['operator'] === '$=')
+                && str_ends_with($valA, $valB);
         }
 
-        // "="
-        if ($a['operator'] === '=') {
-            if ($b['operator'] === '^=') {
-                return str_starts_with($valA, $valB);
-            }
-            if ($b['operator'] === '$=') {
-                return str_ends_with($valA, $valB);
-            }
+        // B: "~=" (whitespace-separated item)
+        // Covers A if A is "=" or "~=" and values match exactly
+        if ($b['operator'] === '~=') {
+            return ($a['operator'] === '=' || $a['operator'] === '~=')
+                && $valA === $valB;
         }
 
         return false;

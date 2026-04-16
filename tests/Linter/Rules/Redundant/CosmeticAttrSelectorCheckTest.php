@@ -184,4 +184,53 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             [5, 'Redundant filter: ##img[alt^="foo_bar_2" i] is redundant due to more general selector on line 6.'],
         ], self::RULE);
     }
+
+    #[PHPUnit\Test]
+    public function test_6(): void
+    {
+        $lines = [
+            '##.ads',
+            '##[class="ads"]',
+            '##.banner',
+            '##[class="banner one"]',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ##[class="ads"] is redundant due to more general selector on line 1.'],
+        ], self::RULE);
+
+        $lines = [
+            '##.ads',
+            '##[class*="ADS" i]',
+            '##div.ads',
+            'example.com##.ads',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##.ads is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: ##div.ads is redundant due to more general selector on line 2.'],
+            [4, 'Redundant filter: example.com##.ads is redundant due to more general selector on line 2.'],
+        ], self::RULE);
+
+        $lines = [
+            '###header',
+            '##[id*="head"]',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ###header is redundant due to more general selector on line 2.'],
+        ], self::RULE);
+
+        $lines = [
+            '###id_1_bannerId',
+            '##[id^="id_1_banner"]',
+            '###id_2_bannerId',
+            '##[id^="id_2_banner" i]',
+            '!',
+            '##.bannerClass',
+            '##[class^="banner" i]',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ###id_1_bannerId is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: ###id_2_bannerId is redundant due to more general selector on line 4.'],
+        ], self::RULE);
+    }
 }
