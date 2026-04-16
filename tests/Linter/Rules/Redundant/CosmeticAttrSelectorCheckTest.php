@@ -192,10 +192,12 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             '##.ads',
             '##[class="ads"]',
             '##.banner',
+            '##.one',
             '##[class="banner one"]',
         ];
         $this->analyse($lines, [
             [2, 'Redundant filter: ##[class="ads"] is redundant due to more general selector on line 1.'],
+            [5, 'Redundant filter: ##[class="banner one"] is redundant due to more general selector on line 3.'],
         ], self::RULE);
 
         $lines = [
@@ -227,10 +229,27 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             '!',
             '##.bannerClass',
             '##[class^="banner" i]',
+            '!',
+            '###footer_bottom',
+            '##[id$="bottom"]',
+            '##.panelTop',
+            '##[class$="Top"]',
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: ###id_1_bannerId is redundant due to more general selector on line 2.'],
             [3, 'Redundant filter: ###id_2_bannerId is redundant due to more general selector on line 4.'],
+            [9, 'Redundant filter: ###footer_bottom is redundant due to more general selector on line 10.'],
+        ], self::RULE);
+
+        $lines = [
+            '##.ads',
+            '##[class~="ADS" i]',
+            '##.banner',
+            '##[class~="BANNER" i]',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##.ads is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: ##.banner is redundant due to more general selector on line 4.'],
         ], self::RULE);
     }
 }

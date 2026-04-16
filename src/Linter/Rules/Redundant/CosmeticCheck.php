@@ -381,7 +381,7 @@ final class CosmeticCheck implements Rule
     {
         // Explicit attribute selector: tag[attr op "value" mod]
         if (preg_match(
-            '/^(?:(?<tag>[a-z0-9_-]+))?\[(?<attr>[a-z0-9_-]+)\s*(?<op>\^=|\$=|\*=|=)\s*"(?<val>[^"]+)"\s*(?<mod>i)?\]$/i',
+            '/^(?:(?<tag>[a-z0-9_-]+))?\[(?<attr>[a-z0-9_-]+)\s*(?<op>\^=|\$=|\*=|=|~=)\s*"(?<val>[^"]+)"\s*(?<mod>i)?\]$/i',
             $selector,
             $m,
         )) {
@@ -468,24 +468,38 @@ final class CosmeticCheck implements Rule
         }
 
         // B: "^=" (starts with)
-        // Covers A if A is "=" or "^=" and valA starts with valB
+        // Covers A if A is "=" or "^=" and valA starts with valB.
+        // Note: For 'class' attributes, A=.cls translates to A[class~="cls"],
+        // which matches ANY word in the class list. Since [class^="val"] only
+        // matches if 'val' is at the very beginning of the string, it does
+        // NOT cover [class~="cls"] unless the class is guaranteed to be first.
+        // Conversely, for 'id' attributes (which are single-valued),
+        // #id translates to [id="id"], which IS covered by [id^="val"].
         if ($b['operator'] === '^=') {
             return ($a['operator'] === '=' || $a['operator'] === '^=')
                 && str_starts_with($valA, $valB);
         }
 
         // B: "$=" (ends with)
-        // Covers A if A is "=" or "$=" and valA ends with valB
+        // Covers A if A is "=" or "$=" and valA ends with valB.
+        // Same logic as ^=: Covers ID selectors but not Class selectors.
         if ($b['operator'] === '$=') {
             return ($a['operator'] === '=' || $a['operator'] === '$=')
                 && str_ends_with($valA, $valB);
         }
 
         // B: "~=" (whitespace-separated item)
-        // Covers A if A is "=" or "~=" and values match exactly
+        // Covers A if values match exactly (A is "=" or "~=")
+        // OR covers A if A is "=" and B's value is a word in A's value.
         if ($b['operator'] === '~=') {
-            return ($a['operator'] === '=' || $a['operator'] === '~=')
-                && $valA === $valB;
+            if ($a['operator'] === '~=') {
+                return $valA === $valB;
+            }
+            if ($a['operator'] === '=') {
+                $words = preg_split('/\s+/', $valA);
+
+                return in_array($valB, $words, true);
+            }
         }
 
         return false;
