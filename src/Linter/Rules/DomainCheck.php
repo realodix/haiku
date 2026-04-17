@@ -12,7 +12,7 @@ use Realodix\Haiku\Linter\Util;
  */
 final class DomainCheck implements Rule
 {
-    const DOMAIN = ['domain', 'from', 'to', 'denyallow'];
+    const OPTIONS = ['domain', 'from', 'to', 'denyallow'];
 
     public function __construct(
         private LinterConfig $config,
@@ -32,7 +32,11 @@ final class DomainCheck implements Rule
 
             // Cosmetic rule
             if (preg_match(Regex::COSMETIC_DOMAIN, $line, $m)) {
-                $this->validateDomains($errors, $lineNum, $m[1], ',', 'cosmetic');
+                if (trim($m[1]) === '') {
+                    continue;
+                }
+
+                $this->validateDomains($errors, $lineNum, $m[1], ',');
             }
 
             // Network rule
@@ -50,8 +54,8 @@ final class DomainCheck implements Rule
                         continue;
                     }
 
-                    if (in_array($name, self::DOMAIN, true)) {
-                        $this->validateDomains($errors, $lineNum, $value, '|', 'network');
+                    if (in_array($name, self::OPTIONS, true)) {
+                        $this->validateDomains($errors, $lineNum, $value, '|');
                     }
                 }
             }
@@ -63,18 +67,9 @@ final class DomainCheck implements Rule
     /**
      * @param list<_RuleError> $errors
      */
-    private function validateDomains(
-        array &$errors,
-        int $lineNum,
-        string $domainStr,
-        string $separator,
-        string $type,
-    ): void {
+    private function validateDomains(array &$errors, int $lineNum, string $domainStr, string $separator): void
+    {
         if ($this->containsRegexDomain($domainStr)) {
-            return;
-        }
-
-        if ($type === 'cosmetic' && trim($domainStr) === '') {
             return;
         }
 
