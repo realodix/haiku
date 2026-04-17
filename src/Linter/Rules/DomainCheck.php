@@ -80,6 +80,14 @@ final class DomainCheck implements Rule
 
         $domains = explode($separator, $domainStr);
 
+        if (count($domains) > 1 && count(array_filter($domains, fn($d) => trim($d) !== '')) === 0) {
+            $errors[] = RuleErrorBuilder::message('Invalid filter')
+                ->line($lineNum)
+                ->build();
+
+            return;
+        }
+
         $state = [
             'seen' => [],
             'duplicates' => [],
@@ -88,8 +96,8 @@ final class DomainCheck implements Rule
             'contradictions' => [],
         ];
 
-        foreach ($domains as $domain) {
-            if ($err = $this->checkEmptyDomain($lineNum, $domain, $type)) {
+        foreach ($domains as $index => $domain) {
+            if ($err = $this->checkEmptyDomain($lineNum, $domains, $index)) {
                 $errors[] = $err;
 
                 continue;
@@ -110,21 +118,31 @@ final class DomainCheck implements Rule
     /**
      * Check if the given domain is empty.
      *
+     * @param list<string> $domains
      * @return _RuleError|null
      */
-    private function checkEmptyDomain(int $lineNum, string $domain, string $type)
+    private function checkEmptyDomain(int $lineNum, array $domains, int $index)
     {
-        $domain = trim($domain);
+        $domain = trim($domains[$index]);
 
         if ($domain !== '') {
             return null;
         }
 
-        $msg = $type === 'cosmetic'
-            ? 'Unexpected empty domain in cosmetic rule.'
-            : 'Unexpected empty domain in network filter.';
+        $prev = isset($domains[$index - 1]) ? trim($domains[$index - 1]) : null;
+        $next = isset($domains[$index + 1]) ? trim($domains[$index + 1]) : null;
 
-        return RuleErrorBuilder::message($msg)
+        $context = '';
+
+        if ($prev !== null && $prev !== '' && $next !== null && $next !== '') {
+            $context = sprintf(' between "%s" and "%s"', $prev, $next);
+        } elseif ($prev !== null && $prev !== '') {
+            $context = sprintf(' after "%s"', $prev);
+        } elseif ($next !== null && $next !== '') {
+            $context = sprintf(' before "%s"', $next);
+        }
+
+        return RuleErrorBuilder::message(sprintf('Unexpected empty domain%s.', $context))
             ->line($lineNum)
             ->build();
     }

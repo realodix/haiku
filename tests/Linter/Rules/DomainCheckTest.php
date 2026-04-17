@@ -23,12 +23,33 @@ class DomainCheckTest extends TestCase
             'example.com,##.ads',             // Trailing comma
             '||ex.com^$domain=|a.com',        // Empty network option
         ];
-
         $this->analyse($lines, [
-            [3, 'Unexpected empty domain in cosmetic rule.'],
-            [4, 'Unexpected empty domain in cosmetic rule.'],
-            [5, 'Unexpected empty domain in cosmetic rule.'],
-            [6, 'Unexpected empty domain in network filter.'],
+            [3, 'Unexpected empty domain before "example.com".'],
+            [4, 'Unexpected empty domain between "example.com" and "example.org".'],
+            [5, 'Unexpected empty domain after "example.com".'],
+            [6, 'Unexpected empty domain before "a.com".'],
+        ], self::RULE);
+
+        $lines = [
+            ',a.com,b.com,c.com,,d.com,e.com,f.com,,,g.com,h.com,i.com,##.ad-middle',
+        ];
+        $this->analyse($lines, [
+            [1, 'Unexpected empty domain after "f.com".'],
+            [1, 'Unexpected empty domain after "i.com".'],
+            [1, 'Unexpected empty domain before "a.com".'],
+            [1, 'Unexpected empty domain before "g.com".'],
+            [1, 'Unexpected empty domain between "c.com" and "d.com".'],
+        ], self::RULE);
+
+        $lines = [
+            ',##.ads',
+            ',,##.ads',
+            '*$domain=|',
+        ];
+        $this->analyse($lines, [
+            [1, 'Invalid filter'],
+            [2, 'Invalid filter'],
+            [3, 'Invalid filter'],
         ], self::RULE);
     }
 
