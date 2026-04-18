@@ -14,7 +14,7 @@ final class Util
     {
         $rules = [];
         $finder = new Finder;
-        $finder->files()->in(base_path('src/Linter/Rules'))->name('*Check.php');
+        $finder->files()->in(__DIR__.'/Rules')->name('*Check.php');
 
         foreach ($finder as $file) {
             $subPath = $file->getRelativePath();
