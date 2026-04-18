@@ -26,7 +26,8 @@ final class NetworkCheck implements Rule
         $errors = [];
         $exactSeen = [];
         $genericNet = [];   // Mixed Casing Pattern -> LineNum
-        $patternOptionsSeen = []; // Mixed Casing Pattern -> Normalized Options -> [Type -> [Lowercase Domain -> LineNum]]
+        // Mixed Casing Pattern -> Normalized Options -> [Type -> [Lowercase Domain -> LineNum]]
+        $patternOptionsSeen = [];
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -117,7 +118,8 @@ final class NetworkCheck implements Rule
                     }
 
                     // Redundancy check is skipped for mixed contexts (e.g. domain + to)
-                    $isMixedContext = (isset($domainTypes['domain'])) && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
+                    $isMixedContext = isset($domainTypes['domain'])
+                        && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
 
                     sort($nonDomainOptions);
                     $optionsKey = implode(',', $nonDomainOptions);

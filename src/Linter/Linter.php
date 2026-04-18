@@ -68,7 +68,7 @@ final class Linter
      * Read file content.
      *
      * @param string $filePath Path to file
-     * @return array<int, string>|null
+     * @return list<string>|null
      */
     private function read(string $filePath): ?array
     {

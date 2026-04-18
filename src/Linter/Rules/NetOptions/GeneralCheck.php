@@ -436,12 +436,6 @@ final class GeneralCheck implements Rule
     /**
      * Checks $denyallow used together with $to
      *
-     * Example:
-     *
-     * *$script,denyallow=example.com,to=example.com
-     *
-     * In this case, "denyallow" is redundant because "to" is a superset of "denyallow".
-     *
      * @param list<_RuleError> $errors
      * @param array<string, list<string|null>> $opts
      */

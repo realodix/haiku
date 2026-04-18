@@ -19,7 +19,7 @@ final class IfClosedCheck implements Rule
         }
 
         $errors = [];
-        /** @var array<int, array{line: int, type: string, hasElse: bool}> $stack */
+        /** @var list<array{line: int, type: string, hasElse: bool}> $stack */
         $stack = [];
 
         foreach ($content as $index => $line) {

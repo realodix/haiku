@@ -90,7 +90,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Helper to run analysis rules on a given set of lines.
      *
-     * @param array<int, string> $lines
+     * @param list<string> $lines
      * @param list<array{0: int, 1: string, 2?: string}> $expectedErrors
      * @param list<class-string<Rule>>|null $onlyRules Optional list of rule class names to run
      */

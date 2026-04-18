@@ -8,7 +8,7 @@ namespace Realodix\Haiku\Linter\Rules;
 interface Rule
 {
     /**
-     * @param array<int, string> $content Line content
+     * @param list<string> $content Line content
      * @return list<_RuleError> $errors
      */
     public function check(array $content): array;

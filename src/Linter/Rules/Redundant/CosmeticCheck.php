@@ -114,9 +114,9 @@ final class CosmeticCheck implements Rule
         // Pass 2: Redundancy Analysis (Optimized with grouping)
         foreach ($rules as $i => $a) {
             $domains = $a['domains'] ?: ['' => true];
-            /** @var array<int, list<string>> */
+            /** @var list<list<string>> */
             $coverageMap = []; // parentLine -> list of covered domains
-            /** @var array<int, array<string, mixed>> */
+            /** @var list<array<string, mixed>> */
             $parentMap = [];
 
             $interactionKey = $a['attrKey'] ? 'A|'.$a['attrKey'] : 'S|'.$a['separator'].$a['selector'];
@@ -420,13 +420,13 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determine whether attribute selector A is semantically covered by selector B.
+     * Determine whether attribute selector "A" is semantically covered by selector "B".
      *
-     * A is considered covered by B if every element matched by A
-     * would also be matched by B.
+     * "A" is considered covered by "B" if every element matched by "A" would
+     * also be matched by "B".
      *
-     * This only applies to simple attribute selectors with the same
-     * tag and attribute name.
+     * This only applies to simple attribute selectors with the same tag and
+     * attribute name.
      *
      * Examples:
      *   [href="abc"]    is covered by [href*="a"]
