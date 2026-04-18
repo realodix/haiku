@@ -21,6 +21,11 @@ final class TooShortLineCheck implements Rule
             return [];
         }
 
+        // Default line length
+        if ($mode === true) {
+            $mode = 3;
+        }
+
         $errors = [];
 
         foreach ($content as $index => $line) {
