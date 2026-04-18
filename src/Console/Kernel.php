@@ -31,6 +31,7 @@ class Kernel
         \Realodix\Haiku\Console\Command\InitCommand::class,
         \Realodix\Haiku\Console\Command\BuildCommand::class,
         \Realodix\Haiku\Console\Command\FixCommand::class,
+        \Realodix\Haiku\Console\Command\LinterCommand::class,
         \Realodix\Haiku\Console\Command\WorkerCommand::class,
     ];
 

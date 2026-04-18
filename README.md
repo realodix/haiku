@@ -6,7 +6,8 @@ Haiku is a powerful command-line tool for managing adblock filter lists efficien
 
 ### # Features
 1. **Fixing**: Sorts, combines, normalizes, and optimizes filter rules to produce cleaner and easier-to-maintain filter list.
-2. **Building**: Compiles multiple filter list sources (local files and/or remote URLs) into single unified output files, including regenerating headers metadata and removing unnecessary lines such as comments.
+2. **Lint**: Analyzes your filter list to quickly identify potential issues.
+3. **Building**: Compiles multiple filter list sources (local files and/or remote URLs) into single unified output files, including regenerating headers metadata and removing unnecessary lines such as comments.
 
 Haiku supports multiple adblock syntaxes including Adblock Plus, AdGuard, and uBlock Origin. It uses an incremental caching system to skip unchanged files, enabling efficient processing of large filter lists.
 
@@ -26,6 +27,23 @@ example.com##+js(aopw, Fingerprint2)
 ```
 
 For a complete list of transformations, see [docs/fixer-feature.md](./docs/fixer-feature.md).
+
+```adblock
+##.ads
+example.com##.ads
+example.com##+js(nowolf)
+```
+```
+------ ----------------------------------------------------------------------------
+Line   filter.txt
+------ ----------------------------------------------------------------------------
+:2     Redundant filter: 'example.com##.ads' already covered by '##.ads' on line 1.
+        ✏️  filter.txt:2
+:3     Unknown scriptlet: "nowolf"
+        💡 Did you mean "nowoif"?
+        ✏️  filter.txt:3
+```
+
 
 ## Installation
 
@@ -52,6 +70,12 @@ vendor/bin/haiku init
 
 ```sh
 vendor/bin/haiku fix
+```
+
+#### Linter
+
+```sh
+vendor/bin/haiku lint
 ```
 
 #### Builder

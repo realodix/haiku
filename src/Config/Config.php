@@ -20,6 +20,7 @@ final class Config
     public function __construct(
         private BuilderConfig $builder,
         private FixerConfig $fixer,
+        private LinterConfig $linter,
         private Processor $schemaProcessor,
         private OutputInterface $output,
     ) {}
@@ -51,6 +52,23 @@ final class Config
 
         return $this->fixer->make(
             $this->config['fixer'] ?? [],
+            [
+                'path' => $cmdOpt->path,
+            ],
+        );
+    }
+
+    /**
+     * Loads and returns the Linter configuration.
+     *
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
+     */
+    public function linter($cmdOpt): LinterConfig
+    {
+        $this->load(Section::L, $cmdOpt->configFile);
+
+        return $this->linter->make(
+            $this->config['linter'] ?? [],
             [
                 'path' => $cmdOpt->path,
             ],
@@ -116,6 +134,9 @@ final class Config
         if ($section === Section::B) {
             $config = Arr::only($config, ['cache_dir', 'builder']);
             $schema = Schema::builder();
+        } elseif ($section === Section::L) {
+            $config = Arr::only($config, ['cache_dir', 'linter']);
+            $schema = Schema::linter();
         } else {
             $config = Arr::only($config, ['cache_dir', 'fixer']);
             $schema = Schema::fixer();

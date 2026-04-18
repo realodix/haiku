@@ -79,6 +79,104 @@ Some flags are simple boolean switches, while others accept configuration values
 - See [docs/fixer-feature.md](./fixer-feature.md) for a complete list of available flags.
 
 
+## Linter Configuration
+
+This section defines how the `lint` command behaves.
+
+```yml
+linter:
+  paths:
+    - src
+  excludes:
+    - vendor
+  rules:
+    no_extra_blank_lines: 5
+  ignoreErrors:
+    - messages:
+      - 'Deprecated filter option: "empty"'
+```
+
+#### `paths`
+A list of files or directories to analyze. Paths are relative to the project root. If not specified, the project root is used by default.
+
+#### `excludes`
+A list of files or directories to exclude from analysis. If root-level paths are provided, the `vendor` directory is automatically excluded.
+
+#### `ignoreErrors`
+Errors can be ignored by adding a regular expression to the configuration file under the `ignoreErrors` key. To ignore an error by a regular expression, add a string entry:
+
+```yml
+linter:
+  ignoreErrors:
+    - '#Deprecated filter option: "(empty|object-subrequest)"#'
+```
+
+To ignore errors by a regular expression only in a specific file, add an entry with `message` or `messages` and `path` or `paths` keys.
+
+```yml
+linter:
+  ignoreErrors:
+    - messages:
+        - 'Error message 1'
+        - 'Error message 2'
+    - paths:
+        - SomeFile.txt
+        - SomeOtherFile.txt
+    - path: File1.txt
+      messages:
+        - 'Error message 1'
+        - 'Error message 2'
+    - path: File2.txt
+      message: 'Error message 2'
+```
+
+#### `rules`
+A set of options used to configure the linter.
+
+- `no_extra_blank_lines`
+
+  Disallows excessive consecutive blank lines.
+
+  **Type:** `false` | `int`
+  **Default:** `false`
+
+  - `false`: rule is disabled.
+  - `int`: maximum number of blank lines allowed **in a row**.
+
+  This option limits the number of blank lines that can appear consecutively (in a single sequence). It does **not** limit the total number of blank lines in a file.
+
+- `no_short_rules`
+
+  Check if the rule length is less than the specified minimum threshold value, i.e. if the rule is too short.
+
+  **Type:** `false` | `int`
+  **Default:** `false`
+
+  - `false`: rule is disabled.
+  - `int`: minimum rule length.
+
+- `scriptlet_unknown`
+
+  Checks for unknown scriptlet names to help catch typos.
+
+  **Type:** `bool` | `array`
+  **Default:** `true`
+
+  - `true`: enable the check with default known scriptlets.
+  - `false`: disable the check.
+  - `array`: enable the check and register custom scriptlets under the `known` key.
+
+  <br>
+
+  ```yml
+  linter:
+    rules:
+      scriptlet_unknown:
+        known:
+          - my-custom-scriptlet
+  ```
+
+
 ## Builder Configuration
 
 This section configures the behavior for the `build` command.

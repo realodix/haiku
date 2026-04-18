@@ -54,4 +54,38 @@ final class Schema
             ]),
         ]);
     }
+
+    /**
+     * @return \Nette\Schema\Elements\Structure
+     */
+    public static function linter()
+    {
+        return self::global()->extend([
+            'linter' => Expect::structure([
+                'paths' => Expect::listOf('string'),
+                'excludes' => Expect::listOf('string'),
+                'rules' => Expect::structure([
+                    'no_extra_blank_lines' => Expect::anyOf(Expect::int(), false),
+                    'no_short_rules' => Expect::anyOf(Expect::int(), false),
+                    'scriptlet_unknown' => Expect::anyOf(
+                        Expect::bool(),
+                        Expect::structure([
+                            'known' => Expect::listOf('string')->min(1),
+                        ])->castTo('array'),
+                    ),
+                ])->otherItems(Expect::bool()),
+                'ignoreErrors' => Expect::listOf(
+                    Expect::anyOf(
+                        Expect::string(),
+                        Expect::structure([
+                            'message' => Expect::string(),
+                            'messages' => Expect::listOf('string'),
+                            'path' => Expect::string(),
+                            'paths' => Expect::listOf('string'),
+                        ])->castTo('array'),
+                    ),
+                ),
+            ]),
+        ]);
+    }
 }

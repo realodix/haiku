@@ -53,6 +53,31 @@ vendor/bin/haiku fix --force
 <br>
 
 
+## `lint` Command
+
+```sh
+vendor/bin/haiku lint [options]
+```
+
+### Options
+
+- `--path <path>`
+  Specifies the file or directory to analyze.
+- `--config <path>`
+  Specifies a custom configuration file.
+
+```sh
+# Analyze all files in the current directory
+vendor/bin/haiku lint
+
+# Analyze a specific file with a custom config
+vendor/bin/haiku lint --path filter-list.txt --config haiku.yml
+```
+
+
+<br>
+
+
 ## `build` Command
 
 ```sh
