@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter;
 
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Symfony\Component\Finder\Finder;
 
 final class Linter
 {
@@ -17,7 +16,7 @@ final class Linter
         private Config $config,
     ) {
         $this->errorReporter = new ErrorReporter;
-        $this->rules = $this->discoveryRules();
+        $this->rules = Util::loadLinterRules();
     }
 
     /**
@@ -63,30 +62,6 @@ final class Linter
                 $this->errorReporter->add($path, $error);
             }
         }
-    }
-
-    /**
-     * Finds and instantiates all rules in the Rules directory.
-     *
-     * @return list<Rule>
-     */
-    private function discoveryRules(): array
-    {
-        $rules = [];
-        $finder = new Finder;
-        $finder->files()->in(__DIR__.'/Rules')->name('*Check.php');
-
-        foreach ($finder as $file) {
-            $subPath = $file->getRelativePath();
-            $subNamespace = $subPath !== '' ? str_replace('/', '\\', $subPath).'\\' : '';
-            $class = 'Realodix\Haiku\Linter\Rules\\'.$subNamespace.$file->getBasename('.php');
-
-            if (class_exists($class) && is_subclass_of($class, Rule::class)) {
-                $rules[] = app($class);
-            }
-        }
-
-        return $rules;
     }
 
     /**

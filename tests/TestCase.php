@@ -9,11 +9,11 @@ use Realodix\Haiku\Console\Command\BuildCommand;
 use Realodix\Haiku\Console\Command\FixCommand;
 use Realodix\Haiku\Fixer\Fixer;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Linter\Util;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Finder\Finder;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -218,19 +218,7 @@ abstract class TestCase extends BaseTestCase
                 $rules[] = app($class);
             }
         } else {
-            $rules = [];
-            $finder = new Finder;
-            $finder->files()->in(base_path('src/Linter/Rules'))->name('*Check.php');
-
-            foreach ($finder as $file) {
-                $subPath = $file->getRelativePath();
-                $subNamespace = $subPath !== '' ? str_replace('/', '\\', $subPath).'\\' : '';
-                $class = 'Realodix\Haiku\Linter\Rules\\'.$subNamespace.$file->getBasename('.php');
-
-                if (class_exists($class) && is_subclass_of($class, Rule::class)) {
-                    $rules[] = app($class);
-                }
-            }
+            $rules = Util::loadLinterRules();
         }
 
         // Safety: no rules at all
