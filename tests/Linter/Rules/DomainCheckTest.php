@@ -115,6 +115,32 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function ancestorContexts(): void
+    {
+        $lines = [
+            'example.com>>##.ads',
+            'example.com>>##+js(set, iAmEmbeddedInExampleDotCom, true)',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            'example.com>##.ads',
+            'example.com>>>##.ads',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain name: "example.com>"'],
+            [2, 'Bad domain name: "example.com>>>"'],
+        ]);
+
+        $lines = [
+            '*$domain=example.com>>',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain name: "example.com>>". The network filter does not support ancestor context.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function lowercase_domain_only(): void
     {
         $lines = [

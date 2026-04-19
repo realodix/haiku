@@ -99,6 +99,7 @@ final class DomainCheck implements Rule
             }
 
             $this->checkBadDomainName($errors, $lineNum, $domain);
+            $this->checkAncestorContexts($errors, $lineNum, $domain, $separator);
             $this->checkLowercase($errors, $lineNum, $domain);
 
             $this->trackDuplicate($domain, $state);
@@ -167,6 +168,34 @@ final class DomainCheck implements Rule
             $errors[] = RuleErrorBuilder::message(sprintf(
                 'Bad domain name: "%s" contains unnecessary whitespace.', $domain),
             )->line($lineNum)->build();
+        }
+    }
+
+    /**
+     * @param list<_RuleError> $errors
+     */
+    private function checkAncestorContexts(array &$errors, int $lineNum, string $domain, string $separator): void
+    {
+        if (!str_ends_with($domain, '>')) {
+            return;
+        }
+
+        if ($separator === '|') {
+            $errors[] = RuleErrorBuilder::message(sprintf(
+                'Bad domain name: "%s". The network filter does not support ancestor context.',
+                $domain,
+            ))->line($lineNum)->build();
+
+            return;
+        }
+
+        preg_match('/([^>]+)([>]+)/', $domain, $m);
+
+        if (strlen($m[2]) !== 2) {
+            $errors[] = RuleErrorBuilder::message(sprintf('Bad domain name: "%s"', $domain))
+                ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
+                ->line($lineNum)
+                ->build();
         }
     }
 
