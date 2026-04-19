@@ -185,9 +185,15 @@ final class CosmeticCheck implements Rule
         $message = '';
 
         if ($rule['selector'] === $parent['selector']) {
+            $ruleContent = $rule['content'];
+            if (count($rule['domains']) > 2) {
+                $ruleContent = '...,'.array_key_last($rule['domains'])
+                    .$rule['separator'].$rule['selector'];
+            }
+
             $message = sprintf(
                 'Redundant filter: %s already covered by %s on line %d.',
-                $rule['content'],
+                $ruleContent,
                 $parent['separator'].$parent['selector'],
                 $parent['line'],
             );

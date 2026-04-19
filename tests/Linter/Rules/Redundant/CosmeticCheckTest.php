@@ -35,6 +35,9 @@ class CosmeticCheckTest extends TestCase
         $lines = [
             '##.ads',
             'example.com##.ads', // Redundant
+            '##.ads1',
+            // Redundant with more than 2 domains
+            'example.come,example.org,example.site##.ads1',
             // '!',
             // '##.adv',
             // '##div.adv', // Redundant by ##.adv
@@ -44,6 +47,7 @@ class CosmeticCheckTest extends TestCase
 
         $this->analyse($lines, [
             [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1.'],
+            [4, 'Redundant filter: ...,example.site##.ads1 already covered by ##.ads1 on line 3.'],
         ], self::RULE);
 
         $lines = [
