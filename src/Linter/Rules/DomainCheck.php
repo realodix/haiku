@@ -102,9 +102,7 @@ final class DomainCheck implements Rule
             $this->checkLowercase($errors, $lineNum, $domain);
 
             $this->trackDuplicate($domain, $state);
-            $isNegated = str_starts_with($domain, '~');
-            $cleanDomain = ltrim($domain, '~');
-            $this->trackContradiction($isNegated, $cleanDomain, $state);
+            $this->trackContradiction($domain, $state);
         }
 
         $this->reportStatefulErrors($errors, $lineNum, $state);
@@ -220,12 +218,14 @@ final class DomainCheck implements Rule
      * If a contradictory domain is found, it is added to the list of contradictions.
      * Otherwise, the domain is marked as either included or excluded.
      *
-     * @param bool $isNegated Whether the domain is negated.
      * @param string $domain The domain to track.
      * @param array<string, mixed> $state The state array to modify.
      */
-    private function trackContradiction(bool $isNegated, string $domain, array &$state): void
+    private function trackContradiction(string $domain, array &$state): void
     {
+        $isNegated = str_starts_with($domain, '~');
+        $domain = ltrim($domain, '~');
+
         if ($isNegated) {
             if (isset($state['inclusions'][$domain])) {
                 $state['contradictions'][] = $domain;

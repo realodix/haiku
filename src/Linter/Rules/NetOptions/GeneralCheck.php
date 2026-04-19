@@ -54,8 +54,8 @@ final class GeneralCheck implements Rule
             $rawOpts = Util::splitOptions($m[2]);
 
             $this->checkDuplicateOptions($errors, $lineNum, $rawOpts);
-            $this->checkOptionsCase($errors, $lineNum, $rawOpts);
             $this->checkOptionConflict($errors, $lineNum, $rawOpts);
+            $this->checkOptionsCase($errors, $lineNum, $rawOpts);
             $this->checkInvalidNegation($errors, $lineNum, $rawOpts);
 
             $opts = $this->parseOptions($rawOpts);
