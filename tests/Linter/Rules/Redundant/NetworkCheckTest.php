@@ -3,22 +3,12 @@
 namespace Realodix\Haiku\Test\Linter\Rules\Redundant;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Linter\Rules\Redundant\NetworkCheck;
 use Realodix\Haiku\Test\TestCase;
 
 class NetworkCheckTest extends TestCase
 {
     private const RULE = [NetworkCheck::class];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        app(LinterConfig::class)->rules = [
-            'no_dupe_rules' => true,
-        ];
-    }
 
     #[PHPUnit\Test]
     public function network_rules_case_insensitive(): void
@@ -46,7 +36,20 @@ class NetworkCheckTest extends TestCase
 
         $this->analyse($lines, [
             [2, 'Redundant filter: ||example.com^$script already covered by ||example.com^ on line 1.'],
-        ], self::RULE);
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function redundant_exclude_popup(): void
+    {
+        $lines = [
+            '/ads/*$popup',
+            '/ads/*',
+            '||example.com^',
+            '||example.com^$popup',
+        ];
+
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]

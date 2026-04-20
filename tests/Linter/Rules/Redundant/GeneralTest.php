@@ -123,17 +123,6 @@ class GeneralTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function redundant_8(): void
-    {
-        $lines = [
-            '||1xikk.world^',
-            '||1xikk.world^$popup',
-        ];
-
-        $this->analyse($lines, [], self::RULE);
-    }
-
-    #[PHPUnit\Test]
     public function redundant_9(): void
     {
         $lines = [

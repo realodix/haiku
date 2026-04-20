@@ -13,6 +13,15 @@ use Realodix\Haiku\Linter\Util;
  */
 final class NetworkCheck implements Rule
 {
+    /** @var array<string, int> */
+    private array $exactSeen = [];
+
+    /** @var array<string, int> */
+    private array $genericNet = [];
+
+    /** @var array<string, array<string, array<string, array<string, int>>>> */
+    private array $patternOptionsSeen = [];
+
     public function __construct(
         private LinterConfig $config,
     ) {}
@@ -23,47 +32,29 @@ final class NetworkCheck implements Rule
             return [];
         }
 
+        $this->reset();
         $errors = [];
-        $exactSeen = [];
-        $genericNet = [];   // Mixed Casing Pattern -> LineNum
-        // Mixed Casing Pattern -> Normalized Options -> [Type -> [Lowercase Domain -> LineNum]]
-        $patternOptionsSeen = [];
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
-                continue;
-            }
-
-            if (preg_match(Regex::IS_COSMETIC_RULE, $line)) {
+            if ($this->shouldSkip($line)) {
                 continue;
             }
 
             // Determine if the rule is case-sensitive
-            $isNetwork = preg_match(Regex::NET_OPTION, $line, $m);
+            $isNetwork = (bool) preg_match(Regex::NET_OPTION, $line, $m);
             $optionsStr = $isNetwork ? $m[2] : '';
             $options = $isNetwork ? Util::splitOptions($optionsStr) : [];
-            $hasMatchCase = false;
-            foreach ($options as $opt) {
-                if (strtolower(trim($opt)) === 'match-case') {
-                    $hasMatchCase = true;
-                    break;
-                }
-            }
+            $hasMatchCase = $this->hasOption($options, 'match-case');
 
             // 1. Exact duplicate check
-            $exactKey = $hasMatchCase ? $line : strtolower($line);
-            if (isset($exactSeen[$exactKey])) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
-                    'Redundant filter: %s already defined on line %d.',
-                    $line, $exactSeen[$exactKey],
-                ))->line($lineNum)->build();
+            if ($err = $this->checkExactDuplicate($lineNum, $line, $hasMatchCase)) {
+                $errors[] = $err;
 
                 continue;
             }
-            $exactSeen[$exactKey] = $lineNum;
 
             // 2. Redundancy check
             $pattern = $isNetwork ? $m[1] : $line;
@@ -73,105 +64,206 @@ final class NetworkCheck implements Rule
 
             if (!$isNetwork) {
                 // No options. Global for this pattern.
-                $genericNet[$pattern] = $lineNum;
-            } else {
-                // Check if global rule covers this one
-                $isSpecial = false;
-                foreach ($options as $opt) {
-                    if (strtolower(trim($opt)) === 'popup') {
-                        $isSpecial = true;
-                        break;
-                    }
-                }
+                $this->genericNet[$pattern] = $lineNum;
 
-                if (isset($genericNet[$pattern]) && !$isSpecial) {
-                    $errors[] = RuleErrorBuilder::message(sprintf(
-                        'Redundant filter: %s already covered by %s on line %d.',
-                        $line, $m[1], $genericNet[$pattern],
-                    ))->line($lineNum)->build();
-                } else {
-                    // Check for domain-level redundancy
-                    $nonDomainOptions = [];
-                    $domains = [];
-                    $domainTypes = [];
-
-                    foreach ($options as $opt) {
-                        $opt = trim($opt);
-                        if (preg_match('/^(domain|from|to|denyallow)=(.+)$/i', $opt, $dm)) {
-                            $optName = strtolower($dm[1]);
-                            if ($optName === 'from') {
-                                $optName = 'domain';
-                            }
-                            $domainTypes[$optName] = true;
-
-                            $sep = str_contains($dm[2], '|') ? '|' : ',';
-                            $dList = explode($sep, $dm[2]);
-                            foreach ($dList as $d) {
-                                $domains[] = [
-                                    'name' => strtolower(trim($d)),
-                                    'type' => $optName,
-                                ];
-                            }
-                        } else {
-                            $nonDomainOptions[] = $hasMatchCase ? $opt : strtolower($opt);
-                        }
-                    }
-
-                    // Redundancy check is skipped for mixed contexts (e.g. domain + to)
-                    $isMixedContext = isset($domainTypes['domain'])
-                        && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
-
-                    sort($nonDomainOptions);
-                    $optionsKey = implode(',', $nonDomainOptions);
-
-                    if (empty($domains)) {
-                        if (isset($patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'])) {
-                            $errors[] = RuleErrorBuilder::message(sprintf(
-                                'Redundant filter: %s already defined on line %d.',
-                                $line, $patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'],
-                            ))->line($lineNum)->build();
-                        } else {
-                            $patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'] = $lineNum;
-                        }
-                    } else {
-                        if (isset($patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_'])) {
-                            $errors[] = RuleErrorBuilder::message(sprintf("Redundant filter: '%s' is redundant.", $line))
-                                ->line($lineNum)
-                                ->build();
-                        } else {
-                            $redundantDomains = [];
-                            $domainsToMark = [];
-
-                            foreach ($domains as $d) {
-                                if (isset($patternOptionsSeen[$pattern][$optionsKey][$d['type']][$d['name']])) {
-                                    $redundantDomains[] = [
-                                        'domain' => $d['name'],
-                                        'line' => $patternOptionsSeen[$pattern][$optionsKey][$d['type']][$d['name']],
-                                    ];
-                                } else {
-                                    $domainsToMark[] = $d;
-                                }
-                            }
-
-                            if (!$isMixedContext && !empty($redundantDomains)) {
-                                foreach ($redundantDomains as $rd) {
-                                    $errors[] = RuleErrorBuilder::message(sprintf(
-                                        "Redundant filter: domain '%s' already covered on line %d.",
-                                        $rd['domain'], $rd['line'],
-                                    ))->line($lineNum)->build();
-                                }
-                            }
-
-                            // Mark domains as seen for subsequent rules
-                            foreach ($domainsToMark as $dm) {
-                                $patternOptionsSeen[$pattern][$optionsKey][$dm['type']][$dm['name']] = $lineNum;
-                            }
-                        }
-                    }
-                }
+                continue;
             }
+
+            if ($err = $this->checkGenericRedundancy($lineNum, $line, $pattern, $m[1], $options)) {
+                $errors[] = $err;
+
+                continue;
+            }
+
+            $errors = [...$errors, ...$this->checkDomainRedundancy($lineNum, $line, $pattern, $options, $hasMatchCase)];
         }
 
         return $errors;
+    }
+
+    /**
+     * @return _RuleError|null
+     */
+    private function checkExactDuplicate(int $lineNum, string $line, bool $hasMatchCase): ?array
+    {
+        $exactKey = $hasMatchCase ? $line : strtolower($line);
+
+        if (isset($this->exactSeen[$exactKey])) {
+            return RuleErrorBuilder::message(sprintf(
+                'Redundant filter: %s already defined on line %d.',
+                $line, $this->exactSeen[$exactKey],
+            ))->line($lineNum)->build();
+        }
+
+        $this->exactSeen[$exactKey] = $lineNum;
+
+        return null;
+    }
+
+    /**
+     * @param list<string> $options
+     * @return _RuleError|null
+     */
+    private function checkGenericRedundancy(
+        int $lineNum,
+        string $line,
+        string $pattern,
+        string $rawPattern,
+        array $options,
+    ): ?array {
+        if (!isset($this->genericNet[$pattern])) {
+            return null;
+        }
+
+        if ($this->hasOption($options, 'popup')) {
+            return null;
+        }
+
+        return RuleErrorBuilder::message(sprintf(
+            'Redundant filter: %s already covered by %s on line %d.',
+            $line, $rawPattern, $this->genericNet[$pattern],
+        ))->line($lineNum)->build();
+    }
+
+    /**
+     * @param list<string> $options
+     * @return _RuleError[]
+     */
+    private function checkDomainRedundancy(
+        int $lineNum,
+        string $line,
+        string $pattern,
+        array $options,
+        bool $hasMatchCase,
+    ): array {
+        $errors = [];
+        [$nonDomainOptions, $domains, $domainTypes] = $this->parseDomains($options, $hasMatchCase);
+
+        // Redundancy check is skipped for mixed contexts (e.g. domain + to)
+        $isMixedContext = isset($domainTypes['domain'])
+            && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
+
+        sort($nonDomainOptions);
+        $optionsKey = implode(',', $nonDomainOptions);
+
+        if (empty($domains)) {
+            if (isset($this->patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_']['_GLOBAL_'])) {
+                $errors[] = RuleErrorBuilder::message(sprintf(
+                    'Redundant filter: %s already defined on line %d.',
+                    $line, $this->patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_']['_GLOBAL_'],
+                ))->line($lineNum)->build();
+            } else {
+                $this->patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_']['_GLOBAL_'] = $lineNum;
+            }
+
+            return $errors;
+        }
+
+        if (isset($this->patternOptionsSeen[$pattern][$optionsKey]['_GLOBAL_']['_GLOBAL_'])) {
+            $errors[] = RuleErrorBuilder::message(sprintf("Redundant filter: '%s' is redundant.", $line))
+                ->line($lineNum)
+                ->build();
+
+            return $errors;
+        }
+
+        $redundantDomains = [];
+        $domainsToMark = [];
+
+        foreach ($domains as $d) {
+            if (isset($this->patternOptionsSeen[$pattern][$optionsKey][$d['type']][$d['name']])) {
+                $redundantDomains[] = [
+                    'domain' => $d['name'],
+                    'line' => $this->patternOptionsSeen[$pattern][$optionsKey][$d['type']][$d['name']],
+                ];
+            } else {
+                $domainsToMark[] = $d;
+            }
+        }
+
+        if (!$isMixedContext && !empty($redundantDomains)) {
+            foreach ($redundantDomains as $rd) {
+                $errors[] = RuleErrorBuilder::message(sprintf(
+                    "Redundant filter: domain '%s' already covered on line %d.",
+                    $rd['domain'], $rd['line'],
+                ))->line($lineNum)->build();
+            }
+        }
+
+        // Mark domains as seen for subsequent rules
+        foreach ($domainsToMark as $dm) {
+            $this->patternOptionsSeen[$pattern][$optionsKey][$dm['type']][$dm['name']] = $lineNum;
+        }
+
+        return $errors;
+    }
+
+    private function reset(): void
+    {
+        $this->exactSeen = [];
+        $this->genericNet = [];
+        $this->patternOptionsSeen = [];
+    }
+
+    private function shouldSkip(string $line): bool
+    {
+        if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+            return true;
+        }
+
+        return (bool) preg_match(Regex::IS_COSMETIC_RULE, $line);
+    }
+
+    /**
+     * @param list<string> $options
+     */
+    private function hasOption(array $options, string $target): bool
+    {
+        foreach ($options as $opt) {
+            if (strtolower(trim($opt)) === $target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param list<string> $options
+     * @return array{
+     *  0: list<string>,
+     *  1: array<int, array{name: string, type: string}>,
+     *  2: array<string, bool>,
+     * }
+     */
+    private function parseDomains(array $options, bool $hasMatchCase): array
+    {
+        $nonDomainOptions = [];
+        $domains = [];
+        $domainTypes = [];
+
+        foreach ($options as $opt) {
+            $opt = trim($opt);
+            if (preg_match('/^(domain|from|to|denyallow)=(.+)$/i', $opt, $dm)) {
+                $optName = strtolower($dm[1]);
+                if ($optName === 'from') {
+                    $optName = 'domain';
+                }
+                $domainTypes[$optName] = true;
+
+                $sep = str_contains($dm[2], '|') ? '|' : ',';
+                $dList = explode($sep, $dm[2]);
+                foreach ($dList as $d) {
+                    $domains[] = [
+                        'name' => strtolower(trim($d)),
+                        'type' => $optName,
+                    ];
+                }
+            } else {
+                $nonDomainOptions[] = $hasMatchCase ? $opt : strtolower($opt);
+            }
+        }
+
+        return [$nonDomainOptions, $domains, $domainTypes];
     }
 }
