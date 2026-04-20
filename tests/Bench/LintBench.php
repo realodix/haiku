@@ -27,6 +27,7 @@ class LintBench
             '##[id^="id_1_banner"]',
             '###id_2_bannerId',
             '##[id^="id_2_banner" i]',
+
             '*$3p,script,3p',
             '*$3p,script,3p,script',
             '*$domain=a.com,domain=b.com',
@@ -35,6 +36,17 @@ class LintBench
             '||example.com/ads.js$script,redirect-rule=noop.js',
             '/fingerprint2.min.js$redirect=fingerprint2.js,domain=example.com',
             '*$xhr,redirect-rule=noopjs:-1,to=~example.com',
+
+            '/ads/*',
+            '||somesite.com/ads/',
+            '/ads2/*',
+            '||somesite.com/ads2/$image',
+            '!',
+            '/banner/ads-',
+            '/banner/*',
+            '/banner2/ads-$image',
+            '/banner2/*',
+
             '@@||example.org^$redirect',
             'example.org##+js(nowoif)',
         ];
