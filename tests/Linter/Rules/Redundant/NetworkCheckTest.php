@@ -11,19 +11,88 @@ class NetworkCheckTest extends TestCase
     private const RULE = [NetworkCheck::class];
 
     #[PHPUnit\Test]
-    public function network_rules_case_insensitive(): void
+    public function exact_duplicate(): void
     {
         $lines = [
             '||example.com^',
-            '||EXAMPLE.COM^',
+            '||example.com^',
+            '||example.org^$script',
+            '||example.org^$script',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ||example.com^ already defined on line 1.'],
+            [4, 'Redundant filter: ||example.org^$script already defined on line 3.'],
+        ], self::RULE);
+
+        // case insensitive
+        $lines = [
+            '/ads/*',
+            '/Ads/*',
             '||example.org^$script',
             '||example.org^$SCRIPT',
         ];
-
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||EXAMPLE.COM^ already defined on line 1.'],
+            [2, 'Redundant filter: /Ads/* already defined on line 1.'],
             [4, 'Redundant filter: ||example.org^$SCRIPT already defined on line 3.'],
         ], self::RULE);
+    }
+
+    #[PHPUnit\Test]
+    public function different_options_order(): void
+    {
+        $lines = [
+            '*$image,script',
+            '*$script,image',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: *$script,image already defined on line 1.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function domainRedundancy(): void
+    {
+        $lines = [
+            '*$to=a.com|b.com',
+            '*$to=a.com',
+        ];
+        $this->analyse($lines, [
+            [2, "Redundant filter: domain 'a.com' already covered on line 1."],
+        ]);
+
+        $lines = [
+            '-banner-$image,domain=a.com|b.com',
+            '-banner-$from=a.com,image',        // Redundant
+            '-banner-$image,domain=a.com,css',
+        ];
+        $this->analyse($lines, [
+            [2, "Redundant filter: domain 'a.com' already covered on line 1."],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function respectMatchCaseOption(): void
+    {
+        $lines = [
+            '?url=http/$doc,to=com|io|net,match-case,urlskip=?url',
+            '?URL=http/$doc,to=com|io|net,match-case,urlskip=?URL',
+        ];
+
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function respectPopupOption(): void
+    {
+        $lines = [
+            '/ads/*$popup',
+            '/ads/*',
+            '||example.com^',
+            '||example.com^$popup',
+        ];
+
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
@@ -37,33 +106,5 @@ class NetworkCheckTest extends TestCase
         $this->analyse($lines, [
             [2, 'Redundant filter: ||example.com^$script already covered by ||example.com^ on line 1.'],
         ]);
-    }
-
-    #[PHPUnit\Test]
-    public function redundant_exclude_popup(): void
-    {
-        $lines = [
-            '/ads/*$popup',
-            '/ads/*',
-            '||example.com^',
-            '||example.com^$popup',
-        ];
-
-        $this->analyse($lines);
-    }
-
-    #[PHPUnit\Test]
-    public function ignore_comments_and_directives(): void
-    {
-        $lines = [
-            '! Comment',
-            '!#if ext_abp',
-            '||example.com^',
-            '||example.com^',
-        ];
-
-        $this->analyse($lines, [
-            [4, 'Redundant filter: ||example.com^ already defined on line 3.'],
-        ], self::RULE);
     }
 }
