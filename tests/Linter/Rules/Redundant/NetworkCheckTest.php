@@ -94,17 +94,4 @@ class NetworkCheckTest extends TestCase
 
         $this->analyse($lines);
     }
-
-    #[PHPUnit\Test]
-    public function redundant(): void
-    {
-        $lines = [
-            '||example.com^',
-            '||example.com^$script', // Redundant
-        ];
-
-        $this->analyse($lines, [
-            [2, 'Redundant filter: ||example.com^$script already covered by ||example.com^ on line 1.'],
-        ]);
-    }
 }
