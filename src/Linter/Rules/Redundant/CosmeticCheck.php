@@ -12,15 +12,15 @@ use Realodix\Haiku\Linter\Util;
  * @phpstan-import-type _RuleError from RuleErrorBuilder
  *
  * @phpstan-type _ParsedAttrSelector array{
- *     tag: string,
- *     attr: string,
- *     operator: string,
- *     value: string,
- *     modifier: string
+ *  tag: string,
+ *  attr: string,
+ *  operator: string,
+ *  value: string,
+ *  modifier: string
  * }
  * @phpstan-type _SeenAttrSelector array{
- *     data: _ParsedAttrSelector,
- *     line: int
+ *  data: _ParsedAttrSelector,
+ *  line: int
  * }
  */
 final class CosmeticCheck implements Rule
