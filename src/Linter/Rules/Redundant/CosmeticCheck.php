@@ -93,7 +93,6 @@ final class CosmeticCheck implements Rule
             $selector = $m[5];
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
-            $attrKey = $attrData ? $separator.'|'.$attrData['tag'].'|'.$attrData['attr'] : null;
 
             $ruleIndex = count($rules);
             $rules[] = [
@@ -103,12 +102,33 @@ final class CosmeticCheck implements Rule
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
-                'attrKey' => $attrKey,
             ];
 
-            // Use 'A' prefix for Attribute Key and 'S' for Standard Selector Key to avoid collisions
-            $interactionKey = $attrKey ? 'A|'.$attrKey : 'S|'.$separator.$selector;
-            $interactionMap[$interactionKey][] = $ruleIndex;
+            // Group rules into buckets to avoid O(N^2) redundancy checks.
+            // Prefixes used to avoid key collisions:
+            // 'A' (Attribute Selector), 'S' (Standard Selector)
+            // 'E' (Exact Match), 'P' (Partial Match)
+            if ($attrData) {
+                $val = strtolower($attrData['value']);
+                $op = $attrData['operator'];
+                $tag = $attrData['tag'];
+                $attr = $attrData['attr'];
+
+                if (in_array($op, ['^=', '$=', '*='], true)) {
+                    // Partial bucket (A|P): Groups rules with wildcard operators by their tag and attribute name.
+                    // Example: [class*="ad"] goes here.
+                    $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
+                    $interactionMap[$partialKey][] = $ruleIndex;
+                } else {
+                    // Exact bucket (A|E): Groups rules with exact operators (=, ~=) by their specific value.
+                    // Example: .ads and [class="ads"] go here, drastically reducing candidate pool.
+                    $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
+                    $interactionMap[$exactKey][] = $ruleIndex;
+                }
+            } else {
+                // Standard bucket (S): Groups unparsed selectors by their exact string.
+                $interactionMap['S|'.$separator.$selector][] = $ruleIndex;
+            }
         }
 
         // Pass 2: Redundancy Analysis (Optimized with grouping)
@@ -119,15 +139,69 @@ final class CosmeticCheck implements Rule
             /** @var list<array<string, mixed>> */
             $parentMap = [];
 
-            $interactionKey = $a['attrKey'] ? 'A|'.$a['attrKey'] : 'S|'.$a['separator'].$a['selector'];
+            $candidates = [];
+            $separator = $a['separator'];
 
-            // Gather candidates: same group (tag+attr) AND global group (attr only)
-            $candidates = $interactionMap[$interactionKey] ?? [];
-            if ($a['attrData'] && $a['attrData']['tag'] !== '') {
-                $globalAttrKey = 'A|'.$a['separator'].'||'.$a['attrData']['attr'];
-                if ($globalAttrKey !== $interactionKey) {
-                    $candidates = array_merge($candidates, $interactionMap[$globalAttrKey] ?? []);
+            if ($a['attrData']) {
+                $val = strtolower($a['attrData']['value']);
+                $op = $a['attrData']['operator'];
+                $tag = $a['attrData']['tag'];
+                $attr = $a['attrData']['attr'];
+
+                // 1. Exact Candidates
+                $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
+                if (isset($interactionMap[$exactKey])) {
+                    $candidates = array_merge($candidates, $interactionMap[$exactKey]);
                 }
+
+                // 1b. Word Candidates (if A is '=')
+                if ($op === '=') {
+                    $words = preg_split('/\s+/', $val) ?: [];
+                    foreach ($words as $word) {
+                        if ($word === '' || $word === $val) {
+                            continue;
+                        }
+                        $wordKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$word;
+                        if (isset($interactionMap[$wordKey])) {
+                            $candidates = array_merge($candidates, $interactionMap[$wordKey]);
+                        }
+                    }
+                }
+
+                // 2. Partial Candidates
+                $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
+                if (isset($interactionMap[$partialKey])) {
+                    $candidates = array_merge($candidates, $interactionMap[$partialKey]);
+                }
+
+                // 3. Global Candidates (if A has a tag)
+                if ($tag !== '') {
+                    $globalExactKey = 'A|E|'.$separator.'||'.$attr.'|'.$val;
+                    if (isset($interactionMap[$globalExactKey])) {
+                        $candidates = array_merge($candidates, $interactionMap[$globalExactKey]);
+                    }
+
+                    if ($op === '=') {
+                        foreach ($words ?? [] as $word) {
+                            if ($word === '' || $word === $val) {
+                                continue;
+                            }
+                            $globalWordKey = 'A|E|'.$separator.'||'.$attr.'|'.$word;
+                            if (isset($interactionMap[$globalWordKey])) {
+                                $candidates = array_merge($candidates, $interactionMap[$globalWordKey]);
+                            }
+                        }
+                    }
+
+                    $globalPartialKey = 'A|P|'.$separator.'||'.$attr;
+                    if (isset($interactionMap[$globalPartialKey])) {
+                        $candidates = array_merge($candidates, $interactionMap[$globalPartialKey]);
+                    }
+                }
+
+                $candidates = array_unique($candidates);
+            } else {
+                $candidates = $interactionMap['S|'.$separator.$a['selector']] ?? [];
             }
 
             foreach ($domains as $domain => $_) {
