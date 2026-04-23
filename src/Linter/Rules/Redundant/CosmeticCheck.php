@@ -76,8 +76,7 @@ final class CosmeticCheck implements Rule
             if (isset($exactSeen[$line])) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
-                    $line,
-                    $exactSeen[$line],
+                    $line, $exactSeen[$line],
                 ))->line($lineNum)->build();
 
                 continue;
@@ -96,8 +95,8 @@ final class CosmeticCheck implements Rule
 
             $ruleIndex = count($rules);
             $rules[] = [
-                'line' => $lineNum,
-                'content' => $line,
+                'lineNum' => $lineNum,
+                'line' => $line,
                 'domains' => $domains,
                 'separator' => $separator,
                 'selector' => $selector,
@@ -227,8 +226,8 @@ final class CosmeticCheck implements Rule
                 }
 
                 if ($bestParent) {
-                    $coverageMap[$bestParent['line']][] = $domain;
-                    $parentMap[$bestParent['line']] = $bestParent;
+                    $coverageMap[$bestParent['lineNum']][] = $domain;
+                    $parentMap[$bestParent['lineNum']] = $bestParent;
                 }
             }
 
@@ -259,27 +258,26 @@ final class CosmeticCheck implements Rule
         $message = '';
 
         if ($rule['selector'] === $parent['selector']) {
-            $ruleContent = $rule['content'];
+            $content = $rule['line'];
             if (count($rule['domains']) > 2) {
-                $ruleContent = '...,'.array_key_last($rule['domains'])
+                $content = '...,'.array_key_last($rule['domains'])
                     .$rule['separator'].$rule['selector'];
             }
 
             $message = sprintf(
                 'Redundant filter: %s already covered by %s on line %d.',
-                $ruleContent,
+                $content,
                 $parent['separator'].$parent['selector'],
-                $parent['line'],
+                $parent['lineNum'],
             );
         } else {
             $message = sprintf(
                 'Redundant filter: %s is redundant due to more general selector on line %d.',
-                $rule['content'],
-                $parent['line'],
+                $rule['line'], $parent['lineNum'],
             );
         }
 
-        return RuleErrorBuilder::message($message)->line($rule['line'])->build();
+        return RuleErrorBuilder::message($message)->line($rule['lineNum'])->build();
     }
 
     /**
@@ -294,34 +292,36 @@ final class CosmeticCheck implements Rule
         if ($rule['selector'] === $parent['selector']) {
             $message = sprintf(
                 'Redundant filter: domain %s already covered on line %d.',
-                $domain, $parent['line'],
+                $domain, $parent['lineNum'],
             );
         } else {
             $message = sprintf(
                 'Redundant filter: domain %s in %s already covered on line %d.',
                 $domain,
                 $domain.$rule['separator'].$rule['selector'],
-                $parent['line'],
+                $parent['lineNum'],
             );
         }
 
-        return RuleErrorBuilder::message($message)->line($rule['line'])->build();
+        return RuleErrorBuilder::message($message)->line($rule['lineNum'])->build();
     }
 
     /**
-     * @param array<string, mixed> $a
-     * @param array<string, mixed> $b
+     * Determine if the rule is covered by the candidate rule for a specific domain.
+     *
+     * @param array<string, mixed> $rule The rule being checked.
+     * @param array<string, mixed> $candidate The candidate rule that might cover it.
      * @param array<string, bool> $ghideExceptions
      */
-    private function isCovered(array $a, array $b, string $domain, array $ghideExceptions): bool
+    private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
     {
-        if ($a['separator'] !== $b['separator']) {
+        if ($rule['separator'] !== $candidate['separator']) {
             return false;
         }
 
         // B must cover the target domain (either global or specific)
-        if ($b['domains'] !== []) {
-            if (!isset($b['domains'][$domain])) {
+        if ($candidate['domains'] !== []) {
+            if (!isset($candidate['domains'][$domain])) {
                 return false;
             }
         } elseif (isset($ghideExceptions[$domain])) {
@@ -330,49 +330,49 @@ final class CosmeticCheck implements Rule
         }
 
         // Case A: Exact same selector
-        if ($a['selector'] === $b['selector']) {
+        if ($rule['selector'] === $candidate['selector']) {
             return true;
         }
 
         // Case B: Attribute selector dominance
-        if ($a['attrData'] && $b['attrData']) {
-            return $this->isAttrCoveredBy($a['attrData'], $b['attrData']);
+        if ($rule['attrData'] && $candidate['attrData']) {
+            return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
         }
 
         return false;
     }
 
     /**
-     * Determine if parent B is "better" (more general or earlier) than parent C.
+     * Determine if the candidate rule is "better" (more general or earlier) than the current best.
      *
-     * @param array<string, mixed> $b
-     * @param array<string, mixed> $c
+     * @param array<string, mixed> $candidate The rule to evaluate.
+     * @param array<string, mixed> $best The current best rule to compare against.
      */
-    private function isBetter(array $b, array $c): bool
+    private function isBetter(array $candidate, array $best): bool
     {
         // 1. Semantic generality (for attribute selectors)
-        if ($b['attrData'] && $c['attrData']) {
-            $bCoversC = $this->isAttrCoveredBy($c['attrData'], $b['attrData']);
-            $cCoversB = $this->isAttrCoveredBy($b['attrData'], $c['attrData']);
+        if ($candidate['attrData'] && $best['attrData']) {
+            $bCoversC = $this->isAttrCoveredBy($best['attrData'], $candidate['attrData']);
+            $cCoversB = $this->isAttrCoveredBy($candidate['attrData'], $best['attrData']);
 
             if ($bCoversC && !$cCoversB) {
-                return true; // B is strictly more general
+                return true; // candidate is strictly more general
             }
             if (!$bCoversC && $cCoversB) {
-                return false; // C is strictly more general
+                return false; // best is strictly more general
             }
         }
 
         // 2. Globalness (Global rules are better references than domain-specific ones)
-        if ($b['domains'] === [] && $c['domains'] !== []) {
+        if ($candidate['domains'] === [] && $best['domains'] !== []) {
             return true;
         }
-        if ($b['domains'] !== [] && $c['domains'] === []) {
+        if ($candidate['domains'] !== [] && $best['domains'] === []) {
             return false;
         }
 
         // 3. Line number (Earlier rules are preferred as reference points)
-        return $b['line'] < $c['line'];
+        return $candidate['lineNum'] < $best['lineNum'];
     }
 
     /**
@@ -500,10 +500,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determine whether attribute selector "A" is semantically covered by selector "B".
+     * Determine whether attribute selector "rule" is semantically covered by selector "candidate".
      *
-     * "A" is considered covered by "B" if every element matched by "A" would
-     * also be matched by "B".
+     * The rule is considered covered by the candidate if every element matched by the rule would
+     * also be matched by the candidate.
      *
      * This only applies to simple attribute selectors with the same tag and
      * attribute name.
@@ -512,38 +512,38 @@ final class CosmeticCheck implements Rule
      *   [href="abc"]    is covered by [href*="a"]
      *   [href^="https"] is covered by [href*="http"]
      *
-     * @param _ParsedAttrSelector $a
-     * @param _ParsedAttrSelector $b
+     * @param _ParsedAttrSelector $rule The rule being checked.
+     * @param _ParsedAttrSelector $candidate The candidate rule that might cover it.
      */
-    private function isAttrCoveredBy(array $a, array $b): bool
+    private function isAttrCoveredBy(array $rule, array $candidate): bool
     {
-        if ($a['attr'] !== $b['attr']) {
+        if ($rule['attr'] !== $candidate['attr']) {
             return false;
         }
 
         // B covers A if B has no tag (global) or same tag as A.
-        if ($b['tag'] !== '' && $a['tag'] !== $b['tag']) {
+        if ($candidate['tag'] !== '' && $rule['tag'] !== $candidate['tag']) {
             return false;
         }
 
         // If A is case-insensitive but B is case-sensitive, B cannot cover A.
-        if ($a['modifier'] === 'i' && $b['modifier'] === '') {
+        if ($rule['modifier'] === 'i' && $candidate['modifier'] === '') {
             return false;
         }
 
         // Determine if we should compare values case-insensitively.
-        $caseInsensitive = $b['modifier'] === 'i';
-        $valA = $caseInsensitive ? strtolower($a['value']) : $a['value'];
-        $valB = $caseInsensitive ? strtolower($b['value']) : $b['value'];
+        $caseInsensitive = $candidate['modifier'] === 'i';
+        $valA = $caseInsensitive ? strtolower($rule['value']) : $rule['value'];
+        $valB = $caseInsensitive ? strtolower($candidate['value']) : $candidate['value'];
 
         // Exact match of operator and value
-        if ($a['operator'] === $b['operator'] && $valA === $valB) {
+        if ($rule['operator'] === $candidate['operator'] && $valA === $valB) {
             return true;
         }
 
         // B: "*=" (substring)
         // Covers any A where the matched value A contains substring B.
-        if ($b['operator'] === '*=') {
+        if ($candidate['operator'] === '*=') {
             return str_contains($valA, $valB);
         }
 
@@ -555,27 +555,27 @@ final class CosmeticCheck implements Rule
         // NOT cover [class~="cls"] unless the class is guaranteed to be first.
         // Conversely, for 'id' attributes (which are single-valued),
         // #id translates to [id="id"], which IS covered by [id^="val"].
-        if ($b['operator'] === '^=') {
-            return ($a['operator'] === '=' || $a['operator'] === '^=')
+        if ($candidate['operator'] === '^=') {
+            return ($rule['operator'] === '=' || $rule['operator'] === '^=')
                 && str_starts_with($valA, $valB);
         }
 
         // B: "$=" (ends with)
         // Covers A if A is "=" or "$=" and valA ends with valB.
         // Same logic as ^=: Covers ID selectors but not Class selectors.
-        if ($b['operator'] === '$=') {
-            return ($a['operator'] === '=' || $a['operator'] === '$=')
+        if ($candidate['operator'] === '$=') {
+            return ($rule['operator'] === '=' || $rule['operator'] === '$=')
                 && str_ends_with($valA, $valB);
         }
 
         // B: "~=" (whitespace-separated item)
         // Covers A if values match exactly (A is "=" or "~=")
         // OR covers A if A is "=" and B's value is a word in A's value.
-        if ($b['operator'] === '~=') {
-            if ($a['operator'] === '~=') {
+        if ($candidate['operator'] === '~=') {
+            if ($rule['operator'] === '~=') {
                 return $valA === $valB;
             }
-            if ($a['operator'] === '=') {
+            if ($rule['operator'] === '=') {
                 $words = preg_split('/\s+/', $valA);
 
                 return in_array($valB, $words, true);

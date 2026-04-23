@@ -23,6 +23,13 @@ use Realodix\Haiku\Linter\Util;
  *  hasMatchCase: bool,
  *  isWhitelist: bool,
  * }
+ * @phpstan-type _GlobalRuleData array{
+ *  pattern: string,
+ *  lineNum: int,
+ *  hasOptions: bool,
+ *  optionsKey: string,
+ *  regex: string
+ * }
  */
 final class NetworkCheck implements Rule
 {
@@ -34,26 +41,10 @@ final class NetworkCheck implements Rule
     /** @var array<string, array<string, array<string, array<string, array<int, bool>>>>> */
     private array $patternOptionsSeen = [];
 
-    /**
-     * @var array<string, array<string, list<array{
-     *  pattern: string,
-     *  line: int,
-     *  hasOptions: bool,
-     *  optionsKey: string,
-     *  regex: string
-     * }>>>
-     */
+    /** @var array<string, array<string, list<_GlobalRuleData>>> */
     private array $globalRulesBuckets = [];
 
-    /**
-     * @var array<string, list<array{
-     *  pattern: string,
-     *  line: int,
-     *  hasOptions: bool,
-     *  optionsKey: string,
-     *  regex: string
-     * }>>
-     */
+    /** @var array<string, list<_GlobalRuleData>> */
     private array $globalRulesNoToken = [];
 
     /** @var array<string, array<string, bool>> */
@@ -136,7 +127,7 @@ final class NetworkCheck implements Rule
 
                     $ruleData = [
                         'pattern' => $pattern,
-                        'line' => $lineNum,
+                        'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
                         'optionsKey' => $optionsKey,
                         'regex' => $regexStr,
@@ -209,7 +200,7 @@ final class NetworkCheck implements Rule
         $opts = $data['options'];
         $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
 
-        /** @var array{pattern: string, line: int, hasOptions: bool}|null $best */
+        /** @var _GlobalRuleData|null $best */
         $best = null;
 
         $bucketsToCheck = [];
@@ -224,32 +215,27 @@ final class NetworkCheck implements Rule
         }
 
         foreach ($bucketsToCheck as $bucket) {
-            foreach ($bucket as $genRule) {
-                if ($lineNum === $genRule['line']) {
+            foreach ($bucket as $candidate) {
+                if ($lineNum === $candidate['lineNum']) {
                     continue;
                 }
 
-                if ($genRule['hasOptions']) {
-                    if (!$data['hasOptions'] || $genRule['optionsKey'] !== $data['optionsKey']) {
+                if ($candidate['hasOptions']) {
+                    if (!$data['hasOptions'] || $candidate['optionsKey'] !== $data['optionsKey']) {
                         continue;
                     }
                 }
 
-                if (!preg_match($genRule['regex'], $pattern)) {
+                if (!preg_match($candidate['regex'], $pattern)) {
                     continue;
                 }
 
-                if (!$data['hasOptions'] && !$data['hasDomains'] && $lineNum < $genRule['line']) {
-                    if (preg_match($this->buildRegex($pattern), $genRule['pattern'])) {
+                if (!$data['hasOptions'] && !$data['hasDomains'] && $lineNum < $candidate['lineNum']) {
+                    if (preg_match($this->buildRegex($pattern), $candidate['pattern'])) {
                         continue;
                     }
                 }
 
-                $candidate = [
-                    'pattern' => $genRule['pattern'],
-                    'line' => $genRule['line'],
-                    'hasOptions' => $genRule['hasOptions'],
-                ];
                 if ($best === null || $this->isBetter($candidate, $best)) {
                     $best = $candidate;
                 }
@@ -263,14 +249,17 @@ final class NetworkCheck implements Rule
             }
 
             // If patterns and options are identical, it's a direct duplicate
-            if (!$data['hasDomains'] && $best['hasOptions'] === $data['hasOptions'] && $pattern === $best['pattern']) {
-                if ($lineNum < $best['line']) {
+            if (!$data['hasDomains']
+                && $best['hasOptions'] === $data['hasOptions']
+                && $pattern === $best['pattern']
+            ) {
+                if ($lineNum < $best['lineNum']) {
                     return null;
                 }
 
                 return RuleErrorBuilder::message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
-                    $data['line'], $best['line'],
+                    $data['line'], $best['lineNum'],
                 ))->line($lineNum)->build();
             }
 
@@ -278,13 +267,13 @@ final class NetworkCheck implements Rule
             if ($data['hasDomains'] && $best['hasOptions']) {
                 return RuleErrorBuilder::message(sprintf(
                     'Redundant filter: %s already covered by global filter on line %d.',
-                    Str::limit($data['line'], 80), $best['line'],
+                    Str::limit($data['line'], 80), $best['lineNum'],
                 ))->line($lineNum)->build();
             }
 
             return RuleErrorBuilder::message(sprintf(
                 'Redundant filter: %s already covered by %s on line %d.',
-                Str::limit($data['line'], 80), $best['pattern'], $best['line'],
+                Str::limit($data['line'], 80), $best['pattern'], $best['lineNum'],
             ))->line($lineNum)->build();
         }
 
@@ -334,7 +323,7 @@ final class NetworkCheck implements Rule
                     if ($lineNum > $atLine) {
                         $redundantDomains[] = [
                             'domain' => $d['name'],
-                            'line' => $atLine,
+                            'atLineNum' => $atLine,
                         ];
 
                         break;
@@ -349,7 +338,7 @@ final class NetworkCheck implements Rule
             foreach ($redundantDomains as $rd) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
                     "Redundant filter: domain '%s' already covered on line %d.",
-                    $rd['domain'], $rd['line'],
+                    $rd['domain'], $rd['atLineNum'],
                 ))->line($lineNum)->build();
             }
         }
@@ -396,34 +385,35 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * Determine if candidate B is "better" (more general or earlier) than parent C.
+     * Determine if the candidate rule is "better" (more general or earlier)
+     * than the current best.
      *
-     * @param array{pattern: string, line: int, hasOptions: bool} $b
-     * @param array{pattern: string, line: int, hasOptions: bool} $c
+     * @param _GlobalRuleData $candidate The rule to evaluate.
+     * @param _GlobalRuleData $best The current best rule to compare against.
      */
-    private function isBetter(array $b, array $c): bool
+    private function isBetter(array $candidate, array $best): bool
     {
         // 1. Generality in Options (No options > some options)
-        if (!$b['hasOptions'] && $c['hasOptions']) {
+        if (!$candidate['hasOptions'] && $best['hasOptions']) {
             return true;
         }
-        if ($b['hasOptions'] && !$c['hasOptions']) {
+        if ($candidate['hasOptions'] && !$best['hasOptions']) {
             return false;
         }
 
         // 2. Semantic generality in Pattern
-        $bCoversC = preg_match($this->buildRegex($b['pattern']), $c['pattern']);
-        $cCoversB = preg_match($this->buildRegex($c['pattern']), $b['pattern']);
+        $bCoversC = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
+        $cCoversB = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
 
         if ($bCoversC && !$cCoversB) {
-            return true; // B is strictly more general
+            return true; // candidate is strictly more general
         }
         if (!$bCoversC && $cCoversB) {
-            return false; // C is strictly more general
+            return false; // best is strictly more general
         }
 
         // 3. Line order (Earlier rules are preferred as reference points)
-        return $b['line'] < $c['line'];
+        return $candidate['lineNum'] < $best['lineNum'];
     }
 
     private function buildRegex(string $pattern): string
