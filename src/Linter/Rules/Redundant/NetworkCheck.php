@@ -35,7 +35,7 @@ final class NetworkCheck implements Rule
 {
     private const DOMAIN_OPTIONS = ['domain', 'from', 'to', 'denyallow'];
 
-    /** @var array<string, array<string, int>> */
+    /** @var array<string, int> */
     private array $exactSeen = [];
 
     /** @var array<string, array<string, array<string, array<string, array<int, bool>>>>> */
@@ -176,16 +176,14 @@ final class NetworkCheck implements Rule
     {
         $line = $data['line'];
         $exactKey = $data['hasMatchCase'] ? $line : strtolower($line);
-        $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
-
-        if (isset($this->exactSeen[$type][$exactKey])) {
+        if (isset($this->exactSeen[$exactKey])) {
             return RuleErrorBuilder::message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
-                $line, $this->exactSeen[$type][$exactKey],
+                $line, $this->exactSeen[$exactKey],
             ))->line($lineNum)->build();
         }
 
-        $this->exactSeen[$type][$exactKey] = $lineNum;
+        $this->exactSeen[$exactKey] = $lineNum;
 
         return null;
     }
@@ -354,7 +352,7 @@ final class NetworkCheck implements Rule
 
     private function reset(): void
     {
-        $this->exactSeen = ['whitelist' => [], 'blacklist' => []];
+        $this->exactSeen = [];
         $this->patternOptionsSeen = ['whitelist' => [], 'blacklist' => []];
         $this->globalRulesBuckets = ['whitelist' => [], 'blacklist' => []];
         $this->globalRulesNoToken = ['whitelist' => [], 'blacklist' => []];
