@@ -33,6 +33,18 @@ use Realodix\Haiku\Linter\Util;
  */
 final class CosmeticCheck implements Rule
 {
+    /** @var array<string, int> */
+    private array $exactSeen = [];
+
+    /** @var list<_CosmeticRuleData> */
+    private array $rulesData = [];
+
+    /** @var array<string, list<int>> */
+    private array $interactionMap = [];
+
+    /** @var array<string, bool> */
+    private array $ghideExceptions = [];
+
     public function __construct(
         private LinterConfig $config,
     ) {}
@@ -47,15 +59,8 @@ final class CosmeticCheck implements Rule
             return [];
         }
 
+        $this->reset();
         $errors = [];
-        $rulesData = [];
-        $exactSeen = [];
-
-        // Optimization: Map rules to groups that might interact (cover each other).
-        // Standard selectors group by exact selector string.
-        // Attribute selectors group by tag and attribute name.
-        $interactionMap = [];
-        $ghideExceptions = [];
 
         // Pass 1: Parsing and Collection
         foreach ($content as $index => $line) {
@@ -66,11 +71,11 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            // Extract ghide exceptions into the map; skip to next line if processed
+            // Extract ghide exceptions into the map
             $ghideDomains = $this->parseGhideDomains($line);
             if ($ghideDomains !== []) {
                 foreach ($ghideDomains as $domain) {
-                    $ghideExceptions[$domain] = true;
+                    $this->ghideExceptions[$domain] = true;
                 }
 
                 continue;
@@ -80,25 +85,14 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            // Exact duplicate detection
-            if (isset($exactSeen[$line])) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
-                    'Redundant filter: %s already defined on line %d.',
-                    $line, $exactSeen[$line],
-                ))->line($lineNum)->build();
-
-                continue;
-            }
-            $exactSeen[$line] = $lineNum;
-
             $domainStr = trim($m[3]);
             $separator = $m[4];
             $selector = $m[5];
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
 
-            $ruleIndex = count($rulesData);
-            $rulesData[] = [
+            $ruleIndex = count($this->rulesData);
+            $this->rulesData[$ruleIndex] = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'domains' => $domains,
@@ -121,68 +115,154 @@ final class CosmeticCheck implements Rule
                     // Partial bucket (A|P): Groups rules with wildcard operators by their tag and attribute name.
                     // Example: [class*="ad"] goes here.
                     $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
-                    $interactionMap[$partialKey][] = $ruleIndex;
+                    $this->interactionMap[$partialKey][] = $ruleIndex;
                 } else {
                     // Exact bucket (A|E): Groups rules with exact operators (=, ~=) by their specific value.
                     // Example: .ads and [class="ads"] go here, drastically reducing candidate pool.
                     $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
-                    $interactionMap[$exactKey][] = $ruleIndex;
+                    $this->interactionMap[$exactKey][] = $ruleIndex;
                 }
             } else {
                 // Standard bucket (S): Groups unparsed selectors by their exact string.
-                $interactionMap['S|'.$separator.$selector][] = $ruleIndex;
+                $this->interactionMap['S|'.$separator.$selector][] = $ruleIndex;
             }
         }
 
         // Pass 2: Redundancy Analysis (Optimized with grouping)
-        foreach ($rulesData as $currentIndex => $currentRule) {
-            $domains = $currentRule['domains'] ?: ['' => true];
-            /** @var list<list<string>> */
-            $coverageMap = []; // parentLine -> list of covered domains
-            /** @var list<array<string, mixed>> */
-            $parentMap = [];
+        foreach ($this->rulesData as $currentIndex => $currentRule) {
+            // 1. Exact duplicate check
+            if ($err = $this->checkExactDuplicate($currentRule)) {
+                $errors[] = $err;
 
-            $candidates = $this->findCandidates($currentRule, $interactionMap);
+                continue;
+            }
 
+            // 2. Global redundancy check (checks if the entire rule is covered by another)
+            if ($err = $this->checkGlobalRedundancy($currentIndex, $currentRule)) {
+                $errors[] = $err;
+
+                continue;
+            }
+
+            // 3. Domain level redundancy (only for rules that specify domains)
+            if ($currentRule['domains'] !== []) {
+                $errors = [...$errors, ...$this->checkDomainRedundancy($currentIndex, $currentRule)];
+            }
+        }
+
+        return $errors;
+    }
+
+    private function reset(): void
+    {
+        $this->exactSeen = [];
+        $this->rulesData = [];
+        $this->interactionMap = [];
+        $this->ghideExceptions = [];
+    }
+
+    /**
+     * @param _CosmeticRuleData $currentRule
+     * @return _RuleError|null
+     */
+    private function checkExactDuplicate(array $currentRule): ?array
+    {
+        $line = $currentRule['line'];
+        if (isset($this->exactSeen[$line])) {
+            return RuleErrorBuilder::message(sprintf(
+                'Redundant filter: %s already defined on line %d.',
+                $line, $this->exactSeen[$line],
+            ))->line($currentRule['lineNum'])->build();
+        }
+
+        $this->exactSeen[$line] = $currentRule['lineNum'];
+
+        return null;
+    }
+
+    /**
+     * @param _CosmeticRuleData $currentRule
+     * @return _RuleError|null
+     */
+    private function checkGlobalRedundancy(int $currentIndex, array $currentRule): ?array
+    {
+        $domains = $currentRule['domains'] ?: ['' => true];
+        $candidates = $this->findCandidates($currentRule, $this->interactionMap);
+
+        /** @var array<string, mixed>|null $bestParent */
+        $bestParent = null;
+
+        foreach ($candidates as $candidateIndex) {
+            if ($currentIndex === $candidateIndex) {
+                continue;
+            }
+
+            $candidate = $this->rulesData[$candidateIndex];
+
+            // A candidate can only cover the entire rule if it covers every domain.
+            $coversAll = true;
             foreach ($domains as $domain => $_) {
-                /** @var array<string, mixed>|null */
-                $bestParent = null;
+                if (!$this->isCovered($currentRule, $candidate, $domain, $this->ghideExceptions)) {
+                    $coversAll = false;
 
-                foreach ($candidates as $candidateIndex) {
-                    if ($currentIndex === $candidateIndex) {
-                        continue;
-                    }
+                    break;
+                }
+            }
 
-                    $candidate = $rulesData[$candidateIndex];
+            if ($coversAll && $this->isBetter($candidate, $currentRule)) {
+                if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
+                    $bestParent = $candidate;
+                }
+            }
+        }
 
-                    if (!$this->isCovered($currentRule, $candidate, $domain, $ghideExceptions)) {
-                        continue;
-                    }
+        if ($bestParent) {
+            return $this->buildWholeRuleError($currentRule, $bestParent);
+        }
 
+        return null;
+    }
+
+    /**
+     * @param _CosmeticRuleData $currentRule
+     * @return list<_RuleError>
+     */
+    private function checkDomainRedundancy(int $currentIndex, array $currentRule): array
+    {
+        $errors = [];
+        $candidates = $this->findCandidates($currentRule, $this->interactionMap);
+        $coverageMap = [];
+        $parentMap = [];
+
+        foreach ($currentRule['domains'] as $domain => $_) {
+            $bestParent = null;
+
+            foreach ($candidates as $candidateIndex) {
+                if ($currentIndex === $candidateIndex) {
+                    continue;
+                }
+
+                $candidate = $this->rulesData[$candidateIndex];
+
+                if ($this->isCovered($currentRule, $candidate, $domain, $this->ghideExceptions)) {
                     if ($this->isBetter($candidate, $currentRule)) {
                         if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
                             $bestParent = $candidate;
                         }
                     }
                 }
-
-                if ($bestParent) {
-                    $coverageMap[$bestParent['lineNum']][] = $domain;
-                    $parentMap[$bestParent['lineNum']] = $bestParent;
-                }
             }
 
-            foreach ($coverageMap as $parentLine => $coveredDomains) {
-                $parent = $parentMap[$parentLine];
-                $allDomainsCovered = count($coveredDomains) === count($domains);
+            if ($bestParent) {
+                $coverageMap[$bestParent['lineNum']][] = $domain;
+                $parentMap[$bestParent['lineNum']] = $bestParent;
+            }
+        }
 
-                if ($allDomainsCovered) {
-                    $errors[] = $this->buildWholeRuleError($currentRule, $parent);
-                } else {
-                    foreach ($coveredDomains as $domain) {
-                        $errors[] = $this->buildDomainError($currentRule, $parent, $domain);
-                    }
-                }
+        foreach ($coverageMap as $parentLine => $coveredDomains) {
+            $parent = $parentMap[$parentLine];
+            foreach ($coveredDomains as $domain) {
+                $errors[] = $this->buildDomainError($currentRule, $parent, $domain);
             }
         }
 
