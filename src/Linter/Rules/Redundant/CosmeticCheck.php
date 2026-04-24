@@ -138,70 +138,7 @@ final class CosmeticCheck implements Rule
             /** @var list<array<string, mixed>> */
             $parentMap = [];
 
-            $candidates = [];
-            $separator = $currentRule['separator'];
-
-            if ($currentRule['attrData']) {
-                $val = strtolower($currentRule['attrData']['value']);
-                $op = $currentRule['attrData']['operator'];
-                $tag = $currentRule['attrData']['tag'];
-                $attr = $currentRule['attrData']['attr'];
-
-                // 1. Exact Candidates
-                $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
-                if (isset($interactionMap[$exactKey])) {
-                    $candidates = array_merge($candidates, $interactionMap[$exactKey]);
-                }
-
-                // 1b. Word Candidates (if A is '=')
-                if ($op === '=') {
-                    $words = preg_split('/\s+/', $val) ?: [];
-                    foreach ($words as $word) {
-                        if ($word === '' || $word === $val) {
-                            continue;
-                        }
-                        $wordKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$word;
-                        if (isset($interactionMap[$wordKey])) {
-                            $candidates = array_merge($candidates, $interactionMap[$wordKey]);
-                        }
-                    }
-                }
-
-                // 2. Partial Candidates
-                $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
-                if (isset($interactionMap[$partialKey])) {
-                    $candidates = array_merge($candidates, $interactionMap[$partialKey]);
-                }
-
-                // 3. Global Candidates (if A has a tag)
-                if ($tag !== '') {
-                    $globalExactKey = 'A|E|'.$separator.'||'.$attr.'|'.$val;
-                    if (isset($interactionMap[$globalExactKey])) {
-                        $candidates = array_merge($candidates, $interactionMap[$globalExactKey]);
-                    }
-
-                    if ($op === '=') {
-                        foreach ($words ?? [] as $word) {
-                            if ($word === '' || $word === $val) {
-                                continue;
-                            }
-                            $globalWordKey = 'A|E|'.$separator.'||'.$attr.'|'.$word;
-                            if (isset($interactionMap[$globalWordKey])) {
-                                $candidates = array_merge($candidates, $interactionMap[$globalWordKey]);
-                            }
-                        }
-                    }
-
-                    $globalPartialKey = 'A|P|'.$separator.'||'.$attr;
-                    if (isset($interactionMap[$globalPartialKey])) {
-                        $candidates = array_merge($candidates, $interactionMap[$globalPartialKey]);
-                    }
-                }
-
-                $candidates = array_unique($candidates);
-            } else {
-                $candidates = $interactionMap['S|'.$separator.$currentRule['selector']] ?? [];
-            }
+            $candidates = $this->findCandidates($currentRule, $interactionMap);
 
             foreach ($domains as $domain => $_) {
                 /** @var array<string, mixed>|null */
@@ -304,6 +241,85 @@ final class CosmeticCheck implements Rule
         }
 
         return RuleErrorBuilder::message($message)->line($rule['lineNum'])->build();
+    }
+
+    /**
+     * Identify potential candidate rules that could cover the current rule.
+     *
+     * This uses the interaction map to narrow down the pool of candidates from
+     * O(N) to a much smaller set of rules that share relevant characteristics
+     * (e.g., same tag, attribute, or selector).
+     *
+     * @param array<string, mixed> $currentRule The rule being checked.
+     * @param array<string, list<int>> $interactionMap Map of grouped rule indices.
+     * @return list<int> List of candidate rule indices.
+     */
+    private function findCandidates(array $currentRule, array $interactionMap): array
+    {
+        $candidates = [];
+        $separator = $currentRule['separator'];
+
+        if ($currentRule['attrData']) {
+            $val = strtolower($currentRule['attrData']['value']);
+            $op = $currentRule['attrData']['operator'];
+            $tag = $currentRule['attrData']['tag'];
+            $attr = $currentRule['attrData']['attr'];
+
+            // 1. Exact Candidates
+            $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
+            if (isset($interactionMap[$exactKey])) {
+                $candidates = array_merge($candidates, $interactionMap[$exactKey]);
+            }
+
+            // 1b. Word Candidates (if A is '=')
+            if ($op === '=') {
+                $words = preg_split('/\s+/', $val) ?: [];
+                foreach ($words as $word) {
+                    if ($word === '' || $word === $val) {
+                        continue;
+                    }
+                    $wordKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$word;
+                    if (isset($interactionMap[$wordKey])) {
+                        $candidates = array_merge($candidates, $interactionMap[$wordKey]);
+                    }
+                }
+            }
+
+            // 2. Partial Candidates
+            $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
+            if (isset($interactionMap[$partialKey])) {
+                $candidates = array_merge($candidates, $interactionMap[$partialKey]);
+            }
+
+            // 3. Global Candidates (if A has a tag)
+            if ($tag !== '') {
+                $globalExactKey = 'A|E|'.$separator.'||'.$attr.'|'.$val;
+                if (isset($interactionMap[$globalExactKey])) {
+                    $candidates = array_merge($candidates, $interactionMap[$globalExactKey]);
+                }
+
+                if ($op === '=') {
+                    foreach ($words as $word) {
+                        if ($word === '' || $word === $val) {
+                            continue;
+                        }
+                        $globalWordKey = 'A|E|'.$separator.'||'.$attr.'|'.$word;
+                        if (isset($interactionMap[$globalWordKey])) {
+                            $candidates = array_merge($candidates, $interactionMap[$globalWordKey]);
+                        }
+                    }
+                }
+
+                $globalPartialKey = 'A|P|'.$separator.'||'.$attr;
+                if (isset($interactionMap[$globalPartialKey])) {
+                    $candidates = array_merge($candidates, $interactionMap[$globalPartialKey]);
+                }
+            }
+
+            return array_unique($candidates);
+        }
+
+        return $interactionMap['S|'.$separator.$currentRule['selector']] ?? [];
     }
 
     /**
