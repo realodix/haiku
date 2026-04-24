@@ -40,7 +40,7 @@ final class CosmeticCheck implements Rule
         }
 
         $errors = [];
-        $rules = [];
+        $rulesData = [];
         $exactSeen = [];
 
         // Optimization: Map rules to groups that might interact (cover each other).
@@ -93,8 +93,8 @@ final class CosmeticCheck implements Rule
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
 
-            $ruleIndex = count($rules);
-            $rules[] = [
+            $ruleIndex = count($rulesData);
+            $rulesData[] = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'domains' => $domains,
@@ -131,21 +131,21 @@ final class CosmeticCheck implements Rule
         }
 
         // Pass 2: Redundancy Analysis (Optimized with grouping)
-        foreach ($rules as $i => $a) {
-            $domains = $a['domains'] ?: ['' => true];
+        foreach ($rulesData as $currentIndex => $currentRule) {
+            $domains = $currentRule['domains'] ?: ['' => true];
             /** @var list<list<string>> */
             $coverageMap = []; // parentLine -> list of covered domains
             /** @var list<array<string, mixed>> */
             $parentMap = [];
 
             $candidates = [];
-            $separator = $a['separator'];
+            $separator = $currentRule['separator'];
 
-            if ($a['attrData']) {
-                $val = strtolower($a['attrData']['value']);
-                $op = $a['attrData']['operator'];
-                $tag = $a['attrData']['tag'];
-                $attr = $a['attrData']['attr'];
+            if ($currentRule['attrData']) {
+                $val = strtolower($currentRule['attrData']['value']);
+                $op = $currentRule['attrData']['operator'];
+                $tag = $currentRule['attrData']['tag'];
+                $attr = $currentRule['attrData']['attr'];
 
                 // 1. Exact Candidates
                 $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
@@ -200,27 +200,27 @@ final class CosmeticCheck implements Rule
 
                 $candidates = array_unique($candidates);
             } else {
-                $candidates = $interactionMap['S|'.$separator.$a['selector']] ?? [];
+                $candidates = $interactionMap['S|'.$separator.$currentRule['selector']] ?? [];
             }
 
             foreach ($domains as $domain => $_) {
                 /** @var array<string, mixed>|null */
                 $bestParent = null;
 
-                foreach ($candidates as $j) {
-                    if ($i === $j) {
+                foreach ($candidates as $candidateIndex) {
+                    if ($currentIndex === $candidateIndex) {
                         continue;
                     }
 
-                    $b = $rules[$j];
+                    $candidate = $rulesData[$candidateIndex];
 
-                    if (!$this->isCovered($a, $b, $domain, $ghideExceptions)) {
+                    if (!$this->isCovered($currentRule, $candidate, $domain, $ghideExceptions)) {
                         continue;
                     }
 
-                    if ($this->isBetter($b, $a)) {
-                        if ($bestParent === null || $this->isBetter($b, $bestParent)) {
-                            $bestParent = $b;
+                    if ($this->isBetter($candidate, $currentRule)) {
+                        if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
+                            $bestParent = $candidate;
                         }
                     }
                 }
@@ -236,10 +236,10 @@ final class CosmeticCheck implements Rule
                 $allDomainsCovered = count($coveredDomains) === count($domains);
 
                 if ($allDomainsCovered) {
-                    $errors[] = $this->buildWholeRuleError($a, $parent);
+                    $errors[] = $this->buildWholeRuleError($currentRule, $parent);
                 } else {
                     foreach ($coveredDomains as $domain) {
-                        $errors[] = $this->buildDomainError($a, $parent, $domain);
+                        $errors[] = $this->buildDomainError($currentRule, $parent, $domain);
                     }
                 }
             }
