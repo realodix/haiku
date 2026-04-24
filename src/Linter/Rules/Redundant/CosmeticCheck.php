@@ -68,7 +68,7 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            if (!preg_match(Regex::IS_COSMETIC_RULE, $line)) {
+            if (!preg_match(Regex::COSMETIC_RULE, $line, $m)) {
                 continue;
             }
 
@@ -82,10 +82,6 @@ final class CosmeticCheck implements Rule
                 continue;
             }
             $exactSeen[$line] = $lineNum;
-
-            if (!preg_match(Regex::COSMETIC_RULE, $line, $m)) {
-                continue;
-            }
 
             $domainStr = trim($m[3]);
             $separator = $m[4];

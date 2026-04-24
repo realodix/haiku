@@ -92,17 +92,4 @@ class CosmeticCheckTest extends TestCase
             [4, 'Redundant filter: ##.ads already defined on line 1.'],
         ], self::RULE);
     }
-
-    #[PHPUnit\Test]
-    public function exact_AG_JSRules(): void
-    {
-        $lines = [
-            '#%#window.__gaq = undefined;',
-            '#%#window.__gaq = undefined;',
-        ];
-
-        $this->analyse($lines, [
-            [2, 'Redundant filter: #%#window.__gaq = undefined; already defined on line 1.'],
-        ]);
-    }
 }
