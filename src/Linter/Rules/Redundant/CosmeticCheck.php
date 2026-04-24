@@ -22,6 +22,14 @@ use Realodix\Haiku\Linter\Util;
  *  data: _ParsedAttrSelector,
  *  line: int
  * }
+ * @phpstan-type _CosmeticRuleData array{
+ *  lineNum: int,
+ *  line: string,
+ *  domains: array<string, bool>,
+ *  separator: string,
+ *  selector: string,
+ *  attrData: _ParsedAttrSelector|null
+ * }
  */
 final class CosmeticCheck implements Rule
 {
@@ -182,8 +190,8 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * @param array<string, mixed> $rule
-     * @param array<string, mixed> $parent
+     * @param _CosmeticRuleData $rule
+     * @param _CosmeticRuleData $parent
      * @return _RuleError
      */
     private function buildWholeRuleError(array $rule, array $parent): array
@@ -214,8 +222,8 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * @param array<string, mixed> $rule
-     * @param array<string, mixed> $parent
+     * @param _CosmeticRuleData $rule
+     * @param _CosmeticRuleData $parent
      * @return _RuleError
      */
     private function buildDomainError(array $rule, array $parent, string $domain): array
@@ -246,7 +254,7 @@ final class CosmeticCheck implements Rule
      * O(N) to a much smaller set of rules that share relevant characteristics
      * (e.g., same tag, attribute, or selector).
      *
-     * @param array<string, mixed> $currentRule The rule being checked.
+     * @param _CosmeticRuleData $currentRule The rule being checked.
      * @param array<string, list<int>> $interactionMap Map of grouped rule indices.
      * @return list<int> List of candidate rule indices.
      */
@@ -268,8 +276,8 @@ final class CosmeticCheck implements Rule
             }
 
             // 1b. Word Candidates (if A is '=')
+            $words = $op === '=' ? (preg_split('/\s+/', $val) ?: []) : [];
             if ($op === '=') {
-                $words = preg_split('/\s+/', $val) ?: [];
                 foreach ($words as $word) {
                     if ($word === '' || $word === $val) {
                         continue;
@@ -321,8 +329,8 @@ final class CosmeticCheck implements Rule
     /**
      * Determine if the rule is covered by the candidate rule for a specific domain.
      *
-     * @param array<string, mixed> $rule The rule being checked.
-     * @param array<string, mixed> $candidate The candidate rule that might cover it.
+     * @param _CosmeticRuleData $rule The rule being checked.
+     * @param _CosmeticRuleData $candidate The candidate rule that might cover it.
      * @param array<string, bool> $ghideExceptions
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
@@ -357,8 +365,8 @@ final class CosmeticCheck implements Rule
     /**
      * Determine if the candidate rule is "better" (more general or earlier) than the current best.
      *
-     * @param array<string, mixed> $candidate The rule to evaluate.
-     * @param array<string, mixed> $best The current best rule to compare against.
+     * @param _CosmeticRuleData $candidate The rule to evaluate.
+     * @param _CosmeticRuleData $best The current best rule to compare against.
      */
     private function isBetter(array $candidate, array $best): bool
     {
