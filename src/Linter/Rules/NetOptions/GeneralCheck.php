@@ -263,7 +263,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $builder = RuleErrorBuilder::message(sprintf('Deprecated filter option: "%s".', $opt))
+            $builder = RuleErrorBuilder::message(sprintf('Deprecated filter option: "$%s".', $opt))
                 ->line($lineNum);
 
             if ($replacement !== null) {

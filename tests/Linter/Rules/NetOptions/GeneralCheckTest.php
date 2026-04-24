@@ -105,10 +105,10 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Deprecated filter option: "empty".'],
-            [2, 'Deprecated filter option: "mp4".'],
-            [3, 'Deprecated filter option: "queryprune".'],
-            [4, 'Deprecated filter option: "queryprune".'],
+            [1, 'Deprecated filter option: "$empty".'],
+            [2, 'Deprecated filter option: "$mp4".'],
+            [3, 'Deprecated filter option: "$queryprune".'],
+            [4, 'Deprecated filter option: "$queryprune".'],
         ]);
     }
 
@@ -179,8 +179,8 @@ class GeneralCheckTest extends TestCase
             [1, 'Option "important" is not allowed in exception rules.'],
             [2, 'Option "empty" is not allowed in exception rules.'],
             [3, 'Option "mp4" is not allowed in exception rules.'],
-            [2, 'Deprecated filter option: "empty".'],
-            [3, 'Deprecated filter option: "mp4".'],
+            [2, 'Deprecated filter option: "$empty".'],
+            [3, 'Deprecated filter option: "$mp4".'],
         ]);
 
         $lines = [
