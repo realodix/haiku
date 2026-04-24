@@ -18,10 +18,10 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Duplicate option "3p".'],
-            [2, 'Duplicate option "3p".'],
-            [2, 'Duplicate option "script".'],
-            [3, 'Duplicate option "domain".'],
+            [1, 'Duplicate option: "$3p".'],
+            [2, 'Duplicate option: "$3p".'],
+            [2, 'Duplicate option: "$script".'],
+            [3, 'Duplicate option: "$domain".'],
         ]);
     }
 
@@ -47,8 +47,8 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Options "from" and "domain" are redundant (aliases of each other).'],
-            [2, 'Options "css" and "stylesheet" are redundant (aliases of each other).'],
+            [1, 'Duplicate option:: $from and $domain are aliases of each other.'],
+            [2, 'Duplicate option:: $css and $stylesheet are aliases of each other.'],
         ]);
     }
 
@@ -60,7 +60,7 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, '$denyallow cannot be used together with $to.'],
+            [1, 'Redundant usage of $denyallow with $to.'],
         ]);
     }
 
@@ -73,7 +73,7 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [2, '$denyallow requires $domain.'],
+            [2, 'Invalid filter: $denyallow requires $domain.'],
         ], [GeneralCheck::class]);
     }
 
@@ -176,9 +176,9 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Option "important" is not allowed in exception rules.'],
-            [2, 'Option "empty" is not allowed in exception rules.'],
-            [3, 'Option "mp4" is not allowed in exception rules.'],
+            [1, 'Invalid filter: $important is not allowed in exception rules.'],
+            [2, 'Invalid filter: $empty is not allowed in exception rules.'],
+            [3, 'Invalid filter: $mp4 is not allowed in exception rules.'],
             [2, 'Deprecated filter option: "$empty".'],
             [3, 'Deprecated filter option: "$mp4".'],
         ]);
@@ -197,15 +197,15 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Option "cname" is only allowed in exception rules.'],
-            [2, 'Option "genericblock" is only allowed in exception rules.'],
-            [3, 'Option "csp" without value is only allowed in exception rules.'],
-            [4, 'Option "permissions" without value is only allowed in exception rules.'],
-            [5, 'Option "redirect" without value is only allowed in exception rules.'],
-            [6, 'Option "redirect-rule" without value is only allowed in exception rules.'],
-            [7, 'Option "uritransform" without value is only allowed in exception rules.'],
-            [8, 'Option "replace" without value is only allowed in exception rules.'],
-            [9, 'Option "urlskip" without value is only allowed in exception rules.'],
+            [1, 'Invalid filter: $cname is only allowed in exception rules.'],
+            [2, 'Invalid filter: $genericblock is only allowed in exception rules.'],
+            [3, 'Invalid filter: $csp without value is only allowed in exception rules.'],
+            [4, 'Invalid filter: $permissions without value is only allowed in exception rules.'],
+            [5, 'Invalid filter: $redirect without value is only allowed in exception rules.'],
+            [6, 'Invalid filter: $redirect-rule without value is only allowed in exception rules.'],
+            [7, 'Invalid filter: $uritransform without value is only allowed in exception rules.'],
+            [8, 'Invalid filter: $replace without value is only allowed in exception rules.'],
+            [9, 'Invalid filter: $urlskip without value is only allowed in exception rules.'],
         ]);
 
         $lines = [

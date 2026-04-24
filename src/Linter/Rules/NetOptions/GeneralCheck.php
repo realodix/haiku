@@ -121,7 +121,7 @@ final class GeneralCheck implements Rule
         }
 
         foreach (array_unique($duplicates) as $dup) {
-            $errors[] = RuleErrorBuilder::message(sprintf('Duplicate option "%s".', $dup))
+            $errors[] = RuleErrorBuilder::message(sprintf('Duplicate option: "$%s".', $dup))
                 ->line($lineNum)->build();
         }
     }
@@ -237,7 +237,7 @@ final class GeneralCheck implements Rule
         foreach (self::ALIASES as $alias => $canonical) {
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
                 $msg = sprintf(
-                    'Options "%s" and "%s" are redundant (aliases of each other).',
+                    'Duplicate option:: $%s and $%s are aliases of each other.',
                     $alias,
                     $canonical,
                 );
@@ -290,7 +290,7 @@ final class GeneralCheck implements Rule
         foreach ($blockOnly as $opt) {
             if ($isException && array_key_exists($opt, $opts)) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    'Option "%s" is not allowed in exception rules.',
+                    'Invalid filter: $%s is not allowed in exception rules.',
                     $opt,
                 ))->line($lineNum)->build();
             }
@@ -318,7 +318,7 @@ final class GeneralCheck implements Rule
                 // If no value → must be used in an exception rule
                 if (!$isException) {
                     $errors[] = RuleErrorBuilder::message(sprintf(
-                        'Option "%s" without value is only allowed in exception rules.',
+                        'Invalid filter: $%s without value is only allowed in exception rules.',
                         $opt,
                     ))->line($lineNum)->build();
                 }
@@ -334,7 +334,7 @@ final class GeneralCheck implements Rule
         foreach ($exceptionOnly as $opt) {
             if (array_key_exists($opt, $opts) && !$isException) {
                 $errors[] = RuleErrorBuilder::message(sprintf(
-                    'Option "%s" is only allowed in exception rules.',
+                    'Invalid filter: $%s is only allowed in exception rules.',
                     $opt,
                 ))->line($lineNum)->build();
             }
@@ -442,7 +442,7 @@ final class GeneralCheck implements Rule
     private function checkDenyallowAndToConflict(array &$errors, int $lineNum, array $opts): void
     {
         if (isset($opts['denyallow']) && isset($opts['to'])) {
-            $errors[] = RuleErrorBuilder::message('$denyallow cannot be used together with $to.')
+            $errors[] = RuleErrorBuilder::message('Redundant usage of $denyallow with $to.')
                 ->line($lineNum)
                 ->tip('It can be expressed with inverted $to: $denyallow=a.com is equivalent to $to=~a.com.')
                 ->build();
@@ -459,7 +459,7 @@ final class GeneralCheck implements Rule
             && !isset($opts['domain'])
             && !isset($opts['from'])
         ) {
-            $errors[] = RuleErrorBuilder::message('$denyallow requires $domain.')
+            $errors[] = RuleErrorBuilder::message('Invalid filter: $denyallow requires $domain.')
                 ->line($lineNum)
                 ->build();
         }
