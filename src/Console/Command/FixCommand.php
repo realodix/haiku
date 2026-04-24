@@ -43,13 +43,6 @@ class FixCommand extends Command
             throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
         }
 
-        // @deprecated
-        if ($input->getOption('x')) {
-            throw new InvalidConfigurationException(
-                'The "x" option is no longer supported. Use the "fixer.flags.fmode" instead.',
-            );
-        }
-
         $io = new SymfonyStyle($input, $output);
         $io->writeln(sprintf('%s <info>%s</info> by <comment>Realodix</comment>', App::NAME, App::version()));
         $io->newLine();
