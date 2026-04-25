@@ -53,6 +53,7 @@ class LinterCommand extends Command
             new CommandOptions(
                 configFile: $input->getOption('config'),
                 path: $input->getOption('path'),
+                generateBaseline: $input->getOption('generate-baseline'),
             ),
             function (int $count) use ($io, &$progressBar) {
                 $progressBar = $io->createProgressBar($count);
@@ -74,16 +75,28 @@ class LinterCommand extends Command
             foreach ($errorReporter->getErrors() as $path => $issues) {
                 $relativePath = Path::makeRelative($path, base_path());
                 foreach ($issues as $issue) {
-                    $baselineErrors[] = [
-                        'message' => $issue['message'],
-                        'path' => str_replace('\\', '/', $relativePath),
+                    $message = $issue['message'];
+                    if (!isset($baselineErrors[$relativePath][$message])) {
+                        $baselineErrors[$relativePath][$message] = 0;
+                    }
+                    $baselineErrors[$relativePath][$message]++;
+                }
+            }
+
+            $finalBaseline = [];
+            foreach ($baselineErrors as $path => $messages) {
+                foreach ($messages as $message => $count) {
+                    $finalBaseline[] = [
+                        'message' => $message,
+                        'path' => $path,
+                        'count' => $count,
                     ];
                 }
             }
 
             file_put_contents(
                 $baselineFile,
-                \Symfony\Component\Yaml\Yaml::dump(['ignoreErrors' => $baselineErrors], 4, 2)
+                \Symfony\Component\Yaml\Yaml::dump(['ignoreErrors' => $finalBaseline], 4, 2),
             );
 
             $io->success(sprintf('Baseline generated with %d error.', $errorReporter->count()));

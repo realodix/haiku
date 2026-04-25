@@ -28,7 +28,7 @@ final class Linter
 
         $baselineErrors = [];
         $baselineFile = base_path('haiku-baseline.yml');
-        if (file_exists($baselineFile)) {
+        if (!$cmdOpt->generateBaseline && file_exists($baselineFile)) {
             $baseline = \Symfony\Component\Yaml\Yaml::parseFile($baselineFile);
             $baselineErrors = $baseline['ignoreErrors'] ?? [];
         }

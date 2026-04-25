@@ -17,5 +17,6 @@ final readonly class CommandOptions
         public bool $ignoreCache = false,
         public ?string $path = null,
         public bool $parallel = false,
+        public bool $generateBaseline = false,
     ) {}
 }

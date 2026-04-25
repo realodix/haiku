@@ -7,6 +7,7 @@ namespace Realodix\Haiku\Linter;
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,
+ *  count?: int,
  *  isBaseline?: bool,
  * }|string
  */
@@ -17,6 +18,9 @@ final class IgnoredErrors
 
     /** @var array<int, bool> */
     private array $usedIgnoreErrors = [];
+
+    /** @var array<int, int> */
+    private array $usedCount = [];
 
     /**
      * @param list<_ConfigIgnoredError> $ignoreErrors
@@ -29,6 +33,7 @@ final class IgnoredErrors
             $this->normalizeIgnoreErrors($baselineErrors, isBaseline: true),
         );
         $this->usedIgnoreErrors = array_fill_keys(array_keys($this->normalizedIgnoreErrors), false);
+        $this->usedCount = array_fill_keys(array_keys($this->normalizedIgnoreErrors), 0);
     }
 
     public function shouldIgnore(string $path, string $message): bool
@@ -36,6 +41,7 @@ final class IgnoredErrors
         foreach ($this->normalizedIgnoreErrors as $index => $ignore) {
             if (is_string($ignore)) {
                 if ($this->isMatch($ignore, $message)) {
+                    $this->usedCount[$index]++;
                     $this->usedIgnoreErrors[$index] = true;
 
                     return true;
@@ -48,6 +54,11 @@ final class IgnoredErrors
             $pathMatch = !isset($ignore['path']) || $this->isMatch($ignore['path'], $path);
 
             if ($messageMatch && $pathMatch) {
+                if (isset($ignore['count']) && $this->usedCount[$index] >= $ignore['count']) {
+                    continue;
+                }
+
+                $this->usedCount[$index]++;
                 $this->usedIgnoreErrors[$index] = true;
 
                 return true;
