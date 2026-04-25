@@ -92,4 +92,61 @@ YAML);
         $fileErrors = $errorReporter->getErrors();
         $this->assertEmpty($fileErrors);
     }
+
+    #[PHPUnit\Test]
+    public function pathNormalization(): void
+    {
+        $configFile = $this->tmpDir.'/haiku3.yml';
+        $dummyFile = $this->tmpDir.'/ignored3.txt';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests/Integration/tmp/ignored3.txt
+  rules:
+    no_extra_blank_lines: false
+  ignoreErrors:
+    - path: 'tests\Integration\tmp\ignored3.txt'
+YAML);
+
+        $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
+
+        $linter = new Linter(app(Config::class));
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku3.yml');
+
+        $errorReporter = $linter->run($cmdOpt);
+
+        // Ensure that the actual error was correctly ignored from the file's errors
+        $fileErrors = $errorReporter->getErrors();
+        $this->assertEmpty($fileErrors);
+    }
+
+    #[PHPUnit\Test]
+    public function pathsNormalization(): void
+    {
+        $configFile = $this->tmpDir.'/haiku4.yml';
+        $dummyFile = $this->tmpDir.'/ignored4.txt';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests/Integration/tmp/ignored4.txt
+  rules:
+    no_extra_blank_lines: false
+  ignoreErrors:
+    - paths:
+        - 'tests\Integration\tmp\ignored4.txt'
+        - 'foo\bar'
+YAML);
+
+        $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
+
+        $linter = new Linter(app(Config::class));
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku4.yml');
+
+        $errorReporter = $linter->run($cmdOpt);
+
+        $fileErrors = $errorReporter->getErrors();
+        $this->assertEmpty($fileErrors);
+    }
 }

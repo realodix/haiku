@@ -70,7 +70,7 @@ final class LinterConfig
         );
 
         $this->rules = $config['rules'] ?? [];
-        $this->ignoreErrors = $config['ignoreErrors'] ?? [];
+        $this->ignoreErrors = $this->normalizeIgnorePaths($config['ignoreErrors'] ?? []);
 
         return $this;
     }
@@ -167,5 +167,31 @@ final class LinterConfig
             ->notPath($excludes);
 
         return $finder;
+    }
+
+    /**
+     * @param list<mixed> $ignoreErrors
+     * @return list<mixed>
+     */
+    private function normalizeIgnorePaths(array $ignoreErrors): array
+    {
+        foreach ($ignoreErrors as &$ignore) {
+            if (is_string($ignore)) {
+                continue;
+            }
+
+            if (isset($ignore['path'])) {
+                $ignore['path'] = Path::normalize($ignore['path']);
+            }
+
+            if (isset($ignore['paths'])) {
+                $ignore['paths'] = array_map(
+                    fn($p) => Path::normalize($p),
+                    (array) $ignore['paths'],
+                );
+            }
+        }
+
+        return $ignoreErrors;
     }
 }
