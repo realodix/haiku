@@ -2,16 +2,23 @@
 
 namespace Realodix\Haiku\Linter;
 
+/**
+ * @phpstan-import-type _ConfigIgnoredError from \Realodix\Haiku\Config\LinterConfig
+ * @phpstan-type _IgnoredError array{
+ *  message?: string,
+ *  path?: string,
+ * }|string
+ */
 final class IgnoredErrors
 {
-    /** @var list<array{message?: string, path?: string}|string> */
+    /** @var list<_IgnoredError> */
     private array $normalizedIgnoreErrors;
 
     /** @var array<int, bool> */
     private array $usedIgnoreErrors = [];
 
     /**
-     * @param list<mixed> $ignoreErrors
+     * @param list<_ConfigIgnoredError> $ignoreErrors
      */
     public function __construct(array $ignoreErrors)
     {
@@ -21,8 +28,6 @@ final class IgnoredErrors
 
     public function shouldIgnore(string $path, string $message): bool
     {
-        $path = str_replace('\\', '/', $path);
-
         foreach ($this->normalizedIgnoreErrors as $index => $ignore) {
             if (is_string($ignore)) {
                 if ($this->isMatch($ignore, $message)) {
@@ -72,16 +77,15 @@ final class IgnoredErrors
 
                 $reporter->addGlobalError(sprintf(
                     'Ignored error pattern %s%s was not matched in reported errors.',
-                    $pattern,
-                    $inPath,
+                    $pattern, $inPath,
                 ));
             }
         }
     }
 
     /**
-     * @param list<mixed> $ignoreErrors
-     * @return list<array{message?: string, path?: string}|string>
+     * @param list<_ConfigIgnoredError> $ignoreErrors
+     * @return list<_IgnoredError>
      */
     private function normalizeIgnoreErrors(array $ignoreErrors): array
     {
@@ -90,13 +94,6 @@ final class IgnoredErrors
             if (is_string($ignore)) {
                 $normalized[] = $ignore;
 
-                continue;
-            }
-
-            if (is_object($ignore)) {
-                $ignore = (array) $ignore;
-            }
-            if (!is_array($ignore)) {
                 continue;
             }
 

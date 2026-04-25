@@ -20,6 +20,12 @@ use Symfony\Component\Finder\Finder;
  *  pp_value: bool,
  *  scriptlet_unknown: bool|array{known: list<string>},
  * }
+ * @phpstan-type _ConfigIgnoredError array{
+ *  message?: string,
+ *  messages?: list<string>,
+ *  path?: string,
+ *  paths?: list<string>,
+ * }|string
  */
 final class LinterConfig
 {
@@ -30,7 +36,7 @@ final class LinterConfig
      */
     public private(set) array $paths;
 
-    /** @var list<mixed> */
+    /** @var list<_ConfigIgnoredError> */
     public array $ignoreErrors = [];
 
     /** @var _LinterRules */
@@ -58,7 +64,7 @@ final class LinterConfig
      *   paths?: list<string>,
      *   excludes?: list<string>,
      *   rules?: _LinterRules,
-     *   ignoreErrors?: list<mixed>
+     *   ignoreErrors?: list<_ConfigIgnoredError>
      * } $config User-defined configuration from the config file
      * @param array{path: string|null} $cmdOpt Command options
      */
@@ -170,8 +176,8 @@ final class LinterConfig
     }
 
     /**
-     * @param list<mixed> $ignoreErrors
-     * @return list<mixed>
+     * @param list<_ConfigIgnoredError> $ignoreErrors
+     * @return list<_ConfigIgnoredError>
      */
     private function normalizeIgnorePaths(array $ignoreErrors): array
     {
