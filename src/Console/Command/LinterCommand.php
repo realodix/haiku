@@ -30,7 +30,8 @@ class LinterCommand extends Command
     {
         $this
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to analyse')
-            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file');
+            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
+            ->addOption('generate-baseline', 'b', InputOption::VALUE_NONE, 'Generate baseline file');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -65,6 +66,29 @@ class LinterCommand extends Command
         if ($progressBar !== null) {
             $progressBar->finish();
             $io->newLine(2);
+        }
+
+        if ($input->getOption('generate-baseline')) {
+            $baselineFile = base_path('haiku-baseline.yml');
+            $baselineErrors = [];
+            foreach ($errorReporter->getErrors() as $path => $issues) {
+                $relativePath = Path::makeRelative($path, base_path());
+                foreach ($issues as $issue) {
+                    $baselineErrors[] = [
+                        'message' => $issue['message'],
+                        'path' => str_replace('\\', '/', $relativePath),
+                    ];
+                }
+            }
+
+            file_put_contents(
+                $baselineFile,
+                \Symfony\Component\Yaml\Yaml::dump(['ignoreErrors' => $baselineErrors], 4, 2)
+            );
+
+            $io->success(sprintf('Baseline generated with %d error.', $errorReporter->count()));
+
+            return Command::SUCCESS;
         }
 
         $this->renderErrors($io, $errorReporter);

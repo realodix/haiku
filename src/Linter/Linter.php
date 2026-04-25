@@ -25,7 +25,15 @@ final class Linter
     public function run($cmdOpt, ?callable $onStart = null, ?callable $onAdvance = null): ErrorReporter
     {
         $config = $this->config->linter($cmdOpt);
-        $ignoredErrors = new IgnoredErrors($config->ignoreErrors);
+
+        $baselineErrors = [];
+        $baselineFile = base_path('haiku-baseline.yml');
+        if (file_exists($baselineFile)) {
+            $baseline = \Symfony\Component\Yaml\Yaml::parseFile($baselineFile);
+            $baselineErrors = $baseline['ignoreErrors'] ?? [];
+        }
+
+        $ignoredErrors = new IgnoredErrors($config->ignoreErrors, $baselineErrors);
 
         if ($onStart !== null) {
             $onStart(count($config->paths));

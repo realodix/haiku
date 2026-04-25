@@ -65,6 +65,8 @@ vendor/bin/haiku lint [options]
   Specifies the file or directory to analyze.
 - `--config <path>`
   Specifies a custom configuration file.
+- `--generate-baseline` or `-b`
+  Generates the baseline to `haiku-baseline.yml`.
 
 ```sh
 # Analyze all files in the current directory
