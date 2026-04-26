@@ -258,6 +258,7 @@ abstract class TestCase extends BaseTestCase
                 glob(Path::join($this->tmpDir, '/*.txt')),
                 glob(Path::join($this->tmpDir, '/*.json')),
                 glob(Path::join($this->tmpDir, '/.*.json')),
+                glob(Path::join($this->tmpDir, '/*.yml')),
             );
 
             if ($files) {
