@@ -419,13 +419,13 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // B must cover the target domain (either global or specific)
+        // $candidate must cover the target domain (either global or specific)
         if ($candidate['domains'] !== []) {
             if (!isset($candidate['domains'][$domain])) {
                 return false;
             }
         } elseif (isset($ghideExceptions[$domain])) {
-            // Global rule B does NOT cover domain if generic hiding is disabled for it.
+            // Global rule $candidate does NOT cover domain if generic hiding is disabled for it.
             return false;
         }
 
@@ -621,64 +621,68 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // B covers A if B has no tag (global) or same tag as A.
+        // $candidate covers $rule if $candidate has no tag (global) or same tag as $rule.
         if ($candidate['tag'] !== '' && $rule['tag'] !== $candidate['tag']) {
             return false;
         }
 
-        // If A is case-insensitive but B is case-sensitive, B cannot cover A.
+        // If $rule is case-insensitive but $candidate is case-sensitive, $candidate cannot cover $rule.
         if ($rule['modifier'] === 'i' && $candidate['modifier'] === '') {
             return false;
         }
 
         // Determine if we should compare values case-insensitively.
         $caseInsensitive = $candidate['modifier'] === 'i';
-        $valA = $caseInsensitive ? strtolower($rule['value']) : $rule['value'];
-        $valB = $caseInsensitive ? strtolower($candidate['value']) : $candidate['value'];
+        $valR = $caseInsensitive ? strtolower($rule['value']) : $rule['value'];
+        $valC = $caseInsensitive ? strtolower($candidate['value']) : $candidate['value'];
 
         // Exact match of operator and value
-        if ($rule['operator'] === $candidate['operator'] && $valA === $valB) {
+        if ($rule['operator'] === $candidate['operator'] && $valR === $valC) {
             return true;
         }
 
-        // B: "*=" (substring)
-        // Covers any A where the matched value A contains substring B.
+        // $candidate: "*=" (substring)
+        // Covers any $rule where the matched value $rule contains substring $candidate.
         if ($candidate['operator'] === '*=') {
-            return str_contains($valA, $valB);
+            return str_contains($valR, $valC);
         }
 
-        // B: "^=" (starts with)
-        // Covers A if A is "=" or "^=" and valA starts with valB.
-        // Note: For 'class' attributes, A=.cls translates to A[class~="cls"],
-        // which matches ANY word in the class list. Since [class^="val"] only
-        // matches if 'val' is at the very beginning of the string, it does
-        // NOT cover [class~="cls"] unless the class is guaranteed to be first.
-        // Conversely, for 'id' attributes (which are single-valued),
-        // #id translates to [id="id"], which IS covered by [id^="val"].
+        // $candidate operator "^=" (starts with)
+        // Covers $rule if:
+        // - $rule uses "=" or "^="
+        // - AND $rule's value starts with $candidate's value
+        //
+        // Note:
+        // - For 'class' attributes, ".cls" translates to $rule[class~="cls"],
+        //   which matches ANY word in the class list. Since [class^="val"] only
+        //   matches if 'val' is at the very beginning of the string, it does
+        //   NOT cover [class~="cls"] unless the class is guaranteed to be first.
+        // - For id attributes (single value), "#id" behaves like [id="id"],
+        //   which CAN be covered.
         if ($candidate['operator'] === '^=') {
             return ($rule['operator'] === '=' || $rule['operator'] === '^=')
-                && str_starts_with($valA, $valB);
+                && str_starts_with($valR, $valC);
         }
 
-        // B: "$=" (ends with)
-        // Covers A if A is "=" or "$=" and valA ends with valB.
+        // $candidate: "$=" (ends with)
+        // Covers $rule if $rule is "=" or "$=" and $rule's value ends with $candidate's value.
         // Same logic as ^=: Covers ID selectors but not Class selectors.
         if ($candidate['operator'] === '$=') {
             return ($rule['operator'] === '=' || $rule['operator'] === '$=')
-                && str_ends_with($valA, $valB);
+                && str_ends_with($valR, $valC);
         }
 
-        // B: "~=" (whitespace-separated item)
-        // Covers A if values match exactly (A is "=" or "~=")
-        // OR covers A if A is "=" and B's value is a word in A's value.
+        // $candidate: "~=" (whitespace-separated item)
+        // Covers $rule if values match exactly ($rule is "=" or "~=")
+        // OR covers $rule if $rule is "=" and $candidate's value is a word in $rule's value.
         if ($candidate['operator'] === '~=') {
             if ($rule['operator'] === '~=') {
-                return $valA === $valB;
+                return $valR === $valC;
             }
             if ($rule['operator'] === '=') {
-                $words = preg_split('/\s+/', $valA);
+                $words = preg_split('/\s+/', $valR);
 
-                return in_array($valB, $words, true);
+                return in_array($valC, $words, true);
             }
         }
 
