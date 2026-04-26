@@ -92,4 +92,40 @@ class CosmeticCheckTest extends TestCase
             [4, 'Redundant filter: ##.ads already defined on line 1.'],
         ], self::RULE);
     }
+
+    #[PHPUnit\Test]
+    public function respectCosmeticException(): void
+    {
+        $lines = [
+            '##.ads',
+            'example.com,example.org,example.site##.ads',
+            '@@||example.org^$ghide',
+            'x.com##.ads',
+            '@@||x.com^$ghide',
+            'y.com##.ads',
+            'z.com##.ads',
+            '@@*$generichide,domain=y.com|z.com',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: domain example.com already covered on line 1.'],
+            [2, 'Redundant filter: domain example.site already covered on line 1.'],
+        ]);
+
+        $lines = [
+            '##.ads',
+            'example.com,example.org,example.site##.ads',
+            '@@||example.org^$ehide',
+            'x.com##.ads',
+            '@@||x.com^$ghide',
+            'y.com##.ads',
+            'z.com##.ads',
+            '@@*$elemhide,domain=y.com|z.com',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: domain example.com already covered on line 1.'],
+            [2, 'Redundant filter: domain example.site already covered on line 1.'],
+        ]);
+    }
 }

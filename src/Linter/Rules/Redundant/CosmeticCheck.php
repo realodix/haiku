@@ -72,7 +72,7 @@ final class CosmeticCheck implements Rule
             }
 
             // Extract ghide exceptions into the map
-            $ghideDomains = $this->parseGhideDomains($line);
+            $ghideDomains = $this->parseDomainExceptRuleOpt($line);
             if ($ghideDomains !== []) {
                 foreach ($ghideDomains as $domain) {
                     $this->ghideExceptions[$domain] = true;
@@ -496,19 +496,25 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Parse a line for ghide exceptions.
+     * Gets the domains from execution rule option.
      *
      * @param string $line The line to parse.
-     * @return list<string> Returns a list of domains, or an empty list if not a ghide rule.
+     * @return list<string> Returns a list of domains, or an empty list.
      */
-    private function parseGhideDomains(string $line): array
+    private function parseDomainExceptRuleOpt(string $line): array
     {
         if (!str_starts_with($line, '@@')) {
             return [];
         }
 
+        $opts = ['ghide', 'generichide', 'ehide', 'elemhide'];
+
         // Form 1: @@||example.com^$ghide
-        if (preg_match('/^@@\|\|([a-z0-9.-]+)\^?\$g(?:eneric)?hide(?:,|$)/i', $line, $m)) {
+        $ghideRegex = sprintf(
+            '/^@@\|\|([a-z0-9.-]+)\^?\$(?:%s)(?:,|$)/i',
+            implode('|', $opts),
+        );
+        if (preg_match($ghideRegex, $line, $m)) {
             return [strtolower($m[1])];
         }
 
@@ -522,7 +528,7 @@ final class CosmeticCheck implements Rule
                 $opt = trim($opt);
                 $opt = strtolower($opt);
 
-                if (in_array($opt, ['ghide', 'generichide'], true)) {
+                if (in_array($opt, $opts, true)) {
                     $isGhide = true;
 
                     continue;
