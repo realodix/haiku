@@ -5,6 +5,8 @@ namespace Realodix\Haiku\Test\Linter;
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
+use Realodix\Haiku\Linter\ErrorReporter;
+use Realodix\Haiku\Linter\IgnoredErrors;
 use Realodix\Haiku\Linter\Linter;
 use Realodix\Haiku\Test\TestCase;
 
@@ -148,5 +150,64 @@ YAML);
 
         $fileErrors = $errorReporter->getErrors();
         $this->assertEmpty($fileErrors);
+    }
+
+    #[PHPUnit\Test]
+    public function baselineIgnoreWithCount(): void
+    {
+        $baselineErrors = [
+            [
+                'message' => 'error message',
+                'path' => 'path/to/file.txt',
+                'count' => 2,
+            ],
+        ];
+
+        $ignoredErrors = new IgnoredErrors([], $baselineErrors);
+
+        // First two matches should be ignored
+        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
+
+        // Third match should NOT be ignored
+        $this->assertFalse($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
+    }
+
+    #[PHPUnit\Test]
+    public function baselineNotReportedAsUnmatched(): void
+    {
+        $baselineErrors = [
+            [
+                'message' => 'unmatched baseline error',
+                'path' => 'path/to/file.txt',
+                'count' => 1,
+            ],
+        ];
+
+        $ignoredErrors = new IgnoredErrors([], $baselineErrors);
+        $reporter = new ErrorReporter;
+
+        $ignoredErrors->reportUnmatched($reporter);
+
+        $this->assertEmpty($reporter->getGlobalErrors());
+    }
+
+    #[PHPUnit\Test]
+    public function mixedUserAndBaselineIgnore(): void
+    {
+        $ignoreErrors = ['user error'];
+        $baselineErrors = [
+            [
+                'message' => 'baseline error',
+                'path' => 'file.txt',
+                'count' => 1,
+            ],
+        ];
+
+        $ignoredErrors = new IgnoredErrors($ignoreErrors, $baselineErrors);
+
+        $this->assertTrue($ignoredErrors->shouldIgnore('any.txt', 'user error'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file.txt', 'baseline error'));
+        $this->assertFalse($ignoredErrors->shouldIgnore('file.txt', 'baseline error')); // Count 1 exceeded
     }
 }

@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(
     name: 'lint',
@@ -70,36 +71,7 @@ class LinterCommand extends Command
         }
 
         if ($input->getOption('generate-baseline')) {
-            $baselineFile = base_path('haiku-baseline.yml');
-            $baselineErrors = [];
-            foreach ($errorReporter->getErrors() as $path => $issues) {
-                $relativePath = Path::makeRelative($path, base_path());
-                foreach ($issues as $issue) {
-                    $message = $issue['message'];
-                    if (!isset($baselineErrors[$relativePath][$message])) {
-                        $baselineErrors[$relativePath][$message] = 0;
-                    }
-                    $baselineErrors[$relativePath][$message]++;
-                }
-            }
-
-            $finalBaseline = [];
-            foreach ($baselineErrors as $path => $messages) {
-                foreach ($messages as $message => $count) {
-                    $finalBaseline[] = [
-                        'message' => $message,
-                        'path' => $path,
-                        'count' => $count,
-                    ];
-                }
-            }
-
-            file_put_contents(
-                $baselineFile,
-                \Symfony\Component\Yaml\Yaml::dump(['ignoreErrors' => $finalBaseline], 4, 2),
-            );
-
-            $io->success(sprintf('Baseline generated with %d error.', $errorReporter->count()));
+            $this->generateBaseline($io, $errorReporter);
 
             return Command::SUCCESS;
         }
@@ -168,6 +140,48 @@ class LinterCommand extends Command
         }
 
         $io->error(sprintf('Found %d errors', $errorReporter->count()));
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
+     */
+    private function generateBaseline(SymfonyStyle $io, $errorReporter): void
+    {
+        $baselineFile = base_path('haiku-baseline.yml');
+        $baselineErrors = [];
+        foreach ($errorReporter->getErrors() as $path => $issues) {
+            $relativePath = Path::makeRelative($path, base_path());
+            foreach ($issues as $issue) {
+                $message = $issue['message'];
+                if (!isset($baselineErrors[$relativePath][$message])) {
+                    $baselineErrors[$relativePath][$message] = 0;
+                }
+                $baselineErrors[$relativePath][$message]++;
+            }
+        }
+
+        $finalBaseline = [];
+        foreach ($baselineErrors as $path => $messages) {
+            foreach ($messages as $message => $count) {
+                $finalBaseline[] = [
+                    'message' => $message,
+                    'path' => $path,
+                    'count' => $count,
+                ];
+            }
+        }
+
+        file_put_contents(
+            $baselineFile,
+            Yaml::dump(['ignoreErrors' => $finalBaseline], 4, 2),
+        );
+
+        $errorsCount = $errorReporter->count();
+        $io->success(sprintf(
+            'Baseline generated with %d %s.',
+            $errorsCount,
+            $errorsCount === 1 ? 'error' : 'errors',
+        ));
     }
 
     private function meta(string $content, ?string $icon = null): string
