@@ -107,12 +107,16 @@ final class NetworkCheck implements Rule
 
             if ($hasOpts) {
                 $seenMap = &$this->patternOptionsSeen[$type][$pattern][$optionsKey];
-                if (empty($domains)) {
-                    $seenMap['*'][$lineNum] = true;
-                } else {
-                    foreach ($domains as $d) {
-                        $seenMap[$d['type'].':'.$d['name']][$lineNum] = true;
-                    }
+                // if (empty($domains)) {
+                //     $seenMap['*'][$lineNum] = true;
+                // } else {
+                //     foreach ($domains as $d) {
+                //         $seenMap[$d['type'].':'.$d['name']][$lineNum] = true;
+                //     }
+                // }
+                // related to checkDomainRedundancy() (scenario B)
+                foreach ($domains as $d) {
+                    $seenMap[$d['type'].':'.$d['name']][$lineNum] = true;
                 }
             }
 
@@ -246,6 +250,15 @@ final class NetworkCheck implements Rule
                 return null;
             }
 
+            // A rule with a negated domain is not redundant against a global filter
+            if ($data['hasDomains']) {
+                foreach ($data['domains'] as $d) {
+                    if (str_starts_with($d['name'], '~')) {
+                        return null;
+                    }
+                }
+            }
+
             // If patterns and options are identical, it's a direct duplicate
             if (!$data['hasDomains']
                 && $best['hasOptions'] === $data['hasOptions']
@@ -285,22 +298,22 @@ final class NetworkCheck implements Rule
     private function checkDomainRedundancy(int $lineNum, array $data): array
     {
         $errors = [];
-        $line = $data['line'];
+        // $line = $data['line'];
         $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
         $optionsKey = $data['optionsKey'];
 
         $seenMap = &$this->patternOptionsSeen[$type][$data['pattern']][$optionsKey];
 
         // Scenario B: The current rule is covered by a GLOBAL rule (with same options).
-        if (isset($seenMap['*'])) {
-            $atLine = (int) array_key_first($seenMap['*']);
-            $errors[] = RuleErrorBuilder::message(sprintf(
-                'Redundant filter: %s already covered by global filter on line %d.',
-                $line, $atLine,
-            ))->line($lineNum)->build();
+        // if (isset($seenMap['*'])) {
+        //     $atLine = (int) array_key_first($seenMap['*']);
+        //     $errors[] = RuleErrorBuilder::message(sprintf(
+        //         'Redundant filter: %s already covered by global filter on line %d.',
+        //         $line, $atLine,
+        //     ))->line($lineNum)->build();
 
-            return $errors;
-        }
+        //     return $errors;
+        // }
 
         // Scenario C: The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
         // Check if individual domains are redundant against previous domain-specific rules.

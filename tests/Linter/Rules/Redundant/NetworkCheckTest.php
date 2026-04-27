@@ -106,6 +106,33 @@ class NetworkCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function generic_redundancy_with_negated_domains(): void
+    {
+        $lines = [
+            // Case 1: Global filter with options
+            '/banner-$image,domain=~x.com|y.com,css',
+            '/banner-$image,css',
+
+            // Case 2: Global filter without options
+            'adv',
+            'adv$domain=~x.com',
+
+            // Case 3: Global filter defined before (covered by Pass 1)
+            '$removeparam=utm_referrer',
+            '$to=~glavnoe.life,removeparam=utm_referrer',
+
+            // Case 4: Multiple negated domains
+            '||ads.com^',
+            '||ads.com^$domain=~a.com|~b.com',
+
+            // Case 5: Mix of negated and positive domains
+            'test_rule',
+            'test_rule$domain=~neg.com|pos.com',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function generic_redundancy_by_regex(): void
     {
         $lines = [
@@ -144,11 +171,13 @@ class NetworkCheckTest extends TestCase
     public function domainRedundancy(): void
     {
         $lines = [
-            '*$to=a.com|b.com',
+            '*$to=a.com|b.com|~c.com',
             '*$to=a.com',
+            '*$to=~c.com',
         ];
         $this->analyse($lines, [
             [2, "Redundant filter: domain 'a.com' already covered on line 1."],
+            [3, "Redundant filter: domain '~c.com' already covered on line 1."],
         ]);
 
         $lines = [
