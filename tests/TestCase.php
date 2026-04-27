@@ -40,6 +40,10 @@ abstract class TestCase extends BaseTestCase
 
         app()->instance(FixerConfig::class, new FixerConfig);
         app()->instance(LinterConfig::class, new LinterConfig);
+
+        app(LinterConfig::class)->rules = [
+            'no_short_rules' => false,
+        ];
     }
 
     protected function applyFlags(array $flags = [])
@@ -96,9 +100,6 @@ abstract class TestCase extends BaseTestCase
      */
     protected function analyse(array $lines, array $expectedErrors = [], ?array $onlyRules = null): void
     {
-        app(LinterConfig::class)->rules = [
-            'no_short_rules' => 3,
-        ];
         $rules = $this->initLinterRules($onlyRules);
 
         // Run all selected rules

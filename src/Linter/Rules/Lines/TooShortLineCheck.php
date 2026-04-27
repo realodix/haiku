@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Linter\Rules\Lines;
 
 use Realodix\Haiku\Config\LinterConfig;
+use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
@@ -23,7 +24,7 @@ final class TooShortLineCheck implements Rule
 
         // Default line length
         if ($mode === true) {
-            $mode = 3;
+            $mode = 4;
         }
 
         $errors = [];
@@ -34,8 +35,12 @@ final class TooShortLineCheck implements Rule
                 continue;
             }
 
+            if (preg_match(Regex::NET_OPTION, $line, $m)) {
+                $line = $m[1];
+            }
+
             if (strlen($line) < $mode) {
-                $errors[] = RuleErrorBuilder::message("The line is too short (under {$mode} characters).")
+                $errors[] = RuleErrorBuilder::message("The rule is too short (under {$mode} characters).")
                     ->line($index + 1)
                     ->build();
             }

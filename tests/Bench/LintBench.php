@@ -62,7 +62,7 @@ class LintBench
         app(LinterConfig::class)->rules = [
             'cosm_id_selector_start' => true,
             'no_extra_blank_lines' => true,
-            'no_short_rules' => 3,
+            'no_short_rules' => 4,
         ];
 
         $rules = Util::loadLinterRules();
