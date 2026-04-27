@@ -26,7 +26,7 @@ final class DomainCheck implements Rule
             $lineNum = $index + 1;
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line)) {
+            if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
                 continue;
             }
 

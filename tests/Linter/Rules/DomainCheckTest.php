@@ -86,6 +86,11 @@ class DomainCheckTest extends TestCase
             [6, 'Bad domain name: ".domain.com"'],
             [7, 'Bad domain name: "domain.com/"'],
         ]);
+
+        $lines = [
+            '[$domain=/example.net/]##.ad-branding',
+        ];
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
