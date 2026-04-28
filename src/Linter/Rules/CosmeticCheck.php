@@ -94,8 +94,9 @@ final class CosmeticCheck implements Rule
             preg_match('/-abp-(?:has|contains|properties)/', $selector, $content);
 
             $errors[] = RuleErrorBuilder::message(sprintf(
-                'Invalid filter: %s requires #?# separator syntax.', $content[0]),
-            )->line($lineNum)->build();
+                'Invalid filter: %s requires #?# separator syntax.',
+                $content[0],
+            ))->line($lineNum)->build();
         }
     }
 }
