@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(
     name: 'lint',
@@ -30,7 +31,8 @@ class LinterCommand extends Command
     {
         $this
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to analyse')
-            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file');
+            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
+            ->addOption('generate-baseline', 'b', InputOption::VALUE_NONE, 'Generate baseline file');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -52,6 +54,7 @@ class LinterCommand extends Command
             new CommandOptions(
                 configFile: $input->getOption('config'),
                 path: $input->getOption('path'),
+                generateBaseline: $input->getOption('generate-baseline'),
             ),
             function (int $count) use ($io, &$progressBar) {
                 $progressBar = $io->createProgressBar($count);
@@ -65,6 +68,12 @@ class LinterCommand extends Command
         if ($progressBar !== null) {
             $progressBar->finish();
             $io->newLine(2);
+        }
+
+        if ($input->getOption('generate-baseline')) {
+            $this->generateBaseline($io, $errorReporter);
+
+            return Command::SUCCESS;
         }
 
         $this->renderErrors($io, $errorReporter);
@@ -131,6 +140,48 @@ class LinterCommand extends Command
         }
 
         $io->error(sprintf('Found %d errors', $errorReporter->count()));
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
+     */
+    private function generateBaseline(SymfonyStyle $io, $errorReporter): void
+    {
+        $baselineFile = base_path('haiku-baseline.yml');
+        $baselineErrors = [];
+        foreach ($errorReporter->getErrors() as $path => $issues) {
+            $relativePath = Path::makeRelative($path, base_path());
+            foreach ($issues as $issue) {
+                $message = $issue['message'];
+                if (!isset($baselineErrors[$relativePath][$message])) {
+                    $baselineErrors[$relativePath][$message] = 0;
+                }
+                $baselineErrors[$relativePath][$message]++;
+            }
+        }
+
+        $finalBaseline = [];
+        foreach ($baselineErrors as $path => $messages) {
+            foreach ($messages as $message => $count) {
+                $finalBaseline[] = [
+                    'message' => $message,
+                    'path' => $path,
+                    'count' => $count,
+                ];
+            }
+        }
+
+        file_put_contents(
+            $baselineFile,
+            Yaml::dump(['ignoreErrors' => $finalBaseline], 4, 2),
+        );
+
+        $errorsCount = $errorReporter->count();
+        $io->success(sprintf(
+            'Baseline generated with %d %s.',
+            $errorsCount,
+            $errorsCount === 1 ? 'error' : 'errors',
+        ));
     }
 
     private function meta(string $content, ?string $icon = null): string

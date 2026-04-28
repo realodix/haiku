@@ -7,6 +7,8 @@ namespace Realodix\Haiku\Linter;
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,
+ *  count?: int,
+ *  isBaseline?: bool,
  * }|string
  */
 final class IgnoredErrors
@@ -17,13 +19,21 @@ final class IgnoredErrors
     /** @var array<int, bool> */
     private array $usedIgnoreErrors = [];
 
+    /** @var array<int, int> */
+    private array $usedCount = [];
+
     /**
      * @param list<_ConfigIgnoredError> $ignoreErrors
+     * @param list<_ConfigIgnoredError> $baselineErrors
      */
-    public function __construct(array $ignoreErrors)
+    public function __construct(array $ignoreErrors, array $baselineErrors = [])
     {
-        $this->normalizedIgnoreErrors = $this->normalizeIgnoreErrors($ignoreErrors);
+        $this->normalizedIgnoreErrors = array_merge(
+            $this->normalizeIgnoreErrors($ignoreErrors),
+            $this->normalizeIgnoreErrors($baselineErrors, isBaseline: true),
+        );
         $this->usedIgnoreErrors = array_fill_keys(array_keys($this->normalizedIgnoreErrors), false);
+        $this->usedCount = array_fill_keys(array_keys($this->normalizedIgnoreErrors), 0);
     }
 
     public function shouldIgnore(string $path, string $message): bool
@@ -31,6 +41,7 @@ final class IgnoredErrors
         foreach ($this->normalizedIgnoreErrors as $index => $ignore) {
             if (is_string($ignore)) {
                 if ($this->isMatch($ignore, $message)) {
+                    $this->usedCount[$index]++;
                     $this->usedIgnoreErrors[$index] = true;
 
                     return true;
@@ -43,6 +54,11 @@ final class IgnoredErrors
             $pathMatch = !isset($ignore['path']) || $this->isMatch($ignore['path'], $path);
 
             if ($messageMatch && $pathMatch) {
+                if (isset($ignore['count']) && $this->usedCount[$index] >= $ignore['count']) {
+                    continue;
+                }
+
+                $this->usedCount[$index]++;
                 $this->usedIgnoreErrors[$index] = true;
 
                 return true;
@@ -55,8 +71,9 @@ final class IgnoredErrors
     public function reportUnmatched(ErrorReporter $reporter): void
     {
         foreach ($this->usedIgnoreErrors as $index => $used) {
-            if (!$used) {
-                $ignore = $this->normalizedIgnoreErrors[$index];
+            $ignore = $this->normalizedIgnoreErrors[$index];
+
+            if (!$used && !(is_array($ignore) && isset($ignore['isBaseline']))) {
                 $pattern = '';
                 $inPath = '';
 
@@ -87,7 +104,7 @@ final class IgnoredErrors
      * @param list<_ConfigIgnoredError> $ignoreErrors
      * @return list<_IgnoredError>
      */
-    private function normalizeIgnoreErrors(array $ignoreErrors): array
+    private function normalizeIgnoreErrors(array $ignoreErrors, bool $isBaseline = false): array
     {
         $normalized = [];
         foreach ($ignoreErrors as $ignore) {
@@ -95,6 +112,10 @@ final class IgnoredErrors
                 $normalized[] = $ignore;
 
                 continue;
+            }
+
+            if ($isBaseline) {
+                $ignore['isBaseline'] = true;
             }
 
             $messages = [];
