@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter;
 
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Symfony\Component\Yaml\Yaml;
 
 final class Linter
 {
@@ -31,15 +30,7 @@ final class Linter
     public function run($cmdOpt, ?callable $onStart = null, ?callable $onAdvance = null): ErrorReporter
     {
         $config = $this->config->linter($cmdOpt);
-
-        $baselineErrors = [];
-        $baselineFile = base_path('haiku-baseline.yml');
-        if (!$cmdOpt->generateBaseline && file_exists($baselineFile)) {
-            $baseline = Yaml::parseFile($baselineFile);
-            $baselineErrors = $baseline['ignoreErrors'] ?? [];
-        }
-
-        $ignoredErrors = new IgnoredErrors($config->ignoreErrors, $baselineErrors);
+        $ignoredErrors = IgnoredErrors::load($config, $cmdOpt);
 
         if ($onStart !== null) {
             $onStart(count($config->paths));

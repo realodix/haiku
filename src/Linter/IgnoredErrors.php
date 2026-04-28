@@ -2,6 +2,8 @@
 
 namespace Realodix\Haiku\Linter;
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * @phpstan-import-type _ConfigIgnoredError from \Realodix\Haiku\Config\LinterConfig
  * @phpstan-type _IgnoredError array{
@@ -34,6 +36,25 @@ final class IgnoredErrors
         );
         $this->usedIgnoreErrors = array_fill_keys(array_keys($this->normalizedIgnoreErrors), false);
         $this->usedCount = array_fill_keys(array_keys($this->normalizedIgnoreErrors), 0);
+    }
+
+    /**
+     * Load ignored errors from configuration and baseline.
+     *
+     * @param \Realodix\Haiku\Config\LinterConfig $config
+     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
+     */
+    public static function load($config, $cmdOpt): self
+    {
+        $baselineErrors = [];
+        $baselineFile = base_path('haiku-baseline.yml');
+
+        if (!$cmdOpt->generateBaseline && file_exists($baselineFile)) {
+            $baseline = Yaml::parseFile($baselineFile);
+            $baselineErrors = $baseline['ignoreErrors'] ?? [];
+        }
+
+        return new self($config->ignoreErrors, $baselineErrors);
     }
 
     /**
