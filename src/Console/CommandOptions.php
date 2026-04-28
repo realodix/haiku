@@ -10,6 +10,7 @@ final readonly class CommandOptions
      * @param bool $ignoreCache If true, the cache is ignored
      * @param string|null $path File or directory path to process
      * @param bool $parallel If true, the Fixer is run in parallel
+     * @param bool $generateBaseline If true, the baseline file is generated
      */
     public function __construct(
         public ?string $cachePath = null,
