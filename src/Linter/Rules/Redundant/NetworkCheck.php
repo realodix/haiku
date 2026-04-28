@@ -62,7 +62,7 @@ final class NetworkCheck implements Rule
 
         $this->reset();
         $errors = [];
-        /** @var list<_rulesData> $rulesData */
+        /** @var list<_rulesData> */
         $rulesData = [];
 
         // Pass 1: Parse and collect state
@@ -202,7 +202,7 @@ final class NetworkCheck implements Rule
         $opts = $data['options'];
         $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
 
-        /** @var _GlobalRuleData|null $best */
+        /** @var _GlobalRuleData|null */
         $best = null;
 
         $bucketsToCheck = [];

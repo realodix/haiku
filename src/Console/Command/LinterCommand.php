@@ -46,7 +46,7 @@ class LinterCommand extends Command
         $io->writeln(sprintf('%s <info>%s</info> by <comment>Realodix</comment>', App::NAME, App::version()));
         $io->newLine();
 
-        /** @var \Symfony\Component\Console\Helper\ProgressBar|null $progressBar */
+        /** @var \Symfony\Component\Console\Helper\ProgressBar|null */
         $progressBar = null;
 
         $startTime = microtime(true);

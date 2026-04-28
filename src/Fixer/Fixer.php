@@ -34,7 +34,7 @@ final class Fixer
     public function fix(array $lines): array
     {
         $result = []; // Stores the final processed rules
-        /** @var list<SectionItem> $section */
+        /** @var list<SectionItem> */
         $section = []; // Temporary storage for a section of rules
 
         foreach ($lines as $i => $line) {
