@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Linter;
 
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Symfony\Component\Yaml\Yaml;
 
 final class Linter
 {
@@ -29,7 +30,7 @@ final class Linter
         $baselineErrors = [];
         $baselineFile = base_path('haiku-baseline.yml');
         if (!$cmdOpt->generateBaseline && file_exists($baselineFile)) {
-            $baseline = \Symfony\Component\Yaml\Yaml::parseFile($baselineFile);
+            $baseline = Yaml::parseFile($baselineFile);
             $baselineErrors = $baseline['ignoreErrors'] ?? [];
         }
 
