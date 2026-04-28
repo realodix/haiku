@@ -36,6 +36,13 @@ final class IgnoredErrors
         $this->usedCount = array_fill_keys(array_keys($this->normalizedIgnoreErrors), 0);
     }
 
+    /**
+     * Check if an error should be ignored.
+     *
+     * @param string $path The path to the file
+     * @param string $message The error message
+     * @return bool True if the error should be ignored, false otherwise
+     */
     public function shouldIgnore(string $path, string $message): bool
     {
         foreach ($this->normalizedIgnoreErrors as $index => $ignore) {
@@ -68,6 +75,10 @@ final class IgnoredErrors
         return false;
     }
 
+    /**
+     * Report any ignore patterns that were not matched. This is useful for
+     * identifying stale ignore patterns.
+     */
     public function reportUnmatched(ErrorReporter $reporter): void
     {
         foreach ($this->usedIgnoreErrors as $index => $used) {
@@ -101,8 +112,13 @@ final class IgnoredErrors
     }
 
     /**
-     * @param list<_ConfigIgnoredError> $ignoreErrors
-     * @return list<_IgnoredError>
+     * Normalize the ignore errors array.
+     *
+     * This expands single ignore patterns to multiple entries if needed.
+     *
+     * @param list<_ConfigIgnoredError> $ignoreErrors Array of ignore patterns
+     * @param bool $isBaseline Whether this is for baseline
+     * @return list<_IgnoredError> Normalized ignore errors
      */
     private function normalizeIgnoreErrors(array $ignoreErrors, bool $isBaseline = false): array
     {
@@ -161,6 +177,13 @@ final class IgnoredErrors
         return $normalized;
     }
 
+    /**
+     * Check if a value matches a pattern.
+     *
+     * @param string $pattern The pattern to match
+     * @param string $value The value to match
+     * @return bool True if the value matches the pattern, false otherwise
+     */
     private function isMatch(string $pattern, string $value): bool
     {
         if (str_contains($value, $pattern)) {

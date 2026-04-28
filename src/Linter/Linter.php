@@ -21,7 +21,12 @@ final class Linter
     }
 
     /**
+     * Run the linter against the configured paths.
+     *
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
+     * @param (callable(int): void)|null $onStart Callback executed before starting analysis,
+     *                                            receives the total number of files
+     * @param (callable(): void)|null $onAdvance Callback executed after each file is analysed
      */
     public function run($cmdOpt, ?callable $onStart = null, ?callable $onAdvance = null): ErrorReporter
     {
@@ -53,6 +58,12 @@ final class Linter
         return $this->errorReporter;
     }
 
+    /**
+     * Analyse a single file and report errors.
+     *
+     * @param string $path The path to the file to be analysed
+     * @param IgnoredErrors $ignoredErrors The collection of errors to ignore
+     */
     private function analyseFile(string $path, IgnoredErrors $ignoredErrors): void
     {
         $content = $this->read($path);
