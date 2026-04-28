@@ -66,7 +66,10 @@ vendor/bin/haiku lint [options]
 - `--config <path>`
   Specifies a custom configuration file.
 - `--generate-baseline` or `-b`
-  Generates the baseline to `haiku-baseline.yml`.
+
+  Generates the **currently reported list of errors as a “baseline”** and cause it not being reported on subsequent runs. It allows you to focus only on violations of new and updated adblock filter rules.
+
+  It works best when you want to get rid of a few dozen to a few hundred reported errors that you don’t have time or energy to deal with right now. It’s not the best tool when you have 15,000 errors.
 
 ```sh
 # Analyze all files in the current directory
