@@ -71,6 +71,12 @@ class LinterCommand extends Command
         }
 
         if ($input->getOption('generate-baseline')) {
+            if (!empty($errorReporter->getGlobalErrors())) {
+                $this->renderGlobalErrors($io, $errorReporter->getGlobalErrors());
+
+                return Command::FAILURE;
+            }
+
             $this->generateBaseline($io, $errorReporter);
 
             return Command::SUCCESS;
@@ -130,16 +136,30 @@ class LinterCommand extends Command
         }
 
         if (!empty($globalErrors)) {
-            $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
-            $io->writeln('     Error');
-            $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
-            foreach ($globalErrors as $error) {
-                $io->writeln(sprintf('     %s', $error));
-            }
-            $io->newLine();
+            $this->renderGlobalErrors($io, $globalErrors);
+        } else {
+            $io->error(sprintf('Found %d errors', $errorReporter->count()));
         }
+    }
 
-        $io->error(sprintf('Found %d errors', $errorReporter->count()));
+    /**
+     * @param list<string> $globalErrors
+     */
+    private function renderGlobalErrors(SymfonyStyle $io, array $globalErrors): void
+    {
+        $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
+        $io->writeln('     Error');
+        $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
+        foreach ($globalErrors as $error) {
+            $io->writeln(sprintf('     %s', $error));
+        }
+        $io->newLine();
+
+        $io->error(sprintf(
+            'Found %d %s',
+            count($globalErrors),
+            count($globalErrors) === 1 ? 'error' : 'errors',
+        ));
     }
 
     /**
@@ -176,7 +196,7 @@ class LinterCommand extends Command
             Yaml::dump(['ignoreErrors' => $finalBaseline], 4, 2),
         );
 
-        $errorsCount = $errorReporter->count();
+        $errorsCount = count($finalBaseline);
         $io->success(sprintf(
             'Baseline generated with %d %s.',
             $errorsCount,
