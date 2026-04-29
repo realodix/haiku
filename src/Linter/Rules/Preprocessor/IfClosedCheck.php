@@ -27,7 +27,7 @@ final class IfClosedCheck implements Rule
             $line = trim($line);
 
             if (preg_match('/^!#\s?if(?:\s|$)/i', $line)) {
-                $stack[] = ['line' => $lineNum, 'type' => 'if', 'hasElse' => false];
+                $stack[] = ['lineNum' => $lineNum, 'type' => 'if', 'hasElse' => false];
 
                 continue;
             }
@@ -38,7 +38,7 @@ final class IfClosedCheck implements Rule
                         ->line($lineNum)
                         ->build();
 
-                    $stack[] = ['line' => $lineNum, 'type' => 'else', 'hasElse' => true];
+                    $stack[] = ['lineNum' => $lineNum, 'type' => 'else', 'hasElse' => true];
                 } else {
                     $topIndex = count($stack) - 1;
                     if ($stack[$topIndex]['hasElse']) {
@@ -68,7 +68,7 @@ final class IfClosedCheck implements Rule
         foreach (array_reverse($stack) as $unclosed) {
             $directive = $unclosed['type'] === 'if' ? '!#if' : '!#else';
             $errors[] = RuleErrorBuilder::message(sprintf('The "%s" statement is not closed by "!#endif".', $directive))
-                ->line($unclosed['line'])
+                ->line($unclosed['lineNum'])
                 ->build();
         }
 

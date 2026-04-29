@@ -31,6 +31,8 @@ final class ExpressionCheck implements Rule
         }
 
         $errors = [];
+        // Stack to track required tokens from parent "!#if" conditions.
+        // This is used to detect conflicts in nested directives.
         $stack = [];
 
         foreach ($content as $index => $line) {
@@ -45,7 +47,7 @@ final class ExpressionCheck implements Rule
                         ->line($lineNum)
                         ->build();
 
-                    $stack[] = ['required' => [], 'line' => $lineNum];
+                    $stack[] = ['lineNum' => $lineNum, 'reqTokens' => []];
 
                     continue;
                 }
@@ -56,20 +58,26 @@ final class ExpressionCheck implements Rule
                 $this->checkExclusive($errors, $lineNum, $required);
                 $this->checkNestedExclusive($errors, $lineNum, $required, $stack);
 
-                $stack[] = ['required' => $required, 'line' => $lineNum];
+                $stack[] = ['lineNum' => $lineNum, 'reqTokens' => $required];
 
                 continue;
             }
 
             if (preg_match('/^!#\s?else/i', $line)) {
                 if (!empty($stack)) {
-                    $stack[count($stack) - 1]['required'] = [];
+                    // Inside an "!#else" block, the parent "!#if" condition is no longer
+                    // required to be true (it's actually false). We reset the required
+                    // tokens for this stack frame to avoid false-positive exclusivity
+                    // errors for nested directives.
+                    $stack[count($stack) - 1]['reqTokens'] = [];
                 }
 
                 continue;
             }
 
             if (preg_match('/^!#\s?endif/i', $line)) {
+                // When reaching "!#endif", we exit the current directive scope by
+                // removing the last frame from the stack.
                 array_pop($stack);
 
                 continue;
@@ -142,14 +150,14 @@ final class ExpressionCheck implements Rule
     /**
      * @param list<_RuleError> $errors
      * @param list<string> $required
-     * @param list<array{required: list<string>, line: int}> $stack
+     * @param list<array{reqTokens: list<string>, lineNum: int}> $stack
      */
     private function checkNestedExclusive(array &$errors, int $lineNum, array $required, array $stack): void
     {
         $parentRequired = [];
 
         foreach ($stack as $frame) {
-            $parentRequired = array_merge($parentRequired, $frame['required']);
+            $parentRequired = array_merge($parentRequired, $frame['reqTokens']);
         }
         $parentRequired = array_unique($parentRequired);
 
@@ -163,8 +171,8 @@ final class ExpressionCheck implements Rule
 
                         $parentLine = 0;
                         foreach (array_reverse($stack) as $frame) {
-                            if (in_array($other, $frame['required'], true)) {
-                                $parentLine = $frame['line'];
+                            if (in_array($other, $frame['reqTokens'], true)) {
+                                $parentLine = $frame['lineNum'];
                                 break;
                             }
                         }
