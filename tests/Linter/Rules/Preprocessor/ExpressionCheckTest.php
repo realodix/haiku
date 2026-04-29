@@ -104,4 +104,20 @@ class ExpressionCheckTest extends TestCase
             [2, 'Token "env_chromium" will always evaluate to "false" with "env_firefox" from the parent "!#if" on line 1.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function nested_exclusive_with_else(): void
+    {
+        $lines = [
+            '!#if env_firefox',
+            'a...',
+            '!#else',
+            '!#if env_chromium',
+            'b...',
+            '!#endif',
+            'c...',
+            '!#endif',
+        ];
+        $this->analyse($lines);
+    }
 }
