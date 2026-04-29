@@ -32,11 +32,13 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            $separator = $m[4]; // ##
-            $selector = $m[5];  // .ads
+            $node = [
+                'separator' => $m[4], // ##
+                'selector' => $m[5],  // .ads
+            ];
 
-            $this->checkIdSelectorStartsWithDigit($errors, $lineNum, $selector, $separator);
-            $this->checkAbpExtendedCssSelectors($errors, $lineNum, $selector, $separator);
+            $this->checkIdSelectorStartsWithDigit($errors, $lineNum, $node);
+            $this->checkAbpExtendedCssSelectors($errors, $lineNum, $node);
         }
 
         return $errors;
@@ -44,15 +46,12 @@ final class CosmeticCheck implements Rule
 
     /**
      * @param list<_RuleError> $errors
+     * @param array<string, string> $node
      */
-    private function checkIdSelectorStartsWithDigit(
-        array &$errors,
-        int $lineNum,
-        string $selector,
-        string $separator,
-    ): void {
+    private function checkIdSelectorStartsWithDigit(array &$errors, int $lineNum, array $node): void
+    {
         if (!$this->config->rules['cosm_id_selector_start']
-            || !($separator === '##' || $separator === '#@#')
+            || !($node['separator'] === '##' || $node['separator'] === '#@#')
         ) {
             return;
         }
@@ -64,7 +63,7 @@ final class CosmeticCheck implements Rule
                 |:\s?\#[a-zA-Z\d]+\s?(;|!)  # :#hexcolor; atau :#hexcolor!
             /x',
             '',
-            $selector,
+            $node['selector'],
         );
 
         if (preg_match_all('/(?<!\\\)#[0-9][\w-]*/', $cleanSelector, $matches)) {
@@ -81,17 +80,14 @@ final class CosmeticCheck implements Rule
 
     /**
      * @param list<_RuleError> $errors
+     * @param array<string, string> $node
      */
-    private function checkAbpExtendedCssSelectors(
-        array &$errors,
-        int $lineNum,
-        string $selector,
-        string $separator,
-    ): void {
-        if (str_contains($selector, ':-abp-')
-            && !($separator === '#?#' || $separator === '#@?#')
+    private function checkAbpExtendedCssSelectors(array &$errors, int $lineNum, array $node): void
+    {
+        if (str_contains($node['selector'], ':-abp-')
+            && !($node['separator'] === '#?#' || $node['separator'] === '#@?#')
         ) {
-            preg_match('/-abp-(?:has|contains|properties)/', $selector, $content);
+            preg_match('/-abp-(?:has|contains|properties)/', $node['selector'], $content);
 
             $errors[] = RuleErrorBuilder::message(sprintf(
                 'Invalid filter: %s requires #?# separator syntax.',
