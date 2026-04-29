@@ -187,7 +187,7 @@ final class FixerConfig
     private function finder(string $dir, array $excludes)
     {
         if ($dir === base_path()) {
-            $excludes = array_merge($excludes, ['vendor']);
+            $excludes = array_merge($excludes, ['node_modules', 'vendor']);
         }
 
         $excludes = array_map(fn($paths) => Path::canonicalize($paths), $excludes);
