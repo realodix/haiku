@@ -80,6 +80,9 @@ final class ExpressionCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no-unknown-preprocessor-directives
+     *
      * @param list<_RuleError> $errors
      */
     private function checkUnknownTokens(array &$errors, int $lineNum, string $condition): void

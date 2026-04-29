@@ -66,6 +66,9 @@ final class ScriptletCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no-invalid-scriptlets
+     *
      * @return _RuleError|null
      */
     private function checkUnknown(int $lineNum, string $value)

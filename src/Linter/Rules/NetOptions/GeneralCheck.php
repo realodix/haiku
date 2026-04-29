@@ -147,7 +147,8 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * no-option-conflict
+     * rNames:
+     * - no-option-conflict
      *
      * @param list<_RuleError> $errors
      * @param list<string> $rawOpts
@@ -197,8 +198,9 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * no-invalid-negated-option
-     * no-invalid-option-negation
+     * rNames:
+     * - no-invalid-negated-option
+     * - no-invalid-option-negation
      *
      * @param list<_RuleError> $errors
      * @param list<string> $rawOpts
@@ -275,8 +277,9 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * no-invalid-exception-options
-     * no-invalid-exception-rules
+     * rNames:
+     * - no-invalid-exception-options
+     * - no-invalid-exception-rules
      *
      * @param list<_RuleError> $errors
      * @param array<string, list<string|null>> $opts
@@ -342,9 +345,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * no-inter-option-domain-contradiction
-     * no-cross-option-domain-conflict
-     * no-domain-conflict-between-options
+     * rNames:
+     * - no-inter-option-domain-contradiction
+     * - no-cross-option-domain-conflict
+     * - no-domain-conflict-between-options
      *
      * @param list<_RuleError> $errors
      * @param array<string, list<string|null>> $opts

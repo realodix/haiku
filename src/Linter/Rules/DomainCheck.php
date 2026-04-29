@@ -144,6 +144,9 @@ final class DomainCheck implements Rule
     /**
      * Check if the domain name is bad.
      *
+     * rNames:
+     * - no-invalid-domains
+     *
      * @param list<_RuleError> $errors
      */
     private function checkBadDomainName(array &$errors, int $lineNum, string $domain): void
