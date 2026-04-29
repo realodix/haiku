@@ -120,4 +120,20 @@ class ExpressionCheckTest extends TestCase
         ];
         $this->analyse($lines);
     }
+
+    #[PHPUnit\Test]
+    public function invalid_else_condition(): void
+    {
+        $lines = [
+            '!#if env_firefox',
+            'rule_foo',
+            '!#else ext_ublock',
+            'rule_bar',
+            '!#endif',
+        ];
+
+        $this->analyse($lines, [
+            [3, 'The "!#else" statement must not have a condition.'],
+        ]);
+    }
 }

@@ -63,7 +63,15 @@ final class ExpressionCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/^!#\s?else/i', $line)) {
+            if (preg_match('/^!#\s?else(?:\s+(.*)|$)/i', $line, $matches)) {
+                $condition = trim($matches[1] ?? '');
+
+                if ($condition !== '') {
+                    $errors[] = RuleErrorBuilder::message('The "!#else" statement must not have a condition.')
+                        ->line($lineNum)
+                        ->build();
+                }
+
                 if (!empty($stack)) {
                     // Inside an "!#else" block, the parent "!#if" condition is no longer
                     // required to be true (it's actually false). We reset the required
