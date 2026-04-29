@@ -54,7 +54,7 @@ final class NetOptionTransformer
         $result = [];
 
         foreach ($options as $option) {
-            // "_" is a noop modifier → drop entirely
+            // "_" is a noop modifier -> drop entirely
             if (str_starts_with($option, '_')) {
                 continue;
             }
@@ -114,11 +114,11 @@ final class NetOptionTransformer
             // Special semantics
             if ($name === '1p' || $name === 'first-party') {
                 if ($negated) {
-                    // ~1p → third-party
+                    // ~1p -> third-party
                     $name = 'third-party';
                     $negated = false;
                 } else {
-                    // 1p → ~third-party
+                    // 1p -> ~third-party
                     $name = '~third-party';
                 }
             } else {

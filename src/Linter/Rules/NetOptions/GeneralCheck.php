@@ -313,12 +313,12 @@ final class GeneralCheck implements Rule
             }
 
             foreach ($opts[$opt] as $value) {
-                // If the option has a value → always valid
+                // If the option has a value -> always valid
                 if ($value !== null && $value !== '') {
                     continue;
                 }
 
-                // If no value → must be used in an exception rule
+                // If no value -> must be used in an exception rule
                 if (!$isException) {
                     $errors[] = RuleErrorBuilder::message(sprintf(
                         'Invalid filter: $%s without value is only allowed in exception rules.',
