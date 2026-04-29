@@ -2,9 +2,7 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @phpstan-type _LinterRules array{
@@ -55,7 +53,7 @@ final class LinterConfig
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {
-            $this->rules = $this->resolveRules($value);
+            $this->rules = Util::resolveOverrides($this->rules, $value, 'rule');
         }
     }
 
@@ -70,7 +68,7 @@ final class LinterConfig
      */
     public function make(array $config, array $cmdOpt): self
     {
-        $this->paths = $this->paths(
+        $this->paths = Util::paths(
             $cmdOpt['path'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );
@@ -79,100 +77,6 @@ final class LinterConfig
         $this->ignoreErrors = $this->normalizeIgnorePaths($config['ignoreErrors'] ?? []);
 
         return $this;
-    }
-
-    /**
-     * Resolves and validates rule overrides.
-     *
-     * @param array<string, mixed> $override
-     * @return _LinterRules
-     */
-    private function resolveRules(array $override): array
-    {
-        $rules = $this->rules;
-        // 'fmode' acts as a bulk toggle for all boolean rules
-        if (array_key_exists('fmode', $override)) {
-            $value = (bool) $override['fmode'];
-            foreach ($rules as $name => $defaultValue) {
-                $rules[$name] = $value;
-            }
-            unset($override['fmode']);
-        }
-
-        // Apply specific overrides
-        foreach ($override as $name => $value) {
-            if (!array_key_exists($name, $rules)) {
-                $hint = Helper::getSuggestion(array_merge(array_keys($rules), ['fmode']), $name);
-                throw new InvalidConfigurationException(sprintf(
-                    'Unknown flag: "%s"'.($hint ? ", did you mean '%s'?" : '.'),
-                    $name,
-                    $hint,
-                ));
-            }
-
-            $rules[$name] = $value;
-        }
-
-        return $rules;
-    }
-
-    /**
-     * Resolves provided paths into a unique list of absolute file paths.
-     *
-     * @param array<int, string>|string $paths
-     * @param array<int, string> $excludes Excludes files or dirs
-     * @return array<int, string>
-     */
-    private function paths(array|string $paths, array $excludes): array
-    {
-        $rootPath = base_path();
-        $paths = is_array($paths) ? $paths : [$paths];
-        $paths = !empty($paths) ? $paths : [$rootPath];
-
-        $resolvedPaths = [];
-        foreach ($paths as $path) {
-            if (Path::isRelative($path)) {
-                $path = Path::makeAbsolute($path, $rootPath);
-            }
-
-            if (is_dir($path)) {
-                $finder = $this->finder($path, $excludes);
-                foreach ($finder as $file) {
-                    $resolvedPaths[] = $file->getRealPath();
-                }
-            } else {
-                $resolvedPaths[] = $path;
-            }
-        }
-
-        $resolvedPaths = array_map(fn($path) => Path::canonicalize($path), $resolvedPaths);
-
-        return array_unique($resolvedPaths);
-    }
-
-    /**
-     * @param string $dir The directory to use for the search
-     * @param array<int, string> $excludes Excludes files or dirs
-     * @return \Symfony\Component\Finder\Finder
-     */
-    private function finder(string $dir, array $excludes)
-    {
-        if ($dir === base_path()) {
-            $excludes = array_merge($excludes, ['node_modules', 'vendor']);
-        }
-
-        $excludes = array_map(fn($paths) => Path::canonicalize($paths), $excludes);
-        $excludes = array_unique($excludes);
-
-        $finder = new Finder;
-        $finder->files()
-            ->in($dir)
-            ->name(['*.txt', '*.adfl'])
-            ->ignoreDotFiles(true)
-            ->ignoreVCS(true)
-            ->notPath($excludes);
-
-        return $finder;
     }
 
     /**
