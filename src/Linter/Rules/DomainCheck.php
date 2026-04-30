@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Util;
 
@@ -12,8 +13,6 @@ use Realodix\Haiku\Linter\Util;
  */
 final class DomainCheck implements Rule
 {
-    const OPTIONS = ['domain', 'from', 'to', 'denyallow'];
-
     public function __construct(
         private LinterConfig $config,
     ) {}
@@ -54,7 +53,7 @@ final class DomainCheck implements Rule
                         continue;
                     }
 
-                    if (in_array($name, self::OPTIONS, true)) {
+                    if (in_array($name, Registry::DOMAIN_OPTIONS, true)) {
                         $this->validateDomains($errors, $lineNum, $value, '|');
                     }
                 }

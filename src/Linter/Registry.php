@@ -24,6 +24,8 @@ final class Registry
         'empty', 'mp4', 'object-subrequest', 'queryprune', 'webrtc',
     ];
 
+    const DOMAIN_OPTIONS = ['domain', 'from', 'to', 'denyallow'];
+
     /**
      * A list of known options from AdGuard.
      */

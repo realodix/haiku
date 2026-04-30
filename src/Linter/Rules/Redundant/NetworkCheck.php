@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Linter\Rules\Redundant;
 use Illuminate\Support\Str;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
@@ -33,8 +34,6 @@ use Realodix\Haiku\Linter\Util;
  */
 final class NetworkCheck implements Rule
 {
-    private const DOMAIN_OPTIONS = ['domain', 'from', 'to', 'denyallow'];
-
     /** @var array<string, int> */
     private array $exactSeen = [];
 
@@ -488,7 +487,7 @@ final class NetworkCheck implements Rule
     private function extractNonDomainOptions(array $options, bool $hasMatchCase): array
     {
         $nonDomainOpts = [];
-        $reDomainOpt = '/^('.implode('|', self::DOMAIN_OPTIONS).')=/i';
+        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=/i';
 
         foreach ($options as $opt) {
             $opt = trim($opt);
@@ -509,7 +508,7 @@ final class NetworkCheck implements Rule
     private function parseDomains(array $options): array
     {
         $domains = [];
-        $reDomainOpt = '/^('.implode('|', self::DOMAIN_OPTIONS).')=(.+)$/i';
+        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=(.+)$/i';
 
         foreach ($options as $opt) {
             $opt = trim($opt);
