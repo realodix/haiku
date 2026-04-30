@@ -19,7 +19,7 @@ final class ScriptletCheck implements Rule
 
     public function check(array $content): array
     {
-        $errors = [];
+        $bag = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -36,50 +36,43 @@ final class ScriptletCheck implements Rule
                     continue;
                 }
 
-                if ($err = $this->checkDeprecated($lineNum, $actualName)) {
-                    $errors[] = $err;
-
+                if ($this->checkDeprecated($bag, $lineNum, $actualName)) {
                     continue;
                 }
 
-                if ($err = $this->checkUnknown($lineNum, $actualName)) {
-                    $errors[] = $err;
-                }
+                $this->checkUnknown($bag, $lineNum, $actualName);
             }
         }
 
-        return $errors;
+        return $bag->toArray();
     }
 
-    /**
-     * @return _RuleError|null
-     */
-    private function checkDeprecated(int $lineNum, string $value)
+    private function checkDeprecated(RuleErrorBuilder $bag, int $lineNum, string $value): bool
     {
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
-            return RuleErrorBuilder::message(sprintf('Deprecated scriptlet: "%s".', $value))
+            $bag->message(sprintf('Deprecated scriptlet: "%s".', $value))
                 ->line($lineNum)
                 ->build();
+
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     /**
      * rNames:
      * - no-invalid-scriptlets
-     *
-     * @return _RuleError|null
      */
-    private function checkUnknown(int $lineNum, string $value)
+    private function checkUnknown(RuleErrorBuilder $bag, int $lineNum, string $value): void
     {
         if ($this->config->rules['scriptlet_unknown'] === false) {
-            return null;
+            return;
         }
 
         $scriptlets = $this->getScriptletNames();
         if (!in_array($value, $scriptlets, true)) {
-            $builder = RuleErrorBuilder::message(sprintf('Unknown scriptlet: "%s"', $value))
+            $builder = $bag->message(sprintf('Unknown scriptlet: "%s"', $value))
                 ->line($lineNum);
 
             $hint = Helper::getSuggestion($scriptlets, $value);
@@ -87,10 +80,8 @@ final class ScriptletCheck implements Rule
                 $builder->tip(sprintf('Did you mean "%s"?', $hint));
             }
 
-            return $builder->build();
+            $builder->build();
         }
-
-        return null;
     }
 
     /**

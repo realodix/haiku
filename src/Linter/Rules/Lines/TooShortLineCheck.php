@@ -27,7 +27,7 @@ final class TooShortLineCheck implements Rule
             $mode = 4;
         }
 
-        $errors = [];
+        $bag = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
             $line = trim($line);
@@ -40,12 +40,12 @@ final class TooShortLineCheck implements Rule
             }
 
             if (strlen($line) < $mode) {
-                $errors[] = RuleErrorBuilder::message("The rule is too short (under {$mode} characters).")
+                $bag->message("The rule is too short (under {$mode} characters).")
                     ->line($index + 1)
                     ->build();
             }
         }
 
-        return $errors;
+        return $bag->toArray();
     }
 }

@@ -19,7 +19,7 @@ final class DomainCheck implements Rule
 
     public function check(array $content): array
     {
-        $errors = [];
+        $bag = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -35,7 +35,7 @@ final class DomainCheck implements Rule
                     continue;
                 }
 
-                $this->validateDomains($errors, $lineNum, $m[1], ',');
+                $this->validateDomains($bag, $lineNum, $m[1], ',');
             }
 
             // Network rule
@@ -54,19 +54,16 @@ final class DomainCheck implements Rule
                     }
 
                     if (in_array($name, Registry::DOMAIN_OPTIONS, true)) {
-                        $this->validateDomains($errors, $lineNum, $value, '|');
+                        $this->validateDomains($bag, $lineNum, $value, '|');
                     }
                 }
             }
         }
 
-        return $errors;
+        return $bag->toArray();
     }
 
-    /**
-     * @param list<_RuleError> $errors
-     */
-    private function validateDomains(array &$errors, int $lineNum, string $domainStr, string $separator): void
+    private function validateDomains(RuleErrorBuilder $bag, int $lineNum, string $domainStr, string $separator): void
     {
         if ($this->containsRegexDomain($domainStr)) {
             return;
@@ -75,7 +72,7 @@ final class DomainCheck implements Rule
         $domains = explode($separator, $domainStr);
 
         if (count($domains) > 1 && count(array_filter($domains, fn($d) => trim($d) !== '')) === 0) {
-            $errors[] = RuleErrorBuilder::message('Invalid filter')
+            $bag->message('Invalid filter')
                 ->line($lineNum)
                 ->build();
 
@@ -91,35 +88,32 @@ final class DomainCheck implements Rule
         ];
 
         foreach ($domains as $index => $domain) {
-            if ($err = $this->checkEmptyDomain($lineNum, $domains, $index)) {
-                $errors[] = $err;
-
+            if ($this->checkEmptyDomain($bag, $lineNum, $domains, $index)) {
                 continue;
             }
 
-            $this->checkBadDomainName($errors, $lineNum, $domain);
-            $this->checkAncestorContexts($errors, $lineNum, $domain, $separator);
-            $this->checkLowercase($errors, $lineNum, $domain);
+            $this->checkBadDomainName($bag, $lineNum, $domain);
+            $this->checkAncestorContexts($bag, $lineNum, $domain, $separator);
+            $this->checkLowercase($bag, $lineNum, $domain);
 
             $this->trackDuplicate($domain, $state);
             $this->trackContradiction($domain, $state);
         }
 
-        $this->reportStatefulErrors($errors, $lineNum, $state);
+        $this->reportStatefulErrors($bag, $lineNum, $state);
     }
 
     /**
      * Check if the given domain is empty.
      *
      * @param list<string> $domains
-     * @return _RuleError|null
      */
-    private function checkEmptyDomain(int $lineNum, array $domains, int $index)
+    private function checkEmptyDomain(RuleErrorBuilder $bag, int $lineNum, array $domains, int $index): bool
     {
         $domain = trim($domains[$index]);
 
         if ($domain !== '') {
-            return null;
+            return false;
         }
 
         $prev = isset($domains[$index - 1]) ? trim($domains[$index - 1]) : null;
@@ -135,9 +129,11 @@ final class DomainCheck implements Rule
             $context = sprintf(' before "%s"', $next);
         }
 
-        return RuleErrorBuilder::message(sprintf('Unexpected empty domain%s.', $context))
+        $bag->message(sprintf('Unexpected empty domain%s.', $context))
             ->line($lineNum)
             ->build();
+
+        return true;
     }
 
     /**
@@ -145,13 +141,11 @@ final class DomainCheck implements Rule
      *
      * rNames:
      * - no-invalid-domains
-     *
-     * @param list<_RuleError> $errors
      */
-    private function checkBadDomainName(array &$errors, int $lineNum, string $domain): void
+    private function checkBadDomainName(RuleErrorBuilder $bag, int $lineNum, string $domain): void
     {
         if (strlen($domain) < 2 && $domain !== '*') {
-            $errors[] = RuleErrorBuilder::message(sprintf('Bad domain name: "%s"', $domain))
+            $bag->message(sprintf('Bad domain name: "%s"', $domain))
                 ->line($lineNum)
                 ->build();
         }
@@ -160,31 +154,28 @@ final class DomainCheck implements Rule
             || str_starts_with($domain, '.')
             || str_contains($domain, '/')
         ) {
-            $errors[] = RuleErrorBuilder::message(sprintf('Bad domain name: "%s"', $domain))
+            $bag->message(sprintf('Bad domain name: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
                 ->line($lineNum)
                 ->build();
         }
 
         if (preg_match('/\s/', $domain)) {
-            $errors[] = RuleErrorBuilder::message(sprintf(
+            $bag->message(sprintf(
                 'Bad domain name: "%s" contains unnecessary whitespace.',
                 $domain,
             ))->line($lineNum)->build();
         }
     }
 
-    /**
-     * @param list<_RuleError> $errors
-     */
-    private function checkAncestorContexts(array &$errors, int $lineNum, string $domain, string $separator): void
+    private function checkAncestorContexts(RuleErrorBuilder $bag, int $lineNum, string $domain, string $separator): void
     {
         if (!str_ends_with($domain, '>')) {
             return;
         }
 
         if ($separator === '|') {
-            $errors[] = RuleErrorBuilder::message(sprintf(
+            $bag->message(sprintf(
                 'Bad domain name: "%s". The network filter does not support ancestor context.',
                 $domain,
             ))->line($lineNum)->build();
@@ -195,7 +186,7 @@ final class DomainCheck implements Rule
         preg_match('/([^>]+)([>]+)/', $domain, $m);
 
         if (strlen($m[2]) !== 2) {
-            $errors[] = RuleErrorBuilder::message(sprintf('Bad domain name: "%s"', $domain))
+            $bag->message(sprintf('Bad domain name: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
                 ->line($lineNum)
                 ->build();
@@ -204,17 +195,15 @@ final class DomainCheck implements Rule
 
     /**
      * Check if the domain is lowercase.
-     *
-     * @param list<_RuleError> $errors
      */
-    private function checkLowercase(array &$errors, int $lineNum, string $domain): void
+    private function checkLowercase(RuleErrorBuilder $bag, int $lineNum, string $domain): void
     {
         if (!$this->config->rules['domain_case']) {
             return;
         }
 
         if (strtolower($domain) !== $domain) {
-            $errors[] = RuleErrorBuilder::message(sprintf('Domain %s must be lowercase.', $domain))
+            $bag->message(sprintf('Domain %s must be lowercase.', $domain))
                 ->line($lineNum)
                 ->build();
         }
@@ -277,20 +266,19 @@ final class DomainCheck implements Rule
      * This function will iterate through the state array and report any duplicate
      * or contradictory domains found.
      *
-     * @param list<_RuleError> $errors The list of errors to add to.
      * @param int $lineNum The line number where the errors were found.
      * @param array<string, mixed> $state The state array to modify.
      */
-    private function reportStatefulErrors(array &$errors, int $lineNum, array $state): void
+    private function reportStatefulErrors(RuleErrorBuilder $bag, int $lineNum, array $state): void
     {
         foreach (array_unique($state['duplicates']) as $dup) {
-            $errors[] = RuleErrorBuilder::message(sprintf('Duplicate domain "%s".', $dup))
+            $bag->message(sprintf('Duplicate domain "%s".', $dup))
                 ->line($lineNum)
                 ->build();
         }
 
         foreach (array_unique($state['contradictions']) as $cntr) {
-            $errors[] = RuleErrorBuilder::message(sprintf('Contradictory domain %s detected.', $cntr))
+            $bag->message(sprintf('Contradictory domain %s detected.', $cntr))
                 ->line($lineNum)
                 ->build();
         }

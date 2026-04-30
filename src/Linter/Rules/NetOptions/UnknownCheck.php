@@ -13,7 +13,7 @@ final class UnknownCheck implements Rule
 {
     public function check(array $content): array
     {
-        $errors = [];
+        $bag = new RuleErrorBuilder;
         $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS);
 
         foreach ($content as $index => $line) {
@@ -40,7 +40,7 @@ final class UnknownCheck implements Rule
                 }
 
                 if (!in_array($actualName, $knownOptions, true)) {
-                    $builder = RuleErrorBuilder::message(sprintf('Unknown filter option: "%s".', $actualName))
+                    $builder = $bag->message(sprintf('Unknown filter option: "%s".', $actualName))
                         ->line($index + 1);
 
                     $hint = Helper::getSuggestion($knownOptions, $actualName);
@@ -50,12 +50,12 @@ final class UnknownCheck implements Rule
                         $builder->tip('Did you mean "xhr"?');
                     }
 
-                    $errors[] = $builder->build();
+                    $builder->build();
                 }
             }
         }
 
-        return $errors;
+        return $bag->toArray();
     }
 
     /**

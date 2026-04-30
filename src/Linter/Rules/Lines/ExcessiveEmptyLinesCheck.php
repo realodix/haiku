@@ -23,7 +23,7 @@ final class ExcessiveEmptyLinesCheck implements Rule
             return [];
         }
 
-        $errors = [];
+        $bag = new RuleErrorBuilder;
         $emptyLinesCount = 0;
 
         foreach ($content as $index => $line) {
@@ -34,24 +34,21 @@ final class ExcessiveEmptyLinesCheck implements Rule
             }
 
             // Report empty lines found in the middle of file (between content).
-            $this->reportIfExcessive($errors, $index - $emptyLinesCount + 1, $emptyLinesCount, $mode);
+            $this->reportIfExcessive($bag, $index - $emptyLinesCount + 1, $emptyLinesCount, $mode);
 
             $emptyLinesCount = 0;
         }
 
         // Report empty lines if they appear at the very end of the file.
-        $this->reportIfExcessive($errors, count($content) - $emptyLinesCount + 1, $emptyLinesCount, $mode);
+        $this->reportIfExcessive($bag, count($content) - $emptyLinesCount + 1, $emptyLinesCount, $mode);
 
-        return $errors;
+        return $bag->toArray();
     }
 
-    /**
-     * @param list<_RuleError> $errors
-     */
-    private function reportIfExcessive(array &$errors, int $lineNum, int $count, int $maxCount): void
+    private function reportIfExcessive(RuleErrorBuilder $bag, int $lineNum, int $count, int $maxCount): void
     {
         if ($count > $maxCount) {
-            $errors[] = RuleErrorBuilder::message(sprintf(
+            $bag->message(sprintf(
                 'Too many consecutive empty lines (%d), maximum allowed is %d.',
                 $count,
                 $maxCount,

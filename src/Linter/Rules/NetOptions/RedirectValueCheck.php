@@ -14,7 +14,7 @@ final class RedirectValueCheck implements Rule
 {
     public function check(array $content): array
     {
-        $errors = [];
+        $bag = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -29,58 +29,55 @@ final class RedirectValueCheck implements Rule
                     ? preg_replace('/:(?:-)?\d+$/', '', $m[1])
                     : null;
 
-                if ($err = $this->checkInvalid($lineNum, $value)) {
-                    $errors[] = $err;
-
+                if ($this->checkInvalid($bag, $lineNum, $value)) {
                     continue;
                 }
 
-                if ($err = $this->checkDeprecated($lineNum, $value)) {
-                    $errors[] = $err;
-
+                if ($this->checkDeprecated($bag, $lineNum, $value)) {
                     continue;
                 }
 
-                if ($err = $this->checkUnknown($lineNum, $value)) {
-                    $errors[] = $err;
-                }
+                $this->checkUnknown($bag, $lineNum, $value);
             }
         }
 
-        return $errors;
+        return $bag->toArray();
     }
 
-    /**
-     * @return _RuleError|null
-     */
-    private function checkInvalid(int $lineNum, ?string $value)
+    private function checkInvalid(RuleErrorBuilder $bag, int $lineNum, ?string $value): bool
     {
         if ($value === null) {
-            return RuleErrorBuilder::message('Invalid redirect resource value syntax.')
+            $bag->message('Invalid redirect resource value syntax.')
                 ->line($lineNum)->build();
+
+            return true;
         }
 
-        return null;
+        return false;
     }
 
-    /**
-     * @return _RuleError|null
-     */
-    private function checkDeprecated(int $lineNum, string $value)
+    private function checkDeprecated(RuleErrorBuilder $bag, int $lineNum, ?string $value): bool
     {
+        if ($value === null) {
+            return false;
+        }
+
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
-            return RuleErrorBuilder::message(sprintf('Deprecated redirect resource value: "%s"', $value))
+            $bag->message(sprintf('Deprecated redirect resource value: "%s"', $value))
                 ->line($lineNum)->build();
+
+            return true;
         }
 
-        return null;
+        return false;
     }
 
-    /**
-     * @return _RuleError|null
-     */
-    private function checkUnknown(int $lineNum, string $value)
+    private function checkUnknown(RuleErrorBuilder $bag, int $lineNum, ?string $value): void
     {
+        if ($value === null) {
+            return;
+        }
+
         $resources = array_merge(
             Registry::RESOURCES,
             Registry::REDIRECT_RESOURCES,
@@ -88,10 +85,8 @@ final class RedirectValueCheck implements Rule
         );
 
         if (!in_array($value, Util::flatten($resources), true)) {
-            return RuleErrorBuilder::message(sprintf('Unknown redirect resource value: "%s"', $value))
+            $bag->message(sprintf('Unknown redirect resource value: "%s"', $value))
                 ->line($lineNum)->build();
         }
-
-        return null;
     }
 }

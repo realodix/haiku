@@ -18,7 +18,7 @@ final class IfClosedCheck implements Rule
             return [];
         }
 
-        $errors = [];
+        $bag = new RuleErrorBuilder;
         /** @var list<array{line: int, type: string, hasElse: bool}> */
         $stack = [];
 
@@ -34,7 +34,7 @@ final class IfClosedCheck implements Rule
 
             if (preg_match('/^!#\s?else\s*$/i', $line)) {
                 if (empty($stack)) {
-                    $errors[] = RuleErrorBuilder::message('Found "!#else" without matching "!#if".')
+                    $bag->message('Found "!#else" without matching "!#if".')
                         ->line($lineNum)
                         ->build();
 
@@ -42,7 +42,7 @@ final class IfClosedCheck implements Rule
                 } else {
                     $topIndex = count($stack) - 1;
                     if ($stack[$topIndex]['hasElse']) {
-                        $errors[] = RuleErrorBuilder::message('Found multiple "!#else" for the same "!#if".')
+                        $bag->message('Found multiple "!#else" for the same "!#if".')
                             ->line($lineNum)
                             ->build();
                     }
@@ -54,7 +54,7 @@ final class IfClosedCheck implements Rule
 
             if (preg_match('/^!#\s?endif\s*$/i', $line)) {
                 if (empty($stack)) {
-                    $errors[] = RuleErrorBuilder::message('Found "!#endif" without matching "!#if".')
+                    $bag->message('Found "!#endif" without matching "!#if".')
                         ->line($lineNum)
                         ->build();
                 } else {
@@ -67,11 +67,11 @@ final class IfClosedCheck implements Rule
 
         foreach (array_reverse($stack) as $unclosed) {
             $directive = $unclosed['type'] === 'if' ? '!#if' : '!#else';
-            $errors[] = RuleErrorBuilder::message(sprintf('The "%s" statement is not closed by "!#endif".', $directive))
+            $bag->message(sprintf('The "%s" statement is not closed by "!#endif".', $directive))
                 ->line($unclosed['lineNum'])
                 ->build();
         }
 
-        return $errors;
+        return $bag->toArray();
     }
 }
