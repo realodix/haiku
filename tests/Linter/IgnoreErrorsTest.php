@@ -95,6 +95,7 @@ YAML);
         $this->assertEmpty($fileErrors);
     }
 
+    #[PHPUnit\RequiresOperatingSystemFamily('Windows')]
     #[PHPUnit\Test]
     public function pathNormalization(): void
     {
@@ -123,6 +124,7 @@ YAML);
         $this->assertEmpty($fileErrors);
     }
 
+    #[PHPUnit\RequiresOperatingSystemFamily('Windows')]
     #[PHPUnit\Test]
     public function pathsNormalization(): void
     {
