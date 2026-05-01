@@ -96,6 +96,8 @@ class NetworkTest extends TestCase
             [',from=example.net', 'example.net'],
             ['$to=example.net', 'example.net'],
             [',to=example.net', 'example.net'],
+            ['$top=example.net', 'example.net'],
+            [',top=example.net', 'example.net'],
             ['$method=post', 'post'],
             [',method=post', 'post'],
 

@@ -55,6 +55,10 @@ class NetworkTest extends TestCase
                 ['$to=a.com|b.com'],
             ],
             [
+                ['$top=a.com', '$top=b.com'],
+                ['$top=a.com|b.com'],
+            ],
+            [
                 ['$denyallow=a.com', '$denyallow=b.com'],
                 ['$denyallow=a.com|b.com'],
             ],
@@ -269,6 +273,10 @@ class NetworkTest extends TestCase
             [
                 ['$from=~d.com|c.com|a.com|~b.com,to=~d.com|c.com|a.com|~b.com'],
                 ['$from=~b.com|~d.com|a.com|c.com,to=~b.com|~d.com|a.com|c.com'],
+            ],
+            [
+                ['$top=~d.com|c.com|a.com|~b.com'],
+                ['$top=~b.com|~d.com|a.com|c.com'],
             ],
             [
                 ['$denyallow=~d.com|c.com|a.com|~b.com'],

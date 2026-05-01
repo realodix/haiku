@@ -16,7 +16,7 @@ final class NetworkTidy
     const KNOWN_OPTIONS = [
         // must assign values
         'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason', 'redirect-rule',
-        'redirect', 'replace', 'requestheader', 'responseheader', 'rewrite', 'to', 'urlskip', 'urltransform', 'uritransform',
+        'redirect', 'replace', 'requestheader', 'responseheader', 'rewrite', 'to', 'top', 'urlskip', 'urltransform', 'uritransform',
         // basic
         'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font', 'inline-script',
         'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
@@ -41,7 +41,7 @@ final class NetworkTidy
      * A list of options that can have multiple values.
      */
     const MULTI_VALUE = [
-        'domain' => [], 'from' => [], 'to' => [], 'denyallow' => [], 'method' => [], 'ctag' => [],
+        'domain' => [], 'from' => [], 'to' => [], 'top' => [], 'denyallow' => [], 'method' => [], 'ctag' => [],
         'app' => ['case_sensitive' => true], 'dnstype' => ['case_sensitive' => true],
     ];
 
@@ -190,7 +190,7 @@ final class NetworkTidy
         // P3: options that support values
         if (str_contains($option, '=')) {
             if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
-                || str_starts_with($option, 'from=') || str_starts_with($option, 'to=')
+                || str_starts_with($option, 'from=') || str_starts_with($option, 'to=') || str_starts_with($option, 'top=')
                 || str_starts_with($option, 'ipaddress=')) {
                 return '5'.$option;
             }

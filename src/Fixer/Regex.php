@@ -18,7 +18,7 @@ final class Regex
     /**
      * Regex to find domain-related options in a network filter.
      */
-    const NET_OPTION_DOMAIN = '/(?:\$|,)(?:denyallow|domain|from|method|to)\=([^,\s]+)$/';
+    const NET_OPTION_DOMAIN = '/(?:\$|,)(?:denyallow|domain|from|method|to|top)\=([^,\s]+)$/';
 
     /**
      * Regex to identify and capture parts of an element hiding rule.

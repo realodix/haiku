@@ -12,7 +12,7 @@ final class Registry
     const OPTIONS = [
         // must assign values
         'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason', 'redirect-rule',
-        'redirect', 'rewrite', 'replace', 'requestheader', 'responseheader', 'to', 'urlskip', 'urltransform', 'uritransform',
+        'redirect', 'rewrite', 'replace', 'requestheader', 'responseheader', 'to', 'top', 'urlskip', 'urltransform', 'uritransform',
         // basic
         'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font', 'inline-script',
         'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
@@ -24,7 +24,7 @@ final class Registry
         'empty', 'mp4', 'object-subrequest', 'queryprune', 'webrtc',
     ];
 
-    const DOMAIN_OPTIONS = ['domain', 'from', 'to', 'denyallow'];
+    const DOMAIN_OPTIONS = ['domain', 'from', 'to', 'top', 'denyallow'];
 
     /**
      * A list of known options from AdGuard.
