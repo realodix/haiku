@@ -19,10 +19,14 @@ class NetworkCheckTest extends TestCase
             '!',
             '||example.org^$script',
             '||example.com^',
+            '!',
+            '*$domain=a.com',
+            '*$domain=a.com',
         ];
         $this->analyse($lines, [
             [4, 'Redundant filter: ||example.org^$script already defined on line 2.'],
             [5, 'Redundant filter: ||example.com^ already defined on line 1.'],
+            [8, 'Redundant filter: *$domain=a.com already defined on line 7.'],
         ], self::RULE);
 
         // case insensitive

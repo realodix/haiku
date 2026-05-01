@@ -34,10 +34,16 @@ class ExcessiveEmptyLinesCheckTest extends TestCase
             'bar',
             '',
             '', // 2 empty lines (ok)
+            '!',
+            '',
+            '',
+            '', // 3 empty lines
+            'bar',
         ];
 
         $this->analyse($lines, [
             [2, 'Too many consecutive empty lines (4), maximum allowed is 2.'],
+            [10, 'Too many consecutive empty lines (3), maximum allowed is 2.'],
         ], self::RULE);
     }
 
