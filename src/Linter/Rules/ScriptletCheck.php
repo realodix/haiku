@@ -19,10 +19,10 @@ final class ScriptletCheck implements Rule
 
     public function check(array $content): array
     {
-        $bag = new RuleErrorBuilder;
+        $err = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
-            $lineNum = $index + 1;
+            $err->line($index + 1);
             $line = trim($line);
 
             if (Util::isCommentOrEmpty($line)) {
@@ -36,22 +36,21 @@ final class ScriptletCheck implements Rule
                     continue;
                 }
 
-                if ($this->checkDeprecated($bag, $lineNum, $actualName)) {
+                if ($this->checkDeprecated($err, $actualName)) {
                     continue;
                 }
 
-                $this->checkUnknown($bag, $lineNum, $actualName);
+                $this->checkUnknown($err, $actualName);
             }
         }
 
-        return $bag->toArray();
+        return $err->toArray();
     }
 
-    private function checkDeprecated(RuleErrorBuilder $bag, int $lineNum, string $value): bool
+    private function checkDeprecated(RuleErrorBuilder $err, string $value): bool
     {
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
-            $bag->message(sprintf('Deprecated scriptlet: "%s".', $value))
-                ->line($lineNum)
+            $err->message(sprintf('Deprecated scriptlet: "%s".', $value))
                 ->build();
 
             return true;
@@ -64,7 +63,7 @@ final class ScriptletCheck implements Rule
      * rNames:
      * - no-invalid-scriptlets
      */
-    private function checkUnknown(RuleErrorBuilder $bag, int $lineNum, string $value): void
+    private function checkUnknown(RuleErrorBuilder $err, string $value): void
     {
         if ($this->config->rules['scriptlet_unknown'] === false) {
             return;
@@ -72,8 +71,7 @@ final class ScriptletCheck implements Rule
 
         $scriptlets = $this->getScriptletNames();
         if (!in_array($value, $scriptlets, true)) {
-            $builder = $bag->message(sprintf('Unknown scriptlet: "%s"', $value))
-                ->line($lineNum);
+            $builder = $err->message(sprintf('Unknown scriptlet: "%s"', $value));
 
             $hint = Helper::getSuggestion($scriptlets, $value);
             if ($hint) {

@@ -60,7 +60,7 @@ final class CosmeticCheck implements Rule
         }
 
         $this->reset();
-        $bag = new RuleErrorBuilder;
+        $err = new RuleErrorBuilder;
 
         // Pass 1: Parsing and Collection
         foreach ($content as $index => $line) {
@@ -131,22 +131,22 @@ final class CosmeticCheck implements Rule
         // Pass 2: Redundancy Analysis (Optimized with grouping)
         foreach ($this->rulesData as $currentIndex => $currentRule) {
             // 1. Exact duplicate check
-            if ($this->checkExactDuplicate($bag, $currentRule)) {
+            if ($this->checkExactDuplicate($err, $currentRule)) {
                 continue;
             }
 
             // 2. Global redundancy check (checks if the entire rule is covered by another)
-            if ($this->checkGlobalRedundancy($bag, $currentIndex, $currentRule)) {
+            if ($this->checkGlobalRedundancy($err, $currentIndex, $currentRule)) {
                 continue;
             }
 
             // 3. Domain level redundancy (only for rules that specify domains)
             if ($currentRule['domains'] !== []) {
-                $this->checkDomainRedundancy($bag, $currentIndex, $currentRule);
+                $this->checkDomainRedundancy($err, $currentIndex, $currentRule);
             }
         }
 
-        return $bag->toArray();
+        return $err->toArray();
     }
 
     private function reset(): void
@@ -160,14 +160,15 @@ final class CosmeticCheck implements Rule
     /**
      * @param _CosmeticRuleData $currentRule
      */
-    private function checkExactDuplicate(RuleErrorBuilder $bag, array $currentRule): bool
+    private function checkExactDuplicate(RuleErrorBuilder $err, array $currentRule): bool
     {
         $line = $currentRule['line'];
         if (isset($this->exactSeen[$line])) {
-            $bag->message(sprintf(
+            $err->message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
                 $line, $this->exactSeen[$line],
             ))->line($currentRule['lineNum'])->build();
+
             return true;
         }
 
@@ -179,7 +180,7 @@ final class CosmeticCheck implements Rule
     /**
      * @param _CosmeticRuleData $currentRule
      */
-    private function checkGlobalRedundancy(RuleErrorBuilder $bag, int $currentIndex, array $currentRule): bool
+    private function checkGlobalRedundancy(RuleErrorBuilder $err, int $currentIndex, array $currentRule): bool
     {
         $domains = $currentRule['domains'] ?: ['' => true];
         $candidates = $this->findCandidates($currentRule, $this->interactionMap);
@@ -212,7 +213,8 @@ final class CosmeticCheck implements Rule
         }
 
         if ($bestParent) {
-            $this->buildWholeRuleError($bag, $currentRule, $bestParent);
+            $this->buildWholeRuleError($err, $currentRule, $bestParent);
+
             return true;
         }
 
@@ -222,7 +224,7 @@ final class CosmeticCheck implements Rule
     /**
      * @param _CosmeticRuleData $currentRule
      */
-    private function checkDomainRedundancy(RuleErrorBuilder $bag, int $currentIndex, array $currentRule): void
+    private function checkDomainRedundancy(RuleErrorBuilder $err, int $currentIndex, array $currentRule): void
     {
         $candidates = $this->findCandidates($currentRule, $this->interactionMap);
         $coverageMap = [];
@@ -256,7 +258,7 @@ final class CosmeticCheck implements Rule
         foreach ($coverageMap as $parentLine => $coveredDomains) {
             $parent = $parentMap[$parentLine];
             foreach ($coveredDomains as $domain) {
-                $this->buildDomainError($bag, $currentRule, $parent, $domain);
+                $this->buildDomainError($err, $currentRule, $parent, $domain);
             }
         }
     }
@@ -265,7 +267,7 @@ final class CosmeticCheck implements Rule
      * @param _CosmeticRuleData $rule
      * @param _CosmeticRuleData $parent
      */
-    private function buildWholeRuleError(RuleErrorBuilder $bag, array $rule, array $parent): void
+    private function buildWholeRuleError(RuleErrorBuilder $err, array $rule, array $parent): void
     {
         $message = '';
 
@@ -289,14 +291,14 @@ final class CosmeticCheck implements Rule
             );
         }
 
-        $bag->message($message)->line($rule['lineNum'])->build();
+        $err->message($message)->line($rule['lineNum'])->build();
     }
 
     /**
      * @param _CosmeticRuleData $rule
      * @param _CosmeticRuleData $parent
      */
-    private function buildDomainError(RuleErrorBuilder $bag, array $rule, array $parent, string $domain): void
+    private function buildDomainError(RuleErrorBuilder $err, array $rule, array $parent, string $domain): void
     {
         $message = '';
 
@@ -314,7 +316,7 @@ final class CosmeticCheck implements Rule
             );
         }
 
-        $bag->message($message)->line($rule['lineNum'])->build();
+        $err->message($message)->line($rule['lineNum'])->build();
     }
 
     /**

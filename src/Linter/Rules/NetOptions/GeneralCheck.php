@@ -34,10 +34,10 @@ final class GeneralCheck implements Rule
 
     public function check(array $content): array
     {
-        $bag = new RuleErrorBuilder;
+        $err = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
-            $lineNum = $index + 1;
+            $err->line($index + 1);
             $line = trim($line);
 
             if (Util::isCommentOrEmpty($line)) {
@@ -53,23 +53,23 @@ final class GeneralCheck implements Rule
 
             $rawOpts = Util::splitOptions($m[2]);
 
-            $this->checkDuplicateOptions($bag, $lineNum, $rawOpts);
-            $this->checkOptionConflict($bag, $lineNum, $rawOpts);
-            $this->checkOptionsCase($bag, $lineNum, $rawOpts);
-            $this->checkInvalidNegation($bag, $lineNum, $rawOpts);
+            $this->checkDuplicateOptions($err, $rawOpts);
+            $this->checkOptionConflict($err, $rawOpts);
+            $this->checkOptionsCase($err, $rawOpts);
+            $this->checkInvalidNegation($err, $rawOpts);
 
             $opts = $this->parseOptions($rawOpts);
 
-            $this->checkOptionAliasRedundant($bag, $lineNum, $opts);
-            $this->checkDeprecatedOptions($bag, $lineNum, $opts);
-            $this->checkExceptionOptions($bag, $lineNum, $opts, $line);
-            $this->checkInterOptionDomainContradiction($bag, $lineNum, $opts);
-            $this->checkDenyallowValue($bag, $lineNum, $opts);
-            $this->checkDenyallowAndToConflict($bag, $lineNum, $opts);
-            $this->checkDenyallowRequiresDomain($bag, $lineNum, $opts);
+            $this->checkOptionAliasRedundant($err, $opts);
+            $this->checkDeprecatedOptions($err, $opts);
+            $this->checkExceptionOptions($err, $opts, $line);
+            $this->checkInterOptionDomainContradiction($err, $opts);
+            $this->checkDenyallowValue($err, $opts);
+            $this->checkDenyallowAndToConflict($err, $opts);
+            $this->checkDenyallowRequiresDomain($err, $opts);
         }
 
-        return $bag->toArray();
+        return $err->toArray();
     }
 
     /**
@@ -96,7 +96,7 @@ final class GeneralCheck implements Rule
     /**
      * @param list<string> $opts
      */
-    private function checkDuplicateOptions(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkDuplicateOptions(RuleErrorBuilder $err, array $opts): void
     {
         if (!$this->config->rules['no_dupe_options']) {
             return;
@@ -119,15 +119,15 @@ final class GeneralCheck implements Rule
         }
 
         foreach (array_unique($duplicates) as $dup) {
-            $bag->message(sprintf('Duplicate option: "$%s".', $dup))
-                ->line($lineNum)->build();
+            $err->message(sprintf('Duplicate option: "$%s".', $dup))
+                ->build();
         }
     }
 
     /**
      * @param list<string> $opts
      */
-    private function checkOptionsCase(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkOptionsCase(RuleErrorBuilder $err, array $opts): void
     {
         foreach ($opts as $opt) {
             $opt = trim($opt);
@@ -137,8 +137,8 @@ final class GeneralCheck implements Rule
             $name = strtolower($rawName);
 
             if ($rawName !== $name) {
-                $bag->message(sprintf('Option "%s" must be lowercase.', $rawName))
-                    ->line($lineNum)->build();
+                $err->message(sprintf('Option "%s" must be lowercase.', $rawName))
+                    ->build();
             }
         }
     }
@@ -149,7 +149,7 @@ final class GeneralCheck implements Rule
      *
      * @param list<string> $rawOpts
      */
-    private function checkOptionConflict(RuleErrorBuilder $bag, int $lineNum, array $rawOpts): void
+    private function checkOptionConflict(RuleErrorBuilder $err, array $rawOpts): void
     {
         $positive = [];
         $negative = [];
@@ -187,8 +187,7 @@ final class GeneralCheck implements Rule
         }
 
         foreach (array_unique($conflicts) as $conflict) {
-            $bag->message(sprintf('$%s conflicts with its negation.', $conflict))
-                ->line($lineNum)
+            $err->message(sprintf('$%s conflicts with its negation.', $conflict))
                 ->build();
         }
     }
@@ -200,7 +199,7 @@ final class GeneralCheck implements Rule
      *
      * @param list<string> $rawOpts
      */
-    private function checkInvalidNegation(RuleErrorBuilder $bag, int $lineNum, array $rawOpts): void
+    private function checkInvalidNegation(RuleErrorBuilder $err, array $rawOpts): void
     {
         foreach ($rawOpts as $opt) {
             $opt = trim($opt);
@@ -219,8 +218,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $bag->message(sprintf('$%s cannot be negated.', $name))
-                ->line($lineNum)
+            $err->message(sprintf('$%s cannot be negated.', $name))
                 ->build();
         }
     }
@@ -228,7 +226,7 @@ final class GeneralCheck implements Rule
     /**
      * @param array<string, list<string|null>> $opts
      */
-    private function checkOptionAliasRedundant(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkOptionAliasRedundant(RuleErrorBuilder $err, array $opts): void
     {
         foreach (self::ALIASES as $alias => $canonical) {
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
@@ -237,7 +235,7 @@ final class GeneralCheck implements Rule
                     $alias,
                     $canonical,
                 );
-                $bag->message($msg)->line($lineNum)->build();
+                $err->message($msg)->build();
             }
         }
     }
@@ -245,7 +243,7 @@ final class GeneralCheck implements Rule
     /**
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDeprecatedOptions(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkDeprecatedOptions(RuleErrorBuilder $err, array $opts): void
     {
         $depOpts = [
             'empty' => null, 'mp4' => null, 'webrtc' => null,
@@ -258,8 +256,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $builder = $bag->message(sprintf('Deprecated filter option: "$%s".', $opt))
-                ->line($lineNum);
+            $builder = $err->message(sprintf('Deprecated filter option: "$%s".', $opt));
 
             if ($replacement !== null) {
                 $builder->tip(sprintf('Use "%s" instead.', $replacement));
@@ -276,7 +273,7 @@ final class GeneralCheck implements Rule
      *
      * @param array<string, list<string|null>> $opts
      */
-    private function checkExceptionOptions(RuleErrorBuilder $bag, int $lineNum, array $opts, string $lineContent): void
+    private function checkExceptionOptions(RuleErrorBuilder $err, array $opts, string $lineContent): void
     {
         $isException = str_starts_with($lineContent, '@@');
 
@@ -284,10 +281,10 @@ final class GeneralCheck implements Rule
         $blockOnly = ['important', 'empty', 'mp4'];
         foreach ($blockOnly as $opt) {
             if ($isException && array_key_exists($opt, $opts)) {
-                $bag->message(sprintf(
+                $err->message(sprintf(
                     'Invalid filter: $%s is not allowed in exception rules.',
                     $opt,
-                ))->line($lineNum)->build();
+                ))->build();
             }
         }
 
@@ -312,10 +309,10 @@ final class GeneralCheck implements Rule
 
                 // If no value -> must be used in an exception rule
                 if (!$isException) {
-                    $bag->message(sprintf(
+                    $err->message(sprintf(
                         'Invalid filter: $%s without value is only allowed in exception rules.',
                         $opt,
-                    ))->line($lineNum)->build();
+                    ))->build();
                 }
             }
         }
@@ -328,10 +325,10 @@ final class GeneralCheck implements Rule
 
         foreach ($exceptionOnly as $opt) {
             if (array_key_exists($opt, $opts) && !$isException) {
-                $bag->message(sprintf(
+                $err->message(sprintf(
                     'Invalid filter: $%s is only allowed in exception rules.',
                     $opt,
-                ))->line($lineNum)->build();
+                ))->build();
             }
         }
     }
@@ -344,7 +341,7 @@ final class GeneralCheck implements Rule
      *
      * @param array<string, list<string|null>> $opts
      */
-    private function checkInterOptionDomainContradiction(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkInterOptionDomainContradiction(RuleErrorBuilder $err, array $opts): void
     {
         $domain = $this->parseDomainList($opts['domain'] ?? null);
         $from = $this->parseDomainList($opts['from'] ?? null);
@@ -361,10 +358,10 @@ final class GeneralCheck implements Rule
 
             $overlap = array_intersect($base, $deny);
             if ($overlap !== []) {
-                $bag->message(sprintf(
+                $err->message(sprintf(
                     "Option \$denyallow contradicts {$contradictor} for: %s",
                     implode(', ', $overlap),
-                ))->line($lineNum)->build();
+                ))->build();
             }
         }
 
@@ -382,10 +379,10 @@ final class GeneralCheck implements Rule
             $conflicts = array_intersect($base, $toExclude);
 
             if ($conflicts !== []) {
-                $bag->message(sprintf(
+                $err->message(sprintf(
                     "Option \$to contradicts {$contradictor} for: %s",
                     implode(', ', $conflicts),
-                ))->line($lineNum)->build();
+                ))->build();
             }
         }
     }
@@ -393,7 +390,7 @@ final class GeneralCheck implements Rule
     /**
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDenyallowValue(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkDenyallowValue(RuleErrorBuilder $err, array $opts): void
     {
         if (!isset($opts['denyallow'])) {
             return;
@@ -411,17 +408,17 @@ final class GeneralCheck implements Rule
                 }
 
                 if (str_starts_with($domain, '~')) {
-                    $bag->message(sprintf(
+                    $err->message(sprintf(
                         'Domains in the $denyallow value cannot be negated: "%s".',
                         $domain,
-                    ))->line($lineNum)->build();
+                    ))->build();
                 }
 
                 if (str_ends_with($domain, '.*')) {
-                    $bag->message(sprintf(
+                    $err->message(sprintf(
                         'Domains in the $denyallow value cannot have a wildcard TLD: "%s".',
                         $domain,
-                    ))->line($lineNum)->build();
+                    ))->build();
                 }
             }
         }
@@ -432,11 +429,10 @@ final class GeneralCheck implements Rule
      *
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDenyallowAndToConflict(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkDenyallowAndToConflict(RuleErrorBuilder $err, array $opts): void
     {
         if (isset($opts['denyallow']) && isset($opts['to'])) {
-            $bag->message('Redundant usage of $denyallow with $to.')
-                ->line($lineNum)
+            $err->message('Redundant usage of $denyallow with $to.')
                 ->tip('It can be expressed with inverted $to: $denyallow=a.com is equivalent to $to=~a.com.')
                 ->build();
         }
@@ -445,14 +441,13 @@ final class GeneralCheck implements Rule
     /**
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDenyallowRequiresDomain(RuleErrorBuilder $bag, int $lineNum, array $opts): void
+    private function checkDenyallowRequiresDomain(RuleErrorBuilder $err, array $opts): void
     {
         if (isset($opts['denyallow'])
             && !isset($opts['domain'])
             && !isset($opts['from'])
         ) {
-            $bag->message('Invalid filter: $denyallow requires $domain.')
-                ->line($lineNum)
+            $err->message('Invalid filter: $denyallow requires $domain.')
                 ->build();
         }
     }

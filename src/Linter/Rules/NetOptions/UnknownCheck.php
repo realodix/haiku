@@ -13,10 +13,12 @@ final class UnknownCheck implements Rule
 {
     public function check(array $content): array
     {
-        $bag = new RuleErrorBuilder;
+        $err = new RuleErrorBuilder;
         $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS);
 
         foreach ($content as $index => $line) {
+            $err->line($index + 1);
+
             if ((!preg_match(Regex::NET_OPTION, $line, $m) || preg_match(Regex::IS_COSMETIC_RULE, $line))
                 || Util::isCommentOrEmpty($line)
                 // || str_contains($line, 'replace=')
@@ -40,8 +42,7 @@ final class UnknownCheck implements Rule
                 }
 
                 if (!in_array($actualName, $knownOptions, true)) {
-                    $builder = $bag->message(sprintf('Unknown filter option: "%s".', $actualName))
-                        ->line($index + 1);
+                    $builder = $err->message(sprintf('Unknown filter option: "%s".', $actualName));
 
                     $hint = Helper::getSuggestion($knownOptions, $actualName);
                     if ($hint) {
@@ -55,7 +56,7 @@ final class UnknownCheck implements Rule
             }
         }
 
-        return $bag->toArray();
+        return $err->toArray();
     }
 
     /**

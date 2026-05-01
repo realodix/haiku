@@ -84,7 +84,6 @@ final class RuleErrorBuilder
 
         // Reset state for the next error
         unset($this->message);
-        unset($this->line);
         $this->identifier = null;
         $this->tip = null;
         $this->link = null;
