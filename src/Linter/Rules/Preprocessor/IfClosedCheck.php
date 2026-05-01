@@ -18,12 +18,13 @@ final class IfClosedCheck implements Rule
             return [];
         }
 
-        $errors = [];
+        $err = new RuleErrorBuilder;
         /** @var list<array{line: int, type: string, hasElse: bool}> */
         $stack = [];
 
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
+            $err->line($lineNum);
             $line = trim($line);
 
             if (preg_match('/^!#\s?if(?:\s|$)/i', $line)) {
@@ -34,16 +35,14 @@ final class IfClosedCheck implements Rule
 
             if (preg_match('/^!#\s?else\s*$/i', $line)) {
                 if (empty($stack)) {
-                    $errors[] = RuleErrorBuilder::message('Found "!#else" without matching "!#if".')
-                        ->line($lineNum)
+                    $err->message('Found "!#else" without matching "!#if".')
                         ->build();
 
                     $stack[] = ['lineNum' => $lineNum, 'type' => 'else', 'hasElse' => true];
                 } else {
                     $topIndex = count($stack) - 1;
                     if ($stack[$topIndex]['hasElse']) {
-                        $errors[] = RuleErrorBuilder::message('Found multiple "!#else" for the same "!#if".')
-                            ->line($lineNum)
+                        $err->message('Found multiple "!#else" for the same "!#if".')
                             ->build();
                     }
                     $stack[$topIndex]['hasElse'] = true;
@@ -54,8 +53,7 @@ final class IfClosedCheck implements Rule
 
             if (preg_match('/^!#\s?endif\s*$/i', $line)) {
                 if (empty($stack)) {
-                    $errors[] = RuleErrorBuilder::message('Found "!#endif" without matching "!#if".')
-                        ->line($lineNum)
+                    $err->message('Found "!#endif" without matching "!#if".')
                         ->build();
                 } else {
                     array_pop($stack);
@@ -67,11 +65,11 @@ final class IfClosedCheck implements Rule
 
         foreach (array_reverse($stack) as $unclosed) {
             $directive = $unclosed['type'] === 'if' ? '!#if' : '!#else';
-            $errors[] = RuleErrorBuilder::message(sprintf('The "%s" statement is not closed by "!#endif".', $directive))
+            $err->message(sprintf('The "%s" statement is not closed by "!#endif".', $directive))
                 ->line($unclosed['lineNum'])
                 ->build();
         }
 
-        return $errors;
+        return $err->toArray();
     }
 }

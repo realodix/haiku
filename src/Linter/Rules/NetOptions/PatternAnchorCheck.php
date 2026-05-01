@@ -20,10 +20,12 @@ final class PatternAnchorCheck implements Rule
             return [];
         }
 
-        $errors = [];
+        $err = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
+            $err->line($index + 1);
             $line = trim($line);
+
             if (preg_match(Regex::IS_COSMETIC_RULE, $line)
                 || Util::isCommentOrEmpty($line)
             ) {
@@ -48,8 +50,8 @@ final class PatternAnchorCheck implements Rule
             $leadingPipes = isset($m[0]) ? strlen($m[0]) : 0;
 
             if ($leadingPipes > 2) {
-                $errors[] = RuleErrorBuilder::message('Too many "|" at the beginning (max 2 allowed).')
-                    ->line($index + 1)->build();
+                $err->message('Too many "|" at the beginning (max 2 allowed).')
+                    ->build();
             }
 
             // Right anchor
@@ -57,11 +59,11 @@ final class PatternAnchorCheck implements Rule
             $trailingPipes = isset($m[0]) ? strlen($m[0]) : 0;
 
             if ($trailingPipes > 1) {
-                $errors[] = RuleErrorBuilder::message('Too many "|" at the end (only 1 allowed).')
-                    ->line($index + 1)->build();
+                $err->message('Too many "|" at the end (only 1 allowed).')
+                    ->build();
             }
         }
 
-        return $errors;
+        return $err->toArray();
     }
 }

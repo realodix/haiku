@@ -60,7 +60,7 @@ final class NetworkCheck implements Rule
         }
 
         $this->reset();
-        $errors = [];
+        $err = new RuleErrorBuilder;
         /** @var list<_rulesData> */
         $rulesData = [];
 
@@ -148,54 +148,50 @@ final class NetworkCheck implements Rule
         // Pass 2: Check redundancy
         foreach ($rulesData as $lineNum => $data) {
             // 1. Exact duplicate check (checks if the exact same line was already seen)
-            if ($err = $this->checkExactDuplicate($lineNum, $data)) {
-                $errors[] = $err;
-
+            if ($this->checkExactDuplicate($err, $lineNum, $data)) {
                 continue;
             }
 
             // 2. Redundancy check against global rules (no domains)
             // This covers both purely generic rules and rules with matching options.
-            if ($err = $this->checkGlobalRedundancy($lineNum, $data)) {
-                $errors[] = $err;
-
+            if ($this->checkGlobalRedundancy($err, $lineNum, $data)) {
                 continue;
             }
 
             // 3. Domain level redundancy (only for rules that specify domains)
             if ($data['hasDomains']) {
-                $errors = [...$errors, ...$this->checkDomainRedundancy($lineNum, $data)];
+                $this->checkDomainRedundancy($err, $lineNum, $data);
             }
         }
 
-        return $errors;
+        return $err->toArray();
     }
 
     /**
      * @param _rulesData $data
-     * @return _RuleError|null
      */
-    private function checkExactDuplicate(int $lineNum, $data): ?array
+    private function checkExactDuplicate(RuleErrorBuilder $err, int $lineNum, $data): bool
     {
         $line = $data['line'];
         $exactKey = $data['hasMatchCase'] ? $line : strtolower($line);
         if (isset($this->exactSeen[$exactKey])) {
-            return RuleErrorBuilder::message(sprintf(
+            $err->message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
                 $line, $this->exactSeen[$exactKey],
             ))->line($lineNum)->build();
+
+            return true;
         }
 
         $this->exactSeen[$exactKey] = $lineNum;
 
-        return null;
+        return false;
     }
 
     /**
      * @param _rulesData $data
-     * @return _RuleError|null
      */
-    private function checkGlobalRedundancy(int $lineNum, array $data): ?array
+    private function checkGlobalRedundancy(RuleErrorBuilder $err, int $lineNum, array $data): bool
     {
         $pattern = $data['pattern'];
         $opts = $data['options'];
@@ -246,14 +242,14 @@ final class NetworkCheck implements Rule
         if ($best !== null) {
             // The 'popup' option is a special case that avoids redundancy
             if ($data['hasOptions'] && $this->hasOption($opts, 'popup')) {
-                return null;
+                return false;
             }
 
             // A rule with a negated domain is not redundant against a global filter
             if ($data['hasDomains']) {
                 foreach ($data['domains'] as $d) {
                     if (str_starts_with($d['name'], '~')) {
-                        return null;
+                        return false;
                     }
                 }
             }
@@ -264,39 +260,43 @@ final class NetworkCheck implements Rule
                 && $pattern === $best['pattern']
             ) {
                 if ($lineNum < $best['lineNum']) {
-                    return null;
+                    return false;
                 }
 
-                return RuleErrorBuilder::message(sprintf(
+                $err->message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
                     $data['line'], $best['lineNum'],
                 ))->line($lineNum)->build();
+
+                return true;
             }
 
             // Adjust message based on candidate type for domain-specific filters
             if ($data['hasDomains'] && $best['hasOptions']) {
-                return RuleErrorBuilder::message(sprintf(
+                $err->message(sprintf(
                     'Redundant filter: %s already covered by global filter on line %d.',
                     Str::limit($data['line'], 80), $best['lineNum'],
                 ))->line($lineNum)->build();
+
+                return true;
             }
 
-            return RuleErrorBuilder::message(sprintf(
+            $err->message(sprintf(
                 'Redundant filter: %s already covered by %s on line %d.',
                 Str::limit($data['line'], 80), $best['pattern'], $best['lineNum'],
             ))->line($lineNum)->build();
+
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     /**
      * @param _rulesData $data
-     * @return list<_RuleError>
      */
-    private function checkDomainRedundancy(int $lineNum, array $data): array
+    private function checkDomainRedundancy(RuleErrorBuilder $err, int $lineNum, array $data): void
     {
-        $errors = [];
         // $line = $data['line'];
         $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
         $optionsKey = $data['optionsKey'];
@@ -346,7 +346,7 @@ final class NetworkCheck implements Rule
 
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
+                $err->message(sprintf(
                     "Redundant filter: domain '%s' already covered on line %d.",
                     $rd['domain'], $rd['atLineNum'],
                 ))->line($lineNum)->build();
@@ -358,8 +358,6 @@ final class NetworkCheck implements Rule
             $entityKey = $dm['type'].':'.$dm['name'];
             $seenMap[$entityKey][$lineNum] = true;
         }
-
-        return $errors;
     }
 
     private function reset(): void

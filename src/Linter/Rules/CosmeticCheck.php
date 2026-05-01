@@ -18,10 +18,10 @@ final class CosmeticCheck implements Rule
 
     public function check(array $content): array
     {
-        $errors = [];
+        $err = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
-            $lineNum = $index + 1;
+            $err->line($index + 1);
             $line = trim($line);
 
             if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
@@ -37,18 +37,17 @@ final class CosmeticCheck implements Rule
                 'selector' => $m[5],  // .ads
             ];
 
-            $this->checkIdSelectorStartsWithDigit($errors, $lineNum, $node);
-            $this->checkAbpExtendedCssSelectors($errors, $lineNum, $node);
+            $this->checkIdSelectorStartsWithDigit($err, $node);
+            $this->checkAbpExtendedCssSelectors($err, $node);
         }
 
-        return $errors;
+        return $err->toArray();
     }
 
     /**
-     * @param list<_RuleError> $errors
      * @param array<string, string> $node
      */
-    private function checkIdSelectorStartsWithDigit(array &$errors, int $lineNum, array $node): void
+    private function checkIdSelectorStartsWithDigit(RuleErrorBuilder $err, array $node): void
     {
         if (!$this->config->rules['cosm_id_selector_start']
             || !($node['separator'] === '##' || $node['separator'] === '#@#')
@@ -69,8 +68,7 @@ final class CosmeticCheck implements Rule
         if (preg_match_all('/(?<!\\\)#[0-9][\w-]*/', $cleanSelector, $matches)) {
             foreach ($matches[0] as $match) {
                 $msg = sprintf('Invalid filter: ID selector %s cannot start with a number.', $match);
-                $errors[] = RuleErrorBuilder::message($msg)
-                    ->line($lineNum)
+                $err->message($msg)
                     ->tip('Escape the first digit using its Unicode code point or use another character.')
                     ->link('https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/ident#escaping_characters')
                     ->build();
@@ -79,20 +77,21 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * @param list<_RuleError> $errors
      * @param array<string, string> $node
      */
-    private function checkAbpExtendedCssSelectors(array &$errors, int $lineNum, array $node): void
+    private function checkAbpExtendedCssSelectors(RuleErrorBuilder $err, array $node): void
     {
-        if (str_contains($node['selector'], ':-abp-')
-            && !($node['separator'] === '#?#' || $node['separator'] === '#@?#')
+        if (!str_contains($node['selector'], ':-abp-')
+            || ($node['separator'] === '#?#' || $node['separator'] === '#@?#')
         ) {
-            preg_match('/-abp-(?:has|contains|properties)/', $node['selector'], $content);
-
-            $errors[] = RuleErrorBuilder::message(sprintf(
-                'Invalid filter: %s requires #?# separator syntax.',
-                $content[0],
-            ))->line($lineNum)->build();
+            return;
         }
+
+        preg_match('/-abp-(?:has|contains|properties)/', $node['selector'], $content);
+
+        $err->message(sprintf(
+            'Invalid filter: %s requires #?# separator syntax.',
+            $content[0],
+        ))->build();
     }
 }

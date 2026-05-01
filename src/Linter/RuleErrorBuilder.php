@@ -23,14 +23,14 @@ final class RuleErrorBuilder
 
     private ?string $link = null;
 
-    private function __construct(string $message)
+    /** @var list<_RuleError> */
+    private array $errors = [];
+
+    public function message(string $message): self
     {
         $this->message = $message;
-    }
 
-    public static function message(string $message): self
-    {
-        return new self($message);
+        return $this;
     }
 
     public function line(int $line): self
@@ -61,10 +61,7 @@ final class RuleErrorBuilder
         return $this;
     }
 
-    /**
-     * @return _RuleError
-     */
-    public function build(): array
+    public function build(): void
     {
         $error = [
             'message' => $this->message,
@@ -83,6 +80,20 @@ final class RuleErrorBuilder
             $error['link'] = $this->link;
         }
 
-        return $error;
+        $this->errors[] = $error;
+
+        // Reset state for the next error
+        unset($this->message);
+        $this->identifier = null;
+        $this->tip = null;
+        $this->link = null;
+    }
+
+    /**
+     * @return list<_RuleError>
+     */
+    public function toArray(): array
+    {
+        return $this->errors;
     }
 }
