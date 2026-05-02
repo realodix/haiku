@@ -28,7 +28,8 @@ use Realodix\Haiku\Linter\Util;
  *  domains: array<string, bool>,
  *  separator: string,
  *  selector: string,
- *  attrData: _ParsedAttrSelector|null
+ *  attrData: _ParsedAttrSelector|null,
+ *  hasInclusions: bool
  * }
  */
 final class CosmeticCheck implements Rule
@@ -99,6 +100,7 @@ final class CosmeticCheck implements Rule
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
+                'hasInclusions' => $this->hasInclusions($domains),
             ];
 
             // Group rules into buckets to avoid O(N^2) redundancy checks.
@@ -413,10 +415,20 @@ final class CosmeticCheck implements Rule
 
         // $candidate must cover the target domain (either global or specific)
         if ($candidate['domains'] !== []) {
-            if (!isset($candidate['domains'][$domain])) {
+            if ($domain === '') {
                 return false;
             }
-        } elseif (isset($ghideExceptions[$domain])) {
+
+            if (!isset($candidate['domains'][$domain])) {
+                if (str_starts_with($domain, '~')) {
+                    return false;
+                }
+
+                if ($candidate['hasInclusions'] || isset($candidate['domains']['~'.$domain])) {
+                    return false;
+                }
+            }
+        } elseif ($domain !== '' && isset($ghideExceptions[$domain])) {
             // Global rule $candidate does NOT cover domain if generic hiding is disabled for it.
             return false;
         }
@@ -465,6 +477,20 @@ final class CosmeticCheck implements Rule
 
         // 3. Line number (Earlier rules are preferred as reference points)
         return $candidate['lineNum'] < $best['lineNum'];
+    }
+
+    /**
+     * @param array<string, bool> $domains
+     */
+    private function hasInclusions(array $domains): bool
+    {
+        foreach ($domains as $domain => $_) {
+            if (!str_starts_with($domain, '~')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

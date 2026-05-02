@@ -28,4 +28,20 @@ class GeneralTest extends TestCase
             [3, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1.'],
         ], self::RULE);
     }
+
+    #[PHPUnit\Test]
+    public function redundant_2(): void
+    {
+        $lines = [
+            '##.ads',
+            'example.com##.ads',
+            '~example.org##.banner',
+            'example.com##.banner',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1.'],
+            [4, 'Redundant filter: example.com##.banner already covered by ##.banner on line 3.'],
+        ], self::RULE);
+    }
 }
