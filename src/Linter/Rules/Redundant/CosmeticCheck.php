@@ -415,10 +415,6 @@ final class CosmeticCheck implements Rule
 
         // $candidate must cover the target domain (either global or specific)
         if ($candidate['domains'] !== []) {
-            if ($domain === '') {
-                return false;
-            }
-
             if (!isset($candidate['domains'][$domain])) {
                 if (str_starts_with($domain, '~')) {
                     return false;
@@ -428,7 +424,7 @@ final class CosmeticCheck implements Rule
                     return false;
                 }
             }
-        } elseif ($domain !== '' && isset($ghideExceptions[$domain])) {
+        } elseif (isset($ghideExceptions[$domain])) {
             // Global rule $candidate does NOT cover domain if generic hiding is disabled for it.
             return false;
         }

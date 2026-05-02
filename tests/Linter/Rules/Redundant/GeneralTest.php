@@ -43,5 +43,17 @@ class GeneralTest extends TestCase
             [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1.'],
             [4, 'Redundant filter: example.com##.banner already covered by ##.banner on line 3.'],
         ], self::RULE);
+
+        $lines = [
+            '##img[alt="advertising"]',
+            '##img[alt^="adv"]',
+            '##img[alt="banner"]',
+            '~example.org##img[alt*="Bann" i]',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##img[alt="advertising"] is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: ##img[alt="banner"] is redundant due to more general selector on line 4.'],
+        ], self::RULE);
     }
 }
