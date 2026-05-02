@@ -29,7 +29,7 @@ use Realodix\Haiku\Linter\Util;
  *  separator: string,
  *  selector: string,
  *  attrData: _ParsedAttrSelector|null,
- *  hasInclusions: bool
+ *  hasMixed: bool,
  * }
  */
 final class CosmeticCheck implements Rule
@@ -100,7 +100,7 @@ final class CosmeticCheck implements Rule
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
-                'hasInclusions' => $this->hasInclusions($domains),
+                'hasMixed' => $this->isMixed($domains),
             ];
 
             // Group rules into buckets to avoid O(N^2) redundancy checks.
@@ -401,10 +401,17 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determine if the rule is covered by the candidate rule for a specific domain.
+     * Determine if a cosmetic rule is covered by a candidate rule for a specific domain.
      *
-     * @param _CosmeticRuleData $rule The rule being checked.
+     * A rule is covered if:
+     * 1. They share the same separator (e.g. ##, #@#).
+     * 2. Rules with mixed domains (~ and +) only cover rules with the exact same domain set.
+     * 3. The candidate's domain list encompasses the target domain.
+     * 4. The candidate's selector is identical to or more general than the target rule's selector.
+     *
+     * @param _CosmeticRuleData $rule The rule being checked for redundancy.
      * @param _CosmeticRuleData $candidate The candidate rule that might cover it.
+     * @param string $domain The domain context being evaluated.
      * @param array<string, bool> $ghideExceptions
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
@@ -413,14 +420,22 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // $candidate must cover the target domain (either global or specific)
         if ($candidate['domains'] !== []) {
+            // A rule with a mix of inclusions and exclusions should not cover other rules
+            // unless they have the exact same domain set.
+            if ($candidate['hasMixed']) {
+                if ($candidate['domains'] !== $rule['domains']) {
+                    return false;
+                }
+            }
+
             if (!isset($candidate['domains'][$domain])) {
                 if (str_starts_with($domain, '~')) {
                     return false;
                 }
 
-                if ($candidate['hasInclusions'] || isset($candidate['domains']['~'.$domain])) {
+                $isSpecific = $candidate['hasMixed'] || !str_starts_with((string) array_key_first($candidate['domains']), '~');
+                if ($isSpecific || isset($candidate['domains']['~'.$domain])) {
                     return false;
                 }
             }
@@ -476,12 +491,23 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * Determine if the domain list contains both inclusions and exclusions.
+     *
      * @param array<string, bool> $domains
      */
-    private function hasInclusions(array $domains): bool
+    private function isMixed(array $domains): bool
     {
+        $hasIn = false;
+        $hasEx = false;
+
         foreach ($domains as $domain => $_) {
-            if (!str_starts_with($domain, '~')) {
+            if (str_starts_with($domain, '~')) {
+                $hasEx = true;
+            } else {
+                $hasIn = true;
+            }
+
+            if ($hasIn && $hasEx) {
                 return true;
             }
         }

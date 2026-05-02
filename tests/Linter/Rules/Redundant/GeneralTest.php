@@ -33,27 +33,27 @@ class GeneralTest extends TestCase
     public function redundant_2(): void
     {
         $lines = [
-            '##.ads',
-            'example.com##.ads',
             '~example.org##.banner',
             'example.com##.banner',
+
+            '~example.org,example.com##.ads',
+            'example.com##.ads',
         ];
 
         $this->analyse($lines, [
-            [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1.'],
-            [4, 'Redundant filter: example.com##.banner already covered by ##.banner on line 3.'],
+            [2, 'Redundant filter: example.com##.banner already covered by ##.banner on line 1.'],
         ], self::RULE);
 
         $lines = [
-            '##img[alt="advertising"]',
-            '##img[alt^="adv"]',
             '##img[alt="banner"]',
             '~example.org##img[alt*="Bann" i]',
+
+            '##img[alt="advertising"]',
+            '~example.org,example.com##img[alt^="adv"]',
         ];
 
         $this->analyse($lines, [
-            [1, 'Redundant filter: ##img[alt="advertising"] is redundant due to more general selector on line 2.'],
-            [3, 'Redundant filter: ##img[alt="banner"] is redundant due to more general selector on line 4.'],
+            [1, 'Redundant filter: ##img[alt="banner"] is redundant due to more general selector on line 2.'],
         ], self::RULE);
     }
 }
