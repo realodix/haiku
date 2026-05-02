@@ -28,7 +28,7 @@ use Realodix\Haiku\Linter\Util;
  *  pattern: string,
  *  lineNum: int,
  *  hasOptions: bool,
- *  hasInclusions: bool,
+ *  hasMixed: bool,
  *  domains: list<array{name: string, type: string}>,
  *  optionsKey: string,
  *  regex: string
@@ -121,8 +121,8 @@ final class NetworkCheck implements Rule
                 }
             }
 
-            $hasInclusions = $this->hasInclusions($domains);
-            if (!$hasInclusions) {
+            $isSpecific = $this->isMixed($domains) || ($domains !== [] && !str_starts_with($domains[0]['name'], '~'));
+            if (!$isSpecific) {
                 $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
                 if (!isset($this->globalRulesStored[$type][$uniqueKey])) {
                     $this->globalRulesStored[$type][$uniqueKey] = true;
@@ -135,7 +135,7 @@ final class NetworkCheck implements Rule
                         'pattern' => $pattern,
                         'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
-                        'hasInclusions' => false,
+                        'hasMixed' => false,
                         'domains' => $domains,
                         'optionsKey' => $optionsKey,
                         'regex' => $regexStr,
@@ -432,8 +432,15 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param _rulesData $rule
-     * @param _GlobalRuleData $candidate
+     * Determine if a network rule is semantically and domain-wise covered by a candidate rule.
+     *
+     * A rule is covered if:
+     * 1. The candidate's pattern (regex) matches the target rule's pattern.
+     * 2. The candidate's domain list encompasses all domains where the target rule applies.
+     * 3. Rules with mixed domains (~ and +) only cover rules with the exact same domain set.
+     *
+     * @param _rulesData $rule The rule being checked for redundancy.
+     * @param _GlobalRuleData $candidate The candidate rule that might cover the target rule.
      */
     private function isCovered(array $rule, array $candidate): bool
     {
@@ -442,6 +449,14 @@ final class NetworkCheck implements Rule
         }
 
         if ($candidate['domains'] !== []) {
+            // A rule with a mix of inclusions and exclusions should not cover other rules
+            // unless they have the exact same domain set.
+            if ($this->isMixed($candidate['domains'])) {
+                if ($candidate['domains'] !== $rule['domains']) {
+                    return false;
+                }
+            }
+
             // Rule must be covered by candidate's domains
             $ruleDomains = $rule['domains'] !== [] ? $rule['domains'] : [['name' => '', 'type' => 'domain']];
             foreach ($ruleDomains as $d) {
@@ -455,7 +470,14 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param list<array{name: string, type: string}> $ruleDomains
+     * Check if a specific domain (or global context) is covered by a list of domain filters.
+     *
+     * A domain is matched if:
+     * - It is explicitly present in the domain list.
+     * - Or, the list contains ONLY exclusions and the domain is not among them.
+     *
+     * @param string $domain The domain to check (use empty string for global context).
+     * @param list<array{name: string, type: string}> $ruleDomains The domain list to check against.
      */
     private function isDomainMatched(string $domain, array $ruleDomains): bool
     {
@@ -475,7 +497,8 @@ final class NetworkCheck implements Rule
 
         // Check for implicit inclusion in a rule with only exclusions
         foreach ($ruleDomains as $rd) {
-            if (!str_starts_with($rd['name'], '~')) {
+            $isSpecific = $this->isMixed($ruleDomains) || !str_starts_with($ruleDomains[0]['name'], '~');
+            if ($isSpecific) {
                 return false;
             }
             if ($rd['name'] === '~'.$domain) {
@@ -487,12 +510,23 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * Determine if the domain list contains both inclusions and exclusions.
+     *
      * @param list<array{name: string, type: string}> $domains
      */
-    private function hasInclusions(array $domains): bool
+    private function isMixed(array $domains): bool
     {
+        $hasIn = false;
+        $hasEx = false;
+
         foreach ($domains as $d) {
-            if (!str_starts_with($d['name'], '~')) {
+            if (str_starts_with($d['name'], '~')) {
+                $hasEx = true;
+            } else {
+                $hasIn = true;
+            }
+
+            if ($hasIn && $hasEx) {
                 return true;
             }
         }

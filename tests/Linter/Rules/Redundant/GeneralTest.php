@@ -70,6 +70,9 @@ class GeneralTest extends TestCase
             '/banner/*$domain=~example.org',
             '/banner2/ads-$image',
             '/banner2/*$domain=~example.org',
+
+            '/ads-mix/*$domain=~example.org,example.com',
+            '||example.com/ads-mix/',
         ];
         $this->analyse($lines, [
             [2, 'Redundant filter: ||somesite.com/ads/ already covered by /ads/* on line 1.'],
