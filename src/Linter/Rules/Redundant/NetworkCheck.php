@@ -121,7 +121,8 @@ final class NetworkCheck implements Rule
                 }
             }
 
-            $isSpecific = $this->isMixed($domains) || ($domains !== [] && !str_starts_with($domains[0]['name'], '~'));
+            // A rule is considered “specific” only if it contains only an inclusion list and has no negated domain.
+            $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$this->isMixedDomains($domains);
             if (!$isSpecific) {
                 $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
                 if (!isset($this->globalRulesStored[$type][$uniqueKey])) {
@@ -451,14 +452,22 @@ final class NetworkCheck implements Rule
         if ($candidate['domains'] !== []) {
             // A rule with a mix of inclusions and exclusions should not cover other rules
             // unless they have the exact same domain set.
-            if ($this->isMixed($candidate['domains'])) {
+            if ($this->isMixedDomains($candidate['domains'])) {
                 if ($candidate['domains'] !== $rule['domains']) {
                     return false;
                 }
             }
 
             // Rule must be covered by candidate's domains
-            $ruleDomains = $rule['domains'] !== [] ? $rule['domains'] : [['name' => '', 'type' => 'domain']];
+            $ruleDomains = $rule['domains'];
+            if ($ruleDomains === []) {
+                $ruleDomains = $this->extractDomainsFromPattern($rule['pattern']);
+            }
+
+            if ($ruleDomains === []) {
+                $ruleDomains = [['name' => '', 'type' => 'domain']];
+            }
+
             foreach ($ruleDomains as $d) {
                 if (!$this->isDomainMatched($d['name'], $candidate['domains'])) {
                     return false;
@@ -491,16 +500,22 @@ final class NetworkCheck implements Rule
             }
         }
 
+        // A rule with any domain restrictions (inclusions or exclusions)
+        // cannot cover the global context.
+        if ($domain === '') {
+            return false;
+        }
+
         if (str_starts_with($domain, '~')) {
             return false;
         }
 
         // Check for implicit inclusion in a rule with only exclusions
+        if ($this->isMixedDomains($ruleDomains) || !str_starts_with($ruleDomains[0]['name'], '~')) {
+            return false;
+        }
+
         foreach ($ruleDomains as $rd) {
-            $isSpecific = $this->isMixed($ruleDomains) || !str_starts_with($ruleDomains[0]['name'], '~');
-            if ($isSpecific) {
-                return false;
-            }
             if ($rd['name'] === '~'.$domain) {
                 return false;
             }
@@ -514,7 +529,7 @@ final class NetworkCheck implements Rule
      *
      * @param list<array{name: string, type: string}> $domains
      */
-    private function isMixed(array $domains): bool
+    private function isMixedDomains(array $domains): bool
     {
         $hasIn = false;
         $hasEx = false;
@@ -638,5 +653,30 @@ final class NetworkCheck implements Rule
         }
 
         return $domains;
+    }
+
+    /**
+     * Extracts domains from a pattern if it starts with || (e.g. ||example.com/ads/).
+     *
+     * @return list<array{name: string, type: string}>
+     */
+    private function extractDomainsFromPattern(string $pattern): array
+    {
+        if (str_starts_with($pattern, '||')) {
+            $end = strpos($pattern, '^');
+            if ($end === false) {
+                $end = strpos($pattern, '/');
+            }
+            if ($end === false) {
+                $end = strlen($pattern);
+            }
+
+            $domain = substr($pattern, 2, $end - 2);
+            if ($domain !== '') {
+                return [['name' => $domain, 'type' => 'domain']];
+            }
+        }
+
+        return [];
     }
 }
