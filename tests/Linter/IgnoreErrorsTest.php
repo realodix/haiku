@@ -212,4 +212,157 @@ YAML);
         $this->assertTrue($ignoredErrors->shouldIgnore('file.txt', 'baseline error'));
         $this->assertFalse($ignoredErrors->shouldIgnore('file.txt', 'baseline error')); // Count 1 exceeded
     }
+
+    #[PHPUnit\Test]
+    #[PHPUnit\DataProvider('normalizeDataProvider')]
+    public function normalizeIgnoreErrors(array $input, array $expected): void
+    {
+        $ignoredErrors = new IgnoredErrors($input);
+
+        $reflection = new \ReflectionClass($ignoredErrors);
+        $property = $reflection->getProperty('normalizedIgnoreErrors');
+
+        $this->assertSame($expected, $property->getValue($ignoredErrors));
+    }
+
+    public static function normalizeDataProvider(): array
+    {
+        return [
+            'string pattern' => [
+                ['foo'],
+                ['foo'],
+            ],
+            'message only' => [
+                [['message' => 'foo']],
+                [['message' => 'foo']],
+            ],
+            'messages only' => [
+                [['messages' => ['foo', 'bar']]],
+                [['message' => 'foo'], ['message' => 'bar']],
+            ],
+            'message and messages' => [
+                [['message' => 'foo', 'messages' => ['bar', 'baz']]],
+                [['message' => 'foo'], ['message' => 'bar'], ['message' => 'baz']],
+            ],
+            'path only' => [
+                [['path' => 'foo.txt']],
+                [['path' => 'foo.txt']],
+            ],
+            'paths only' => [
+                [['paths' => ['foo.txt', 'bar.txt']]],
+                [['path' => 'foo.txt'], ['path' => 'bar.txt']],
+            ],
+            'path and paths' => [
+                [['path' => 'foo.txt', 'paths' => ['bar.txt', 'baz.txt']]],
+                [['path' => 'foo.txt'], ['path' => 'bar.txt'], ['path' => 'baz.txt']],
+            ],
+            'message and path' => [
+                [['message' => 'msg', 'path' => 'file.txt']],
+                [['message' => 'msg', 'path' => 'file.txt']],
+            ],
+            'messages and path' => [
+                [['messages' => ['msg1', 'msg2'], 'path' => 'file.txt']],
+                [
+                    ['message' => 'msg1', 'path' => 'file.txt'],
+                    ['message' => 'msg2', 'path' => 'file.txt'],
+                ],
+            ],
+            'message and paths' => [
+                [['message' => 'msg', 'paths' => ['file1.txt', 'file2.txt']]],
+                [
+                    ['message' => 'msg', 'path' => 'file1.txt'],
+                    ['message' => 'msg', 'path' => 'file2.txt'],
+                ],
+            ],
+            'messages and paths' => [
+                [['messages' => ['msg1', 'msg2'], 'paths' => ['file1.txt', 'file2.txt']]],
+                [
+                    ['message' => 'msg1', 'path' => 'file1.txt'],
+                    ['message' => 'msg1', 'path' => 'file2.txt'],
+                    ['message' => 'msg2', 'path' => 'file1.txt'],
+                    ['message' => 'msg2', 'path' => 'file2.txt'],
+                ],
+            ],
+            'with extra keys (count, etc)' => [
+                [['message' => 'msg', 'path' => 'file.txt', 'count' => 5]],
+                [['count' => 5, 'message' => 'msg', 'path' => 'file.txt']],
+            ],
+            'multiple paths with count' => [
+                [['message' => 'msg', 'paths' => ['file1.txt', 'file2.txt'], 'count' => 5]],
+                [
+                    ['count' => 5, 'message' => 'msg', 'path' => 'file1.txt'],
+                    ['count' => 5, 'message' => 'msg', 'path' => 'file2.txt'],
+                ],
+            ],
+            'messages as string' => [
+                [['messages' => 'foo']],
+                [['message' => 'foo']],
+            ],
+            'paths as string' => [
+                [['paths' => 'foo.txt']],
+                [['path' => 'foo.txt']],
+            ],
+            'all combinations' => [
+                [
+                    [
+                        'message' => 'm1',
+                        'messages' => ['m2'],
+                        'path' => 'p1',
+                        'paths' => ['p2'],
+                    ],
+                ],
+                [
+                    ['message' => 'm1', 'path' => 'p1'],
+                    ['message' => 'm1', 'path' => 'p2'],
+                    ['message' => 'm2', 'path' => 'p1'],
+                    ['message' => 'm2', 'path' => 'p2'],
+                ],
+            ],
+            'empty entry' => [
+                [[]],
+                [],
+            ],
+            'entry with neither message nor path' => [
+                [['count' => 5]],
+                [],
+            ],
+        ];
+    }
+
+    #[PHPUnit\Test]
+    public function baselineNormalization(): void
+    {
+        $ignoredErrors = new IgnoredErrors([], [['message' => 'foo']]);
+
+        $reflection = new \ReflectionClass($ignoredErrors);
+        $property = $reflection->getProperty('normalizedIgnoreErrors');
+
+        $this->assertSame(
+            [['isBaseline' => true, 'message' => 'foo']],
+            $property->getValue($ignoredErrors),
+        );
+    }
+
+    #[PHPUnit\Test]
+    public function matchingWithCombinations(): void
+    {
+        $input = [
+            [
+                'messages' => ['foo', 'bar'],
+                'paths' => ['file1.txt', 'file2.txt'],
+            ],
+        ];
+
+        $ignoredErrors = new IgnoredErrors($input);
+
+        // Matches
+        $this->assertTrue($ignoredErrors->shouldIgnore('file1.txt', 'foo message'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file2.txt', 'foo message'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file1.txt', 'bar message'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file2.txt', 'bar message'));
+
+        // Non-matches
+        $this->assertFalse($ignoredErrors->shouldIgnore('file3.txt', 'foo message'));
+        $this->assertFalse($ignoredErrors->shouldIgnore('file1.txt', 'baz message'));
+    }
 }
