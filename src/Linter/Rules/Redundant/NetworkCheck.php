@@ -28,6 +28,8 @@ use Realodix\Haiku\Linter\Util;
  *  pattern: string,
  *  lineNum: int,
  *  hasOptions: bool,
+ *  hasInclusions: bool,
+ *  domains: list<array{name: string, type: string}>,
  *  optionsKey: string,
  *  regex: string
  * }
@@ -119,8 +121,9 @@ final class NetworkCheck implements Rule
                 }
             }
 
-            if (empty($domains)) {
-                $uniqueKey = $pattern.'::'.$optionsKey;
+            $hasInclusions = $this->hasInclusions($domains);
+            if (!$hasInclusions) {
+                $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
                 if (!isset($this->globalRulesStored[$type][$uniqueKey])) {
                     $this->globalRulesStored[$type][$uniqueKey] = true;
 
@@ -132,6 +135,8 @@ final class NetworkCheck implements Rule
                         'pattern' => $pattern,
                         'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
+                        'hasInclusions' => false,
+                        'domains' => $domains,
                         'optionsKey' => $optionsKey,
                         'regex' => $regexStr,
                     ];
@@ -217,13 +222,13 @@ final class NetworkCheck implements Rule
                     continue;
                 }
 
-                if ($candidate['hasOptions']) {
-                    if (!$data['hasOptions'] || $candidate['optionsKey'] !== $data['optionsKey']) {
+                if ($candidate['optionsKey'] !== '') {
+                    if ($data['optionsKey'] === '' || $candidate['optionsKey'] !== $data['optionsKey']) {
                         continue;
                     }
                 }
 
-                if (!preg_match($candidate['regex'], $pattern)) {
+                if (!$this->isCovered($data, $candidate)) {
                     continue;
                 }
 
@@ -245,11 +250,13 @@ final class NetworkCheck implements Rule
                 return false;
             }
 
-            // A rule with a negated domain is not redundant against a global filter
+            // A rule with a negated domain is not redundant against a filter that excludes different domains
             if ($data['hasDomains']) {
                 foreach ($data['domains'] as $d) {
                     if (str_starts_with($d['name'], '~')) {
-                        return false;
+                        if (!$this->isDomainMatched($d['name'], $best['domains'])) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -401,15 +408,7 @@ final class NetworkCheck implements Rule
      */
     private function isBetter(array $candidate, array $best): bool
     {
-        // 1. Generality in Options (No options > some options)
-        if (!$candidate['hasOptions'] && $best['hasOptions']) {
-            return true;
-        }
-        if ($candidate['hasOptions'] && !$best['hasOptions']) {
-            return false;
-        }
-
-        // 2. Semantic generality in Pattern
+        // 1. Semantic generality in Pattern
         $bCoversC = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
         $cCoversB = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
 
@@ -420,8 +419,85 @@ final class NetworkCheck implements Rule
             return false; // best is strictly more general
         }
 
+        // 2. Generality in Options (No options > some options)
+        if ($candidate['optionsKey'] === '' && $best['optionsKey'] !== '') {
+            return true;
+        }
+        if ($candidate['optionsKey'] !== '' && $best['optionsKey'] === '') {
+            return false;
+        }
+
         // 3. Line order (Earlier rules are preferred as reference points)
         return $candidate['lineNum'] < $best['lineNum'];
+    }
+
+    /**
+     * @param _rulesData $rule
+     * @param _GlobalRuleData $candidate
+     */
+    private function isCovered(array $rule, array $candidate): bool
+    {
+        if (!preg_match($candidate['regex'], $rule['pattern'])) {
+            return false;
+        }
+
+        if ($candidate['domains'] !== []) {
+            // Rule must be covered by candidate's domains
+            $ruleDomains = $rule['domains'] !== [] ? $rule['domains'] : [['name' => '', 'type' => 'domain']];
+            foreach ($ruleDomains as $d) {
+                if (!$this->isDomainMatched($d['name'], $candidate['domains'])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param list<array{name: string, type: string}> $ruleDomains
+     */
+    private function isDomainMatched(string $domain, array $ruleDomains): bool
+    {
+        if ($ruleDomains === []) {
+            return true;
+        }
+
+        foreach ($ruleDomains as $rd) {
+            if ($rd['name'] === $domain) {
+                return true;
+            }
+        }
+
+        if (str_starts_with($domain, '~')) {
+            return false;
+        }
+
+        // Check for implicit inclusion in a rule with only exclusions
+        foreach ($ruleDomains as $rd) {
+            if (!str_starts_with($rd['name'], '~')) {
+                return false;
+            }
+            if ($rd['name'] === '~'.$domain) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param list<array{name: string, type: string}> $domains
+     */
+    private function hasInclusions(array $domains): bool
+    {
+        foreach ($domains as $d) {
+            if (!str_starts_with($d['name'], '~')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function buildRegex(string $pattern): string

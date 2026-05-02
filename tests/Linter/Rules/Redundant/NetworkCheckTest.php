@@ -133,7 +133,13 @@ class NetworkCheckTest extends TestCase
             'test_rule',
             'test_rule$domain=~neg.com|pos.com',
         ];
-        $this->analyse($lines);
+        $this->analyse($lines, [
+            [1, 'Redundant filter: /banner-$image,domain=~x.com|y.com,css already covered by global filter on line 2.'],
+            [4, 'Redundant filter: adv$domain=~x.com already covered by adv on line 3.'],
+            [6, 'Redundant filter: $to=~glavnoe.life,removeparam=utm_referrer already covered by global filter on line 5.'],
+            [8, 'Redundant filter: ||ads.com^$domain=~a.com|~b.com already covered by ||ads.com^ on line 7.'],
+            [10, 'Redundant filter: test_rule$domain=~neg.com|pos.com already covered by test_rule on line 9.'],
+        ]);
     }
 
     #[PHPUnit\Test]
@@ -180,7 +186,8 @@ class NetworkCheckTest extends TestCase
             '*$to=~c.com',
         ];
         $this->analyse($lines, [
-            [2, "Redundant filter: domain 'a.com' already covered on line 1."],
+            [1, 'Redundant filter: *$to=a.com|b.com|~c.com already covered by global filter on line 3.'],
+            [2, 'Redundant filter: *$to=a.com already covered by global filter on line 3.'],
             [3, "Redundant filter: domain '~c.com' already covered on line 1."],
         ]);
 
