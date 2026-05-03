@@ -60,6 +60,34 @@ class CosmeticCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function redundancy_with_negated_domains(): void
+    {
+        $lines = [
+            '~example.org##.banner',
+            'example.com##.banner',
+
+            '~example.org,example.com##.ads',
+            'example.com##.ads',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: example.com##.banner already covered by ##.banner on line 1.'],
+        ]);
+
+        $lines = [
+            '##img[alt="banner"]',
+            '~example.org##img[alt*="Bann" i]',
+
+            '##img[alt="advertising"]',
+            '~example.org,example.com##img[alt^="adv"]',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##img[alt="banner"] is redundant due to more general selector on line 2.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function ignore_comments_and_directives(): void
     {
         $lines = [
@@ -126,6 +154,26 @@ class CosmeticCheckTest extends TestCase
         $this->analyse($lines, [
             [2, 'Redundant filter: domain example.com already covered on line 1.'],
             [2, 'Redundant filter: domain example.site already covered on line 1.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function chain_selectors(): void
+    {
+        $lines = [
+            '##.ads',
+            '##.ads .banner',
+            '##.ads .banner',
+            '##.ads img',
+            'example.org,example.site##.ads img',
+            'example.org,example.com,example.site##.ads div.img',
+            'example.com##.ads div.img',
+        ];
+
+        $this->analyse($lines, [
+            [3, 'Redundant filter: ##.ads .banner already defined on line 2.'],
+            [5, 'Redundant filter: example.org,example.site##.ads img already covered by ##.ads img on line 4.'],
+            [7, 'Redundant filter: example.com##.ads div.img already covered by ##.ads div.img on line 6.'],
         ]);
     }
 }
