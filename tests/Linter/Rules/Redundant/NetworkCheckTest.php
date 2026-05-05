@@ -152,10 +152,13 @@ class NetworkCheckTest extends TestCase
             '||example.org/banner/',
             '/banner-$domain=~example.org',
             '||somesite.com^*/banner-$image',
+            '||a.com',
+            '||a.com$domain=~example.net',
         ];
         $this->analyse($lines, [
             [2, 'Redundant filter: ||example.org/banner/ already covered by /banner/* on line 1.'],
             [4, 'Redundant filter: ||somesite.com^*/banner-$image already covered by /banner- on line 3.'],
+            [6, 'Redundant filter: ||a.com$domain=~example.net already covered by ||a.com on line 5.'],
         ]);
 
         // Almost-global filter should NOT cover global filter

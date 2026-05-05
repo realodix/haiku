@@ -29,9 +29,10 @@ use Realodix\Haiku\Linter\Util;
  *  lineNum: int,
  *  hasOptions: bool,
  *  hasMixed: bool,
+ *  isAlmostGlobal: bool,
  *  domains: list<array{name: string, type: string}>,
  *  optionsKey: string,
- *  regex: string
+ *  regex: string,
  * }
  */
 final class NetworkCheck implements Rule
@@ -132,11 +133,18 @@ final class NetworkCheck implements Rule
                     $token = $this->getPrimaryToken($pattern, $isRegex);
                     $regexStr = $this->buildRegex($pattern);
 
+                    $isMixed = $this->isMixedDomains($domains);
+                    $isAlmostGlobal = false;
+                    if (!$isMixed && $domains !== []) {
+                        $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
+                    }
+
                     $ruleData = [
                         'pattern' => $pattern,
                         'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
-                        'hasMixed' => false,
+                        'hasMixed' => $isMixed,
+                        'isAlmostGlobal' => $isAlmostGlobal,
                         'domains' => $domains,
                         'optionsKey' => $optionsKey,
                         'regex' => $regexStr,
@@ -249,17 +257,6 @@ final class NetworkCheck implements Rule
             // The 'popup' option is a special case that avoids redundancy
             if ($data['hasOptions'] && $this->hasOption($opts, 'popup')) {
                 return false;
-            }
-
-            // A rule with a negated domain is not redundant against a filter that excludes different domains
-            if ($data['hasDomains']) {
-                foreach ($data['domains'] as $d) {
-                    if (str_starts_with($d['name'], '~')) {
-                        if (!$this->isDomainMatched($d['name'], $best['domains'])) {
-                            return false;
-                        }
-                    }
-                }
             }
 
             // If patterns and options are identical, it's a direct duplicate
@@ -428,7 +425,15 @@ final class NetworkCheck implements Rule
             return false;
         }
 
-        // 3. Line order (Earlier rules are preferred as reference points)
+        // 3. Globalness (Global rules are better references than domain-specific ones)
+        if ($candidate['domains'] === [] && $best['domains'] !== []) {
+            return true;
+        }
+        if ($candidate['domains'] !== [] && $best['domains'] === []) {
+            return false;
+        }
+
+        // 4. Line order (Earlier rules are preferred as reference points)
         return $candidate['lineNum'] < $best['lineNum'];
     }
 
@@ -469,7 +474,7 @@ final class NetworkCheck implements Rule
             }
 
             foreach ($ruleDomains as $d) {
-                if (!$this->isDomainMatched($d['name'], $candidate['domains'])) {
+                if (!$this->isDomainMatched($d['name'], $candidate)) {
                     return false;
                 }
             }
@@ -486,15 +491,15 @@ final class NetworkCheck implements Rule
      * - Or, the list contains ONLY exclusions and the domain is not among them.
      *
      * @param string $domain The domain to check (use empty string for global context).
-     * @param list<array{name: string, type: string}> $ruleDomains The domain list to check against.
+     * @param _GlobalRuleData $rule The rule to check against.
      */
-    private function isDomainMatched(string $domain, array $ruleDomains): bool
+    private function isDomainMatched(string $domain, array $rule): bool
     {
-        if ($ruleDomains === []) {
+        if ($rule['domains'] === []) {
             return true;
         }
 
-        foreach ($ruleDomains as $rd) {
+        foreach ($rule['domains'] as $rd) {
             if ($rd['name'] === $domain) {
                 return true;
             }
@@ -510,18 +515,18 @@ final class NetworkCheck implements Rule
             return false;
         }
 
-        // Check for implicit inclusion in a rule with only exclusions
-        if ($this->isMixedDomains($ruleDomains) || !str_starts_with($ruleDomains[0]['name'], '~')) {
-            return false;
-        }
-
-        foreach ($ruleDomains as $rd) {
-            if ($rd['name'] === '~'.$domain) {
-                return false;
+        // Only Almost Global rules (exclusion-only) can cover domains implicitly.
+        if ($rule['isAlmostGlobal']) {
+            foreach ($rule['domains'] as $rd) {
+                if ($rd['name'] === '~'.$domain) {
+                    return false;
+                }
             }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
