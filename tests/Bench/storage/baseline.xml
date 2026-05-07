@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpbench xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6.1">
-  <suite tag="" context="" date="2026-04-20T04:07:48+00:00" config-path="/home/runner/work/haiku/haiku/phpbench.json" uuid="1352644728be415c38f20d3e220a0ccc437cd91d">
+  <suite tag="" context="" date="2026-05-07T16:17:06+00:00" config-path="/home/runner/work/haiku/haiku/phpbench.json" uuid="135269bcc6fbde963d7d9f17687edee4634c778d">
     <env>
       <uname>
         <value name="os" type="string">Linux</value>
@@ -22,12 +22,12 @@
       <vcs>
         <value name="system" type="string">git</value>
         <value name="branch" type="string">main</value>
-        <value name="version" type="string">36bc39bfaf9df01173a59b24b071d9fbbb9a7692</value>
+        <value name="version" type="string">348cceea7079b9377d41a74cac19618885fd96fc</value>
       </vcs>
       <sampler>
-        <value name="nothing" type="double">0.016927719116211</value>
-        <value name="md5" type="double">0.20003318786621</value>
-        <value name="file_rw" type="double">13.957023620605</value>
+        <value name="nothing" type="double">0.016212463378906</value>
+        <value name="md5" type="double">0.23007392883301</value>
+        <value name="file_rw" type="double">16.422033309937</value>
       </sampler>
     </env>
     <benchmark class="\Realodix\Haiku\Test\Bench\FixBench">
@@ -39,12 +39,12 @@
         </executor>
         <variant sleep="0" output-time-unit="milliseconds" output-time-precision="" output-mode="time" revs="1000" warmup="1" retry-threshold="">
           <parameter-set name=""/>
-          <iteration time-net="299955" time-revs="1000" time-avg="299.955" mem-peak="3808680" mem-real="6291456" mem-final="3246648" comp-z-value="0.78581082258015" comp-deviation="0.38580706567757"/>
-          <iteration time-net="297726" time-revs="1000" time-avg="297.726" mem-peak="3808680" mem-real="6291456" mem-final="3246648" comp-z-value="-0.7335961201082" comp-deviation="-0.3601713775869"/>
-          <iteration time-net="298212" time-revs="1000" time-avg="298.212" mem-peak="3808680" mem-real="6291456" mem-final="3246648" comp-z-value="-0.40231223758396" comp-deviation="-0.19752197272978"/>
-          <iteration time-net="297085" time-revs="1000" time-avg="297.085" mem-peak="3808680" mem-real="6291456" mem-final="3246648" comp-z-value="-1.170536384919" comp-deviation="-0.57469456382851"/>
-          <iteration time-net="301033" time-revs="1000" time-avg="301.033" mem-peak="3808680" mem-real="6291456" mem-final="3246648" comp-z-value="1.5206339200311" comp-deviation="0.74658084846766"/>
-          <stats max="301.033" mean="298.8022" min="297.085" mode="297.9271369863" rstdev="0.49096685180639" stdev="1.4670197544682" sum="1494.011" variance="2.15214696"/>
+          <iteration time-net="337675" time-revs="1000" time-avg="337.675" mem-peak="3742760" mem-real="6291456" mem-final="3191848" comp-z-value="1.8437403467346" comp-deviation="6.110427119019"/>
+          <iteration time-net="318920" time-revs="1000" time-avg="318.92" mem-peak="3742760" mem-real="6291456" mem-final="3191848" comp-z-value="0.065442864424964" comp-deviation="0.21688729339618"/>
+          <iteration time-net="316759" time-revs="1000" time-avg="316.759" mem-peak="3742760" mem-real="6291456" mem-final="3191848" comp-z-value="-0.13945720805017" comp-deviation="-0.46218173156629"/>
+          <iteration time-net="309677" time-revs="1000" time-avg="309.677" mem-peak="3742760" mem-real="6291456" mem-final="3191848" comp-z-value="-0.81095295690203" comp-deviation="-2.6876175644141"/>
+          <iteration time-net="308118" time-revs="1000" time-avg="308.118" mem-peak="3742760" mem-real="6291456" mem-final="3191848" comp-z-value="-0.95877304620732" comp-deviation="-3.1775151164347"/>
+          <stats max="337.675" mean="318.2298" min="308.118" mode="313.49725831703" rstdev="3.3141473146374" stdev="10.546604371076" sum="1591.149" variance="111.23086376"/>
         </variant>
       </subject>
       <subject name="benchMaximumFix">
@@ -55,12 +55,12 @@
         </executor>
         <variant sleep="0" output-time-unit="milliseconds" output-time-precision="" output-mode="time" revs="1000" warmup="1" retry-threshold="">
           <parameter-set name=""/>
-          <iteration time-net="405169" time-revs="1000" time-avg="405.169" mem-peak="3809192" mem-real="6291456" mem-final="3250416" comp-z-value="-0.22350863269799" comp-deviation="-0.080444848668992"/>
-          <iteration time-net="403904" time-revs="1000" time-avg="403.904" mem-peak="3809192" mem-real="6291456" mem-final="3250416" comp-z-value="-1.0902726436205" comp-deviation="-0.39240908400396"/>
-          <iteration time-net="407731" time-revs="1000" time-avg="407.731" mem-peak="3809192" mem-real="6291456" mem-final="3250416" comp-z-value="1.5319454352732" comp-deviation="0.55137520740072"/>
-          <iteration time-net="406553" time-revs="1000" time-avg="406.553" mem-peak="3809192" mem-real="6291456" mem-final="3250416" comp-z-value="0.724792862256" comp-deviation="0.2608662198714"/>
-          <iteration time-net="404119" time-revs="1000" time-avg="404.119" mem-peak="3809192" mem-real="6291456" mem-final="3250416" comp-z-value="-0.94295702121073" comp-deviation="-0.33938749459919"/>
-          <stats max="407.731" mean="405.4952" min="403.904" mode="404.65292367906" rstdev="0.35991830694831" stdev="1.4594514585967" sum="2027.476" variance="2.12999856"/>
+          <iteration time-net="425958" time-revs="1000" time-avg="425.958" mem-peak="3743272" mem-real="6291456" mem-final="3209680" comp-z-value="1.2350440578541" comp-deviation="0.89229798470267"/>
+          <iteration time-net="425024" time-revs="1000" time-avg="425.024" mem-peak="3743272" mem-real="6291456" mem-final="3209680" comp-z-value="0.92884020617759" comp-deviation="0.67107099444138"/>
+          <iteration time-net="418699" time-revs="1000" time-avg="418.699" mem-peak="3743272" mem-real="6291456" mem-final="3209680" comp-z-value="-1.1447565409893" comp-deviation="-0.8270668143408"/>
+          <iteration time-net="422544" time-revs="1000" time-avg="422.544" mem-peak="3743272" mem-real="6291456" mem-final="3209680" comp-z-value="0.1157935764584" comp-deviation="0.083658857559193"/>
+          <iteration time-net="418729" time-revs="1000" time-avg="418.729" mem-peak="3743272" mem-real="6291456" mem-final="3209680" comp-z-value="-1.1349212995008" comp-deviation="-0.8199610223624"/>
+          <stats max="425.958" mean="422.1908" min="418.699" mode="424.08287671234" rstdev="0.72248271551789" stdev="3.0502555565067" sum="2110.954" variance="9.30405896"/>
         </variant>
       </subject>
     </benchmark>
@@ -76,12 +76,12 @@
         </executor>
         <variant sleep="0" output-time-unit="milliseconds" output-time-precision="" output-mode="time" revs="1" warmup="1" retry-threshold="10">
           <parameter-set name=""/>
-          <iteration time-net="5882" time-revs="1" time-avg="5882" mem-peak="6647176" mem-real="8388608" mem-final="6539944" comp-z-value="1.3735060073962" comp-deviation="8.1568108267137"/>
-          <iteration time-net="5100" time-revs="1" time-avg="5100" mem-peak="6647176" mem-real="8388608" mem-final="6539944" comp-z-value="-1.0477782527117" comp-deviation="-6.2224183583407"/>
-          <iteration time-net="5568" time-revs="1" time-avg="5568" mem-peak="6647176" mem-real="8388608" mem-final="6539944" comp-z-value="0.40127677763425" comp-deviation="2.3830538393645"/>
-          <iteration time-net="5033" time-revs="1" time-avg="5033" mem-peak="6647176" mem-real="8388608" mem-final="6539944" comp-z-value="-1.25522843868" comp-deviation="-7.4543983524566"/>
-          <iteration time-net="5609" time-revs="1" time-avg="5609" mem-peak="6647176" mem-real="8388608" mem-final="6539944" comp-z-value="0.52822390636114" comp-deviation="3.136952044719" reject-count="1"/>
-          <stats max="5882" mean="5438.4" min="5033" mode="5599.5538160471" rstdev="5.93867866816" stdev="322.96910068921" sum="27192" variance="104309.04"/>
+          <iteration time-net="5362" time-revs="1" time-avg="5362" mem-peak="6604888" mem-real="8388608" mem-final="6560432" comp-z-value="0.56628915521207" comp-deviation="3.0519680196802"/>
+          <iteration time-net="5142" time-revs="1" time-avg="5142" mem-peak="6604888" mem-real="8388608" mem-final="6560432" comp-z-value="-0.21824242001876" comp-deviation="-1.1761992619926"/>
+          <iteration time-net="5017" time-revs="1" time-avg="5017" mem-peak="6604888" mem-real="8388608" mem-final="6560432" comp-z-value="-0.66399899685445" comp-deviation="-3.5785670356704"/>
+          <iteration time-net="4844" time-revs="1" time-avg="4844" mem-peak="6604888" mem-real="8388608" mem-final="6560432" comp-z-value="-1.2809260991951" comp-deviation="-6.9034440344403" reject-count="1"/>
+          <iteration time-net="5651" time-revs="1" time-avg="5651" mem-peak="6604888" mem-real="8388608" mem-final="6560432" comp-z-value="1.5968783608562" comp-deviation="8.6062423124231"/>
+          <stats max="5651" mean="5203.2" min="4844" mode="5093.5225048923" rstdev="5.3894163283725" stdev="280.42211039788" sum="26016" variance="78636.56"/>
         </variant>
       </subject>
     </benchmark>
@@ -95,12 +95,12 @@
         </executor>
         <variant sleep="0" output-time-unit="milliseconds" output-time-precision="" output-mode="time" revs="1000" warmup="1" retry-threshold="">
           <parameter-set name=""/>
-          <iteration time-net="1407968" time-revs="1000" time-avg="1407.968" mem-peak="3808680" mem-real="6291456" mem-final="3549736" comp-z-value="1.5629340515941" comp-deviation="1.843540173488"/>
-          <iteration time-net="1391463" time-revs="1000" time-avg="1391.463" mem-peak="3808680" mem-real="6291456" mem-final="3549736" comp-z-value="0.55078545109184" comp-deviation="0.64967239342242"/>
-          <iteration time-net="1381491" time-revs="1000" time-avg="1381.491" mem-peak="3808680" mem-real="6291456" mem-final="3549736" comp-z-value="-0.06073504840579" comp-deviation="-0.07163930017432"/>
-          <iteration time-net="1370100" time-revs="1000" time-avg="1370.1" mem-peak="3808680" mem-real="6291456" mem-final="3549736" comp-z-value="-0.75927395833134" comp-deviation="-0.89559251936411"/>
-          <iteration time-net="1361385" time-revs="1000" time-avg="1361.385" mem-peak="3808680" mem-real="6291456" mem-final="3549736" comp-z-value="-1.2937104959489" comp-deviation="-1.5259807473721"/>
-          <stats max="1407.968" mean="1382.4814" min="1361.385" mode="1377.4292426614" rstdev="1.1795380435968" stdev="16.306894058649" sum="6912.407" variance="265.91479384"/>
+          <iteration time-net="1832359" time-revs="1000" time-avg="1832.359" mem-peak="4242816" mem-real="6291456" mem-final="3865408" comp-z-value="1.8561445131257" comp-deviation="1.9299139951279"/>
+          <iteration time-net="1778833" time-revs="1000" time-avg="1778.833" mem-peak="4242816" mem-real="6291456" mem-final="3865408" comp-z-value="-1.0075699458078" comp-deviation="-1.0476141947646"/>
+          <iteration time-net="1795222" time-revs="1000" time-avg="1795.222" mem-peak="4242816" mem-real="6291456" mem-final="3865408" comp-z-value="-0.13073595358983" comp-deviation="-0.13593184405375"/>
+          <iteration time-net="1784156" time-revs="1000" time-avg="1784.156" mem-peak="4242816" mem-real="6291456" mem-final="3865408" comp-z-value="-0.72278214053746" comp-deviation="-0.75150795565092"/>
+          <iteration time-net="1797758" time-revs="1000" time-avg="1797.758" mem-peak="4242816" mem-real="6291456" mem-final="3865408" comp-z-value="0.004943526809515" comp-deviation="0.0051399993413806"/>
+          <stats max="1832.359" mean="1797.6656" min="1778.833" mode="1789.4125029354" rstdev="1.0397433936208" stdev="18.691109315394" sum="8988.328" variance="349.35756744"/>
         </variant>
       </subject>
     </benchmark>

@@ -23,6 +23,11 @@ class LintBench
         $lines = [
             '##.ads',
             '##.ads',
+            '##[class~="ads"]',
+            '##div[class="ads banner"]',
+            '~example.com##.banner',
+            '##.banner',
+            'example.org##.banner',
             '###id_1_bannerId',
             '##[id^="id_1_banner"]',
             '###id_2_bannerId',
@@ -38,12 +43,14 @@ class LintBench
             '*$xhr,redirect-rule=noopjs:-1,to=~example.com',
 
             '/ads/*',
+            '/ads/*$domain=~example.org',
             '||somesite.com/ads/',
             '/ads2/*',
             '||somesite.com/ads2/$image',
             '!',
             '/banner/ads-',
             '/banner/*',
+            '/banner$domain=~example.org',
             '/banner2/ads-$image',
             '/banner2/*',
 
