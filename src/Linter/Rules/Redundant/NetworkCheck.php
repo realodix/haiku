@@ -129,8 +129,7 @@ final class NetworkCheck implements Rule
                 if (!isset($this->globalRulesStored[$type][$uniqueKey])) {
                     $this->globalRulesStored[$type][$uniqueKey] = true;
 
-                    $isRegex = str_starts_with($pattern, '/') && str_ends_with($pattern, '/');
-                    $token = $this->getPrimaryToken($pattern, $isRegex);
+                    $token = $this->getPrimaryToken($pattern);
                     $regexStr = $this->buildRegex($pattern);
 
                     $isMixed = $this->isMixedDomains($domains);
@@ -179,6 +178,24 @@ final class NetworkCheck implements Rule
         }
 
         return $err->toArray();
+    }
+
+    private function reset(): void
+    {
+        $this->exactSeen = [];
+        $this->patternOptionsSeen = ['whitelist' => [], 'blacklist' => []];
+        $this->globalRulesBuckets = ['whitelist' => [], 'blacklist' => []];
+        $this->globalRulesNoToken = ['whitelist' => [], 'blacklist' => []];
+        $this->globalRulesStored = ['whitelist' => [], 'blacklist' => []];
+    }
+
+    private function shouldSkip(string $line): bool
+    {
+        if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+            return true;
+        }
+
+        return (bool) preg_match(Regex::IS_COSMETIC_RULE, $line);
     }
 
     /**
@@ -356,78 +373,6 @@ final class NetworkCheck implements Rule
         }
     }
 
-    private function reset(): void
-    {
-        $this->exactSeen = [];
-        $this->patternOptionsSeen = ['whitelist' => [], 'blacklist' => []];
-        $this->globalRulesBuckets = ['whitelist' => [], 'blacklist' => []];
-        $this->globalRulesNoToken = ['whitelist' => [], 'blacklist' => []];
-        $this->globalRulesStored = ['whitelist' => [], 'blacklist' => []];
-    }
-
-    private function shouldSkip(string $line): bool
-    {
-        if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
-            return true;
-        }
-
-        return (bool) preg_match(Regex::IS_COSMETIC_RULE, $line);
-    }
-
-    /**
-     * @param list<string> $options
-     */
-    private function hasOption(array $options, string $target): bool
-    {
-        foreach ($options as $opt) {
-            if (strtolower(trim($opt)) === $target) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine if the candidate rule is "better" (more general or earlier)
-     * than the current best.
-     *
-     * @param _GlobalRuleData $candidate The rule to evaluate.
-     * @param _GlobalRuleData $best The current best rule to compare against.
-     */
-    private function isBetter(array $candidate, array $best): bool
-    {
-        // 1. Semantic generality in Pattern
-        $bCoversC = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
-        $cCoversB = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
-
-        if ($bCoversC && !$cCoversB) {
-            return true; // candidate is strictly more general
-        }
-        if (!$bCoversC && $cCoversB) {
-            return false; // best is strictly more general
-        }
-
-        // 2. Generality in Options (No options > some options)
-        if ($candidate['optionsKey'] === '' && $best['optionsKey'] !== '') {
-            return true;
-        }
-        if ($candidate['optionsKey'] !== '' && $best['optionsKey'] === '') {
-            return false;
-        }
-
-        // 3. Globalness (Global rules are better references than domain-specific ones)
-        if ($candidate['domains'] === [] && $best['domains'] !== []) {
-            return true;
-        }
-        if ($candidate['domains'] !== [] && $best['domains'] === []) {
-            return false;
-        }
-
-        // 4. Line order (Earlier rules are preferred as reference points)
-        return $candidate['lineNum'] < $best['lineNum'];
-    }
-
     /**
      * Determine if a network rule is semantically and domain-wise covered by a candidate rule.
      *
@@ -472,6 +417,46 @@ final class NetworkCheck implements Rule
         }
 
         return true;
+    }
+
+    /**
+     * Determine if the candidate rule is "better" (more general or earlier)
+     * than the current best.
+     *
+     * @param _GlobalRuleData $candidate The rule to evaluate.
+     * @param _GlobalRuleData $best The current best rule to compare against.
+     */
+    private function isBetter(array $candidate, array $best): bool
+    {
+        // 1. Semantic generality in Pattern
+        $bCoversC = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
+        $cCoversB = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
+
+        if ($bCoversC && !$cCoversB) {
+            return true; // candidate is strictly more general
+        }
+        if (!$bCoversC && $cCoversB) {
+            return false; // best is strictly more general
+        }
+
+        // 2. Generality in Options (No options > some options)
+        if ($candidate['optionsKey'] === '' && $best['optionsKey'] !== '') {
+            return true;
+        }
+        if ($candidate['optionsKey'] !== '' && $best['optionsKey'] === '') {
+            return false;
+        }
+
+        // 3. Globalness (Global rules are better references than domain-specific ones)
+        if ($candidate['domains'] === [] && $best['domains'] !== []) {
+            return true;
+        }
+        if ($candidate['domains'] !== [] && $best['domains'] === []) {
+            return false;
+        }
+
+        // 4. Line order (Earlier rules are preferred as reference points)
+        return $candidate['lineNum'] < $best['lineNum'];
     }
 
     /**
@@ -546,57 +531,6 @@ final class NetworkCheck implements Rule
         }
 
         return false;
-    }
-
-    private function buildRegex(string $pattern): string
-    {
-        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
-            $innerRegex = substr($pattern, 1, -1);
-
-            return '`'.$innerRegex.'`i';
-        }
-
-        $regex = preg_quote($pattern, '`');
-        $regex = str_replace('\*', '.*', $regex);
-
-        return '`'.$regex.'`i';
-    }
-
-    private function getPrimaryToken(string $pattern, bool $isRegex): ?string
-    {
-        if ($isRegex) {
-            return null;
-        }
-
-        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
-            $longest = '';
-            foreach ($matches[0] as $match) {
-                if (strlen($match) > strlen($longest)) {
-                    $longest = $match;
-                }
-            }
-
-            return $longest !== '' ? strtolower($longest) : null;
-        }
-
-        return null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getAllTokens(string $pattern): array
-    {
-        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
-            $tokens = [];
-            foreach ($matches[0] as $match) {
-                $tokens[strtolower($match)] = true;
-            }
-
-            return array_keys($tokens);
-        }
-
-        return [];
     }
 
     /**
@@ -674,6 +608,72 @@ final class NetworkCheck implements Rule
             if ($domain !== '') {
                 return [['name' => $domain, 'type' => 'domain']];
             }
+        }
+
+        return [];
+    }
+
+    /**
+     * @param list<string> $options
+     */
+    private function hasOption(array $options, string $target): bool
+    {
+        foreach ($options as $opt) {
+            if (strtolower(trim($opt)) === $target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function buildRegex(string $pattern): string
+    {
+        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
+            $innerRegex = substr($pattern, 1, -1);
+
+            return '`'.$innerRegex.'`i';
+        }
+
+        $regex = preg_quote($pattern, '`');
+        $regex = str_replace('\*', '.*', $regex);
+
+        return '`'.$regex.'`i';
+    }
+
+    private function getPrimaryToken(string $pattern): ?string
+    {
+        // regex
+        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
+            return null;
+        }
+
+        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
+            $longest = '';
+            foreach ($matches[0] as $match) {
+                if (strlen($match) > strlen($longest)) {
+                    $longest = $match;
+                }
+            }
+
+            return $longest !== '' ? strtolower($longest) : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getAllTokens(string $pattern): array
+    {
+        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
+            $tokens = [];
+            foreach ($matches[0] as $match) {
+                $tokens[strtolower($match)] = true;
+            }
+
+            return array_keys($tokens);
         }
 
         return [];
