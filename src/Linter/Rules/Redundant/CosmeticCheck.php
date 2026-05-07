@@ -28,7 +28,9 @@ use Realodix\Haiku\Linter\Util;
  *  domains: array<string, bool>,
  *  separator: string,
  *  selector: string,
- *  attrData: _ParsedAttrSelector|null
+ *  attrData: _ParsedAttrSelector|null,
+ *  hasMixedDomains: bool,
+ *  isAlmostGlobal: bool,
  * }
  */
 final class CosmeticCheck implements Rule
@@ -44,6 +46,9 @@ final class CosmeticCheck implements Rule
 
     /** @var array<string, bool> */
     private array $ghideExceptions = [];
+
+    /** @var array<string, bool> */
+    private array $selectorCoverageCache = [];
 
     public function __construct(
         private LinterConfig $config,
@@ -91,6 +96,15 @@ final class CosmeticCheck implements Rule
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
 
+            // Pre-calculate domain status to optimize isCovered hot path.
+            $isMixed = $this->isMixedDomains($domains);
+            $isAlmostGlobal = false;
+            if (!$isMixed && $domains !== []) {
+                // An Almost Global rule contains only exclusions (negated domains).
+                $firstDomain = (string) array_key_first($domains);
+                $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
+            }
+
             $ruleIndex = count($this->rulesData);
             $this->rulesData[$ruleIndex] = [
                 'lineNum' => $lineNum,
@@ -99,6 +113,8 @@ final class CosmeticCheck implements Rule
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
+                'hasMixedDomains' => $isMixed,
+                'isAlmostGlobal' => $isAlmostGlobal,
             ];
 
             // Group rules into buckets to avoid O(N^2) redundancy checks.
@@ -155,6 +171,7 @@ final class CosmeticCheck implements Rule
         $this->rulesData = [];
         $this->interactionMap = [];
         $this->ghideExceptions = [];
+        $this->selectorCoverageCache = [];
     }
 
     /**
@@ -399,39 +416,65 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determine if the rule is covered by the candidate rule for a specific domain.
+     * Determine if a cosmetic rule is covered by a candidate rule for a specific domain.
      *
-     * @param _CosmeticRuleData $rule The rule being checked.
+     * A rule is covered if:
+     * 1. They share the same separator (e.g. ##, #@#).
+     * 2. Rules with mixed domains (~ and +) only cover rules with the exact same domain set.
+     * 3. The candidate's domain list encompasses the target domain.
+     * 4. The candidate's selector is identical to or more general than the target rule's selector.
+     *
+     * @param _CosmeticRuleData $rule The rule being checked for redundancy.
      * @param _CosmeticRuleData $candidate The candidate rule that might cover it.
+     * @param string $domain The domain context being evaluated.
      * @param array<string, bool> $ghideExceptions
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
     {
-        if ($rule['separator'] !== $candidate['separator']) {
-            return false;
-        }
+        // just defensive programming
+        // if ($rule['separator'] !== $candidate['separator']) {
+        //     return false;
+        // }
 
-        // $candidate must cover the target domain (either global or specific)
+        // Scenario: Domain matching
+        // Rule domains must be covered by candidate domains.
         if ($candidate['domains'] !== []) {
-            if (!isset($candidate['domains'][$domain])) {
-                return false;
+            // A rule with a mix of inclusions and exclusions should not cover other rules
+            // unless they have the exact same domain set.
+            if ($candidate['hasMixedDomains']) {
+                if ($candidate['domains'] !== $rule['domains']) {
+                    return false;
+                }
+            } else {
+                // Determine if the domain context is covered by the candidate.
+                $isExplicitMatch = isset($candidate['domains'][$domain]);
+                $isAlmostGlobalMatch = $candidate['isAlmostGlobal']
+                    && $domain !== ''
+                    && $domain[0] !== '~'
+                    && !isset($candidate['domains']['~'.$domain]);
+
+                if (!$isExplicitMatch && !$isAlmostGlobalMatch) {
+                    return false;
+                }
             }
-        } elseif (isset($ghideExceptions[$domain])) {
+        } elseif ($domain !== '' && isset($ghideExceptions[$domain])) {
             // Global rule $candidate does NOT cover domain if generic hiding is disabled for it.
             return false;
         }
 
-        // Case A: Exact same selector
-        if ($rule['selector'] === $candidate['selector']) {
-            return true;
+        // Use memoization to avoid expensive selector comparisons for rules
+        // that share the same selector pair across different domains.
+        $cacheKey = $rule['selector']."\0".$candidate['selector'];
+        if (isset($this->selectorCoverageCache[$cacheKey])) {
+            return $this->selectorCoverageCache[$cacheKey];
         }
 
-        // Case B: Attribute selector dominance
-        if ($rule['attrData'] && $candidate['attrData']) {
-            return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
-        }
+        // If simple, it's an exact match from bucket S|. If not, it's an attribute comparison.
+        $coverage = $rule['attrData'] === null
+            ? true
+            : $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
 
-        return false;
+        return $this->selectorCoverageCache[$cacheKey] = $coverage;
     }
 
     /**
@@ -465,6 +508,31 @@ final class CosmeticCheck implements Rule
 
         // 3. Line number (Earlier rules are preferred as reference points)
         return $candidate['lineNum'] < $best['lineNum'];
+    }
+
+    /**
+     * Determine if the domain list contains both inclusions and exclusions.
+     *
+     * @param array<string, bool> $domains
+     */
+    private function isMixedDomains(array $domains): bool
+    {
+        $hasIn = false;
+        $hasEx = false;
+
+        foreach ($domains as $domain => $_) {
+            if (str_starts_with($domain, '~')) {
+                $hasEx = true;
+            } else {
+                $hasIn = true;
+            }
+
+            if ($hasIn && $hasEx) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -615,9 +683,10 @@ final class CosmeticCheck implements Rule
      */
     private function isAttrCoveredBy(array $rule, array $candidate): bool
     {
-        if ($rule['attr'] !== $candidate['attr']) {
-            return false;
-        }
+        // just defensive programming
+        // if ($rule['attr'] !== $candidate['attr']) {
+        //     return false;
+        // }
 
         // $candidate covers $rule if $candidate has no tag (global) or same tag as $rule.
         if ($candidate['tag'] !== '' && $rule['tag'] !== $candidate['tag']) {

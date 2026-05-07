@@ -28,8 +28,11 @@ use Realodix\Haiku\Linter\Util;
  *  pattern: string,
  *  lineNum: int,
  *  hasOptions: bool,
+ *  hasMixed: bool,
+ *  isAlmostGlobal: bool,
+ *  domains: list<array{name: string, type: string}>,
  *  optionsKey: string,
- *  regex: string
+ *  regex: string,
  * }
  */
 final class NetworkCheck implements Rule
@@ -119,8 +122,10 @@ final class NetworkCheck implements Rule
                 }
             }
 
-            if (empty($domains)) {
-                $uniqueKey = $pattern.'::'.$optionsKey;
+            // A rule is considered “specific” only if it contains only an inclusion list and has no negated domain.
+            $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$this->isMixedDomains($domains);
+            if (!$isSpecific) {
+                $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
                 if (!isset($this->globalRulesStored[$type][$uniqueKey])) {
                     $this->globalRulesStored[$type][$uniqueKey] = true;
 
@@ -128,10 +133,19 @@ final class NetworkCheck implements Rule
                     $token = $this->getPrimaryToken($pattern, $isRegex);
                     $regexStr = $this->buildRegex($pattern);
 
+                    $isMixed = $this->isMixedDomains($domains);
+                    $isAlmostGlobal = false;
+                    if (!$isMixed && $domains !== []) {
+                        $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
+                    }
+
                     $ruleData = [
                         'pattern' => $pattern,
                         'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
+                        'hasMixed' => $isMixed,
+                        'isAlmostGlobal' => $isAlmostGlobal,
+                        'domains' => $domains,
                         'optionsKey' => $optionsKey,
                         'regex' => $regexStr,
                     ];
@@ -217,13 +231,13 @@ final class NetworkCheck implements Rule
                     continue;
                 }
 
-                if ($candidate['hasOptions']) {
-                    if (!$data['hasOptions'] || $candidate['optionsKey'] !== $data['optionsKey']) {
+                if ($candidate['optionsKey'] !== '') {
+                    if ($data['optionsKey'] === '' || $candidate['optionsKey'] !== $data['optionsKey']) {
                         continue;
                     }
                 }
 
-                if (!preg_match($candidate['regex'], $pattern)) {
+                if (!$this->isCovered($data, $candidate)) {
                     continue;
                 }
 
@@ -245,23 +259,14 @@ final class NetworkCheck implements Rule
                 return false;
             }
 
-            // A rule with a negated domain is not redundant against a global filter
-            if ($data['hasDomains']) {
-                foreach ($data['domains'] as $d) {
-                    if (str_starts_with($d['name'], '~')) {
-                        return false;
-                    }
-                }
-            }
-
             // If patterns and options are identical, it's a direct duplicate
             if (!$data['hasDomains']
                 && $best['hasOptions'] === $data['hasOptions']
                 && $pattern === $best['pattern']
             ) {
-                if ($lineNum < $best['lineNum']) {
-                    return false;
-                }
+                // if ($lineNum < $best['lineNum']) {
+                //     return false;
+                // }
 
                 $err->message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
@@ -324,7 +329,6 @@ final class NetworkCheck implements Rule
             && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
 
         $redundantDomains = [];
-        $domainsToMark = [];
 
         foreach ($data['domains'] as $d) {
             $entityKey = $d['type'].':'.$d['name'];
@@ -339,8 +343,6 @@ final class NetworkCheck implements Rule
                         break;
                     }
                 }
-            } else {
-                $domainsToMark[] = $d;
             }
         }
 
@@ -351,12 +353,6 @@ final class NetworkCheck implements Rule
                     $rd['domain'], $rd['atLineNum'],
                 ))->line($lineNum)->build();
             }
-        }
-
-        // State Update: Mark domains that were not redundant as "seen" for subsequent rules.
-        foreach ($domainsToMark as $dm) {
-            $entityKey = $dm['type'].':'.$dm['name'];
-            $seenMap[$entityKey][$lineNum] = true;
         }
     }
 
@@ -401,15 +397,7 @@ final class NetworkCheck implements Rule
      */
     private function isBetter(array $candidate, array $best): bool
     {
-        // 1. Generality in Options (No options > some options)
-        if (!$candidate['hasOptions'] && $best['hasOptions']) {
-            return true;
-        }
-        if ($candidate['hasOptions'] && !$best['hasOptions']) {
-            return false;
-        }
-
-        // 2. Semantic generality in Pattern
+        // 1. Semantic generality in Pattern
         $bCoversC = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
         $cCoversB = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
 
@@ -420,8 +408,144 @@ final class NetworkCheck implements Rule
             return false; // best is strictly more general
         }
 
-        // 3. Line order (Earlier rules are preferred as reference points)
+        // 2. Generality in Options (No options > some options)
+        if ($candidate['optionsKey'] === '' && $best['optionsKey'] !== '') {
+            return true;
+        }
+        if ($candidate['optionsKey'] !== '' && $best['optionsKey'] === '') {
+            return false;
+        }
+
+        // 3. Globalness (Global rules are better references than domain-specific ones)
+        if ($candidate['domains'] === [] && $best['domains'] !== []) {
+            return true;
+        }
+        if ($candidate['domains'] !== [] && $best['domains'] === []) {
+            return false;
+        }
+
+        // 4. Line order (Earlier rules are preferred as reference points)
         return $candidate['lineNum'] < $best['lineNum'];
+    }
+
+    /**
+     * Determine if a network rule is semantically and domain-wise covered by a candidate rule.
+     *
+     * A rule is covered if:
+     * 1. The candidate's pattern matches the target rule's pattern.
+     * 2. The candidate's domain list encompasses all domains where the target rule applies.
+     * 3. Rules with mixed domains (standard and negated) only cover rules with the exact same domain set.
+     *
+     * @param _rulesData $rule The rule being checked for redundancy.
+     * @param _GlobalRuleData $candidate The candidate rule that might cover the target rule.
+     */
+    private function isCovered(array $rule, array $candidate): bool
+    {
+        if (!preg_match($candidate['regex'], $rule['pattern'])) {
+            return false;
+        }
+
+        if ($candidate['domains'] !== []) {
+            // A rule with a mix of inclusions and exclusions should not cover other rules
+            // unless they have the exact same domain set.
+            if ($this->isMixedDomains($candidate['domains'])) {
+                if ($candidate['domains'] !== $rule['domains']) {
+                    return false;
+                }
+            }
+
+            // Rule must be covered by candidate's domains
+            $ruleDomains = $rule['domains'];
+            if ($ruleDomains === []) {
+                $ruleDomains = $this->extractDomainsFromPattern($rule['pattern']);
+            }
+
+            if ($ruleDomains === []) {
+                $ruleDomains = [['name' => '', 'type' => 'domain']];
+            }
+
+            foreach ($ruleDomains as $d) {
+                if (!$this->isDomainMatched($d['name'], $candidate)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if a specific domain (or global context) is covered by a list of domain filters.
+     *
+     * A domain is matched if:
+     * - It is explicitly present in the domain list.
+     * - Or, the list contains ONLY exclusions and the domain is not among them.
+     *
+     * @param string $domain The domain to check (use empty string for global context).
+     * @param _GlobalRuleData $rule The rule to check against.
+     */
+    private function isDomainMatched(string $domain, array $rule): bool
+    {
+        // just defensive programming
+        // if ($rule['domains'] === []) {
+        //     return true;
+        // }
+
+        foreach ($rule['domains'] as $rd) {
+            if ($rd['name'] === $domain) {
+                return true;
+            }
+        }
+
+        if (
+            // A rule that specifies any domain restrictions (inclusions or exclusions)
+            // cannot match the global context. An empty string represents the global domain,
+            // so we explicitly reject it.
+            $domain === ''
+            // Domains prefixed with '~' denote exclusion filters (e.g., ~example.com).
+            // Such exclusions should not be considered a match for coverage checks.
+            || str_starts_with($domain, '~')
+        ) {
+            return false;
+        }
+
+        // Only Almost Global rules (exclusion-only) can cover domains implicitly.
+        if ($rule['isAlmostGlobal']) {
+            foreach ($rule['domains'] as $rd) {
+                if ($rd['name'] === '~'.$domain) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if the domain list contains both inclusions and exclusions.
+     *
+     * @param list<array{name: string, type: string}> $domains
+     */
+    private function isMixedDomains(array $domains): bool
+    {
+        $hasIn = false;
+        $hasEx = false;
+
+        foreach ($domains as $d) {
+            if (str_starts_with($d['name'], '~')) {
+                $hasEx = true;
+            } else {
+                $hasIn = true;
+            }
+
+            if ($hasIn && $hasEx) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function buildRegex(string $pattern): string
@@ -528,5 +652,30 @@ final class NetworkCheck implements Rule
         }
 
         return $domains;
+    }
+
+    /**
+     * Extracts domains from a pattern if it starts with || (e.g. ||example.com/ads/).
+     *
+     * @return list<array{name: string, type: string}>
+     */
+    private function extractDomainsFromPattern(string $pattern): array
+    {
+        if (str_starts_with($pattern, '||')) {
+            $end = strpos($pattern, '^');
+            if ($end === false) {
+                $end = strpos($pattern, '/');
+            }
+            if ($end === false) {
+                $end = strlen($pattern);
+            }
+
+            $domain = substr($pattern, 2, $end - 2);
+            if ($domain !== '') {
+                return [['name' => $domain, 'type' => 'domain']];
+            }
+        }
+
+        return [];
     }
 }
