@@ -431,10 +431,13 @@ final class CosmeticCheck implements Rule
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
     {
-        if ($rule['separator'] !== $candidate['separator']) {
-            return false;
-        }
+        // just defensive programming
+        // if ($rule['separator'] !== $candidate['separator']) {
+        //     return false;
+        // }
 
+        // Scenario: Domain matching
+        // Rule domains must be covered by candidate domains.
         if ($candidate['domains'] !== []) {
             // A rule with a mix of inclusions and exclusions should not cover other rules
             // unless they have the exact same domain set.
@@ -466,18 +469,12 @@ final class CosmeticCheck implements Rule
             return $this->selectorCoverageCache[$cacheKey];
         }
 
-        // Case A: Exact same selector.
-        if ($rule['selector'] === $candidate['selector']) {
-            return $this->selectorCoverageCache[$cacheKey] = true;
-        }
+        // If simple, it's an exact match from bucket S|. If not, it's an attribute comparison.
+        $coverage = $rule['attrData'] === null
+            ? true
+            : $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
 
-        // Case B: Attribute selector dominance.
-        // E.g. [href="abc"] is covered by [href*="a"]
-        if ($rule['attrData'] && $candidate['attrData']) {
-            return $this->selectorCoverageCache[$cacheKey] = $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
-        }
-
-        return $this->selectorCoverageCache[$cacheKey] = false;
+        return $this->selectorCoverageCache[$cacheKey] = $coverage;
     }
 
     /**
@@ -686,9 +683,10 @@ final class CosmeticCheck implements Rule
      */
     private function isAttrCoveredBy(array $rule, array $candidate): bool
     {
-        if ($rule['attr'] !== $candidate['attr']) {
-            return false;
-        }
+        // just defensive programming
+        // if ($rule['attr'] !== $candidate['attr']) {
+        //     return false;
+        // }
 
         // $candidate covers $rule if $candidate has no tag (global) or same tag as $rule.
         if ($candidate['tag'] !== '' && $rule['tag'] !== $candidate['tag']) {

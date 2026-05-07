@@ -264,9 +264,9 @@ final class NetworkCheck implements Rule
                 && $best['hasOptions'] === $data['hasOptions']
                 && $pattern === $best['pattern']
             ) {
-                if ($lineNum < $best['lineNum']) {
-                    return false;
-                }
+                // if ($lineNum < $best['lineNum']) {
+                //     return false;
+                // }
 
                 $err->message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
@@ -329,7 +329,6 @@ final class NetworkCheck implements Rule
             && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
 
         $redundantDomains = [];
-        $domainsToMark = [];
 
         foreach ($data['domains'] as $d) {
             $entityKey = $d['type'].':'.$d['name'];
@@ -344,8 +343,6 @@ final class NetworkCheck implements Rule
                         break;
                     }
                 }
-            } else {
-                $domainsToMark[] = $d;
             }
         }
 
@@ -356,12 +353,6 @@ final class NetworkCheck implements Rule
                     $rd['domain'], $rd['atLineNum'],
                 ))->line($lineNum)->build();
             }
-        }
-
-        // State Update: Mark domains that were not redundant as "seen" for subsequent rules.
-        foreach ($domainsToMark as $dm) {
-            $entityKey = $dm['type'].':'.$dm['name'];
-            $seenMap[$entityKey][$lineNum] = true;
         }
     }
 
@@ -441,9 +432,9 @@ final class NetworkCheck implements Rule
      * Determine if a network rule is semantically and domain-wise covered by a candidate rule.
      *
      * A rule is covered if:
-     * 1. The candidate's pattern (regex) matches the target rule's pattern.
+     * 1. The candidate's pattern matches the target rule's pattern.
      * 2. The candidate's domain list encompasses all domains where the target rule applies.
-     * 3. Rules with mixed domains (~ and +) only cover rules with the exact same domain set.
+     * 3. Rules with mixed domains (standard and negated) only cover rules with the exact same domain set.
      *
      * @param _rulesData $rule The rule being checked for redundancy.
      * @param _GlobalRuleData $candidate The candidate rule that might cover the target rule.
@@ -495,9 +486,10 @@ final class NetworkCheck implements Rule
      */
     private function isDomainMatched(string $domain, array $rule): bool
     {
-        if ($rule['domains'] === []) {
-            return true;
-        }
+        // just defensive programming
+        // if ($rule['domains'] === []) {
+        //     return true;
+        // }
 
         foreach ($rule['domains'] as $rd) {
             if ($rd['name'] === $domain) {
@@ -505,13 +497,15 @@ final class NetworkCheck implements Rule
             }
         }
 
-        // A rule with any domain restrictions (inclusions or exclusions)
-        // cannot cover the global context.
-        if ($domain === '') {
-            return false;
-        }
-
-        if (str_starts_with($domain, '~')) {
+        if (
+            // A rule that specifies any domain restrictions (inclusions or exclusions)
+            // cannot match the global context. An empty string represents the global domain,
+            // so we explicitly reject it.
+            $domain === ''
+            // Domains prefixed with '~' denote exclusion filters (e.g., ~example.com).
+            // Such exclusions should not be considered a match for coverage checks.
+            || str_starts_with($domain, '~')
+        ) {
             return false;
         }
 
