@@ -37,20 +37,29 @@ use Realodix\Haiku\Linter\Util;
  */
 final class NetworkCheck implements Rule
 {
-    /** @var array<string, int> */
-    private array $exactSeen = [];
+    private const TYPE_BLACKLIST = 'blacklist';
+    private const TYPE_WHITELIST = 'whitelist';
 
-    /** @var array<string, array<string, array<string, array<string, array<int, bool>>>>> */
-    private array $patternOptionsSeen = [];
+    /**
+     * Exact duplicates
+     *
+     * @var array{
+     *   'exact': array<string, int>,
+     *   'pattern_options': array<string, array<string, array<string, array<string, array<int, bool>>>>>,
+     * }
+     */
+    private array $seen;
 
-    /** @var array<string, array<string, list<_GlobalRuleData>>> */
-    private array $globalRulesBuckets = [];
-
-    /** @var array<string, list<_GlobalRuleData>> */
-    private array $globalRulesNoToken = [];
-
-    /** @var array<string, array<string, bool>> */
-    private array $globalRulesStored = [];
+    /**
+     * Global redundancy checking
+     *
+     * @var array{
+     *   'by_token': array<string, array<string, list<_GlobalRuleData>>>,
+     *   'no_token': array<string, list<_GlobalRuleData>>,
+     *   'stored': array<string, array<string, bool>>,
+     * }
+     */
+    private array $globalIndex;
 
     public function __construct(
         private LinterConfig $config,
@@ -105,10 +114,10 @@ final class NetworkCheck implements Rule
                 'isWhitelist' => $isWhitelist,
             ];
 
-            $type = $isWhitelist ? 'whitelist' : 'blacklist';
+            $type = $isWhitelist ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
 
             if ($hasOpts) {
-                $seenMap = &$this->patternOptionsSeen[$type][$pattern][$optionsKey];
+                $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey];
                 // if (empty($domains)) {
                 //     $seenMap['*'][$lineNum] = true;
                 // } else {
@@ -126,8 +135,8 @@ final class NetworkCheck implements Rule
             $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$this->isMixedDomains($domains);
             if (!$isSpecific) {
                 $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
-                if (!isset($this->globalRulesStored[$type][$uniqueKey])) {
-                    $this->globalRulesStored[$type][$uniqueKey] = true;
+                if (!isset($this->globalIndex['stored'][$type][$uniqueKey])) {
+                    $this->globalIndex['stored'][$type][$uniqueKey] = true;
 
                     $token = $this->getPrimaryToken($pattern);
                     $regexStr = $this->buildRegex($pattern);
@@ -150,9 +159,9 @@ final class NetworkCheck implements Rule
                     ];
 
                     if ($token !== null) {
-                        $this->globalRulesBuckets[$type][$token][] = $ruleData;
+                        $this->globalIndex['by_token'][$type][$token][] = $ruleData;
                     } else {
-                        $this->globalRulesNoToken[$type][] = $ruleData;
+                        $this->globalIndex['no_token'][$type][] = $ruleData;
                     }
                 }
             }
@@ -182,11 +191,17 @@ final class NetworkCheck implements Rule
 
     private function reset(): void
     {
-        $this->exactSeen = [];
-        $this->patternOptionsSeen = ['whitelist' => [], 'blacklist' => []];
-        $this->globalRulesBuckets = ['whitelist' => [], 'blacklist' => []];
-        $this->globalRulesNoToken = ['whitelist' => [], 'blacklist' => []];
-        $this->globalRulesStored = ['whitelist' => [], 'blacklist' => []];
+        $this->seen = [
+            'exact' => [],
+            'pattern_options' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+        ];
+
+        $this->globalIndex = [
+            'by_token' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+            'no_token' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+            // For global rules deduplication
+            'stored' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+        ];
     }
 
     private function shouldSkip(string $line): bool
@@ -205,16 +220,16 @@ final class NetworkCheck implements Rule
     {
         $line = $data['line'];
         $exactKey = $data['hasMatchCase'] ? $line : strtolower($line);
-        if (isset($this->exactSeen[$exactKey])) {
+        if (isset($this->seen['exact'][$exactKey])) {
             $err->message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
-                $line, $this->exactSeen[$exactKey],
+                $line, $this->seen['exact'][$exactKey],
             ))->line($lineNum)->build();
 
             return true;
         }
 
-        $this->exactSeen[$exactKey] = $lineNum;
+        $this->seen['exact'][$exactKey] = $lineNum;
 
         return false;
     }
@@ -226,7 +241,7 @@ final class NetworkCheck implements Rule
     {
         $pattern = $data['pattern'];
         $opts = $data['options'];
-        $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
+        $type = $data['isWhitelist'] ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
 
         /** @var _GlobalRuleData|null */
         $best = null;
@@ -234,12 +249,12 @@ final class NetworkCheck implements Rule
         $bucketsToCheck = [];
         $tokens = $this->getAllTokens($pattern);
         foreach ($tokens as $token) {
-            if (isset($this->globalRulesBuckets[$type][$token])) {
-                $bucketsToCheck[] = $this->globalRulesBuckets[$type][$token];
+            if (isset($this->globalIndex['by_token'][$type][$token])) {
+                $bucketsToCheck[] = $this->globalIndex['by_token'][$type][$token];
             }
         }
-        if (!empty($this->globalRulesNoToken[$type])) {
-            $bucketsToCheck[] = $this->globalRulesNoToken[$type];
+        if (!empty($this->globalIndex['no_token'][$type])) {
+            $bucketsToCheck[] = $this->globalIndex['no_token'][$type];
         }
 
         foreach ($bucketsToCheck as $bucket) {
@@ -320,10 +335,10 @@ final class NetworkCheck implements Rule
     private function checkDomainRedundancy(RuleErrorBuilder $err, int $lineNum, array $data): void
     {
         // $line = $data['line'];
-        $type = $data['isWhitelist'] ? 'whitelist' : 'blacklist';
+        $type = $data['isWhitelist'] ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
         $optionsKey = $data['optionsKey'];
 
-        $seenMap = &$this->patternOptionsSeen[$type][$data['pattern']][$optionsKey];
+        $seenMap = &$this->seen['pattern_options'][$type][$data['pattern']][$optionsKey];
 
         // Scenario B: The current rule is covered by a GLOBAL rule (with same options).
         // if (isset($seenMap['*'])) {
