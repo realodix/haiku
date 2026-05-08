@@ -46,7 +46,7 @@ final class NetworkCheck implements Rule
      *
      * @var array{
      *   'exact': array<string, int>,
-     *   'pattern_options': array<string, array<string, array<string, array<string, array<int, bool>>>>>,
+     *   'pattern_options': array<string, array<string, array<string, array<string, int>>>>,
      * }
      */
     private array $seen;
@@ -130,7 +130,11 @@ final class NetworkCheck implements Rule
                 // }
                 // related to checkDomainRedundancy() (scenario B)
                 foreach ($domains as $d) {
-                    $seenMap[$d['type'].':'.$d['name']][$lineNum] = true;
+                    $entityKey = $d['type'].':'.$d['name'];
+
+                    if (!isset($seenMap[$entityKey])) {
+                        $seenMap[$entityKey] = $lineNum;
+                    }
                 }
             }
 
@@ -365,17 +369,11 @@ final class NetworkCheck implements Rule
 
         foreach ($data['domains'] as $d) {
             $entityKey = $d['type'].':'.$d['name'];
-            if (isset($seenMap[$entityKey])) {
-                foreach (array_keys($seenMap[$entityKey]) as $atLine) {
-                    if ($lineNum > $atLine) {
-                        $redundantDomains[] = [
-                            'domain' => $d['name'],
-                            'atLineNum' => $atLine,
-                        ];
-
-                        break;
-                    }
-                }
+            if (isset($seenMap[$entityKey]) && $lineNum > $seenMap[$entityKey]) {
+                $redundantDomains[] = [
+                    'domain' => $d['name'],
+                    'atLineNum' => $seenMap[$entityKey],
+                ];
             }
         }
 
