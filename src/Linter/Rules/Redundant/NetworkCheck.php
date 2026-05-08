@@ -12,7 +12,7 @@ use Realodix\Haiku\Linter\Util;
 
 /**
  * @phpstan-import-type _RuleError from RuleErrorBuilder
- * @phpstan-type _rulesData array{
+ * @phpstan-type _RulesData array{
  *  line: string,
  *  pattern: string,
  *  options: list<string>,
@@ -64,7 +64,7 @@ final class NetworkCheck implements Rule
 
         $this->reset();
         $err = new RuleErrorBuilder;
-        /** @var list<_rulesData> */
+        /** @var list<_RulesData> */
         $rulesData = [];
 
         // Pass 1: Parse and collect state
@@ -199,7 +199,7 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param _rulesData $data
+     * @param _RulesData $data
      */
     private function checkExactDuplicate(RuleErrorBuilder $err, int $lineNum, $data): bool
     {
@@ -220,7 +220,7 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param _rulesData $data
+     * @param _RulesData $data
      */
     private function checkGlobalRedundancy(RuleErrorBuilder $err, int $lineNum, array $data): bool
     {
@@ -315,7 +315,7 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param _rulesData $data
+     * @param _RulesData $data
      */
     private function checkDomainRedundancy(RuleErrorBuilder $err, int $lineNum, array $data): void
     {
@@ -381,7 +381,7 @@ final class NetworkCheck implements Rule
      * 2. The candidate's domain list encompasses all domains where the target rule applies.
      * 3. Rules with mixed domains (standard and negated) only cover rules with the exact same domain set.
      *
-     * @param _rulesData $rule The rule being checked for redundancy.
+     * @param _RulesData $rule The rule being checked for redundancy.
      * @param _GlobalRuleData $candidate The candidate rule that might cover the target rule.
      */
     private function isCovered(array $rule, array $candidate): bool
