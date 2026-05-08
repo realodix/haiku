@@ -232,8 +232,7 @@ final class GeneralCheck implements Rule
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
                 $msg = sprintf(
                     'Duplicate option:: $%s and $%s are aliases of each other.',
-                    $alias,
-                    $canonical,
+                    $alias, $canonical,
                 );
                 $err->message($msg)->build();
             }
