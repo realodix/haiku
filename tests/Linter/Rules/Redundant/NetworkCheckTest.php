@@ -265,13 +265,34 @@ class NetworkCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function respectMatchCaseOption(): void
+    public function case(): void
     {
+        // case insensitive
+        $lines = [
+            '/ads/*',
+            '/ADS/*',
+            '/ADS1/*',
+            '||somesite.com/ads1/',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: /ADS/* already defined on line 1.'],
+            [4, 'Redundant filter: ||somesite.com/ads1/ already covered by /ads1/* on line 3.'],
+        ]);
+
+        $lines = [
+            '||example.org^$script',
+            '||example.org^$SCRIPT',
+        ];
+        $this->analyse($lines, [
+            [2, 'Option "SCRIPT" must be lowercase.'],
+            [2, 'Redundant filter: ||example.org^$SCRIPT already defined on line 1.'],
+        ]);
+
+        // case sensitive
         $lines = [
             '?url=http/$doc,to=com|io|net,match-case,urlskip=?url',
             '?URL=http/$doc,to=com|io|net,match-case,urlskip=?URL',
         ];
-
         $this->analyse($lines);
     }
 
