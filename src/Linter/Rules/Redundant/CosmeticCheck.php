@@ -50,6 +50,9 @@ final class CosmeticCheck implements Rule
     /** @var array<string, bool> */
     private array $selectorCoverageCache = [];
 
+    /** @var array<string, bool> */
+    private array $attrCovCache = [];
+
     public function __construct(
         private LinterConfig $config,
     ) {}
@@ -172,6 +175,7 @@ final class CosmeticCheck implements Rule
         $this->interactionMap = [];
         $this->ghideExceptions = [];
         $this->selectorCoverageCache = [];
+        $this->attrCovCache = [];
     }
 
     /**
@@ -487,13 +491,22 @@ final class CosmeticCheck implements Rule
     {
         // 1. Semantic generality (for attribute selectors)
         if ($candidate['attrData'] && $best['attrData']) {
-            $bCoversC = $this->isAttrCoveredBy($best['attrData'], $candidate['attrData']);
-            $cCoversB = $this->isAttrCoveredBy($candidate['attrData'], $best['attrData']);
+            $key = $best['selector']."\0".$candidate['selector'];
+            $bestCoversCand = $this->attrCovCache[$key] ??= $this->isAttrCoveredBy(
+                $best['attrData'],
+                $candidate['attrData'],
+            );
 
-            if ($bCoversC && !$cCoversB) {
+            $revKey = $candidate['selector']."\0".$best['selector'];
+            $candCoversBest = $this->attrCovCache[$revKey] ??= $this->isAttrCoveredBy(
+                $candidate['attrData'],
+                $best['attrData'],
+            );
+
+            if ($bestCoversCand && !$candCoversBest) {
                 return true; // candidate is strictly more general
             }
-            if (!$bCoversC && $cCoversB) {
+            if (!$bestCoversCand && $candCoversBest) {
                 return false; // best is strictly more general
             }
         }
