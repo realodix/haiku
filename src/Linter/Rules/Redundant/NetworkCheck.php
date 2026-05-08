@@ -463,7 +463,6 @@ final class NetworkCheck implements Rule
         // 3. Globalness (Global rules are better references than domain-specific ones)
         $candIsGlobal = empty($candidate['domains']);
         $bestIsGlobal = empty($best['domains']);
-
         if ($candIsGlobal && !$bestIsGlobal) {
             return true;
         }

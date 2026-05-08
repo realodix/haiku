@@ -512,10 +512,12 @@ final class CosmeticCheck implements Rule
         }
 
         // 2. Globalness (Global rules are better references than domain-specific ones)
-        if ($candidate['domains'] === [] && $best['domains'] !== []) {
+        $candIsGlobal = empty($candidate['domains']);
+        $bestIsGlobal = empty($best['domains']);
+        if ($candIsGlobal && !$bestIsGlobal) {
             return true;
         }
-        if ($candidate['domains'] !== [] && $best['domains'] === []) {
+        if (!$candIsGlobal && $bestIsGlobal) {
             return false;
         }
 
