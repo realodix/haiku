@@ -14,6 +14,7 @@ use Realodix\Haiku\Linter\Util;
  * @phpstan-import-type _RuleError from RuleErrorBuilder
  * @phpstan-type _RulesData array{
  *  line: string,
+ *  type: string,
  *  pattern: string,
  *  options: list<string>,
  *  nonDomainOptions: list<string>,
@@ -22,7 +23,6 @@ use Realodix\Haiku\Linter\Util;
  *  hasOptions: bool,
  *  hasDomains: bool,
  *  hasMatchCase: bool,
- *  isWhitelist: bool,
  *  regex: string,
  *  tokens: list<string>,
  * }
@@ -87,8 +87,8 @@ final class NetworkCheck implements Rule
                 continue;
             }
 
+            $type = str_starts_with($line, '@@') ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
             $hasOpts = (bool) preg_match(Regex::NET_OPTION, $line, $m);
-            $isWhitelist = str_starts_with($line, '@@');
             $optStr = $hasOpts ? $m[2] : '';
             $opts = $hasOpts ? Util::splitOptions($optStr) : [];
             $hasMatchCase = $this->hasOption($opts, 'match-case');
@@ -106,6 +106,7 @@ final class NetworkCheck implements Rule
 
             $rulesData[$lineNum] = [
                 'line' => $line,
+                'type' => $type,
                 'pattern' => $pattern,
                 'options' => $opts,
                 'nonDomainOptions' => $nonDomainOpts,
@@ -114,12 +115,9 @@ final class NetworkCheck implements Rule
                 'hasOptions' => $hasOpts,
                 'hasDomains' => !empty($domains),
                 'hasMatchCase' => $hasMatchCase,
-                'isWhitelist' => $isWhitelist,
                 'regex' => $regexStr,
                 'tokens' => $this->getAllTokens($pattern),
             ];
-
-            $type = $isWhitelist ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
 
             if ($hasOpts) {
                 $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey];
@@ -248,7 +246,7 @@ final class NetworkCheck implements Rule
     {
         $pattern = $data['pattern'];
         $opts = $data['options'];
-        $type = $data['isWhitelist'] ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
+        $type = $data['type'];
 
         /** @var _GlobalRuleData|null */
         $best = null;
@@ -341,7 +339,7 @@ final class NetworkCheck implements Rule
     private function checkDomainRedundancy(RuleErrorBuilder $err, int $lineNum, array $data): void
     {
         // $line = $data['line'];
-        $type = $data['isWhitelist'] ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
+        $type = $data['type'];
         $optionsKey = $data['optionsKey'];
 
         $seenMap = &$this->seen['pattern_options'][$type][$data['pattern']][$optionsKey];
