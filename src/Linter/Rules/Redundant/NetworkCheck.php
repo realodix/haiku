@@ -24,6 +24,7 @@ use Realodix\Haiku\Linter\Util;
  *  hasMatchCase: bool,
  *  isWhitelist: bool,
  *  regex: string,
+ *  tokens: list<string>,
  * }
  * @phpstan-type _GlobalRuleData array{
  *  pattern: string,
@@ -115,6 +116,7 @@ final class NetworkCheck implements Rule
                 'hasMatchCase' => $hasMatchCase,
                 'isWhitelist' => $isWhitelist,
                 'regex' => $regexStr,
+                'tokens' => $this->getAllTokens($pattern),
             ];
 
             $type = $isWhitelist ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
@@ -252,8 +254,7 @@ final class NetworkCheck implements Rule
         $best = null;
 
         $bucketsToCheck = [];
-        $tokens = $this->getAllTokens($pattern);
-        foreach ($tokens as $token) {
+        foreach ($data['tokens'] as $token) {
             if (isset($this->globalIndex['by_token'][$type][$token])) {
                 $bucketsToCheck[] = $this->globalIndex['by_token'][$type][$token];
             }
