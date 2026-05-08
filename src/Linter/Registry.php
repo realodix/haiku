@@ -85,6 +85,7 @@ final class Registry
         'webrtc-if',
         'window.name-defuser',
         'xml-prune',
+        'break-on-call',
     ];
 
     const DEPRECATED_SCRIPTLETS = [
