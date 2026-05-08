@@ -23,6 +23,7 @@ use Realodix\Haiku\Linter\Util;
  *  hasDomains: bool,
  *  hasMatchCase: bool,
  *  isWhitelist: bool,
+ *  regex: string,
  * }
  * @phpstan-type _GlobalRuleData array{
  *  pattern: string,
@@ -99,8 +100,9 @@ final class NetworkCheck implements Rule
             $nonDomainOpts = $this->extractNonDomainOptions($opts, $hasMatchCase);
             $domains = $this->parseDomains($opts);
             sort($nonDomainOpts);
-
+            $regexStr = $this->buildRegex($pattern);
             $optionsKey = implode(',', $nonDomainOpts);
+
             $rulesData[$lineNum] = [
                 'line' => $line,
                 'pattern' => $pattern,
@@ -112,6 +114,7 @@ final class NetworkCheck implements Rule
                 'hasDomains' => !empty($domains),
                 'hasMatchCase' => $hasMatchCase,
                 'isWhitelist' => $isWhitelist,
+                'regex' => $regexStr,
             ];
 
             $type = $isWhitelist ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
@@ -139,8 +142,6 @@ final class NetworkCheck implements Rule
                     $this->globalIndex['stored'][$type][$uniqueKey] = true;
 
                     $token = $this->getPrimaryToken($pattern);
-                    $regexStr = $this->buildRegex($pattern);
-
                     $isMixed = $this->isMixedDomains($domains);
                     $isAlmostGlobal = false;
                     if (!$isMixed && $domains !== []) {
@@ -274,7 +275,7 @@ final class NetworkCheck implements Rule
                 }
 
                 if (!$data['hasOptions'] && !$data['hasDomains'] && $lineNum < $candidate['lineNum']) {
-                    if (preg_match($this->buildRegex($pattern), $candidate['pattern'])) {
+                    if (preg_match($data['regex'], $candidate['pattern'])) {
                         continue;
                     }
                 }
@@ -444,8 +445,8 @@ final class NetworkCheck implements Rule
     private function isBetter(array $candidate, array $best): bool
     {
         // 1. Semantic generality in Pattern
-        $candCoversBest = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
-        $bestCoversCand = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
+        $candCoversBest = preg_match($candidate['regex'], $best['pattern']);
+        $bestCoversCand = preg_match($best['regex'], $candidate['pattern']);
 
         if ($candCoversBest && !$bestCoversCand) {
             return true; // $candidate is strictly more general
