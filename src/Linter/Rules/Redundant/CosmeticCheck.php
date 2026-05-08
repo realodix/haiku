@@ -365,7 +365,7 @@ final class CosmeticCheck implements Rule
             // 1. Exact Candidates
             $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
             if (isset($interactionMap[$exactKey])) {
-                $candidates = array_merge($candidates, $interactionMap[$exactKey]);
+                array_push($candidates, ...$interactionMap[$exactKey]);
             }
 
             // 1b. Word Candidates (if A is '=')
@@ -377,7 +377,7 @@ final class CosmeticCheck implements Rule
                     }
                     $wordKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$word;
                     if (isset($interactionMap[$wordKey])) {
-                        $candidates = array_merge($candidates, $interactionMap[$wordKey]);
+                        array_push($candidates, ...$interactionMap[$wordKey]);
                     }
                 }
             }
@@ -385,14 +385,14 @@ final class CosmeticCheck implements Rule
             // 2. Partial Candidates
             $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
             if (isset($interactionMap[$partialKey])) {
-                $candidates = array_merge($candidates, $interactionMap[$partialKey]);
+                array_push($candidates, ...$interactionMap[$partialKey]);
             }
 
             // 3. Global Candidates (if A has a tag)
             if ($tag !== '') {
                 $globalExactKey = 'A|E|'.$separator.'||'.$attr.'|'.$val;
                 if (isset($interactionMap[$globalExactKey])) {
-                    $candidates = array_merge($candidates, $interactionMap[$globalExactKey]);
+                    array_push($candidates, ...$interactionMap[$globalExactKey]);
                 }
 
                 if ($op === '=') {
@@ -402,14 +402,14 @@ final class CosmeticCheck implements Rule
                         }
                         $globalWordKey = 'A|E|'.$separator.'||'.$attr.'|'.$word;
                         if (isset($interactionMap[$globalWordKey])) {
-                            $candidates = array_merge($candidates, $interactionMap[$globalWordKey]);
+                            array_push($candidates, ...$interactionMap[$globalWordKey]);
                         }
                     }
                 }
 
                 $globalPartialKey = 'A|P|'.$separator.'||'.$attr;
                 if (isset($interactionMap[$globalPartialKey])) {
-                    $candidates = array_merge($candidates, $interactionMap[$globalPartialKey]);
+                    array_push($candidates, ...$interactionMap[$globalPartialKey]);
                 }
             }
 
