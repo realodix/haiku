@@ -420,8 +420,8 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * Determine if the candidate rule is "better" (more general or earlier)
-     * than the current best.
+     * Determine if the $candidate rule is "better" (more general or earlier)
+     * than the current $best.
      *
      * @param _GlobalRuleData $candidate The rule to evaluate.
      * @param _GlobalRuleData $best The current best rule to compare against.
@@ -429,17 +429,17 @@ final class NetworkCheck implements Rule
     private function isBetter(array $candidate, array $best): bool
     {
         // 1. Semantic generality in Pattern
-        $bCoversC = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
-        $cCoversB = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
+        $candCoversBest = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
+        $bestCoversCand = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
 
-        if ($bCoversC && !$cCoversB) {
-            return true; // candidate is strictly more general
+        if ($candCoversBest && !$bestCoversCand) {
+            return true; // $candidate is strictly more general
         }
-        if (!$bCoversC && $cCoversB) {
-            return false; // best is strictly more general
+        if (!$candCoversBest && $bestCoversCand) {
+            return false; // $best is strictly more general
         }
 
-        // 2. Generality in Options (No options > some options)
+        // 2. Options — no options is better (more general)
         if ($candidate['optionsKey'] === '' && $best['optionsKey'] !== '') {
             return true;
         }
@@ -448,10 +448,13 @@ final class NetworkCheck implements Rule
         }
 
         // 3. Globalness (Global rules are better references than domain-specific ones)
-        if ($candidate['domains'] === [] && $best['domains'] !== []) {
+        $candIsGlobal = empty($candidate['domains']);
+        $bestIsGlobal = empty($best['domains']);
+
+        if ($candIsGlobal && !$bestIsGlobal) {
             return true;
         }
-        if ($candidate['domains'] !== [] && $best['domains'] === []) {
+        if (!$candIsGlobal && $bestIsGlobal) {
             return false;
         }
 
