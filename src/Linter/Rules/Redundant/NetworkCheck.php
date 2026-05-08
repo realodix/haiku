@@ -28,7 +28,7 @@ use Realodix\Haiku\Linter\Util;
  *  pattern: string,
  *  lineNum: int,
  *  hasOptions: bool,
- *  hasMixed: bool,
+ *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
  *  domains: list<array{name: string, type: string}>,
  *  optionsKey: string,
@@ -142,7 +142,7 @@ final class NetworkCheck implements Rule
                         'pattern' => $pattern,
                         'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
-                        'hasMixed' => $isMixed,
+                        'hasMixedDomains' => $isMixed,
                         'isAlmostGlobal' => $isAlmostGlobal,
                         'domains' => $domains,
                         'optionsKey' => $optionsKey,
@@ -393,7 +393,7 @@ final class NetworkCheck implements Rule
         if ($candidate['domains'] !== []) {
             // A rule with a mix of inclusions and exclusions should not cover other rules
             // unless they have the exact same domain set.
-            if ($this->isMixedDomains($candidate['domains'])) {
+            if ($candidate['hasMixedDomains']) {
                 if ($candidate['domains'] !== $rule['domains']) {
                     return false;
                 }
