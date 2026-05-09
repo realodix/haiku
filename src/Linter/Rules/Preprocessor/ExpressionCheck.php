@@ -120,14 +120,14 @@ final class ExpressionCheck implements Rule
             $knownPreprocessorTokens = Registry::PREPROCESSOR_DIRECTIVES;
 
             if (!in_array($token, $knownPreprocessorTokens, true)) {
-                $builder = $err->message(sprintf('Unknown token "%s" in "!#if" condition.', $token));
+                $err->message(sprintf('Unknown token "%s" in "!#if" condition.', $token));
 
                 $hint = Helper::getSuggestion($knownPreprocessorTokens, $token);
                 if ($hint) {
-                    $builder->tip(sprintf('Did you mean "%s"?', $hint));
+                    $err->tip(sprintf('Did you mean "%s"?', $hint));
                 }
 
-                $builder->build();
+                $err->build();
             }
         }
     }

@@ -42,16 +42,16 @@ final class UnknownCheck implements Rule
                 }
 
                 if (!in_array($actualName, $knownOptions, true)) {
-                    $builder = $err->message(sprintf('Unknown filter option: "%s".', $actualName));
+                    $err->message(sprintf('Unknown filter option: "%s".', $actualName));
 
                     $hint = Helper::getSuggestion($knownOptions, $actualName);
                     if ($hint) {
-                        $builder->tip(sprintf('Did you mean "%s"?', $hint));
+                        $err->tip(sprintf('Did you mean "%s"?', $hint));
                     } elseif ($actualName === 'xml') {
-                        $builder->tip('Did you mean "xhr"?');
+                        $err->tip('Did you mean "xhr"?');
                     }
 
-                    $builder->build();
+                    $err->build();
                 }
             }
         }

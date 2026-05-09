@@ -255,13 +255,13 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $builder = $err->message(sprintf('Deprecated filter option: "$%s".', $opt));
+            $err->message(sprintf('Deprecated filter option: "$%s".', $opt));
 
             if ($replacement !== null) {
-                $builder->tip(sprintf('Use "%s" instead.', $replacement));
+                $err->tip(sprintf('Use "%s" instead.', $replacement));
             }
 
-            $builder->build();
+            $err->build();
         }
     }
 
