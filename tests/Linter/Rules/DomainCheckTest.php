@@ -57,6 +57,14 @@ class DomainCheckTest extends TestCase
     public function bad_domain(): void
     {
         $lines = [
+            '*$domain=*',
+            '*##.ad',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain name: "*"'],
+        ]);
+
+        $lines = [
             'a,example.com,c##.ads',
             '*$domain=a|example.com|c',
             'example.##.ad',

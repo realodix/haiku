@@ -91,7 +91,7 @@ final class DomainCheck implements Rule
                 continue;
             }
 
-            $this->checkBadDomainName($err, $domain);
+            $this->checkBadDomainName($err, $domain, $separator);
             $this->checkAncestorContexts($err, $domain, $separator);
             $this->checkLowercase($err, $domain);
 
@@ -140,9 +140,11 @@ final class DomainCheck implements Rule
      * rNames:
      * - no-invalid-domains
      */
-    private function checkBadDomainName(RuleErrorBuilder $err, string $domain): void
+    private function checkBadDomainName(RuleErrorBuilder $err, string $domain, string $separator): void
     {
-        if (strlen($domain) < 2 && $domain !== '*') {
+        if (strlen($domain) === 1
+            && (($domain == '*' && $separator === '|') || $domain !== '*')
+        ) {
             $err->message(sprintf('Bad domain name: "%s"', $domain))
                 ->build();
         }
