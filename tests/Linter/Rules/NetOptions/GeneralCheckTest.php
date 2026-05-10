@@ -47,8 +47,8 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Duplicate option:: $from and $domain are aliases of each other.'],
-            [2, 'Duplicate option:: $css and $stylesheet are aliases of each other.'],
+            [1, 'Duplicate option: $from and $domain are aliases of each other.'],
+            [2, 'Duplicate option: $css and $stylesheet are aliases of each other.'],
         ]);
     }
 
