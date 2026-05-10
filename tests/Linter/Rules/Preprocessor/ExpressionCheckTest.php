@@ -58,10 +58,10 @@ class ExpressionCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function unknown_tokens(): void
+    public function unknown_value(): void
     {
         $lines = [
-            '!#if unknown_token',
+            '!#if unknown_value',
             '!#endif',
 
             '!#if adguard && unknown',
@@ -72,14 +72,14 @@ class ExpressionCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown token "unknown_token" in "!#if" condition.'],
-            [3, 'Unknown token "unknown" in "!#if" condition.'],
-            [5, 'Unknown token "something_else" in "!#if" condition.'],
+            [1, 'Unknown value "unknown_value" in "!#if" condition.'],
+            [3, 'Unknown value "unknown" in "!#if" condition.'],
+            [5, 'Unknown value "something_else" in "!#if" condition.'],
         ]);
     }
 
     #[PHPUnit\Test]
-    public function mutually_exclusive_tokens(): void
+    public function mutually_exclusive_values(): void
     {
         $lines = [
             '!#if adguard && ext_ublock',
@@ -89,8 +89,8 @@ class ExpressionCheckTest extends TestCase
             '!#endif',
         ];
         $this->analyse($lines, [
-            [1, 'Tokens "adguard" and "ext_ublock" will always evaluate to false.'],
-            [3, 'Tokens "env_firefox" and "env_chromium" will always evaluate to false.'],
+            [1, '"adguard" and "ext_ublock" will always evaluate to false.'],
+            [3, '"env_firefox" and "env_chromium" will always evaluate to false.'],
         ]);
 
         $lines = [
@@ -101,7 +101,7 @@ class ExpressionCheckTest extends TestCase
             '!#endif',
         ];
         $this->analyse($lines, [
-            [2, 'Token "env_chromium" will always evaluate to "false" with "env_firefox" from the parent "!#if" on line 1.'],
+            [2, '"env_chromium" will always evaluate to "false" with "env_firefox" from the parent "!#if" on line 1.'],
         ]);
     }
 

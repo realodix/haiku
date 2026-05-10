@@ -31,7 +31,7 @@ final class ExpressionCheck implements Rule
         }
 
         $err = new RuleErrorBuilder;
-        // Stack to track required tokens from parent "!#if" conditions.
+        // Stack to track required value from parent "!#if" conditions.
         // This is used to detect conflicts in nested directives.
         $stack = [];
 
@@ -47,18 +47,18 @@ final class ExpressionCheck implements Rule
                     $err->message('The "!#if" statement must have a condition.')
                         ->build();
 
-                    $stack[] = ['lineNum' => $lineNum, 'reqTokens' => []];
+                    $stack[] = ['lineNum' => $lineNum, 'reqValue' => []];
 
                     continue;
                 }
 
-                $this->checkUnknownTokens($err, $condition);
+                $this->checkUnknownValue($err, $condition);
 
-                $required = $this->getRequiredTokens($condition);
+                $required = $this->getRequiredValue($condition);
                 $this->checkExclusive($err, $required);
                 $this->checkNestedExclusive($err, $required, $stack);
 
-                $stack[] = ['lineNum' => $lineNum, 'reqTokens' => $required];
+                $stack[] = ['lineNum' => $lineNum, 'reqValue' => $required];
 
                 continue;
             }
@@ -74,9 +74,9 @@ final class ExpressionCheck implements Rule
                 if (!empty($stack)) {
                     // Inside an "!#else" block, the parent "!#if" condition is no longer
                     // required to be true (it's actually false). We reset the required
-                    // tokens for this stack frame to avoid false-positive exclusivity
+                    // value for this stack frame to avoid false-positive exclusivity
                     // errors for nested directives.
-                    $stack[count($stack) - 1]['reqTokens'] = [];
+                    $stack[count($stack) - 1]['reqValue'] = [];
                 }
 
                 continue;
@@ -98,7 +98,7 @@ final class ExpressionCheck implements Rule
      * rNames:
      * - no-unknown-preprocessor-directives
      */
-    private function checkUnknownTokens(RuleErrorBuilder $err, string $condition): void
+    private function checkUnknownValue(RuleErrorBuilder $err, string $condition): void
     {
         // Remove outer parentheses if they exist and are balanced
         if (str_starts_with($condition, '(') && str_ends_with($condition, ')')) {
@@ -109,20 +109,20 @@ final class ExpressionCheck implements Rule
         }
 
         // Tokenize condition to find identifiers
-        preg_match_all('/[a-zA-Z_][a-zA-Z0-9_]*/', $condition, $tokenMatches);
+        preg_match_all('/[a-zA-Z_][a-zA-Z0-9_]*/', $condition, $valueMatches);
 
-        if (empty($tokenMatches[0])) {
+        if (empty($valueMatches[0])) {
             $err->message('The "!#if" statement must have a condition.')
                 ->build();
         }
 
-        foreach ($tokenMatches[0] as $token) {
-            $knownPreprocessorTokens = Registry::PREPROCESSOR_DIRECTIVES;
+        foreach ($valueMatches[0] as $value) {
+            $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
 
-            if (!in_array($token, $knownPreprocessorTokens, true)) {
-                $err->message(sprintf('Unknown token "%s" in "!#if" condition.', $token));
+            if (!in_array($value, $knownPreprocessorValues, true)) {
+                $err->message(sprintf('Unknown value "%s" in "!#if" condition.', $value));
 
-                $hint = Helper::getSuggestion($knownPreprocessorTokens, $token);
+                $hint = Helper::getSuggestion($knownPreprocessorValues, $value);
                 if ($hint) {
                     $err->tip(sprintf('Did you mean "%s"?', $hint));
                 }
@@ -142,7 +142,7 @@ final class ExpressionCheck implements Rule
             if (count($intersect) > 1) {
                 $intersect = array_values($intersect);
                 $err->message(sprintf(
-                    'Tokens "%s" and "%s" will always evaluate to false.',
+                    '"%s" and "%s" will always evaluate to false.',
                     $intersect[0], $intersect[1],
                 ))->build();
             }
@@ -151,36 +151,36 @@ final class ExpressionCheck implements Rule
 
     /**
      * @param list<string> $required
-     * @param list<array{reqTokens: list<string>, lineNum: int}> $stack
+     * @param list<array{reqValue: list<string>, lineNum: int}> $stack
      */
     private function checkNestedExclusive(RuleErrorBuilder $err, array $required, array $stack): void
     {
         $parentRequired = [];
 
         foreach ($stack as $frame) {
-            $parentRequired = array_merge($parentRequired, $frame['reqTokens']);
+            $parentRequired = array_merge($parentRequired, $frame['reqValue']);
         }
         $parentRequired = array_unique($parentRequired);
 
-        foreach ($required as $token) {
+        foreach ($required as $value) {
             foreach (self::EXCLUSIVE_GROUPS as $group) {
-                if (in_array($token, $group, true)) {
+                if (in_array($value, $group, true)) {
                     $others = array_intersect($parentRequired, $group);
-                    $others = array_diff($others, [$token]);
+                    $others = array_diff($others, [$value]);
                     if (!empty($others)) {
                         $other = array_shift($others);
 
                         $parentLine = 0;
                         foreach (array_reverse($stack) as $frame) {
-                            if (in_array($other, $frame['reqTokens'], true)) {
+                            if (in_array($other, $frame['reqValue'], true)) {
                                 $parentLine = $frame['lineNum'];
                                 break;
                             }
                         }
 
                         $err->message(sprintf(
-                            'Token "%s" will always evaluate to "false" with "%s" from the parent "!#if" on line %d.',
-                            $token, $other, $parentLine,
+                            '"%s" will always evaluate to "false" with "%s" from the parent "!#if" on line %d.',
+                            $value, $other, $parentLine,
                         ))->build();
                     }
                 }
@@ -189,11 +189,11 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * Get tokens that MUST be true for the condition to be true.
+     * Get value that MUST be true for the condition to be true.
      *
      * @return list<string>
      */
-    private function getRequiredTokens(string $condition): array
+    private function getRequiredValue(string $condition): array
     {
         $condition = trim($condition);
         if ($condition === '') {
@@ -203,7 +203,7 @@ final class ExpressionCheck implements Rule
         if (str_starts_with($condition, '(') && str_ends_with($condition, ')')) {
             $stripped = substr($condition, 1, -1);
             if ($this->isBalanced($stripped)) {
-                return $this->getRequiredTokens($stripped);
+                return $this->getRequiredValue($stripped);
             }
         }
 
@@ -211,7 +211,7 @@ final class ExpressionCheck implements Rule
         if (count($orParts) > 1) {
             $required = null;
             foreach ($orParts as $part) {
-                $partRequired = $this->getRequiredTokens($part);
+                $partRequired = $this->getRequiredValue($part);
                 if ($required === null) {
                     $required = $partRequired;
                 } else {
@@ -226,7 +226,7 @@ final class ExpressionCheck implements Rule
         if (count($andParts) > 1) {
             $required = [];
             foreach ($andParts as $part) {
-                $required = array_merge($required, $this->getRequiredTokens($part));
+                $required = array_merge($required, $this->getRequiredValue($part));
             }
 
             return array_unique($required);
