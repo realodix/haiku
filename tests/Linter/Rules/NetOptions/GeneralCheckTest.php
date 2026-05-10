@@ -18,10 +18,10 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Duplicate option: "$3p".'],
-            [2, 'Duplicate option: "$3p".'],
-            [2, 'Duplicate option: "$script".'],
-            [3, 'Duplicate option: "$domain".'],
+            [1, 'Duplicate option: $3p'],
+            [2, 'Duplicate option: $3p'],
+            [2, 'Duplicate option: $script'],
+            [3, 'Duplicate option: $domain'],
         ]);
     }
 
@@ -105,10 +105,10 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Deprecated filter option: "$empty".'],
-            [2, 'Deprecated filter option: "$mp4".'],
-            [3, 'Deprecated filter option: "$queryprune".'],
-            [4, 'Deprecated filter option: "$queryprune".'],
+            [1, 'Deprecated filter option: $empty'],
+            [2, 'Deprecated filter option: $mp4'],
+            [3, 'Deprecated filter option: $queryprune'],
+            [4, 'Deprecated filter option: $queryprune'],
         ]);
     }
 
@@ -179,8 +179,8 @@ class GeneralCheckTest extends TestCase
             [1, 'Invalid filter: $important is not allowed in exception rules.'],
             [2, 'Invalid filter: $empty is not allowed in exception rules.'],
             [3, 'Invalid filter: $mp4 is not allowed in exception rules.'],
-            [2, 'Deprecated filter option: "$empty".'],
-            [3, 'Deprecated filter option: "$mp4".'],
+            [2, 'Deprecated filter option: $empty'],
+            [3, 'Deprecated filter option: $mp4'],
         ]);
 
         $lines = [

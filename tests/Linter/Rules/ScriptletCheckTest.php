@@ -39,11 +39,11 @@ class ScriptletCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown scriptlet: "bar"'],
-            [2, 'Unknown scriptlet: "bar"'],
-            [3, 'Unknown scriptlet: "bar"'],
-            [4, 'Unknown scriptlet: "nowolf"'],
-            [5, 'Unknown scriptlet: "nowolf"'],
+            [1, 'Unknown scriptlet: bar'],
+            [2, 'Unknown scriptlet: bar'],
+            [3, 'Unknown scriptlet: bar'],
+            [4, 'Unknown scriptlet: nowolf'],
+            [5, 'Unknown scriptlet: nowolf'],
         ]);
 
         app(LinterConfig::class)->rules = [
@@ -75,8 +75,8 @@ class ScriptletCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Deprecated scriptlet: "csp".'],
-            [2, 'Deprecated scriptlet: "csp".'],
+            [1, 'Deprecated scriptlet: csp'],
+            [2, 'Deprecated scriptlet: csp'],
         ]);
     }
 }

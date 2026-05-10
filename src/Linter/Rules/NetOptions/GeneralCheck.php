@@ -119,7 +119,7 @@ final class GeneralCheck implements Rule
         }
 
         foreach (array_unique($duplicates) as $dup) {
-            $err->message(sprintf('Duplicate option: "$%s".', $dup))
+            $err->message(sprintf('Duplicate option: $%s', $dup))
                 ->build();
         }
     }
@@ -255,7 +255,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $err->message(sprintf('Deprecated filter option: "$%s".', $opt));
+            $err->message(sprintf('Deprecated filter option: $%s', $opt));
 
             if ($replacement !== null) {
                 $err->tip(sprintf('Use "%s" instead.', $replacement));
