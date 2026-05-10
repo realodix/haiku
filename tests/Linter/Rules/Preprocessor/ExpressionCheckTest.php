@@ -136,4 +136,28 @@ class ExpressionCheckTest extends TestCase
             [3, 'The "!#else" statement must not have a condition.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function parenthesis_error(): void
+    {
+        $lines = [
+            '!#if (',
+            '!#endif',
+
+            '!#if env_firefox)',
+            '!#endif',
+
+            '!#if (env_chromium',
+            '!#endif',
+
+            '!#if (unknown_value',
+            '!#endif',
+        ];
+        $this->analyse($lines, [
+            [1, 'Unclosed opening parenthesis.'],
+            [3, 'Extra closing parenthesis without an opening one.'],
+            [5, 'Unclosed opening parenthesis.'],
+            [7, 'Unclosed opening parenthesis.'],
+        ]);
+    }
 }

@@ -52,6 +52,10 @@ final class ExpressionCheck implements Rule
                     continue;
                 }
 
+                if ($this->checkParenthesisError($err, $condition)) {
+                    continue;
+                }
+
                 $this->checkUnknownValue($err, $condition);
 
                 $required = $this->getRequiredValue($condition);
@@ -94,6 +98,27 @@ final class ExpressionCheck implements Rule
         return $err->toArray();
     }
 
+    private function checkParenthesisError(RuleErrorBuilder $err, string $condition): bool
+    {
+        $balance = $this->balanceCount($condition);
+
+        if ($balance === 0) {
+            return false;
+        }
+
+        if ($balance < 0) {
+            $err->message('Extra closing parenthesis without an opening one.')
+                ->build();
+
+            return true;
+        }
+
+        $err->message('Unclosed opening parenthesis.')
+            ->build();
+
+        return true;
+    }
+
     /**
      * rNames:
      * - no-unknown-preprocessor-directives
@@ -102,10 +127,7 @@ final class ExpressionCheck implements Rule
     {
         // Remove outer parentheses if they exist and are balanced
         if (str_starts_with($condition, '(') && str_ends_with($condition, ')')) {
-            $stripped = substr($condition, 1, -1);
-            if ($this->isBalanced($stripped)) {
-                $condition = $stripped;
-            }
+            $condition = substr($condition, 1, -1);
         }
 
         // Tokenize condition to find identifiers
@@ -202,9 +224,8 @@ final class ExpressionCheck implements Rule
 
         if (str_starts_with($condition, '(') && str_ends_with($condition, ')')) {
             $stripped = substr($condition, 1, -1);
-            if ($this->isBalanced($stripped)) {
-                return $this->getRequiredValue($stripped);
-            }
+
+            return $this->getRequiredValue($stripped);
         }
 
         $orParts = $this->splitByOperator($condition, '||');
@@ -279,10 +300,7 @@ final class ExpressionCheck implements Rule
         return array_map('trim', $parts);
     }
 
-    /**
-     * Check if parentheses are balanced in the string.
-     */
-    private function isBalanced(string $str): bool
+    private function balanceCount(string $str): int
     {
         $balance = 0;
         for ($i = 0; $i < strlen($str); $i++) {
@@ -291,12 +309,8 @@ final class ExpressionCheck implements Rule
             } elseif ($str[$i] === ')') {
                 $balance--;
             }
-
-            if ($balance < 0) {
-                return false;
-            }
         }
 
-        return $balance === 0;
+        return $balance;
     }
 }
