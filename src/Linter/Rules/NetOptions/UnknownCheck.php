@@ -44,11 +44,10 @@ final class UnknownCheck implements Rule
                 if (!in_array($actualName, $knownOptions, true)) {
                     $err->message(sprintf('Unknown filter option: "%s".', $actualName));
 
+                    $actualName = Registry::NORMALIZED_UNKNOWN[$actualName] ?? $actualName;
                     $hint = Helper::getSuggestion($knownOptions, $actualName);
                     if ($hint) {
                         $err->tip(sprintf('Did you mean "%s"?', $hint));
-                    } elseif ($actualName === 'xml') {
-                        $err->tip('Did you mean "xhr"?');
                     }
 
                     $err->build();

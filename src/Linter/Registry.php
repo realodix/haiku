@@ -178,7 +178,13 @@ final class Registry
         'adguard_app_cli', 'adguard_ext_chromium_mv3',
     ];
 
+    /**
+     * Helps find the correct value
+     */
     const NORMALIZED_UNKNOWN = [
+        // filter options
+        'xml' => 'xhl',
+
         // redirect value
         'noopmp4' => 'noopmp4-',
     ];
