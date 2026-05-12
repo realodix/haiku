@@ -47,9 +47,6 @@ final class CosmeticCheck implements Rule
     /** @var array<string, bool> */
     private array $ghideExceptions = [];
 
-    /** @var array<string, bool> */
-    private array $attrCovCache = [];
-
     public function __construct(
         private LinterConfig $config,
     ) {}
@@ -171,7 +168,6 @@ final class CosmeticCheck implements Rule
         $this->rulesData = [];
         $this->interactionMap = [];
         $this->ghideExceptions = [];
-        $this->attrCovCache = [];
     }
 
     /**
@@ -481,13 +477,13 @@ final class CosmeticCheck implements Rule
         // 1. Semantic generality (for attribute selectors)
         if ($candidate['attrData'] && $best['attrData']) {
             $key = $best['selector']."\0".$candidate['selector'];
-            $bestCoversCand = $this->attrCovCache[$key] ??= $this->isAttrCoveredBy(
+            $bestCoversCand = $this->isAttrCoveredBy(
                 $best['attrData'],
                 $candidate['attrData'],
             );
 
             $revKey = $candidate['selector']."\0".$best['selector'];
-            $candCoversBest = $this->attrCovCache[$revKey] ??= $this->isAttrCoveredBy(
+            $candCoversBest = $this->isAttrCoveredBy(
                 $candidate['attrData'],
                 $best['attrData'],
             );
