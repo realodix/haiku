@@ -177,4 +177,9 @@ final class Registry
         // adguard
         'adguard_app_cli', 'adguard_ext_chromium_mv3',
     ];
+
+    const NORMALIZED_UNKNOWN = [
+        // redirect value
+        'noopmp4' => 'noopmp4-',
+    ];
 }
