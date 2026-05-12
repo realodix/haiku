@@ -48,9 +48,6 @@ final class CosmeticCheck implements Rule
     private array $ghideExceptions = [];
 
     /** @var array<string, bool> */
-    private array $selectorCoverageCache = [];
-
-    /** @var array<string, bool> */
     private array $attrCovCache = [];
 
     public function __construct(
@@ -174,7 +171,6 @@ final class CosmeticCheck implements Rule
         $this->rulesData = [];
         $this->interactionMap = [];
         $this->ghideExceptions = [];
-        $this->selectorCoverageCache = [];
         $this->attrCovCache = [];
     }
 
@@ -466,19 +462,12 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // Use memoization to avoid expensive selector comparisons for rules
-        // that share the same selector pair across different domains.
-        $cacheKey = $rule['selector']."\0".$candidate['selector'];
-        if (isset($this->selectorCoverageCache[$cacheKey])) {
-            return $this->selectorCoverageCache[$cacheKey];
-        }
-
         // If simple, it's an exact match from bucket S|. If not, it's an attribute comparison.
         $coverage = $rule['attrData'] === null
             ? true
             : $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
 
-        return $this->selectorCoverageCache[$cacheKey] = $coverage;
+        return $coverage;
     }
 
     /**
