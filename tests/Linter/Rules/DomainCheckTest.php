@@ -179,9 +179,9 @@ class DomainCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Duplicate domain "example.com".'],
-            [2, 'Duplicate domain "example.com".'],
-            [3, 'Duplicate domain "~example.com".'],
+            [1, 'Duplicate domain: example.com'],
+            [2, 'Duplicate domain: example.com'],
+            [3, 'Duplicate domain: ~example.com'],
         ]);
     }
 

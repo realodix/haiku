@@ -379,7 +379,7 @@ final class NetworkCheck implements Rule
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
                 $err->message(sprintf(
-                    "Redundant filter: domain '%s' already covered on line %d.",
+                    'Redundant filter: domain %s already covered on line %d.',
                     $rd['domain'], $rd['atLineNum'],
                 ))->line($lineNum)->build();
             }

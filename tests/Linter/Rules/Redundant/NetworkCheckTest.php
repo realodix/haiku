@@ -237,7 +237,7 @@ class NetworkCheckTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: *$to=a.com|b.com|~c.com already covered by global filter on line 3.'],
             [2, 'Redundant filter: *$to=a.com already covered by global filter on line 3.'],
-            [3, "Redundant filter: domain '~c.com' already covered on line 1."],
+            [3, 'Redundant filter: domain ~c.com already covered on line 1.'],
         ]);
 
         $lines = [
@@ -247,7 +247,7 @@ class NetworkCheckTest extends TestCase
             '-banner-$image,domain=x.com',
         ];
         $this->analyse($lines, [
-            [2, "Redundant filter: domain 'a.com' already covered on line 1."],
+            [2, 'Redundant filter: domain a.com already covered on line 1.'],
         ]);
     }
 

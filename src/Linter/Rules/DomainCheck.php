@@ -267,7 +267,7 @@ final class DomainCheck implements Rule
     private function reportStatefulErrors(RuleErrorBuilder $err, array $state): void
     {
         foreach (array_unique($state['duplicates']) as $dup) {
-            $err->message(sprintf('Duplicate domain "%s".', $dup))
+            $err->message(sprintf('Duplicate domain: %s', $dup))
                 ->build();
         }
 
