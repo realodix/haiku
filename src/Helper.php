@@ -70,7 +70,7 @@ final class Helper
     /**
      * Escapes a string of characters according to the CSS escape rules.
      *
-     * https://github.com/tailwindlabs/tailwindcss/blob/a4be98386/packages/tailwindcss/src/utils/escape.ts
+     * https://github.com/tailwindlabs/tailwindcss/blob/v4.3.0/packages/tailwindcss/src/utils/escape.ts#L2
      *
      * @param string $str The string to escape
      * @return string The escaped string
@@ -147,7 +147,7 @@ final class Helper
      * Finds the string from $possibilities most similar to $value using Levenshtein distance,
      * or null if none is close enough.
      *
-     * https://github.com/nette/utils/blob/dd5725782/src/Utils/Helpers.php#L80
+     * https://github.com/nette/utils/blob/v4.1.4/src/Utils/Helpers.php#L80
      *
      * @param array<int, string> $possibilities
      */

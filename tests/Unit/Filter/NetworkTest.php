@@ -398,7 +398,7 @@ class NetworkTest extends TestCase
     public static function handleRegexValuesProvider(): array
     {
         return [
-            // https://github.com/AdguardTeam/tsurlfilter/blob/8a529d173b/packages/agtree/test/parser/misc/modifier-list.test.ts#L743
+            // https://github.com/AdguardTeam/tsurlfilter/blob/agtree-v4.1.1/packages/agtree/test/parser/misc/modifier-list.test.ts#L741
             [
                 '$replace=/(<VAST[\\s\\S]*?>)[\\s\\S]*<\\/VAST>/\\$1<\\/VAST>/i,path=/\\/(sub1|sub2)\\/page\\.html/',
                 '$path=/\\/(sub1|sub2)\\/page\\.html/,replace=/(<VAST[\\s\\S]*?>)[\\s\\S]*<\\/VAST>/\\$1<\\/VAST>/i',

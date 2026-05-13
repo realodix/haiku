@@ -7,7 +7,7 @@ final class Registry
     /**
      * A list of known options.
      *
-     * https://github.com/gorhill/uBlock/blob/2a0842f17/src/js/static-filtering-parser.js#L3132
+     * https://github.com/gorhill/uBlock/blob/1.71.0/src/js/static-filtering-parser.js#L3148
      */
     const OPTIONS = [
         // must assign values
@@ -167,7 +167,7 @@ final class Registry
     ];
 
     /**
-     * https://github.com/gorhill/uBlock/blob/e2bd8c146c/src/js/static-filtering-parser.js#L600
+     * https://github.com/gorhill/uBlock/blob/1.71.0/src/js/static-filtering-parser.js#L603
      * https://adguard.com/kb/general/ad-filtering/create-own-filters/#preprocessor-directives
      */
     const PREPROCESSOR_DIRECTIVES = [
