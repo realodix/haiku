@@ -226,7 +226,28 @@ final class CosmeticCheck implements Rule
         }
 
         if ($bestParent) {
-            $this->buildWholeRuleError($err, $currentRule, $bestParent);
+            $message = '';
+            if ($currentRule['selector'] === $bestParent['selector']) {
+                $content = $currentRule['line'];
+                if (count($currentRule['domains']) > 2) {
+                    $content = '...,'.array_key_last($currentRule['domains'])
+                        .$currentRule['separator'].$currentRule['selector'];
+                }
+
+                $message = sprintf(
+                    'Redundant filter: %s already covered by %s on line %d.',
+                    $content,
+                    $bestParent['separator'].$bestParent['selector'],
+                    $bestParent['lineNum'],
+                );
+            } else {
+                $message = sprintf(
+                    'Redundant filter: %s is redundant due to more general selector on line %d.',
+                    $currentRule['line'], $bestParent['lineNum'],
+                );
+            }
+
+            $err->message($message)->line($currentRule['lineNum'])->build();
 
             return true;
         }
@@ -271,65 +292,24 @@ final class CosmeticCheck implements Rule
         foreach ($coverageMap as $parentLine => $coveredDomains) {
             $parent = $parentMap[$parentLine];
             foreach ($coveredDomains as $domain) {
-                $this->buildDomainError($err, $currentRule, $parent, $domain);
+                $message = '';
+                if ($currentRule['selector'] === $parent['selector']) {
+                    $message = sprintf(
+                        'Redundant filter: domain %s already covered on line %d.',
+                        $domain, $parent['lineNum'],
+                    );
+                } else {
+                    $message = sprintf(
+                        'Redundant filter: domain %s in %s already covered on line %d.',
+                        $domain,
+                        $domain.$currentRule['separator'].$currentRule['selector'],
+                        $parent['lineNum'],
+                    );
+                }
+
+                $err->message($message)->line($currentRule['lineNum'])->build();
             }
         }
-    }
-
-    /**
-     * @param _CosmeticRuleData $rule
-     * @param _CosmeticRuleData $parent
-     */
-    private function buildWholeRuleError(RuleErrorBuilder $err, array $rule, array $parent): void
-    {
-        $message = '';
-
-        if ($rule['selector'] === $parent['selector']) {
-            $content = $rule['line'];
-            if (count($rule['domains']) > 2) {
-                $content = '...,'.array_key_last($rule['domains'])
-                    .$rule['separator'].$rule['selector'];
-            }
-
-            $message = sprintf(
-                'Redundant filter: %s already covered by %s on line %d.',
-                $content,
-                $parent['separator'].$parent['selector'],
-                $parent['lineNum'],
-            );
-        } else {
-            $message = sprintf(
-                'Redundant filter: %s is redundant due to more general selector on line %d.',
-                $rule['line'], $parent['lineNum'],
-            );
-        }
-
-        $err->message($message)->line($rule['lineNum'])->build();
-    }
-
-    /**
-     * @param _CosmeticRuleData $rule
-     * @param _CosmeticRuleData $parent
-     */
-    private function buildDomainError(RuleErrorBuilder $err, array $rule, array $parent, string $domain): void
-    {
-        $message = '';
-
-        if ($rule['selector'] === $parent['selector']) {
-            $message = sprintf(
-                'Redundant filter: domain %s already covered on line %d.',
-                $domain, $parent['lineNum'],
-            );
-        } else {
-            $message = sprintf(
-                'Redundant filter: domain %s in %s already covered on line %d.',
-                $domain,
-                $domain.$rule['separator'].$rule['selector'],
-                $parent['lineNum'],
-            );
-        }
-
-        $err->message($message)->line($rule['lineNum'])->build();
     }
 
     /**
