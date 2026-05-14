@@ -19,7 +19,7 @@ use Symfony\Component\Yaml\Yaml;
     name: 'lint',
     description: 'Analyses source code',
 )]
-class LinterCommand extends Command
+class LintCommand extends Command
 {
     public function __construct(
         private Linter $linter,
