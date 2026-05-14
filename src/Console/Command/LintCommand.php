@@ -121,7 +121,6 @@ class LintCommand extends Command
             }
 
             usort($issues, fn($a, $b) => $a['line'] <=> $b['line']);
-
             $relativePath = Path::makeRelative($path, base_path());
 
             $io->writeln(' ------ ----------------------------------------------------------------------------------------------------');

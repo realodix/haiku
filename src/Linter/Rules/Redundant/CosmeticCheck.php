@@ -126,12 +126,12 @@ final class CosmeticCheck implements Rule
 
                 if (in_array($op, ['^=', '$=', '*='], true)) {
                     // Partial bucket (A|P): Groups rules with wildcard operators by their tag and attribute name.
-                    // Example: [class*="ad"] goes here.
+                    // Example: [class*="ad"]
                     $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
                     $this->interactionMap[$partialKey][] = $ruleIndex;
                 } else {
                     // Exact bucket (A|E): Groups rules with exact operators (=, ~=) by their specific value.
-                    // Example: .ads and [class="ads"] go here, drastically reducing candidate pool.
+                    // Example: .ads and [class="ads"]
                     $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
                     $this->interactionMap[$exactKey][] = $ruleIndex;
                 }
