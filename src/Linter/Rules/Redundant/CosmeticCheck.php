@@ -566,9 +566,11 @@ final class CosmeticCheck implements Rule
         // Covers $rule if values match exactly ($rule is "=" or "~=")
         // OR covers $rule if $rule is "=" and $candidate's value is a word in $rule's value.
         if ($candidate['operator'] === '~=') {
-            if ($rule['operator'] === '~=') {
-                return $valR === $valC;
-            }
+            // just defensive programming
+            // if ($rule['operator'] === '~=') {
+            //     return $valR === $valC;
+            // }
+
             if ($rule['operator'] === '=') {
                 $words = preg_split('/\s+/', $valR);
 
