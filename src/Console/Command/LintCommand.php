@@ -21,6 +21,8 @@ use Symfony\Component\Yaml\Yaml;
 )]
 class LintCommand extends Command
 {
+    const ERRORS_LIMIT = 200;
+
     public function __construct(
         private Linter $linter,
     ) {
@@ -107,15 +109,32 @@ class LintCommand extends Command
             return;
         }
 
+        $maxErrors = self::ERRORS_LIMIT;
+        $rendered = 0;
+        $truncated = false;
+
         foreach ($errors as $path => $issues) {
+            if ($rendered >= $maxErrors) {
+                $truncated = true;
+
+                break;
+            }
+
             usort($issues, fn($a, $b) => $a['line'] <=> $b['line']);
 
             $relativePath = Path::makeRelative($path, base_path());
+
             $io->writeln(' ------ ----------------------------------------------------------------------------------------------------');
             $io->writeln(sprintf('  Line   %s', $relativePath));
             $io->writeln(' ------ ----------------------------------------------------------------------------------------------------');
 
             foreach ($issues as $issue) {
+                if ($rendered >= $maxErrors) {
+                    $truncated = true;
+
+                    break 2;
+                }
+
                 $io->writeln(sprintf('  :%-5d %s', $issue['line'], $issue['message']));
 
                 if (isset($issue['tip'])) {
@@ -132,12 +151,22 @@ class LintCommand extends Command
 
                 $io->writeln($this->meta("{$path}:{$issue['line']}", '✏️ '));
                 $io->newLine();
+
+                $rendered++;
             }
         }
 
         if (!empty($globalErrors)) {
             $this->renderGlobalErrors($io, $globalErrors);
         } else {
+            if ($truncated) {
+                $io->note(sprintf(
+                    'Only the first %d errors are shown. %d additional errors were omitted.',
+                    $maxErrors,
+                    $errorReporter->count() - $maxErrors,
+                ));
+            }
+
             $io->error(sprintf('Found %d errors', $errorReporter->count()));
         }
     }
