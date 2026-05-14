@@ -456,15 +456,8 @@ final class CosmeticCheck implements Rule
     {
         // 1. Semantic generality (for attribute selectors)
         if ($candidate['attrData'] && $best['attrData']) {
-            $bestCoversCand = $this->isAttrCoveredBy(
-                $best['attrData'],
-                $candidate['attrData'],
-            );
-
-            $candCoversBest = $this->isAttrCoveredBy(
-                $candidate['attrData'],
-                $best['attrData'],
-            );
+            $bestCoversCand = $this->isAttrCoveredBy($best['attrData'], $candidate['attrData']);
+            $candCoversBest = $this->isAttrCoveredBy($candidate['attrData'], $best['attrData']);
 
             if ($bestCoversCand && !$candCoversBest) {
                 return true; // candidate is strictly more general
