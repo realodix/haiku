@@ -127,7 +127,7 @@ final class CosmeticCheck implements Rule
                 if (in_array($op, ['^=', '$=', '*='], true)) {
                     // Partial bucket (A|P): Groups rules with wildcard operators by their tag and attribute name.
                     // Example: [class*="ad"]
-                    $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
+                    $partialKey = 'A|P|'.$op.'|'.$separator.'|'.$tag.'|'.$attr;
                     $this->interactionMap[$partialKey][] = $ruleIndex;
                 } else {
                     // Exact bucket (A|E): Groups rules with exact operators (=, ~=) by their specific value.
@@ -355,18 +355,31 @@ final class CosmeticCheck implements Rule
             }
 
             // 2. Partial Candidates
-            $partialKey = 'A|P|'.$separator.'|'.$tag.'|'.$attr;
-            if (isset($interactionMap[$partialKey])) {
-                array_push($candidates, ...$interactionMap[$partialKey]);
+            $targetOps = match ($op) {
+                '='  => ['*=', '^=', '$='],
+                '~=' => ['*='],
+                '^=' => ['*=', '^='],
+                '$=' => ['*=', '$='],
+                '*=' => ['*='],
+                default => [],
+            };
+
+            foreach ($targetOps as $tOp) {
+                $partialKey = 'A|P|'.$tOp.'|'.$separator.'|'.$tag.'|'.$attr;
+                if (isset($interactionMap[$partialKey])) {
+                    array_push($candidates, ...$interactionMap[$partialKey]);
+                }
             }
 
             // 3. Global Candidates (if A has a tag)
             if ($tag !== '') {
+                // Global Exact
                 $globalExactKey = 'A|E|'.$separator.'||'.$attr.'|'.$val;
                 if (isset($interactionMap[$globalExactKey])) {
                     array_push($candidates, ...$interactionMap[$globalExactKey]);
                 }
 
+                // Global Word
                 if ($op === '=') {
                     foreach ($words as $word) {
                         if ($word === '' || $word === $val) {
@@ -379,9 +392,12 @@ final class CosmeticCheck implements Rule
                     }
                 }
 
-                $globalPartialKey = 'A|P|'.$separator.'||'.$attr;
-                if (isset($interactionMap[$globalPartialKey])) {
-                    array_push($candidates, ...$interactionMap[$globalPartialKey]);
+                // Global Partial
+                foreach ($targetOps as $tOp) {
+                    $globalPartialKey = 'A|P|'.$tOp.'|'.$separator.'||'.$attr;
+                    if (isset($interactionMap[$globalPartialKey])) {
+                        array_push($candidates, ...$interactionMap[$globalPartialKey]);
+                    }
                 }
             }
 

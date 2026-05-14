@@ -252,4 +252,62 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             [3, 'Redundant filter: ##.banner is redundant due to more general selector on line 4.'],
         ], self::RULE);
     }
+
+    // $POTENTIAL_CANDIDATES = [
+    //     '='  => ['=', '~=', '^=', '$=', '*='], // Hanya bisa dicover oleh dirinya sendiri atau wildcard
+    //     '~=' => ['~=', '*='],                 // Bisa dicover oleh word match lain atau substring
+    //     '^=' => ['^=', '*='],                 // Bisa dicover oleh prefix lain atau substring
+    //     '$=' => ['$=', '*='],                 // Bisa dicover oleh suffix lain atau substring
+    //     '*=' => ['*='],                       // Hanya bisa dicover oleh substring yang lebih pendek
+    // ];
+    #[PHPUnit\Test]
+    public function test_7(): void
+    {
+        // '='
+        $lines = [
+            '##[class="ads1"]',
+            '##[class~="ads1"]',
+            '##.ads1',
+
+            '##[class="foo"]',
+            '##[class="foo"]',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##[class="ads1"] is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: ##.ads1 is redundant due to more general selector on line 2.'],
+            [5, 'Redundant filter: ##[class="foo"] already defined on line 4.'],
+        ]);
+
+        // '~='
+        $lines = [
+            '##[class~="ads1 ads2"]',
+            '##[class~="ads1 ads2"]',
+            '##[class~="ads1"]',
+            '##.ads1',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ##[class~="ads1 ads2"] already defined on line 1.'],
+            [4, 'Redundant filter: ##.ads1 is redundant due to more general selector on line 3.'],
+        ]);
+
+        // '^='
+        $lines = [
+            '##[class^="foo"]',
+            '##[class^="foo_"]',
+            '##[class$="_"]',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ##[class^="foo_"] is redundant due to more general selector on line 1.'],
+        ]);
+
+        // '$='
+        $lines = [
+            '##[class$="_"]',
+            '##[class$="foo_"]',
+            '##[class^="f"]',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ##[class$="foo_"] is redundant due to more general selector on line 1.'],
+        ]);
+    }
 }
