@@ -253,13 +253,6 @@ class CosmeticAttrSelectorCheckTest extends TestCase
         ], self::RULE);
     }
 
-    // $POTENTIAL_CANDIDATES = [
-    //     '='  => ['=', '~=', '^=', '$=', '*='], // Hanya bisa dicover oleh dirinya sendiri atau wildcard
-    //     '~=' => ['~=', '*='],                 // Bisa dicover oleh word match lain atau substring
-    //     '^=' => ['^=', '*='],                 // Bisa dicover oleh prefix lain atau substring
-    //     '$=' => ['$=', '*='],                 // Bisa dicover oleh suffix lain atau substring
-    //     '*=' => ['*='],                       // Hanya bisa dicover oleh substring yang lebih pendek
-    // ];
     #[PHPUnit\Test]
     public function test_7(): void
     {
