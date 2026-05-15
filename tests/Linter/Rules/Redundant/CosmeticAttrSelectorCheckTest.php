@@ -302,7 +302,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
 
         // '$='
         $lines = [
-            '##[class$="_"]',
+            '##[class$="o_"]',
             '##[class$="foo_"]',
             '##[class^="f"]',
         ];

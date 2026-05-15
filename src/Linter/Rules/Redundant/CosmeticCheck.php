@@ -35,6 +35,8 @@ use Realodix\Haiku\Linter\Util;
  */
 final class CosmeticCheck implements Rule
 {
+    private const INDEX_PARTIAL_LIMIT = 2;
+
     /** @var array<string, int> */
     private array $exactSeen = [];
 
@@ -127,7 +129,24 @@ final class CosmeticCheck implements Rule
                 if (in_array($op, ['^=', '$=', '*='], true)) {
                     // Partial bucket (A|P): Groups rules with wildcard operators by their tag and attribute name.
                     // Example: [class*="ad"]
-                    $partialKey = 'A|P|'.$op.'|'.$separator.'|'.$tag.'|'.$attr;
+                    $prefix = 'A|P|'.$op;
+
+                    // Determine Sub-Buckets Based on Operators
+                    $limit = self::INDEX_PARTIAL_LIMIT;
+                    if ($op === '^=') {
+                        if (preg_match('/^https?:\/\/(?:www\.)?/', $val, $matches)) {
+                            $limit = strlen($matches[0]) + $limit;
+                        }
+                        $pre = mb_substr($val, 0, $limit);
+                        $partialKey = "{$prefix}|{$pre}|{$separator}|{$tag}|{$attr}";
+                    } elseif ($op === '$=') {
+                        $suf = mb_substr($val, -$limit);
+                        $partialKey = "{$prefix}|{$suf}|{$separator}|{$tag}|{$attr}";
+                    } else {
+                        // *= operator remains in general buckets for each attribute
+                        $partialKey = "{$prefix}|{$separator}|{$tag}|{$attr}";
+                    }
+
                     $this->interactionMap[$partialKey][] = $ruleIndex;
                 } else {
                     // Exact bucket (A|E): Groups rules with exact operators (=, ~=) by their specific value.
@@ -364,10 +383,28 @@ final class CosmeticCheck implements Rule
                 default => [],
             };
 
+            $limit = self::INDEX_PARTIAL_LIMIT;
+            if ($op === '^=' && preg_match('/^https?:\/\/(?:www\.)?/', $val, $matches)) {
+                $limit = strlen($matches[0]) + $limit;
+            }
+            $pre = mb_substr($val, 0, $limit);
+            $suf = mb_substr($val, -$limit);
+
             foreach ($targetOps as $tOp) {
-                $partialKey = 'A|P|'.$tOp.'|'.$separator.'|'.$tag.'|'.$attr;
-                if (isset($interactionMap[$partialKey])) {
-                    array_push($candidates, ...$interactionMap[$partialKey]);
+                $partialKeys = [];
+                $prefix = 'A|P|'.$tOp;
+                if ($tOp === '^=') {
+                    $partialKeys[] = "{$prefix}|{$pre}|{$separator}|{$tag}|{$attr}";
+                } elseif ($tOp === '$=') {
+                    $partialKeys[] = "{$prefix}|{$suf}|{$separator}|{$tag}|{$attr}";
+                } else {
+                    $partialKeys[] = "{$prefix}|{$separator}|{$tag}|{$attr}";
+                }
+
+                foreach ($partialKeys as $pKey) {
+                    if (isset($interactionMap[$pKey])) {
+                        array_push($candidates, ...$interactionMap[$pKey]);
+                    }
                 }
             }
 
@@ -394,9 +431,20 @@ final class CosmeticCheck implements Rule
 
                 // Global Partial
                 foreach ($targetOps as $tOp) {
-                    $globalPartialKey = 'A|P|'.$tOp.'|'.$separator.'||'.$attr;
-                    if (isset($interactionMap[$globalPartialKey])) {
-                        array_push($candidates, ...$interactionMap[$globalPartialKey]);
+                    $globalPartialKeys = [];
+                    $prefix = 'A|P|'.$tOp;
+                    if ($tOp === '^=') {
+                        $globalPartialKeys[] = "{$prefix}|{$pre}|{$separator}||{$attr}";
+                    } elseif ($tOp === '$=') {
+                        $globalPartialKeys[] = "{$prefix}|{$suf}|{$separator}||{$attr}";
+                    } else {
+                        $globalPartialKeys[] = "{$prefix}|{$separator}||{$attr}";
+                    }
+
+                    foreach ($globalPartialKeys as $gpKey) {
+                        if (isset($interactionMap[$gpKey])) {
+                            array_push($candidates, ...$interactionMap[$gpKey]);
+                        }
                     }
                 }
             }
