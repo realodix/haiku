@@ -138,7 +138,7 @@ final class NetworkCheck implements Rule
                 }
             }
 
-            // A rule is considered “specific” only if it contains only an inclusion list and has no negated domain.
+            // A rule is considered "specific" only if it contains only an inclusion list and has no negated domain.
             $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$this->isMixedDomains($domains);
             if (!$isSpecific) {
                 $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
@@ -355,7 +355,7 @@ final class NetworkCheck implements Rule
         //     return $errors;
         // }
 
-        // Scenario C: The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
+        // The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
         // Check if individual domains are redundant against previous domain-specific rules.
         $domainTypes = [];
         foreach ($data['domains'] as $d) {
