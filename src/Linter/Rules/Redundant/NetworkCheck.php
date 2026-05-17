@@ -711,21 +711,16 @@ final class NetworkCheck implements Rule
      */
     private function getAnchoredDomainToken(string $pattern): ?string
     {
-        if (!str_starts_with($pattern, '||')) {
-            return null;
-        }
         // Find end of domain: either '^' or '/' or end of string
         $end = strpos($pattern, '^');
-        if ($end === false) {
-            $end = strpos($pattern, '/');
-        }
-        if ($end === false) {
-            $end = strlen($pattern);
-        }
         // Extract domain part (between '||' and the separator)
         $domain = substr($pattern, 2, $end - 2);
 
-        return $domain !== '' ? strtolower($domain) : null;
+        if (str_contains($domain, '*')) {
+            return null;
+        }
+
+        return strtolower($domain);
     }
 
     /**
