@@ -35,7 +35,7 @@ use Realodix\Haiku\Linter\Util;
  */
 final class CosmeticCheck implements Rule
 {
-    private const INDEX_PARTIAL_LIMIT = 2;
+    private const ATTR_PARTIAL_KEY_LEN = 2;
 
     /** @var array<string, int> */
     private array $exactSeen = [];
@@ -116,8 +116,7 @@ final class CosmeticCheck implements Rule
                 'isAlmostGlobal' => $isAlmostGlobal,
             ];
 
-            // Group rules into buckets to avoid O(N^2) redundancy checks.
-            // Prefixes used to avoid key collisions:
+            // Group rules into buckets:
             // 'A' (Attribute Selector), 'S' (Standard Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
             if ($attrData) {
@@ -127,31 +126,14 @@ final class CosmeticCheck implements Rule
                 $attr = $attrData['attr'];
 
                 if (in_array($op, ['^=', '$=', '*='], true)) {
-                    // Partial bucket (A|P): Groups rules with wildcard operators by their tag and attribute name.
+                    // Partial bucket (P): Groups rules with wildcard operators by their tag and attribute name.
                     // Example: [class*="ad"]
-                    $prefix = 'A|P|'.$op;
-
-                    // Determine Sub-Buckets Based on Operators
-                    $limit = self::INDEX_PARTIAL_LIMIT;
-                    if ($op === '^=') {
-                        if (preg_match('/^https?:\/\/(?:www\.)?/', $val, $matches)) {
-                            $limit = strlen($matches[0]) + $limit;
-                        }
-                        $pre = mb_substr($val, 0, $limit);
-                        $partialKey = "{$prefix}|{$pre}|{$separator}|{$tag}|{$attr}";
-                    } elseif ($op === '$=') {
-                        $suf = mb_substr($val, -$limit);
-                        $partialKey = "{$prefix}|{$suf}|{$separator}|{$tag}|{$attr}";
-                    } else {
-                        // *= operator remains in general buckets for each attribute
-                        $partialKey = "{$prefix}|{$separator}|{$tag}|{$attr}";
-                    }
-
+                    $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$partialKey][] = $ruleIndex;
                 } else {
-                    // Exact bucket (A|E): Groups rules with exact operators (=, ~=) by their specific value.
+                    // Exact bucket (E): Groups rules with exact operators (=, ~=) by their specific value.
                     // Example: .ads and [class="ads"]
-                    $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
+                    $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$exactKey][] = $ruleIndex;
                 }
             } else {
@@ -354,7 +336,7 @@ final class CosmeticCheck implements Rule
             $attr = $currentRule['attrData']['attr'];
 
             // 1. Exact Candidates
-            $exactKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$val;
+            $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $val);
             if (isset($interactionMap[$exactKey])) {
                 array_push($candidates, ...$interactionMap[$exactKey]);
             }
@@ -366,7 +348,8 @@ final class CosmeticCheck implements Rule
                     if ($word === '' || $word === $val) {
                         continue;
                     }
-                    $wordKey = 'A|E|'.$separator.'|'.$tag.'|'.$attr.'|'.$word;
+
+                    $wordKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $word);
                     if (isset($interactionMap[$wordKey])) {
                         array_push($candidates, ...$interactionMap[$wordKey]);
                     }
@@ -383,24 +366,8 @@ final class CosmeticCheck implements Rule
                 default => [],
             };
 
-            $limit = self::INDEX_PARTIAL_LIMIT;
-            if ($op === '^=' && preg_match('/^https?:\/\/(?:www\.)?/', $val, $matches)) {
-                $limit = strlen($matches[0]) + $limit;
-            }
-            $pre = mb_substr($val, 0, $limit);
-            $suf = mb_substr($val, -$limit);
-
             foreach ($targetOps as $tOp) {
-                $partialKeys = [];
-                $prefix = 'A|P|'.$tOp;
-                if ($tOp === '^=') {
-                    $partialKeys[] = "{$prefix}|{$pre}|{$separator}|{$tag}|{$attr}";
-                } elseif ($tOp === '$=') {
-                    $partialKeys[] = "{$prefix}|{$suf}|{$separator}|{$tag}|{$attr}";
-                } else {
-                    $partialKeys[] = "{$prefix}|{$separator}|{$tag}|{$attr}";
-                }
-
+                $partialKeys[] = $this->buildAttrKey('P', $separator, $tag, $attr, $tOp, $val);
                 foreach ($partialKeys as $pKey) {
                     if (isset($interactionMap[$pKey])) {
                         array_push($candidates, ...$interactionMap[$pKey]);
@@ -411,7 +378,7 @@ final class CosmeticCheck implements Rule
             // 3. Global Candidates (if A has a tag)
             if ($tag !== '') {
                 // Global Exact
-                $globalExactKey = 'A|E|'.$separator.'||'.$attr.'|'.$val;
+                $globalExactKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $val);
                 if (isset($interactionMap[$globalExactKey])) {
                     array_push($candidates, ...$interactionMap[$globalExactKey]);
                 }
@@ -422,7 +389,7 @@ final class CosmeticCheck implements Rule
                         if ($word === '' || $word === $val) {
                             continue;
                         }
-                        $globalWordKey = 'A|E|'.$separator.'||'.$attr.'|'.$word;
+                        $globalWordKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $word);
                         if (isset($interactionMap[$globalWordKey])) {
                             array_push($candidates, ...$interactionMap[$globalWordKey]);
                         }
@@ -431,16 +398,7 @@ final class CosmeticCheck implements Rule
 
                 // Global Partial
                 foreach ($targetOps as $tOp) {
-                    $globalPartialKeys = [];
-                    $prefix = 'A|P|'.$tOp;
-                    if ($tOp === '^=') {
-                        $globalPartialKeys[] = "{$prefix}|{$pre}|{$separator}||{$attr}";
-                    } elseif ($tOp === '$=') {
-                        $globalPartialKeys[] = "{$prefix}|{$suf}|{$separator}||{$attr}";
-                    } else {
-                        $globalPartialKeys[] = "{$prefix}|{$separator}||{$attr}";
-                    }
-
+                    $globalPartialKeys[] = $this->buildAttrKey('G|P', $separator, $tag, $attr, $tOp, $val);
                     foreach ($globalPartialKeys as $gpKey) {
                         if (isset($interactionMap[$gpKey])) {
                             array_push($candidates, ...$interactionMap[$gpKey]);
@@ -794,5 +752,35 @@ final class CosmeticCheck implements Rule
         }
 
         return null;
+    }
+
+    /**
+     * Builds an attribute key.
+     */
+    private function buildAttrKey(
+        string $type, string $separator,
+        string $tag, string $attr, ?string $op = null, ?string $val = null,
+    ): string {
+        if (str_starts_with($type, 'G|')) {
+            $tag = '';
+        }
+
+        // Exact
+        if ($type === 'E' || $type === 'G|E') {
+            return "A|E|{$separator}|{$tag}|{$attr}|{$val}";
+        }
+
+        // Partial
+        $type = 'A|P|'.$op;
+        $limit = self::ATTR_PARTIAL_KEY_LEN;
+        if ($op === '^=' && preg_match('/^https?:\/\/(?:www\.)?/', $val, $matches)) {
+            $limit = strlen($matches[0]) + $limit;
+        }
+
+        return match ($op) {
+            '^=' => "{$type}|".mb_substr($val, 0, $limit)."|{$separator}|{$tag}|{$attr}",
+            '$=' => "{$type}|".mb_substr($val, -$limit)."|{$separator}|{$tag}|{$attr}",
+            default => "{$type}|{$separator}|{$tag}|{$attr}",
+        };
     }
 }
