@@ -67,6 +67,24 @@ class NetworkCheckTest extends TestCase
         ]);
 
         $lines = [
+            '||somesite.com^',
+            '/banner-',
+            '||somesite.com^*/banner-$image',
+            '||somesite.com^*/path',
+
+            '/banner2-',
+            '||example.com^',
+            '||example.com^*/banner2-$image',
+            '||example.com^*/path',
+        ];
+        $this->analyse($lines, [
+            [3, 'Redundant filter: ||somesite.com^*/banner-$image already covered by ||somesite.com^ on line 1.'],
+            [4, 'Redundant filter: ||somesite.com^*/path already covered by ||somesite.com^ on line 1.'],
+            [7, 'Redundant filter: ||example.com^*/banner2-$image already covered by /banner2- on line 5.'],
+            [8, 'Redundant filter: ||example.com^*/path already covered by ||example.com^ on line 6.'],
+        ]);
+
+        $lines = [
             '/banner-$image,domain=x.com|y.com,css',
             '/banner-$image,css',
         ];
