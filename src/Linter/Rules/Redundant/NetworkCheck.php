@@ -399,7 +399,7 @@ final class NetworkCheck implements Rule
      */
     private function isCovered(array $rule, array $candidate): bool
     {
-        if (!preg_match($candidate['regex'], $rule['pattern'])) {
+        if (!@preg_match($candidate['regex'], $rule['pattern'])) {
             return false;
         }
 

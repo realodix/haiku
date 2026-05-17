@@ -366,11 +366,21 @@ class NetworkCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function net_typo_as_regex(): void
+    public function net_typo(): void
     {
         // typo, appears as a regex
         $lines = [
             '/foo/bar/$image',
+        ];
+        $this->analyse($lines);
+
+        // regex not valid
+        // preg_match(): Compilation failed: missing opening brace after \o at offset 24
+        // https://github.com/DandelionSprout/adfilt/blob/3a505745b/AntiRacismList.txt#L91-L92
+        // https://github.com/realodix/haiku/blob/v1.13.6/src/Linter/Rules/Redundant/NetworkCheck.php#L402
+        $lines = [
+            '/^(.*\.|.*//)?n[eе]rdr\ot\ic\.c\om/?.*$/$all',
+            '/^(.*\.|.*//)?p[aа]tre\on\.c\om/[eе]nd\ym\i\ontv/?.*$/$all',
         ];
         $this->analyse($lines);
     }
