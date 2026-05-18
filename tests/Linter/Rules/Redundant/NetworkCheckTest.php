@@ -111,20 +111,6 @@ class NetworkCheckTest extends TestCase
         $this->analyse($lines, [
             [2, 'Redundant filter: ||somesite.com/ads/$image already covered by /ads/* on line 1.'],
         ]);
-
-        $lines = [
-            '||inc*-rev.static-cloudflare.workers.dev',
-            '||inc-rev.static-cloudflare.workers.dev',
-            '||increase*-rev.static-cloudflare.workers.dev^',
-
-            '||somesite1.com^',
-            '||somesite*.com^',
-        ];
-        $this->analyse($lines, [
-            [2, 'Redundant filter: ||inc-rev.static-cloudflare.workers.dev already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
-            [3, 'Redundant filter: ||increase*-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
-            [4, 'Redundant filter: ||somesite1.com^ already covered by ||somesite*.com^ on line 5.'],
-        ]);
     }
 
     #[PHPUnit\Test]
@@ -145,7 +131,7 @@ class NetworkCheckTest extends TestCase
         ]);
 
         $lines = [
-            '||inc*-rev.static-cloudflare.workers.dev^',
+            '||inc*-rev.static-cloudflare.workers.dev',
             '||inc-rev.static-cloudflare.workers.dev^',
             '||inc1-rev.static-cloudflare.workers.dev^',
             '||increase*-rev.static-cloudflare.workers.dev^',
@@ -160,16 +146,19 @@ class NetworkCheckTest extends TestCase
 
             '||somesite1.com^',
             '||somesite*.com^',
+            '||*.example.com^',
+            '||x.example.com^',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||inc-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev^ on line 1.'],
-            [3, 'Redundant filter: ||inc1-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev^ on line 1.'],
-            [4, 'Redundant filter: ||increase*-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev^ on line 1.'],
-            [5, 'Redundant filter: ||increase2-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev^ on line 1.'],
+            [2, 'Redundant filter: ||inc-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [3, 'Redundant filter: ||inc1-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [4, 'Redundant filter: ||increase*-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [5, 'Redundant filter: ||increase2-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
             [7, 'Redundant filter: ||increase-rev1.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6.'],
             [8, 'Redundant filter: ||increase-rev2.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6.'],
             [10, 'Redundant filter: ||increase1rev.static-cloudflare.workers.dev^ already covered by ||increase*rev.static-cloudflare.workers.dev^ on line 9.'],
             [11, 'Redundant filter: ||somesite1.com^ already covered by ||somesite*.com^ on line 12.'],
+            [14, 'Redundant filter: ||x.example.com^ already covered by ||*.example.com^ on line 13.'],
         ]);
     }
 
