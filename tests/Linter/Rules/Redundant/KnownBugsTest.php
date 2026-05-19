@@ -7,7 +7,7 @@ use Realodix\Haiku\Test\TestCase;
 
 class KnownBugsTest extends TestCase
 {
-   #[PHPUnit\Test]
+    #[PHPUnit\Test]
     public function net_filter(): void
     {
         $lines = [
