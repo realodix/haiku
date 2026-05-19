@@ -20,18 +20,34 @@ class KnownBugsTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: ||example.com/path already covered by ||example.com on line 2.'],
         ]);
+    }
+
+    #[PHPUnit\Test]
+    public function net_filter_done(): void
+    {
+        $lines = [
+            'www.youtube.com',
+            'youtube.com',
+            'x.klarnacdn.net',
+            'klarnacdn.net',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: www.youtube.com already covered by youtube.com on line 2.'],
+            [3, 'Redundant filter: x.klarnacdn.net already covered by klarnacdn.net on line 4.'],
+        ]);
 
         $lines = [
             '||ads1-adnow.com',
             '||adnow.com',
             '||click-cdn.com',
             '||ck-cdn.com',
+
             '||alitems.com',
             '||alitems.co',
+            '||example.co^',
+            '||example.com^',
         ];
-        $this->analyse($lines, [
-            [5, 'Redundant filter: ||alitems.com already covered by ||alitems.co on line 6.'],
-        ]);
+        $this->analyse($lines);
         $lines = [
             'ads1-adnow.com',
             'adnow.com',
@@ -39,11 +55,24 @@ class KnownBugsTest extends TestCase
             'ck-cdn.com',
             'alitems.com',
             'alitems.co',
+            'keyvdowallet.me',
+            't.me',
+            'yandex.com',
+            'ex.co',
+            'ps.w.org',
+            's.w.org',
+        ];
+        $this->analyse($lines);
+
+        $this->analyse($lines);
+        $lines = [
+            'amazon.com.au',
+            'amazon.com',
+            'media-amazon.com',
+            'm.media-amazon.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: ads1-adnow.com already covered by adnow.com on line 2.'],
-            [3, 'Redundant filter: click-cdn.com already covered by ck-cdn.com on line 4.'],
-            [5, 'Redundant filter: alitems.com already covered by alitems.co on line 6.'],
+            [4, 'Redundant filter: m.media-amazon.com already covered by media-amazon.com on line 3.'],
         ]);
     }
 }
