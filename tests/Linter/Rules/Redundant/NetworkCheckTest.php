@@ -93,20 +93,6 @@ class NetworkCheckTest extends TestCase
         ]);
 
         $lines = [
-            '||example.org/wp-content/uploads/*/google-play-spoticatolico.png',
-            '||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=example.com',
-            '||secure---sso---robinhood---com-cdn.webflow.io^$doc',
-            '-sso-*.webflow.io^',
-            '/mailer.hostinger.io/o/*$image',
-            '/mailer.*/o/*$image',
-        ];
-        $this->analyse($lines, [
-            [2, 'Redundant filter: ||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=ex... already covered by ||example.org/wp-content/uploads/*/google-play-spoticatolico.png on line 1.'],
-            [3, 'Redundant filter: ||secure---sso---robinhood---com-cdn.webflow.io^$doc already covered by -sso-*.webflow.io^ on line 4.'],
-            [5, 'Redundant filter: /mailer.hostinger.io/o/*$image already covered by /mailer.*/o/* on line 6.'],
-        ]);
-
-        $lines = [
             '@@/adv/ads',
             '@@/adv/*',
             '/adv/ads',
@@ -124,6 +110,55 @@ class NetworkCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [2, 'Redundant filter: ||somesite.com/ads/$image already covered by /ads/* on line 1.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function generic_redundancy_with_wildcard(): void
+    {
+        $lines = [
+            '||example.org/wp-content/uploads/*/google-play-spoticatolico.png',
+            '||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=example.com',
+            '||secure---sso---robinhood---com-cdn.webflow.io^$doc',
+            '-sso-*.webflow.io^',
+            '/mailer.hostinger.io/o/*$image',
+            '/mailer.*/o/*$image',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=ex... already covered by ||example.org/wp-content/uploads/*/google-play-spoticatolico.png on line 1.'],
+            [3, 'Redundant filter: ||secure---sso---robinhood---com-cdn.webflow.io^$doc already covered by -sso-*.webflow.io^ on line 4.'],
+            [5, 'Redundant filter: /mailer.hostinger.io/o/*$image already covered by /mailer.*/o/* on line 6.'],
+        ]);
+
+        $lines = [
+            '||inc*-rev.static-cloudflare.workers.dev',
+            '||inc-rev.static-cloudflare.workers.dev^',
+            '||inc1-rev.static-cloudflare.workers.dev^',
+            '||increase*-rev.static-cloudflare.workers.dev^',
+            '||increase2-rev.static-cloudflare.workers.dev^',
+
+            '||increase-rev*.static-cloudflare.workers.dev^',
+            '||increase-rev1.static-cloudflare.workers.dev^',
+            '||increase-rev2.static-cloudflare.workers.dev^',
+
+            '||increase*rev.static-cloudflare.workers.dev^',
+            '||increase1rev.static-cloudflare.workers.dev^',
+
+            '||somesite1.com^',
+            '||somesite*.com^',
+            '||*.example.com^',
+            '||x.example.com^',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ||inc-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [3, 'Redundant filter: ||inc1-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [4, 'Redundant filter: ||increase*-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [5, 'Redundant filter: ||increase2-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
+            [7, 'Redundant filter: ||increase-rev1.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6.'],
+            [8, 'Redundant filter: ||increase-rev2.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6.'],
+            [10, 'Redundant filter: ||increase1rev.static-cloudflare.workers.dev^ already covered by ||increase*rev.static-cloudflare.workers.dev^ on line 9.'],
+            [11, 'Redundant filter: ||somesite1.com^ already covered by ||somesite*.com^ on line 12.'],
+            [14, 'Redundant filter: ||x.example.com^ already covered by ||*.example.com^ on line 13.'],
         ]);
     }
 

@@ -658,6 +658,11 @@ final class NetworkCheck implements Rule
 
     private function getPrimaryToken(string $pattern): ?string
     {
+        // Prioritize domain token for ||...^ rules
+        if ($this->isAnchoredDomain($pattern)) {
+            return $this->getAnchoredDomainToken($pattern);
+        }
+
         // regex
         if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
             return null;
@@ -682,15 +687,47 @@ final class NetworkCheck implements Rule
      */
     private function getAllTokens(string $pattern): array
     {
+        $tokens = [];
+
+        // For ||...^ rules, also include domain token (but primary token already covers)
+        if ($this->isAnchoredDomain($pattern)) {
+            $domainToken = $this->getAnchoredDomainToken($pattern);
+            if ($domainToken !== null) {
+                $tokens[$domainToken] = true;
+            }
+        }
+
         if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
-            $tokens = [];
             foreach ($matches[0] as $match) {
                 $tokens[strtolower($match)] = true;
             }
-
-            return array_keys($tokens);
         }
 
-        return [];
+        return array_keys($tokens);
+    }
+
+    /**
+     * Get domain token for patterns like ||example.com^ or ||example.com/path^
+     */
+    private function getAnchoredDomainToken(string $pattern): ?string
+    {
+        // Find end of domain: either '^' or '/' or end of string
+        $end = strpos($pattern, '^');
+        // Extract domain part (between '||' and the separator)
+        $domain = substr($pattern, 2, $end - 2);
+
+        if (str_contains($domain, '*')) {
+            return null;
+        }
+
+        return strtolower($domain);
+    }
+
+    /**
+     * Check if pattern is a domain-anchored network rule (||...^)
+     */
+    private function isAnchoredDomain(string $pattern): bool
+    {
+        return str_starts_with($pattern, '||') && str_contains($pattern, '^');
     }
 }
