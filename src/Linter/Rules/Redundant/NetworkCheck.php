@@ -666,10 +666,11 @@ final class NetworkCheck implements Rule
 
         // Trait: Enforce a strict leading boundary for alphanumeric plain domains.
         // Uses a positive lookbehind to ensure the pattern is preceded either by the start
-        // of the string or a non-host connector character. This stops 'adnow.com' from
-        // partially matching inside 'ads1-adnow.com'.
+        // of the string, a valid subdomain dot separator, or a non-host connector character.
+        // This allows 'youtube.com' to cover 'www.youtube.com' (via dot), while stopping
+        // 'adnow.com' from partially matching inside 'ads1-adnow.com' (via hyphen).
         if (preg_match('/^[a-zA-Z0-9]/', $pattern)) {
-            return '`(?<=^|[^a-z0-9\-.])'.$regex.'`i';
+            return '`(?<=^|[^a-z0-9\-])'.$regex.'`i';
         }
 
         return '`'.$regex.'`i';
