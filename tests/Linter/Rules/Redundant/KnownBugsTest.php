@@ -20,18 +20,23 @@ class KnownBugsTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: ||example.com/path already covered by ||example.com on line 2.'],
         ]);
+    }
 
+    #[PHPUnit\Test]
+    public function net_filter_done(): void
+    {
         $lines = [
             '||ads1-adnow.com',
             '||adnow.com',
             '||click-cdn.com',
             '||ck-cdn.com',
+
             '||alitems.com',
             '||alitems.co',
+            '||example.co^',
+            '||example.com^',
         ];
-        $this->analyse($lines, [
-            [5, 'Redundant filter: ||alitems.com already covered by ||alitems.co on line 6.'],
-        ]);
+        $this->analyse($lines);
         $lines = [
             'ads1-adnow.com',
             'adnow.com',
@@ -40,10 +45,6 @@ class KnownBugsTest extends TestCase
             'alitems.com',
             'alitems.co',
         ];
-        $this->analyse($lines, [
-            [1, 'Redundant filter: ads1-adnow.com already covered by adnow.com on line 2.'],
-            [3, 'Redundant filter: click-cdn.com already covered by ck-cdn.com on line 4.'],
-            [5, 'Redundant filter: alitems.com already covered by alitems.co on line 6.'],
-        ]);
+        $this->analyse($lines);
     }
 }

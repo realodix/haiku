@@ -644,14 +644,33 @@ final class NetworkCheck implements Rule
 
     private function buildRegex(string $pattern): string
     {
+        // If it is already a native regex pattern (e.g., /.../), return it as is
         if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
             $innerRegex = substr($pattern, 1, -1);
 
             return '`'.$innerRegex.'`i';
         }
 
+        // Escape regular expression special characters to treat the pattern as a literal string
         $regex = preg_quote($pattern, '`');
+
+        // Convert adblock wildcard syntax (*) into regular expression matching (.*)
         $regex = str_replace('\*', '.*', $regex);
+
+        // Trait: Enforce a strict trailing boundary for alphanumeric patterns.
+        // Prevents partial matches at the end of a domain (e.g., ensuring 'alitems.co'
+        // does not falsely cover 'alitems.com').
+        if (preg_match('/[a-zA-Z0-9]$/', $pattern)) {
+            $regex .= '([^a-z0-9\.\-]|$)';
+        }
+
+        // Trait: Enforce a strict leading boundary for alphanumeric plain domains.
+        // Uses a positive lookbehind to ensure the pattern is preceded either by the start
+        // of the string or a non-host connector character. This stops 'adnow.com' from
+        // partially matching inside 'ads1-adnow.com'.
+        if (preg_match('/^[a-zA-Z0-9]/', $pattern)) {
+            return '`(?<=^|[^a-z0-9\-.])'.$regex.'`i';
+        }
 
         return '`'.$regex.'`i';
     }
