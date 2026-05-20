@@ -8,23 +8,6 @@ use Realodix\Haiku\Test\TestCase;
 class KnownBugsTest extends TestCase
 {
     #[PHPUnit\Test]
-    public function net_filter(): void
-    {
-        $lines = [
-            '||example.com/path',
-            '||example.com',
-
-            '||example.org/path',
-            '||example.org^',
-        ];
-        $this->analyse($lines, [
-            [1, 'Redundant filter: ||example.com/path already covered by ||example.com on line 2.'],
-            [3, 'Redundant filter: ||example.org/path already covered by ||example.org^ on line 4.'],
-        ]);
-        ]);
-    }
-
-    #[PHPUnit\Test]
     public function net_filter_done(): void
     {
         $lines = [

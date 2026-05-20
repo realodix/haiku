@@ -294,6 +294,13 @@ final class NetworkCheck implements Rule
             if ($data['hasOptions'] && $this->hasOption($opts, 'popup')) {
                 return false;
             }
+            // Exception options (e.g., $generichide) have distinct behaviors. That rule should not
+            // be considered redundant by rules that do not have an options.
+            $exceptionOpts = ['ghide', 'generichide', 'shide', 'specifichide', 'ehide', 'elemhide'];
+            $currHasExceptOpt = $this->hasOption($opts, $exceptionOpts);
+            if ($currHasExceptOpt && !$best['hasOptions']) {
+                return false;
+            }
 
             // If patterns and options are identical, it's a direct duplicate
             if (!$data['hasDomains']
@@ -630,11 +637,14 @@ final class NetworkCheck implements Rule
 
     /**
      * @param list<string> $options
+     * @param string|list<string> $target
      */
-    private function hasOption(array $options, string $target): bool
+    private function hasOption(array $options, string|array $target): bool
     {
+        $targets = is_array($target) ? array_map('strtolower', $target) : [strtolower($target)];
+
         foreach ($options as $opt) {
-            if (strtolower(trim($opt)) === $target) {
+            if (in_array(strtolower(trim($opt)), $targets, true)) {
                 return true;
             }
         }
