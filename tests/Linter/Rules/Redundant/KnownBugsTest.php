@@ -19,6 +19,8 @@ class KnownBugsTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: ||example.com/path already covered by ||example.com on line 2.'],
+            [3, 'Redundant filter: ||example.org/path already covered by ||example.org^ on line 4.'],
+        ]);
         ]);
     }
 
