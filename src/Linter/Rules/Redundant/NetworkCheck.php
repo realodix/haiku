@@ -290,6 +290,13 @@ final class NetworkCheck implements Rule
         }
 
         if ($best !== null) {
+            // ||example.com and |example.com are not redundant
+            if (str_starts_with($data['pattern'], '|') && str_starts_with($best['pattern'], '|')
+                && strspn($data['pattern'], '|') !== strspn($best['pattern'], '|')
+            ) {
+                return false;
+            }
+
             // The special case of options that avoids redundancy
             if ($data['hasOptions'] && $this->hasOption($opts, ['badfilter', 'popup'])) {
                 return false;

@@ -188,4 +188,15 @@ class GeneralTest extends TestCase
             [8, 'Redundant filter: @@||yahoo.com/search?$generichide already covered by @@||yahoo.com^ on line 7.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function net_filter_3(): void
+    {
+        // https://github.com/easylist/easylist/blob/105e18723d/easylist/easylist_adservers.txt#L53164
+        $lines = [
+            '||example.com^',
+            '|example.com^',
+        ];
+        $this->analyse($lines);
+    }
 }
