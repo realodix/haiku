@@ -297,8 +297,7 @@ final class NetworkCheck implements Rule
             // Exception options (e.g., $generichide) have distinct behaviors. That rule should not
             // be considered redundant by rules that do not have an options.
             $exceptionOpts = ['ghide', 'generichide', 'shide', 'specifichide', 'ehide', 'elemhide'];
-            $currHasExceptOpt = $this->hasOption($opts, $exceptionOpts);
-            if ($currHasExceptOpt && !$best['hasOptions']) {
+            if ($this->hasOption($opts, $exceptionOpts) && !$best['hasOptions']) {
                 return false;
             }
 
