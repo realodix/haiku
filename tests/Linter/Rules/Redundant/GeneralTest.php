@@ -102,4 +102,36 @@ class GeneralTest extends TestCase
             [3, 'Redundant filter: /ads$image,domain=example.com already covered by /ads on line 1.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function net_filter_2(): void
+    {
+        $lines = [
+            '||example.com/path',
+            '||example.com',
+
+            '||example.org/path',
+            '||example.org^',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ||example.com/path already covered by ||example.com on line 2.'],
+            [3, 'Redundant filter: ||example.org/path already covered by ||example.org^ on line 4.'],
+        ]);
+
+        $lines = [
+            '@@||yandex.com^$generichide',
+            '@@||yandex.com^',
+            '@@||example.com^$shide',
+            '@@||example.com/search?$generichide',
+
+            '@@||example.org^$shide,badfilter',
+            '@@||example.org/search?$shide',
+
+            '@@||yahoo.com^$generichide',
+            '@@||yahoo.com/search?$generichide',
+        ];
+        $this->analyse($lines, [
+            [8, 'Redundant filter: @@||yahoo.com/search?$generichide already covered by @@||yahoo.com^ on line 7.'],
+        ]);
+    }
 }

@@ -294,6 +294,12 @@ final class NetworkCheck implements Rule
             if ($data['hasOptions'] && $this->hasOption($opts, 'popup')) {
                 return false;
             }
+            // Exception options (e.g., $generichide) have distinct behaviors. That rule should not
+            // be considered redundant by rules that do not have an options.
+            $exceptionOpts = ['ghide', 'generichide', 'shide', 'specifichide', 'ehide', 'elemhide'];
+            if ($this->hasOption($opts, $exceptionOpts) && !$best['hasOptions']) {
+                return false;
+            }
 
             // If patterns and options are identical, it's a direct duplicate
             if (!$data['hasDomains']
@@ -630,11 +636,14 @@ final class NetworkCheck implements Rule
 
     /**
      * @param list<string> $options
+     * @param string|list<string> $target
      */
-    private function hasOption(array $options, string $target): bool
+    private function hasOption(array $options, string|array $target): bool
     {
+        $targets = is_array($target) ? array_map('strtolower', $target) : [strtolower($target)];
+
         foreach ($options as $opt) {
-            if (strtolower(trim($opt)) === $target) {
+            if (in_array(strtolower(trim($opt)), $targets, true)) {
                 return true;
             }
         }
@@ -656,6 +665,7 @@ final class NetworkCheck implements Rule
 
         // Convert adblock wildcard syntax (*) into regular expression matching (.*)
         $regex = str_replace('\*', '.*', $regex);
+        $regex = str_replace('\^', '([^a-zA-Z0-9_%\.\-]|$)', $regex);
 
         // Trait: Enforce a strict trailing boundary for alphanumeric patterns.
         // Prevents partial matches at the end of a domain (e.g., ensuring 'alitems.co'
@@ -727,12 +737,19 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * Get domain token for patterns like ||example.com^ or ||example.com/path^
+     * Get domain token for patterns like ||example.com^ or ||example.com/path
      */
     private function getAnchoredDomainToken(string $pattern): ?string
     {
         // Find end of domain: either '^' or '/' or end of string
         $end = strpos($pattern, '^');
+        if ($end === false) {
+            $end = strpos($pattern, '/');
+        }
+        if ($end === false) {
+            $end = strlen($pattern);
+        }
+
         // Extract domain part (between '||' and the separator)
         $domain = substr($pattern, 2, $end - 2);
 
@@ -744,10 +761,10 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * Check if pattern is a domain-anchored network rule (||...^)
+     * Check if pattern is a domain-anchored network rule (||...)
      */
     private function isAnchoredDomain(string $pattern): bool
     {
-        return str_starts_with($pattern, '||') && str_contains($pattern, '^');
+        return str_starts_with($pattern, '||');
     }
 }
