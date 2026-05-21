@@ -290,8 +290,8 @@ final class NetworkCheck implements Rule
         }
 
         if ($best !== null) {
-            // The 'popup' option is a special case that avoids redundancy
-            if ($data['hasOptions'] && $this->hasOption($opts, 'popup')) {
+            // The special case of options that avoids redundancy
+            if ($data['hasOptions'] && $this->hasOption($opts, ['badfilter', 'popup'])) {
                 return false;
             }
             // Exception options (e.g., $generichide) have distinct behaviors. That rule should not

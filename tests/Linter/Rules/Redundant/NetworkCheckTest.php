@@ -350,6 +350,19 @@ class NetworkCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function respectBadfilter(): void
+    {
+        $lines = [
+            '@@||github.io^$badfilter',
+            '@@||github.io^',
+
+            '||github.io^$badfilter',
+            '||github.io^',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function respectPopupOption(): void
     {
         $lines = [
