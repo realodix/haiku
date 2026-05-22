@@ -12,7 +12,7 @@ use Realodix\Haiku\Linter\Util;
 
 /**
  * @phpstan-import-type _RuleError from RuleErrorBuilder
- * @phpstan-type _RulesData array{
+ * @phpstan-type _NetRule array{
  *  lineNum: int,
  *  line: string,
  *  type: string,
@@ -74,8 +74,8 @@ final class NetworkCheck implements Rule
         }
 
         $err = new RuleErrorBuilder;
-        /** @var list<_RulesData> */
-        $rulesData = [];
+        /** @var list<_NetRule> */
+        $collection = [];
 
         // Pass 1: Parse and collect state
         foreach ($content as $index => $line) {
@@ -103,7 +103,7 @@ final class NetworkCheck implements Rule
             $regexStr = $this->buildRegex($pattern);
             $optionsKey = implode(',', $nonDomainOpts);
 
-            $rulesData[$lineNum] = [
+            $collection[$lineNum] = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'type' => $type,
@@ -143,7 +143,7 @@ final class NetworkCheck implements Rule
                         $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
                     }
 
-                    $ruleData = [
+                    $entry = [
                         'pattern' => $pattern,
                         'lineNum' => $lineNum,
                         'hasOptions' => $hasOpts,
@@ -155,30 +155,30 @@ final class NetworkCheck implements Rule
                     ];
 
                     if ($token !== null) {
-                        $this->globalIndex['by_token'][$type][$token][] = $ruleData;
+                        $this->globalIndex['by_token'][$type][$token][] = $entry;
                     } else {
-                        $this->globalIndex['no_token'][$type][] = $ruleData;
+                        $this->globalIndex['no_token'][$type][] = $entry;
                     }
                 }
             }
         }
 
         // Pass 2: Check redundancy
-        foreach ($rulesData as $data) {
+        foreach ($collection as $entry) {
             // 1. Exact duplicate check (checks if the exact same line was already seen)
-            if ($this->checkExactDuplicate($err, $data)) {
+            if ($this->checkExactDuplicate($err, $entry)) {
                 continue;
             }
 
             // 2. Redundancy check against global rules (no domains)
             // This covers both purely generic rules and rules with matching options.
-            if ($this->checkGlobalRedundancy($err, $data)) {
+            if ($this->checkGlobalRedundancy($err, $entry)) {
                 continue;
             }
 
             // 3. Domain level redundancy (only for rules that specify domains)
-            if ($data['hasDomains']) {
-                $this->checkDomainRedundancy($err, $data);
+            if ($entry['hasDomains']) {
+                $this->checkDomainRedundancy($err, $entry);
             }
         }
 
@@ -212,40 +212,40 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param _RulesData $data
+     * @param _NetRule $entry
      */
-    private function checkExactDuplicate(RuleErrorBuilder $err, $data): bool
+    private function checkExactDuplicate(RuleErrorBuilder $err, array $entry): bool
     {
-        $line = $data['line'];
-        $exactKey = $data['hasMatchCase'] ? $line : strtolower($line);
+        $line = $entry['line'];
+        $exactKey = $entry['hasMatchCase'] ? $line : strtolower($line);
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
                 $line, $this->seen['exact'][$exactKey],
-            ))->line($data['lineNum'])->build();
+            ))->line($entry['lineNum'])->build();
 
             return true;
         }
 
-        $this->seen['exact'][$exactKey] = $data['lineNum'];
+        $this->seen['exact'][$exactKey] = $entry['lineNum'];
 
         return false;
     }
 
     /**
-     * @param _RulesData $data
+     * @param _NetRule $entry
      */
-    private function checkGlobalRedundancy(RuleErrorBuilder $err, array $data): bool
+    private function checkGlobalRedundancy(RuleErrorBuilder $err, array $entry): bool
     {
-        $pattern = $data['pattern'];
-        $opts = $data['options'];
-        $type = $data['type'];
+        $pattern = $entry['pattern'];
+        $opts = $entry['options'];
+        $type = $entry['type'];
 
         /** @var _GlobalRuleData|null */
         $best = null;
 
         $bucketsToCheck = [];
-        foreach ($data['tokens'] as $token) {
+        foreach ($entry['tokens'] as $token) {
             if (isset($this->globalIndex['by_token'][$type][$token])) {
                 $bucketsToCheck[] = $this->globalIndex['by_token'][$type][$token];
             }
@@ -256,22 +256,22 @@ final class NetworkCheck implements Rule
 
         foreach ($bucketsToCheck as $bucket) {
             foreach ($bucket as $candidate) {
-                if ($data['lineNum'] === $candidate['lineNum']) {
+                if ($entry['lineNum'] === $candidate['lineNum']) {
                     continue;
                 }
 
                 if ($candidate['optionsKey'] !== '') {
-                    if ($data['optionsKey'] === '' || $candidate['optionsKey'] !== $data['optionsKey']) {
+                    if ($entry['optionsKey'] === '' || $candidate['optionsKey'] !== $entry['optionsKey']) {
                         continue;
                     }
                 }
 
-                if (!$this->isCovered($data, $candidate)) {
+                if (!$this->isCovered($entry, $candidate)) {
                     continue;
                 }
 
-                if (!$data['hasOptions'] && !$data['hasDomains'] && $data['lineNum'] < $candidate['lineNum']) {
-                    if (preg_match($data['regex'], $candidate['pattern'])) {
+                if (!$entry['hasOptions'] && !$entry['hasDomains'] && $entry['lineNum'] < $candidate['lineNum']) {
+                    if (preg_match($entry['regex'], $candidate['pattern'])) {
                         continue;
                     }
                 }
@@ -284,14 +284,14 @@ final class NetworkCheck implements Rule
 
         if ($best !== null) {
             // ||example.com and |example.com are not redundant
-            if (str_starts_with($data['pattern'], '|') && str_starts_with($best['pattern'], '|')
-                && strspn($data['pattern'], '|') !== strspn($best['pattern'], '|')
+            if (str_starts_with($entry['pattern'], '|') && str_starts_with($best['pattern'], '|')
+                && strspn($entry['pattern'], '|') !== strspn($best['pattern'], '|')
             ) {
                 return false;
             }
 
             // The special case of options that avoids redundancy
-            if ($data['hasOptions'] && $this->hasOption($opts, ['badfilter', 'popup'])) {
+            if ($entry['hasOptions'] && $this->hasOption($opts, ['badfilter', 'popup'])) {
                 return false;
             }
             // Exception options (e.g., $generichide) have distinct behaviors. That rule should not
@@ -302,32 +302,32 @@ final class NetworkCheck implements Rule
             }
 
             // If patterns and options are identical, it's a direct duplicate
-            if (!$data['hasDomains']
-                && $best['hasOptions'] === $data['hasOptions']
+            if (!$entry['hasDomains']
+                && $best['hasOptions'] === $entry['hasOptions']
                 && $pattern === $best['pattern']
             ) {
                 $err->message(sprintf(
                     'Redundant filter: %s already defined on line %d.',
-                    $data['line'], $best['lineNum'],
-                ))->line($data['lineNum'])->build();
+                    $entry['line'], $best['lineNum'],
+                ))->line($entry['lineNum'])->build();
 
                 return true;
             }
 
             // Adjust message based on candidate type for domain-specific filters
-            if ($data['hasDomains'] && $best['hasOptions']) {
+            if ($entry['hasDomains'] && $best['hasOptions']) {
                 $err->message(sprintf(
                     'Redundant filter: %s already covered by global filter on line %d.',
-                    Str::limit($data['line'], 80), $best['lineNum'],
-                ))->line($data['lineNum'])->build();
+                    Str::limit($entry['line'], 80), $best['lineNum'],
+                ))->line($entry['lineNum'])->build();
 
                 return true;
             }
 
             $err->message(sprintf(
                 'Redundant filter: %s already covered by %s on line %d.',
-                Str::limit($data['line'], 80), $best['pattern'], $best['lineNum'],
-            ))->line($data['lineNum'])->build();
+                Str::limit($entry['line'], 80), $best['pattern'], $best['lineNum'],
+            ))->line($entry['lineNum'])->build();
 
             return true;
         }
@@ -336,28 +336,28 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * @param _RulesData $data
+     * @param _NetRule $entry
      */
-    private function checkDomainRedundancy(RuleErrorBuilder $err, array $data): void
+    private function checkDomainRedundancy(RuleErrorBuilder $err, array $entry): void
     {
-        $type = $data['type'];
-        $optionsKey = $data['optionsKey'];
-        $seenMap = &$this->seen['pattern_options'][$type][$data['pattern']][$optionsKey];
+        $type = $entry['type'];
+        $optionsKey = $entry['optionsKey'];
+        $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey];
 
         // The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
         // Check if individual domains are redundant against previous domain-specific rules.
         $domainTypes = [];
-        foreach ($data['domains'] as $d) {
+        foreach ($entry['domains'] as $d) {
             $domainTypes[$d['type']] = true;
         }
+
         $isMixedContext = isset($domainTypes['domain'])
             && (isset($domainTypes['denyallow']) || isset($domainTypes['to']));
 
         $redundantDomains = [];
-
-        foreach ($data['domains'] as $d) {
+        foreach ($entry['domains'] as $d) {
             $entityKey = $d['type'].':'.$d['name'];
-            if (isset($seenMap[$entityKey]) && $data['lineNum'] > $seenMap[$entityKey]) {
+            if (isset($seenMap[$entityKey]) && $entry['lineNum'] > $seenMap[$entityKey]) {
                 $redundantDomains[] = [
                     'domain' => $d['name'],
                     'atLineNum' => $seenMap[$entityKey],
@@ -370,7 +370,7 @@ final class NetworkCheck implements Rule
                 $err->message(sprintf(
                     'Redundant filter: domain %s already covered on line %d.',
                     $rd['domain'], $rd['atLineNum'],
-                ))->line($data['lineNum'])->build();
+                ))->line($entry['lineNum'])->build();
             }
         }
     }
@@ -385,7 +385,7 @@ final class NetworkCheck implements Rule
      * 3. A candidate with mixed domains (both inclusions and exclusions) can ONLY cover
      *    a rule that features the exact same domain set.
      *
-     * @param _RulesData $rule The rule being checked for redundancy.
+     * @param _NetRule $rule The rule being checked for redundancy.
      * @param _GlobalRuleData $candidate The candidate rule that might cover the target rule.
      */
     private function isCovered(array $rule, array $candidate): bool
