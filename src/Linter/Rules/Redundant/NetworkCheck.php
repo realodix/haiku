@@ -54,6 +54,11 @@ final class NetworkCheck implements Rule
      */
     private array $globalIndex;
 
+    /**
+     * @var array<string, string>
+     */
+    private array $regexCache = [];
+
     public function __construct(
         private LinterConfig $config,
     ) {}
@@ -91,7 +96,6 @@ final class NetworkCheck implements Rule
             $nonDomainOpts = $this->extractNonDomainOptions($opts, $hasMatchCase);
             $domains = $this->parseDomains($opts);
             sort($nonDomainOpts);
-            $regexStr = $this->buildRegex($pattern);
             $optionsKey = implode(',', $nonDomainOpts);
             $isMixed = $this->isMixedDomains($domains);
             $isAlmostGlobal = false;
@@ -110,18 +114,15 @@ final class NetworkCheck implements Rule
                 'hasOptions' => $hasOpts,
                 'hasDomains' => !empty($domains),
                 'hasMatchCase' => $hasMatchCase,
-                'regex' => $regexStr,
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
             ];
-
             $collection[$lineNum] = $entry;
 
             if ($hasOpts) {
                 $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey];
                 foreach ($domains as $d) {
                     $entityKey = $d['type'].':'.$d['name'];
-
                     if (!isset($seenMap[$entityKey])) {
                         $seenMap[$entityKey] = $lineNum;
                     }
@@ -181,6 +182,8 @@ final class NetworkCheck implements Rule
             // For global rules deduplication
             'stored' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
         ];
+
+        $this->regexCache = [];
     }
 
     private function shouldSkip(string $line): bool
@@ -253,7 +256,7 @@ final class NetworkCheck implements Rule
                 }
 
                 if (!$entry['hasOptions'] && !$entry['hasDomains'] && $entry['lineNum'] < $candidate['lineNum']) {
-                    if (preg_match($entry['regex'], $candidate['pattern'])) {
+                    if (preg_match($this->buildRegex($entry['pattern']), $candidate['pattern'])) {
                         continue;
                     }
                 }
@@ -372,7 +375,7 @@ final class NetworkCheck implements Rule
      */
     private function isCovered(array $rule, array $candidate): bool
     {
-        if (!@preg_match($candidate['regex'], $rule['pattern'])) {
+        if (!@preg_match($this->buildRegex($candidate['pattern']), $rule['pattern'])) {
             return false;
         }
 
@@ -415,8 +418,8 @@ final class NetworkCheck implements Rule
     private function isBetter(array $candidate, array $best): bool
     {
         // 1. Semantic generality in Pattern
-        $candCoversBest = preg_match($candidate['regex'], $best['pattern']);
-        $bestCoversCand = preg_match($best['regex'], $candidate['pattern']);
+        $candCoversBest = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
+        $bestCoversCand = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
 
         if ($candCoversBest && !$bestCoversCand) {
             return true; // $candidate is strictly more general
@@ -615,11 +618,15 @@ final class NetworkCheck implements Rule
 
     private function buildRegex(string $pattern): string
     {
+        if (isset($this->regexCache[$pattern])) {
+            return $this->regexCache[$pattern];
+        }
+
         // If it is already a native regex pattern (e.g., /.../), return it as is
         if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
             $innerRegex = substr($pattern, 1, -1);
 
-            return '`'.$innerRegex.'`i';
+            return $this->regexCache[$pattern] = '`'.$innerRegex.'`i';
         }
 
         // Escape regular expression special characters to treat the pattern as a literal string
@@ -642,10 +649,12 @@ final class NetworkCheck implements Rule
         // This allows 'youtube.com' to cover 'www.youtube.com' (via dot), while stopping
         // 'adnow.com' from partially matching inside 'ads1-adnow.com' (via hyphen).
         if (preg_match('/^[a-zA-Z0-9]/', $pattern)) {
-            return '`(?<=^|[^a-z0-9\-])'.$regex.'`i';
+            $finalRegex = '`(?<=^|[^a-z0-9\-])'.$regex.'`i';
+        } else {
+            $finalRegex = '`'.$regex.'`i';
         }
 
-        return '`'.$regex.'`i';
+        return $this->regexCache[$pattern] = $finalRegex;
     }
 
     private function getPrimaryToken(string $pattern): ?string
