@@ -7,11 +7,6 @@ use Realodix\Haiku\Test\TestCase;
 
 class GeneralTest extends TestCase
 {
-    // private const RULE = [
-    //     \Realodix\Haiku\Linter\Rules\Redundant\CosmeticCheck::class,
-    //     \Realodix\Haiku\Linter\Rules\Redundant\NetworkCheck::class,
-    // ];
-
     #[PHPUnit\Test]
     public function redundant_1(): void
     {

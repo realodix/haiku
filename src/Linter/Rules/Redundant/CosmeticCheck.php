@@ -63,7 +63,6 @@ final class CosmeticCheck implements Rule
             return [];
         }
 
-        $this->reset();
         $err = new RuleErrorBuilder;
 
         // Pass 1: Parsing and Collection
@@ -104,8 +103,7 @@ final class CosmeticCheck implements Rule
                 $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
             }
 
-            $ruleIndex = count($this->rulesData);
-            $this->rulesData[$ruleIndex] = [
+            $this->rulesData[$lineNum] = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'domains' => $domains,
@@ -129,36 +127,38 @@ final class CosmeticCheck implements Rule
                     // Partial bucket (P): Groups rules with wildcard operators by their tag and attribute name.
                     // Example: [class*="ad"]
                     $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $op, $val);
-                    $this->interactionMap[$partialKey][] = $ruleIndex;
+                    $this->interactionMap[$partialKey][] = $lineNum;
                 } else {
                     // Exact bucket (E): Groups rules with exact operators (=, ~=) by their specific value.
                     // Example: .ads and [class="ads"]
                     $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $op, $val);
-                    $this->interactionMap[$exactKey][] = $ruleIndex;
+                    $this->interactionMap[$exactKey][] = $lineNum;
                 }
             } else {
                 // Standard bucket (S): Groups unparsed selectors by their exact string.
-                $this->interactionMap['S|'.$separator.$selector][] = $ruleIndex;
+                $this->interactionMap['S|'.$separator.$selector][] = $lineNum;
             }
         }
 
         // Pass 2: Redundancy Analysis (Optimized with grouping)
-        foreach ($this->rulesData as $currentIndex => $currentRule) {
+        foreach ($this->rulesData as $currentRule) {
             // 1. Exact duplicate check
             if ($this->checkExactDuplicate($err, $currentRule)) {
                 continue;
             }
 
             // 2. Global redundancy check (checks if the entire rule is covered by another)
-            if ($this->checkGlobalRedundancy($err, $currentIndex, $currentRule)) {
+            if ($this->checkGlobalRedundancy($err, $currentRule)) {
                 continue;
             }
 
             // 3. Domain level redundancy (only for rules that specify domains)
             if ($currentRule['domains'] !== []) {
-                $this->checkDomainRedundancy($err, $currentIndex, $currentRule);
+                $this->checkDomainRedundancy($err, $currentRule);
             }
         }
+
+        $this->reset();
 
         return $err->toArray();
     }
@@ -194,7 +194,7 @@ final class CosmeticCheck implements Rule
     /**
      * @param _CosmeticRuleData $currentRule
      */
-    private function checkGlobalRedundancy(RuleErrorBuilder $err, int $currentIndex, array $currentRule): bool
+    private function checkGlobalRedundancy(RuleErrorBuilder $err, array $currentRule): bool
     {
         $domains = $currentRule['domains'] ?: ['' => true];
         $candidates = $this->findCandidates($currentRule, $this->interactionMap);
@@ -203,7 +203,7 @@ final class CosmeticCheck implements Rule
         $bestParent = null;
 
         foreach ($candidates as $candidateIndex) {
-            if ($currentIndex === $candidateIndex) {
+            if ($currentRule['lineNum'] === $candidateIndex) {
                 continue;
             }
 
@@ -259,7 +259,7 @@ final class CosmeticCheck implements Rule
     /**
      * @param _CosmeticRuleData $currentRule
      */
-    private function checkDomainRedundancy(RuleErrorBuilder $err, int $currentIndex, array $currentRule): void
+    private function checkDomainRedundancy(RuleErrorBuilder $err, array $currentRule): void
     {
         $candidates = $this->findCandidates($currentRule, $this->interactionMap);
         $coverageMap = [];
@@ -269,7 +269,7 @@ final class CosmeticCheck implements Rule
             $bestParent = null;
 
             foreach ($candidates as $candidateIndex) {
-                if ($currentIndex === $candidateIndex) {
+                if ($currentRule['lineNum'] === $candidateIndex) {
                     continue;
                 }
 
@@ -429,11 +429,6 @@ final class CosmeticCheck implements Rule
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
     {
-        // just defensive programming
-        // if ($rule['separator'] !== $candidate['separator']) {
-        //     return false;
-        // }
-
         // Scenario: Domain matching
         // Rule domains must be covered by candidate domains.
         if ($candidate['domains'] !== []) {
@@ -524,11 +519,6 @@ final class CosmeticCheck implements Rule
      */
     private function isAttrCoveredBy(array $rule, array $candidate): bool
     {
-        // just defensive programming
-        // if ($rule['attr'] !== $candidate['attr']) {
-        //     return false;
-        // }
-
         // $candidate covers $rule if $candidate has no tag (global) or same tag as $rule.
         if ($candidate['tag'] !== '' && $rule['tag'] !== $candidate['tag']) {
             return false;
@@ -581,19 +571,12 @@ final class CosmeticCheck implements Rule
         }
 
         // $candidate: "~=" (whitespace-separated item)
-        // Covers $rule if values match exactly ($rule is "=" or "~=")
-        // OR covers $rule if $rule is "=" and $candidate's value is a word in $rule's value.
-        if ($candidate['operator'] === '~=') {
-            // just defensive programming
-            // if ($rule['operator'] === '~=') {
-            //     return $valR === $valC;
-            // }
+        // Covers $rule only if $rule is "=" AND $candidate's value is an exact
+        // word inside $rule's value.
+        if ($candidate['operator'] === '~=' && $rule['operator'] === '=') {
+            $words = preg_split('/\s+/', $valR);
 
-            if ($rule['operator'] === '=') {
-                $words = preg_split('/\s+/', $valR);
-
-                return in_array($valC, $words, true);
-            }
+            return in_array($valC, $words, true);
         }
 
         return false;
