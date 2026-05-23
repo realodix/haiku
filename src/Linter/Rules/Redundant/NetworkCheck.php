@@ -23,16 +23,8 @@ use Realodix\Haiku\Linter\Util;
  *  hasOptions: bool,
  *  hasDomains: bool,
  *  hasMatchCase: bool,
- *  regex: string,
- * }
- * @phpstan-type _GlobalRuleData array{
- *  pattern: string,
- *  lineNum: int,
- *  hasOptions: bool,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
- *  domains: list<array{name: string, type: string}>,
- *  optionsKey: string,
  *  regex: string,
  * }
  */
@@ -55,8 +47,8 @@ final class NetworkCheck implements Rule
      * Global redundancy checking
      *
      * @var array{
-     *   by_token: array<string, array<string, list<_GlobalRuleData>>>,
-     *   no_token: array<string, list<_GlobalRuleData>>,
+     *   by_token: array<string, array<string, list<_NetRule>>>,
+     *   no_token: array<string, list<_NetRule>>,
      *   stored: array<string, array<string, bool>>,
      * }
      */
@@ -101,8 +93,13 @@ final class NetworkCheck implements Rule
             sort($nonDomainOpts);
             $regexStr = $this->buildRegex($pattern);
             $optionsKey = implode(',', $nonDomainOpts);
+            $isMixed = $this->isMixedDomains($domains);
+            $isAlmostGlobal = false;
+            if (!$isMixed && $domains !== []) {
+                $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
+            }
 
-            $collection[$lineNum] = [
+            $entry = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'type' => $type,
@@ -114,7 +111,11 @@ final class NetworkCheck implements Rule
                 'hasDomains' => !empty($domains),
                 'hasMatchCase' => $hasMatchCase,
                 'regex' => $regexStr,
+                'hasMixedDomains' => $isMixed,
+                'isAlmostGlobal' => $isAlmostGlobal,
             ];
+
+            $collection[$lineNum] = $entry;
 
             if ($hasOpts) {
                 $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey];
@@ -133,25 +134,7 @@ final class NetworkCheck implements Rule
                 $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
                 if (!isset($this->globalIndex['stored'][$type][$uniqueKey])) {
                     $this->globalIndex['stored'][$type][$uniqueKey] = true;
-
                     $token = $this->getPrimaryToken($pattern);
-                    $isMixed = $this->isMixedDomains($domains);
-                    $isAlmostGlobal = false;
-                    if (!$isMixed && $domains !== []) {
-                        $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
-                    }
-
-                    $entry = [
-                        'pattern' => $pattern,
-                        'lineNum' => $lineNum,
-                        'hasOptions' => $hasOpts,
-                        'hasMixedDomains' => $isMixed,
-                        'isAlmostGlobal' => $isAlmostGlobal,
-                        'domains' => $domains,
-                        'optionsKey' => $optionsKey,
-                        'regex' => $regexStr,
-                    ];
-
                     if ($token !== null) {
                         $this->globalIndex['by_token'][$type][$token][] = $entry;
                     } else {
@@ -239,7 +222,7 @@ final class NetworkCheck implements Rule
         $opts = $entry['options'];
         $type = $entry['type'];
 
-        /** @var _GlobalRuleData|null */
+        /** @var _NetRule|null */
         $best = null;
 
         $bucketsToCheck = [];
@@ -385,7 +368,7 @@ final class NetworkCheck implements Rule
      *    a rule that features the exact same domain set.
      *
      * @param _NetRule $rule The rule being checked for redundancy.
-     * @param _GlobalRuleData $candidate The candidate rule that might cover the target rule.
+     * @param _NetRule $candidate The candidate rule that might cover the target rule.
      */
     private function isCovered(array $rule, array $candidate): bool
     {
@@ -426,8 +409,8 @@ final class NetworkCheck implements Rule
      * Determine if the $candidate rule is "better" (more general or earlier)
      * than the current $best.
      *
-     * @param _GlobalRuleData $candidate The rule to evaluate.
-     * @param _GlobalRuleData $best The current best rule to compare against.
+     * @param _NetRule $candidate The rule to evaluate.
+     * @param _NetRule $best The current best rule to compare against.
      */
     private function isBetter(array $candidate, array $best): bool
     {
@@ -472,7 +455,7 @@ final class NetworkCheck implements Rule
      * - Or, the list contains ONLY exclusions and the domain is not among them.
      *
      * @param string $domain The domain to check (use empty string for global context).
-     * @param _GlobalRuleData $rule The rule to check against.
+     * @param _NetRule $rule The rule to check against.
      */
     private function isDomainMatched(string $domain, array $rule): bool
     {
