@@ -97,9 +97,9 @@ final class NetworkCheck implements Rule
             $domains = $this->parseDomains($opts);
             sort($nonDomainOpts);
             $optionsKey = implode(',', $nonDomainOpts);
-            $isMixed = $this->isMixedDomains($domains);
+            $hasMixedDomains = $this->isMixedDomains($domains);
             $isAlmostGlobal = false;
-            if (!$isMixed && $domains !== []) {
+            if (!$hasMixedDomains && $domains !== []) {
                 $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
             }
 
@@ -114,7 +114,7 @@ final class NetworkCheck implements Rule
                 'hasOptions' => $hasOpts,
                 'hasDomains' => !empty($domains),
                 'hasMatchCase' => $hasMatchCase,
-                'hasMixedDomains' => $isMixed,
+                'hasMixedDomains' => $hasMixedDomains,
                 'isAlmostGlobal' => $isAlmostGlobal,
             ];
             $collection[$lineNum] = $entry;
@@ -130,7 +130,7 @@ final class NetworkCheck implements Rule
             }
 
             // A rule is considered "specific" only if it contains only an inclusion list and has no negated domain.
-            $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$this->isMixedDomains($domains);
+            $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$hasMixedDomains;
             if (!$isSpecific) {
                 $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
                 if (!isset($this->globalIndex['stored'][$type][$uniqueKey])) {
