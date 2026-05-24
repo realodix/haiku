@@ -367,20 +367,18 @@ final class CosmeticCheck implements Rule
             };
 
             foreach ($targetOps as $tOp) {
-                $partialKeys[] = $this->buildAttrKey('P', $separator, $tag, $attr, $tOp, $val);
-                foreach ($partialKeys as $pKey) {
-                    if (isset($interactionMap[$pKey])) {
-                        array_push($candidates, ...$interactionMap[$pKey]);
-                    }
+                $pKey = $this->buildAttrKey('P', $separator, $tag, $attr, $tOp, $val);
+                if (isset($interactionMap[$pKey])) {
+                    array_push($candidates, ...$interactionMap[$pKey]);
                 }
             }
 
             // 3. Global Candidates (if A has a tag)
             if ($tag !== '') {
                 // Global Exact
-                $globalExactKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $val);
-                if (isset($interactionMap[$globalExactKey])) {
-                    array_push($candidates, ...$interactionMap[$globalExactKey]);
+                $geKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $val);
+                if (isset($interactionMap[$geKey])) {
+                    array_push($candidates, ...$interactionMap[$geKey]);
                 }
 
                 // Global Word
@@ -398,11 +396,9 @@ final class CosmeticCheck implements Rule
 
                 // Global Partial
                 foreach ($targetOps as $tOp) {
-                    $globalPartialKeys[] = $this->buildAttrKey('G|P', $separator, $tag, $attr, $tOp, $val);
-                    foreach ($globalPartialKeys as $gpKey) {
-                        if (isset($interactionMap[$gpKey])) {
-                            array_push($candidates, ...$interactionMap[$gpKey]);
-                        }
+                    $gpKey = $this->buildAttrKey('G|P', $separator, $tag, $attr, $tOp, $val);
+                    if (isset($interactionMap[$gpKey])) {
+                        array_push($candidates, ...$interactionMap[$gpKey]);
                     }
                 }
             }
