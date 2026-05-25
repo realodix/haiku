@@ -65,20 +65,24 @@ YAML);
     public function stringIgnorePattern(): void
     {
         $configFile = $this->tmpDir.'/haiku2.yml';
-        $dummyFile = $this->tmpDir.'/ignored2.txt';
+        $dummyFile_1 = $this->tmpDir.'/ignored2_a.txt';
+        $dummyFile_2 = $this->tmpDir.'/ignored2_b.txt';
 
         $this->fs->dumpFile($configFile, <<<'YAML'
 linter:
   paths:
-    - tests/Integration/tmp/ignored2.txt
+    - tests/Integration/tmp/ignored2_a.txt
+    - tests/Integration/tmp/ignored2_b.txt
   rules:
     no_extra_blank_lines: false
   ignoreErrors:
     - '#^Unexpected empty domain#'
+    - path: '#_b#'
     - 'foo-string'
 YAML);
 
-        $this->fs->dumpFile($dummyFile, ',example.com##.ads');
+        $this->fs->dumpFile($dummyFile_1, ',example.com##.ads');
+        $this->fs->dumpFile($dummyFile_2, 'example.com,example.com###ads');
 
         $linter = new Linter(app(Config::class));
         $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml');
