@@ -359,6 +359,179 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * Parses domain-related options from the raw options list into structured objects.
+     *
+     * @param list<string> $options The raw options list
+     * @return list<array{name: string, type: string}>
+     */
+    private function parseDomains(array $options): array
+    {
+        $domains = [];
+        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=(.+)$/i';
+
+        foreach ($options as $opt) {
+            $opt = trim($opt);
+            if (preg_match($reDomainOpt, $opt, $dm)) {
+                $optName = strtolower($dm[1]);
+                if ($optName === 'from') {
+                    $optName = 'domain';
+                }
+
+                $sep = str_contains($dm[2], '|') ? '|' : ',';
+                $dList = explode($sep, $dm[2]);
+                foreach ($dList as $d) {
+                    $domains[] = [
+                        'name' => strtolower(trim($d)),
+                        'type' => $optName,
+                    ];
+                }
+            }
+        }
+
+        return $domains;
+    }
+
+    /**
+     * @param list<string> $options
+     * @param string|list<string> $target
+     */
+    private function hasOption(array $options, string|array $target): bool
+    {
+        $targets = is_array($target) ? array_map('strtolower', $target) : [strtolower($target)];
+
+        foreach ($options as $opt) {
+            if (in_array(strtolower(trim($opt)), $targets, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //
+    // Global Coverage
+    //
+
+    private function getPrimaryToken(string $pattern): ?string
+    {
+        // Prioritize domain token for ||...^ rules
+        if ($this->isAnchoredDomain($pattern)) {
+            return $this->getAnchoredDomainToken($pattern);
+        }
+
+        // regex
+        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
+            return null;
+        }
+
+        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
+            $longest = '';
+            foreach ($matches[0] as $match) {
+                if (strlen($match) > strlen($longest)) {
+                    $longest = $match;
+                }
+            }
+
+            return $longest !== '' ? strtolower($longest) : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getAllTokens(string $pattern): array
+    {
+        $tokens = [];
+
+        // For ||...^ rules, also include domain token (but primary token already covers)
+        if ($this->isAnchoredDomain($pattern)) {
+            $domainToken = $this->getAnchoredDomainToken($pattern);
+            if ($domainToken !== null) {
+                $tokens[$domainToken] = true;
+            }
+        }
+
+        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
+            foreach ($matches[0] as $match) {
+                $tokens[strtolower($match)] = true;
+            }
+        }
+
+        return array_keys($tokens);
+    }
+
+    /**
+     * Get domain token for patterns like ||example.com^ or ||example.com/path
+     */
+    private function getAnchoredDomainToken(string $pattern): ?string
+    {
+        // Find end of domain: either '^' or '/' or end of string
+        $end = strpos($pattern, '^');
+        if ($end === false) {
+            $end = strpos($pattern, '/');
+        }
+        if ($end === false) {
+            $end = strlen($pattern);
+        }
+
+        // Extract domain part (between '||' and the separator)
+        $domain = substr($pattern, 2, $end - 2);
+
+        if (str_contains($domain, '*')) {
+            return null;
+        }
+
+        return strtolower($domain);
+    }
+
+    /**
+     * @param list<string> $opts
+     */
+    private function buildOptionKey(array $opts, bool $hasMatchCase): string
+    {
+        // Extracts non-domain behavioral options (e.g. image, script).
+        $nonDomainOpts = [];
+        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=/i';
+        foreach ($opts as $opt) {
+            $opt = trim($opt);
+            if (!preg_match($reDomainOpt, $opt)) {
+                $nonDomainOpts[] = $hasMatchCase ? $opt : strtolower($opt);
+            }
+        }
+
+        sort($nonDomainOpts);
+
+        return implode(',', $nonDomainOpts);
+    }
+
+    /**
+     * Determine if the domain list contains both inclusions and exclusions.
+     *
+     * @param list<array{name: string, type: string}> $domains
+     */
+    private function isMixedDomains(array $domains): bool
+    {
+        $hasIn = false;
+        $hasEx = false;
+
+        foreach ($domains as $d) {
+            if (str_starts_with($d['name'], '~')) {
+                $hasEx = true;
+            } else {
+                $hasIn = true;
+            }
+
+            if ($hasIn && $hasEx) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Determine if the current rule is semantically and domain-wise fully covered
      * by a candidate rule.
      *
@@ -448,24 +621,45 @@ final class NetworkCheck implements Rule
         return $candidate['lineNum'] < $best['lineNum'];
     }
 
-    /**
-     * @param list<string> $opts
-     */
-    private function buildOptionKey(array $opts, bool $hasMatchCase): string
+    private function buildRegex(string $pattern): string
     {
-        // Extracts non-domain behavioral options (e.g. image, script).
-        $nonDomainOpts = [];
-        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=/i';
-        foreach ($opts as $opt) {
-            $opt = trim($opt);
-            if (!preg_match($reDomainOpt, $opt)) {
-                $nonDomainOpts[] = $hasMatchCase ? $opt : strtolower($opt);
-            }
+        if (isset($this->regexCache[$pattern])) {
+            return $this->regexCache[$pattern];
         }
 
-        sort($nonDomainOpts);
+        // If it is already a native regex pattern (e.g., /.../), return it as is
+        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
+            $innerRegex = substr($pattern, 1, -1);
 
-        return implode(',', $nonDomainOpts);
+            return $this->regexCache[$pattern] = '`'.$innerRegex.'`i';
+        }
+
+        // Escape regular expression special characters to treat the pattern as a literal string
+        $regex = preg_quote($pattern, '`');
+
+        // Convert adblock wildcard syntax (*) into regular expression matching (.*)
+        $regex = str_replace('\*', '.*', $regex);
+        $regex = str_replace('\^', '([^a-zA-Z0-9_%\.\-]|$)', $regex);
+
+        // Trait: Enforce a strict trailing boundary for alphanumeric patterns.
+        // Prevents partial matches at the end of a domain (e.g., ensuring 'alitems.co'
+        // does not falsely cover 'alitems.com').
+        if (preg_match('/[a-zA-Z0-9]$/', $pattern)) {
+            $regex .= '([^a-z0-9\.\-]|$)';
+        }
+
+        // Trait: Enforce a strict leading boundary for alphanumeric plain domains.
+        // Uses a positive lookbehind to ensure the pattern is preceded either by the start
+        // of the string, a valid subdomain dot separator, or a non-host connector character.
+        // This allows 'youtube.com' to cover 'www.youtube.com' (via dot), while stopping
+        // 'adnow.com' from partially matching inside 'ads1-adnow.com' (via hyphen).
+        if (preg_match('/^[a-zA-Z0-9]/', $pattern)) {
+            $finalRegex = '`(?<=^|[^a-z0-9\-])'.$regex.'`i';
+        } else {
+            $finalRegex = '`'.$regex.'`i';
+        }
+
+        return $this->regexCache[$pattern] = $finalRegex;
     }
 
     /**
@@ -513,64 +707,6 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * Determine if the domain list contains both inclusions and exclusions.
-     *
-     * @param list<array{name: string, type: string}> $domains
-     */
-    private function isMixedDomains(array $domains): bool
-    {
-        $hasIn = false;
-        $hasEx = false;
-
-        foreach ($domains as $d) {
-            if (str_starts_with($d['name'], '~')) {
-                $hasEx = true;
-            } else {
-                $hasIn = true;
-            }
-
-            if ($hasIn && $hasEx) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Parses domain-related options from the raw options list into structured objects.
-     *
-     * @param list<string> $options The raw options list
-     * @return list<array{name: string, type: string}>
-     */
-    private function parseDomains(array $options): array
-    {
-        $domains = [];
-        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=(.+)$/i';
-
-        foreach ($options as $opt) {
-            $opt = trim($opt);
-            if (preg_match($reDomainOpt, $opt, $dm)) {
-                $optName = strtolower($dm[1]);
-                if ($optName === 'from') {
-                    $optName = 'domain';
-                }
-
-                $sep = str_contains($dm[2], '|') ? '|' : ',';
-                $dList = explode($sep, $dm[2]);
-                foreach ($dList as $d) {
-                    $domains[] = [
-                        'name' => strtolower(trim($d)),
-                        'type' => $optName,
-                    ];
-                }
-            }
-        }
-
-        return $domains;
-    }
-
-    /**
      * Extracts domains from a pattern if it starts with || (e.g. ||example.com/ads/).
      *
      * @return list<array{name: string, type: string}>
@@ -593,138 +729,6 @@ final class NetworkCheck implements Rule
         }
 
         return [];
-    }
-
-    /**
-     * @param list<string> $options
-     * @param string|list<string> $target
-     */
-    private function hasOption(array $options, string|array $target): bool
-    {
-        $targets = is_array($target) ? array_map('strtolower', $target) : [strtolower($target)];
-
-        foreach ($options as $opt) {
-            if (in_array(strtolower(trim($opt)), $targets, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function buildRegex(string $pattern): string
-    {
-        if (isset($this->regexCache[$pattern])) {
-            return $this->regexCache[$pattern];
-        }
-
-        // If it is already a native regex pattern (e.g., /.../), return it as is
-        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
-            $innerRegex = substr($pattern, 1, -1);
-
-            return $this->regexCache[$pattern] = '`'.$innerRegex.'`i';
-        }
-
-        // Escape regular expression special characters to treat the pattern as a literal string
-        $regex = preg_quote($pattern, '`');
-
-        // Convert adblock wildcard syntax (*) into regular expression matching (.*)
-        $regex = str_replace('\*', '.*', $regex);
-        $regex = str_replace('\^', '([^a-zA-Z0-9_%\.\-]|$)', $regex);
-
-        // Trait: Enforce a strict trailing boundary for alphanumeric patterns.
-        // Prevents partial matches at the end of a domain (e.g., ensuring 'alitems.co'
-        // does not falsely cover 'alitems.com').
-        if (preg_match('/[a-zA-Z0-9]$/', $pattern)) {
-            $regex .= '([^a-z0-9\.\-]|$)';
-        }
-
-        // Trait: Enforce a strict leading boundary for alphanumeric plain domains.
-        // Uses a positive lookbehind to ensure the pattern is preceded either by the start
-        // of the string, a valid subdomain dot separator, or a non-host connector character.
-        // This allows 'youtube.com' to cover 'www.youtube.com' (via dot), while stopping
-        // 'adnow.com' from partially matching inside 'ads1-adnow.com' (via hyphen).
-        if (preg_match('/^[a-zA-Z0-9]/', $pattern)) {
-            $finalRegex = '`(?<=^|[^a-z0-9\-])'.$regex.'`i';
-        } else {
-            $finalRegex = '`'.$regex.'`i';
-        }
-
-        return $this->regexCache[$pattern] = $finalRegex;
-    }
-
-    private function getPrimaryToken(string $pattern): ?string
-    {
-        // Prioritize domain token for ||...^ rules
-        if ($this->isAnchoredDomain($pattern)) {
-            return $this->getAnchoredDomainToken($pattern);
-        }
-
-        // regex
-        if (str_starts_with($pattern, '/') && str_ends_with($pattern, '/')) {
-            return null;
-        }
-
-        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
-            $longest = '';
-            foreach ($matches[0] as $match) {
-                if (strlen($match) > strlen($longest)) {
-                    $longest = $match;
-                }
-            }
-
-            return $longest !== '' ? strtolower($longest) : null;
-        }
-
-        return null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getAllTokens(string $pattern): array
-    {
-        $tokens = [];
-
-        // For ||...^ rules, also include domain token (but primary token already covers)
-        if ($this->isAnchoredDomain($pattern)) {
-            $domainToken = $this->getAnchoredDomainToken($pattern);
-            if ($domainToken !== null) {
-                $tokens[$domainToken] = true;
-            }
-        }
-
-        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
-            foreach ($matches[0] as $match) {
-                $tokens[strtolower($match)] = true;
-            }
-        }
-
-        return array_keys($tokens);
-    }
-
-    /**
-     * Get domain token for patterns like ||example.com^ or ||example.com/path
-     */
-    private function getAnchoredDomainToken(string $pattern): ?string
-    {
-        // Find end of domain: either '^' or '/' or end of string
-        $end = strpos($pattern, '^');
-        if ($end === false) {
-            $end = strpos($pattern, '/');
-        }
-        if ($end === false) {
-            $end = strlen($pattern);
-        }
-
-        // Extract domain part (between '||' and the separator)
-        $domain = substr($pattern, 2, $end - 2);
-
-        if (str_contains($domain, '*')) {
-            return null;
-        }
-
-        return strtolower($domain);
     }
 
     /**
