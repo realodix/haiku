@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Test\Linter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Linter\ErrorReporter;
 use Realodix\Haiku\Linter\IgnoredErrors;
@@ -35,7 +34,7 @@ YAML);
         // This triggers DomainCheck: "Unexpected empty domain.."
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
-        $linter = new Linter(app(Config::class));
+        $linter = app(Linter::class);
         $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml');
 
         $errorReporter = $linter->run($cmdOpt);
@@ -84,7 +83,7 @@ YAML);
         $this->fs->dumpFile($dummyFile_1, ',example.com##.ads');
         $this->fs->dumpFile($dummyFile_2, 'example.com,example.com###ads');
 
-        $linter = new Linter(app(Config::class));
+        $linter = app(Linter::class);
         $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml');
 
         $errorReporter = $linter->run($cmdOpt);
@@ -118,7 +117,7 @@ YAML);
 
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
-        $linter = new Linter(app(Config::class));
+        $linter = app(Linter::class);
         $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku3.yml');
 
         $errorReporter = $linter->run($cmdOpt);
@@ -149,7 +148,7 @@ YAML);
 
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
-        $linter = new Linter(app(Config::class));
+        $linter = app(Linter::class);
         $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku4.yml');
 
         $errorReporter = $linter->run($cmdOpt);
