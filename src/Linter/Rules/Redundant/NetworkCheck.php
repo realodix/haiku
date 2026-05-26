@@ -93,10 +93,8 @@ final class NetworkCheck implements Rule
                 $pattern = strtolower($pattern);
             }
 
-            $nonDomainOpts = $this->extractNonDomainOptions($opts, $hasMatchCase);
             $domains = $this->parseDomains($opts);
-            sort($nonDomainOpts);
-            $optionsKey = implode(',', $nonDomainOpts);
+            $optionsKey = $this->buildOptionKey($opts, $hasMatchCase);
             $hasMixedDomains = $this->isMixedDomains($domains);
             $isAlmostGlobal = false;
             if (!$hasMixedDomains && $domains !== []) {
@@ -451,6 +449,26 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * @param list<string> $opts
+     */
+    private function buildOptionKey(array $opts, bool $hasMatchCase): string
+    {
+        // Extracts non-domain behavioral options (e.g. image, script).
+        $nonDomainOpts = [];
+        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=/i';
+        foreach ($opts as $opt) {
+            $opt = trim($opt);
+            if (!preg_match($reDomainOpt, $opt)) {
+                $nonDomainOpts[] = $hasMatchCase ? $opt : strtolower($opt);
+            }
+        }
+
+        sort($nonDomainOpts);
+
+        return implode(',', $nonDomainOpts);
+    }
+
+    /**
      * Check if a specific domain (or global context) is covered by a list of domain filters.
      *
      * A domain is matched if:
@@ -517,28 +535,6 @@ final class NetworkCheck implements Rule
         }
 
         return false;
-    }
-
-    /**
-     * Extracts non-domain behavioral options (e.g. image, script) from the raw options list.
-     *
-     * @param list<string> $options The raw options list
-     * @param bool $hasMatchCase Whether match-case is enabled
-     * @return list<string> Non-domain options
-     */
-    private function extractNonDomainOptions(array $options, bool $hasMatchCase): array
-    {
-        $nonDomainOpts = [];
-        $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=/i';
-
-        foreach ($options as $opt) {
-            $opt = trim($opt);
-            if (!preg_match($reDomainOpt, $opt)) {
-                $nonDomainOpts[] = $hasMatchCase ? $opt : strtolower($opt);
-            }
-        }
-
-        return $nonDomainOpts;
     }
 
     /**
