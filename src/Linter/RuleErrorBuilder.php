@@ -13,6 +13,8 @@ namespace Realodix\Haiku\Linter;
  */
 final class RuleErrorBuilder
 {
+    use \Illuminate\Support\Traits\Conditionable;
+
     private string $message;
 
     private int $line;

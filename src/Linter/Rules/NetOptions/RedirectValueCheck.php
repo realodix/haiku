@@ -86,15 +86,13 @@ final class RedirectValueCheck implements Rule
         ));
 
         if (!in_array($value, $knownResources, true)) {
-            $err->message(sprintf('Unknown redirect resource value: "%s"', $value));
-
             $value = Registry::NORMALIZED_UNKNOWN[$value] ?? $value;
             $hint = Helper::getSuggestion($knownResources, $value);
-            if ($hint) {
-                $err->tip(sprintf('Did you mean "%s"?', $hint));
-            }
 
-            $err->build();
+            $err->message(sprintf('Unknown redirect resource value: "%s"', $value))
+                ->when($hint, function () use ($err, $hint) {
+                    $err->tip(sprintf('Did you mean "%s"?', $hint));
+                })->build();
         }
     }
 }
