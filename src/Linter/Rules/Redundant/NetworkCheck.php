@@ -415,8 +415,14 @@ final class NetworkCheck implements Rule
     private function getPrimaryToken(string $pattern): ?string
     {
         // Prioritize domain token for ||...^ rules
-        if ($this->isAnchoredDomain($pattern)) {
-            return $this->getAnchoredDomainToken($pattern);
+        if (str_starts_with($pattern, '||')) {
+            $domain = $this->extractAnchoredDomain($pattern);
+
+            if ($domain === null || str_contains($domain, '*')) {
+                return null;
+            }
+
+            return $domain;
         }
 
         // regex
@@ -446,9 +452,9 @@ final class NetworkCheck implements Rule
         $tokens = [];
 
         // For ||...^ rules, also include domain token (but primary token already covers)
-        if ($this->isAnchoredDomain($pattern)) {
-            $domainToken = $this->getAnchoredDomainToken($pattern);
-            if ($domainToken !== null) {
+        if (str_starts_with($pattern, '||')) {
+            $domainToken = $this->extractAnchoredDomain($pattern);
+            if (!($domainToken === null && str_contains($pattern, '*'))) {
                 $tokens[$domainToken] = true;
             }
         }
@@ -460,30 +466,6 @@ final class NetworkCheck implements Rule
         }
 
         return array_keys($tokens);
-    }
-
-    /**
-     * Get domain token for patterns like ||example.com^ or ||example.com/path
-     */
-    private function getAnchoredDomainToken(string $pattern): ?string
-    {
-        // Find end of domain: either '^' or '/' or end of string
-        $end = strpos($pattern, '^');
-        if ($end === false) {
-            $end = strpos($pattern, '/');
-        }
-        if ($end === false) {
-            $end = strlen($pattern);
-        }
-
-        // Extract domain part (between '||' and the separator)
-        $domain = substr($pattern, 2, $end - 2);
-
-        if (str_contains($domain, '*')) {
-            return null;
-        }
-
-        return strtolower($domain);
     }
 
     /**
@@ -562,11 +544,12 @@ final class NetworkCheck implements Rule
             // Rule must be covered by candidate's domains
             $ruleDomains = $rule['domains'];
             if ($ruleDomains === []) {
-                $ruleDomains = $this->extractDomainsFromPattern($rule['pattern']);
-            }
-
-            if ($ruleDomains === []) {
-                $ruleDomains = [['name' => '', 'type' => 'domain']];
+                $domain = $this->extractAnchoredDomain($rule['pattern']);
+                if ($domain !== null) {
+                    $ruleDomains = [['name' => $domain, 'type' => 'domain']];
+                } else {
+                    $ruleDomains = [['name' => '', 'type' => 'domain']];
+                }
             }
 
             foreach ($ruleDomains as $d) {
@@ -706,36 +689,22 @@ final class NetworkCheck implements Rule
         return false;
     }
 
-    /**
-     * Extracts domains from a pattern if it starts with || (e.g. ||example.com/ads/).
-     *
-     * @return list<array{name: string, type: string}>
-     */
-    private function extractDomainsFromPattern(string $pattern): array
+    private function extractAnchoredDomain(string $pattern): ?string
     {
-        if (str_starts_with($pattern, '||')) {
-            $end = strpos($pattern, '^');
-            if ($end === false) {
-                $end = strpos($pattern, '/');
-            }
-            if ($end === false) {
-                $end = strlen($pattern);
-            }
-
-            $domain = substr($pattern, 2, $end - 2);
-            if ($domain !== '') {
-                return [['name' => $domain, 'type' => 'domain']];
-            }
+        if (!str_starts_with($pattern, '||')) {
+            return null;
         }
 
-        return [];
-    }
+        $end = strpos($pattern, '^');
+        if ($end === false) {
+            $end = strpos($pattern, '/');
+        }
+        if ($end === false) {
+            $end = strlen($pattern);
+        }
 
-    /**
-     * Check if pattern is a domain-anchored network rule (||...)
-     */
-    private function isAnchoredDomain(string $pattern): bool
-    {
-        return str_starts_with($pattern, '||');
+        $domain = substr($pattern, 2, $end - 2);
+
+        return $domain !== '' ? $domain : null;
     }
 }
