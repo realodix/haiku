@@ -8,9 +8,6 @@ use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Util;
 
-/**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- */
 final class DomainCheck implements Rule
 {
     public function __construct(

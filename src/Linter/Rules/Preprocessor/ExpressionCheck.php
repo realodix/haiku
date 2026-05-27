@@ -8,9 +8,6 @@ use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 
-/**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- */
 final class ExpressionCheck implements Rule
 {
     private const EXCLUSIVE_GROUPS = [

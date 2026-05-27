@@ -8,9 +8,6 @@ use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
-/**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- */
 final class RedirectValueCheck implements Rule
 {
     public function check(array $content): array
@@ -59,10 +56,6 @@ final class RedirectValueCheck implements Rule
 
     private function checkDeprecated(RuleErrorBuilder $err, ?string $value): bool
     {
-        if ($value === null) {
-            return false;
-        }
-
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
             $err->message(sprintf('Deprecated redirect resource value: "%s"', $value))
                 ->build();
@@ -75,10 +68,6 @@ final class RedirectValueCheck implements Rule
 
     private function checkUnknown(RuleErrorBuilder $err, ?string $value): void
     {
-        if ($value === null) {
-            return;
-        }
-
         $knownResources = Util::flatten(array_merge(
             Registry::RESOURCES,
             Registry::REDIRECT_RESOURCES,

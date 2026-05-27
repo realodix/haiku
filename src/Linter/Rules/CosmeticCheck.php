@@ -7,9 +7,6 @@ use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Util;
 
-/**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- */
 final class CosmeticCheck implements Rule
 {
     public function __construct(

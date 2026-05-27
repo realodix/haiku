@@ -6,9 +6,6 @@ use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 
-/**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- */
 final class ExcessiveEmptyLinesCheck implements Rule
 {
     public function __construct(

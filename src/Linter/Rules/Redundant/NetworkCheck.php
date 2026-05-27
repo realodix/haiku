@@ -11,7 +11,6 @@ use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
 /**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
  * @phpstan-type _NetRule array{
  *  lineNum: int,
  *  line: string,

@@ -9,8 +9,6 @@ use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
 /**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- *
  * @phpstan-type _ParsedAttrSelector array{
  *  tag: string,
  *  attr: string,
@@ -53,10 +51,6 @@ final class CosmeticCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    /**
-     * @param list<string> $content
-     * @return list<_RuleError>
-     */
     public function check(array $content): array
     {
         if (!$this->config->rules['no_dupe_rules']) {

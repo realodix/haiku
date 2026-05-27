@@ -8,9 +8,6 @@ use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
-/**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
- */
 final class GeneralCheck implements Rule
 {
     private const ALIASES = [
