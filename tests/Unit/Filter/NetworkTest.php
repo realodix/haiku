@@ -319,12 +319,6 @@ class NetworkTest extends TestCase
 
         $expected = ['*$domain=~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
         $this->assertSame($expected, $this->fix($input, ['domain_order' => 'negated_first']));
-
-        $expected = ['*$domain=0.0.0.0|~127.0.0.1|~localhost|example.com|~example.org'];
-        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'localhost_first']));
-
-        $expected = ['*$domain=~127.0.0.1|~localhost|0.0.0.0|~example.org|example.com'];
-        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'localhost_negated_first']));
     }
 
     #[PHPUnit\Test]

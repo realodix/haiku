@@ -46,49 +46,6 @@ final class DomainNormalizer
     }
 
     /**
-     * Generate a sorting key for a domain entry.
-     *
-     * The returned array represents a comparison tuple used to enforce deterministic
-     * ordering according to the configured `domain_order` strategy.
-     *
-     * @return array<int, int|string> Sorting tuple
-     */
-    private function domainSortKey(string $str): array
-    {
-        $isNegated = str_starts_with($str, '~');
-        $domain = ltrim($str, '~');
-        $localhostDomains = [
-            'localhost', 'local',
-            '127.0.0.1', '0.0.0.0',
-            '[::1]', '[::]',
-        ];
-        $isLocalhost = in_array($domain, $localhostDomains, true);
-        $strategy = $this->config->flags['domain_order'];
-
-        return match ($strategy) {
-            'negated_first' => [
-                $isNegated ? 0 : 1,
-                $domain,
-            ],
-
-            'localhost_first' => [
-                $isLocalhost ? 0 : 1,
-                $domain,
-            ],
-
-            'localhost_negated_first' => [
-                $isLocalhost ? 0 : 1,
-                $isNegated ? 0 : 1,
-                $domain,
-            ],
-
-            // 'name'|'normal'
-            // 'normal' is deprecated since v1.12.3
-            default => [$domain],
-        };
-    }
-
-    /**
      * Normalize incorrect separators in a domain list.
      *
      * If the domain string contains an incorrect separator (e.g. '|' instead of ','),
@@ -247,6 +204,28 @@ final class DomainNormalizer
         });
 
         return $filtered;
+    }
+
+    /**
+     * Generate a sorting key for a domain entry.
+     *
+     * The returned array represents a comparison tuple used to enforce deterministic
+     * ordering according to the configured `domain_order` strategy.
+     *
+     * @return list<int|string> Sorting tuple
+     */
+    private function domainSortKey(string $str): array
+    {
+        $flag = $this->config->flags['domain_order'];
+        $domain = ltrim($str, '~');
+
+        if ($flag === 'negated_first') {
+            return [str_starts_with($str, '~') ? 0 : 1, $domain];
+        }
+
+        // 'name'|'normal'
+        // 'normal' is deprecated since v1.12.3
+        return [$domain];
     }
 
     /**

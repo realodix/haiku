@@ -95,8 +95,6 @@ Sorts domains inside domain lists to ensure consistent and predictable output.
 **Possible values**:
 - `name`: Sort the domains by name, ignoring the `~` prefix.
 - `negated_first`: Place negated domains (`~domain`) before non-negated ones.
-<!-- - `localhost_first`: Localhost-related domains appear first. -->
-<!-- - `localhost_negated_first`: Localhost domains first, and within each group negated domains come first. -->
 
 ```adblock
 !## BEFORE
@@ -109,20 +107,6 @@ a.com,~b.com,c.com,~d.com##.ads
 ! negated_first
 ~b.com,~d.com,a.com,c.com##.ads
 ```
-
-<!--
-```adblock
-!## BEFORE
-*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org
-
-!## AFTER
-! localhost_first
-*$domain=0.0.0.0|~127.0.0.1|~localhost|example.com|~example.org
-
-! localhost_negated_first
-*$domain=~127.0.0.1|~localhost|0.0.0.0|~example.org|example.com
-```
--->
 
 
 ## Network Option Ordering
