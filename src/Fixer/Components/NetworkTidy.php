@@ -5,38 +5,10 @@ namespace Realodix\Haiku\Fixer\Components;
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
+use Realodix\Haiku\Linter\Registry;
 
 final class NetworkTidy
 {
-    /**
-     * A list of known options.
-     *
-     * https://github.com/gorhill/uBlock/blob/2a0842f17/src/js/static-filtering-parser.js#L3132
-     */
-    const KNOWN_OPTIONS = [
-        // must assign values
-        'csp', 'denyallow', 'domain', 'from', 'header', 'ipaddress', 'method', 'permissions', 'reason', 'redirect-rule',
-        'redirect', 'replace', 'requestheader', 'responseheader', 'rewrite', 'to', 'top', 'urlskip', 'urltransform', 'uritransform',
-        // basic
-        'all', 'badfilter', 'cname', 'font', 'genericblock', 'image', 'important', 'inline-font', 'inline-script',
-        'match-case', 'media', 'other', 'popunder', 'popup', 'script', 'websocket',
-        '1p', 'first-party', 'strict1p', 'strict-first-party', '3p', 'third-party', 'strict3p', 'strict-third-party',
-        'css', 'stylesheet', 'doc', 'document', 'ehide', 'elemhide', 'frame', 'subdocument', 'ghide', 'generichide',
-        'object', 'ping', 'beacon', 'removeparam', 'shide', 'specifichide',
-        'xhr', 'xmlhttprequest',
-        // deprecated
-        'empty', 'mp4', 'object-subrequest', 'queryprune', 'webrtc',
-    ];
-
-    /**
-     * A list of known options from AdGuard.
-     */
-    const ADG_KNOWN_OPTIONS = [
-        'app', 'content', 'cookie', 'extension', 'hls', 'jsinject', 'jsonprune', 'network', 'path',
-        'removeheader', 'referrerpolicy', 'stealth', 'url', 'urlblock', 'xmlprune',
-        'client', 'ctag', 'dnstype', 'dnsrewrite', // Adg DNS
-    ];
-
     /**
      * A list of options that can have multiple values.
      */
@@ -74,7 +46,7 @@ final class NetworkTidy
      */
     public function splitOptions(string $optionString): array
     {
-        $knownOptions = array_merge(self::KNOWN_OPTIONS, self::ADG_KNOWN_OPTIONS, [',']);
+        $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
         $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOptions).')\b|$)/i';
 
         return preg_split($pattern, $optionString);
