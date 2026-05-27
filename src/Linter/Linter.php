@@ -66,7 +66,7 @@ final class Linter
         }
 
         foreach ($this->rules as $rule) {
-            foreach ($rule->check($content) as $error) {
+            foreach ($rule->check($content, new RuleErrorBuilder) as $error) {
                 if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
                     continue;
                 }

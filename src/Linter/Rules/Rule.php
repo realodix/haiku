@@ -9,7 +9,8 @@ interface Rule
 {
     /**
      * @param list<string> $content Line content
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @return list<_RuleError> $errors
      */
-    public function check(array $content): array;
+    public function check(array $content, $err): array;
 }

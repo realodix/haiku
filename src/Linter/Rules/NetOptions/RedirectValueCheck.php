@@ -4,16 +4,13 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
 final class RedirectValueCheck implements Rule
 {
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
-        $err = new RuleErrorBuilder;
-
         foreach ($content as $index => $line) {
             $err->line($index + 1);
             $line = trim($line);
@@ -42,7 +39,10 @@ final class RedirectValueCheck implements Rule
         return $err->toArray();
     }
 
-    private function checkInvalid(RuleErrorBuilder $err, ?string $value): bool
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkInvalid($err, ?string $value): bool
     {
         if ($value === null) {
             $err->message('Invalid redirect resource value syntax.')
@@ -54,7 +54,10 @@ final class RedirectValueCheck implements Rule
         return false;
     }
 
-    private function checkDeprecated(RuleErrorBuilder $err, ?string $value): bool
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkDeprecated($err, string $value): bool
     {
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
             $err->message(sprintf('Deprecated redirect resource value: "%s"', $value))
@@ -66,7 +69,10 @@ final class RedirectValueCheck implements Rule
         return false;
     }
 
-    private function checkUnknown(RuleErrorBuilder $err, ?string $value): void
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkUnknown($err, string $value): void
     {
         $knownResources = Util::flatten(array_merge(
             Registry::RESOURCES,

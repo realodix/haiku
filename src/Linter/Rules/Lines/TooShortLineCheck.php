@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules\Lines;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
@@ -14,7 +13,7 @@ final class TooShortLineCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         $mode = $this->config->rules['no_short_rules'];
 
@@ -26,8 +25,6 @@ final class TooShortLineCheck implements Rule
         if ($mode === true) {
             $mode = 4;
         }
-
-        $err = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
             $line = trim($line);

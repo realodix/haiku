@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Linter\Rules;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Util;
 
 final class DomainCheck implements Rule
@@ -14,10 +13,8 @@ final class DomainCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
-        $err = new RuleErrorBuilder;
-
         foreach ($content as $index => $line) {
             $err->line($index + 1);
             $line = trim($line);
@@ -60,7 +57,10 @@ final class DomainCheck implements Rule
         return $err->toArray();
     }
 
-    private function validateDomains(RuleErrorBuilder $err, string $domainStr, string $separator): void
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function validateDomains($err, string $domainStr, string $separator): void
     {
         if ($this->containsRegexDomain($domainStr)) {
             return;
@@ -102,9 +102,10 @@ final class DomainCheck implements Rule
     /**
      * Check if the given domain is empty.
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $domains
      */
-    private function checkEmptyDomain(RuleErrorBuilder $err, array $domains, int $index): bool
+    private function checkEmptyDomain($err, array $domains, int $index): bool
     {
         $domain = trim($domains[$index]);
 
@@ -136,8 +137,10 @@ final class DomainCheck implements Rule
      *
      * rNames:
      * - no-invalid-domains
+     *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkBadDomainName(RuleErrorBuilder $err, string $domain, string $separator): void
+    private function checkBadDomainName($err, string $domain, string $separator): void
     {
         if (strlen($domain) === 1
             && (($domain == '*' && $separator === '|') || $domain !== '*')
@@ -163,7 +166,10 @@ final class DomainCheck implements Rule
         }
     }
 
-    private function checkAncestorContexts(RuleErrorBuilder $err, string $domain, string $separator): void
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkAncestorContexts($err, string $domain, string $separator): void
     {
         if (!str_ends_with($domain, '>')) {
             return;
@@ -189,8 +195,10 @@ final class DomainCheck implements Rule
 
     /**
      * Check if the domain is lowercase.
+     *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkLowercase(RuleErrorBuilder $err, string $domain): void
+    private function checkLowercase($err, string $domain): void
     {
         if (!$this->config->rules['domain_case']) {
             return;
@@ -259,9 +267,10 @@ final class DomainCheck implements Rule
      * This function will iterate through the state array and report any duplicate
      * or contradictory domains found.
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, mixed> $state The state array to modify.
      */
-    private function reportStatefulErrors(RuleErrorBuilder $err, array $state): void
+    private function reportStatefulErrors($err, array $state): void
     {
         foreach (array_unique($state['duplicates']) as $dup) {
             $err->message(sprintf('Duplicate domain: %s', $dup))

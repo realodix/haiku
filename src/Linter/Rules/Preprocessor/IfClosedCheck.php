@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Linter\Rules\Preprocessor;
 
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 
 final class IfClosedCheck implements Rule
@@ -12,13 +11,12 @@ final class IfClosedCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         if (!$this->config->rules['pp_if_closed']) {
             return [];
         }
 
-        $err = new RuleErrorBuilder;
         /** @var list<array{line: int, type: string, hasElse: bool}> */
         $stack = [];
 

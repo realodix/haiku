@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Linter\Rules\Preprocessor;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 
 final class ExpressionCheck implements Rule
@@ -21,13 +20,12 @@ final class ExpressionCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         if (!$this->config->rules['pp_value']) {
             return [];
         }
 
-        $err = new RuleErrorBuilder;
         // Stack to track required value from parent "!#if" conditions.
         // This is used to detect conflicts in nested directives.
         $stack = [];
@@ -95,7 +93,10 @@ final class ExpressionCheck implements Rule
         return $err->toArray();
     }
 
-    private function checkParenthesisError(RuleErrorBuilder $err, string $condition): bool
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkParenthesisError($err, string $condition): bool
     {
         $balance = $this->balanceCount($condition);
 
@@ -119,8 +120,10 @@ final class ExpressionCheck implements Rule
     /**
      * rNames:
      * - no-unknown-preprocessor-directives
+     *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkUnknownValue(RuleErrorBuilder $err, string $condition): void
+    private function checkUnknownValue($err, string $condition): void
     {
         // Remove outer parentheses if they exist and are balanced
         if (str_starts_with($condition, '(') && str_ends_with($condition, ')')) {
@@ -150,9 +153,10 @@ final class ExpressionCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $required
      */
-    private function checkExclusive(RuleErrorBuilder $err, array $required): void
+    private function checkExclusive($err, array $required): void
     {
         foreach (self::EXCLUSIVE_GROUPS as $group) {
             $intersect = array_intersect($required, $group);
@@ -167,10 +171,11 @@ final class ExpressionCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $required
      * @param list<array{reqValue: list<string>, lineNum: int}> $stack
      */
-    private function checkNestedExclusive(RuleErrorBuilder $err, array $required, array $stack): void
+    private function checkNestedExclusive($err, array $required, array $stack): void
     {
         $parentRequired = [];
 

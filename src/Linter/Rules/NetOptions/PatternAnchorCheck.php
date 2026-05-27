@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
@@ -14,13 +13,11 @@ final class PatternAnchorCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         if (!$this->config->rules['net_pattern_anchor']) {
             return [];
         }
-
-        $err = new RuleErrorBuilder;
 
         foreach ($content as $index => $line) {
             $err->line($index + 1);

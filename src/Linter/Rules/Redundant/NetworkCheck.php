@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
@@ -62,13 +61,12 @@ final class NetworkCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         if (!$this->config->rules['no_dupe_rules']) {
             return [];
         }
 
-        $err = new RuleErrorBuilder;
         /** @var list<_NetRule> */
         $collection = [];
 
@@ -193,9 +191,10 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _NetRule $entry
      */
-    private function checkExactDuplicate(RuleErrorBuilder $err, array $entry): bool
+    private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
         $exactKey = $entry['hasMatchCase'] ? $line : strtolower($line);
@@ -214,9 +213,10 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _NetRule $entry
      */
-    private function checkGlobalRedundancy(RuleErrorBuilder $err, array $entry): bool
+    private function checkGlobalRedundancy($err, array $entry): bool
     {
         $pattern = $entry['pattern'];
         $opts = $entry['options'];
@@ -318,9 +318,10 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _NetRule $entry
      */
-    private function checkDomainRedundancy(RuleErrorBuilder $err, array $entry): void
+    private function checkDomainRedundancy($err, array $entry): void
     {
         $type = $entry['type'];
         $optionsKey = $entry['optionsKey'];

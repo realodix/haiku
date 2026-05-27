@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
@@ -29,10 +28,8 @@ final class GeneralCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
-        $err = new RuleErrorBuilder;
-
         foreach ($content as $index => $line) {
             $err->line($index + 1);
             $line = trim($line);
@@ -91,9 +88,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $opts
      */
-    private function checkDuplicateOptions(RuleErrorBuilder $err, array $opts): void
+    private function checkDuplicateOptions($err, array $opts): void
     {
         if (!$this->config->rules['no_dupe_options']) {
             return;
@@ -122,9 +120,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $opts
      */
-    private function checkOptionsCase(RuleErrorBuilder $err, array $opts): void
+    private function checkOptionsCase($err, array $opts): void
     {
         foreach ($opts as $opt) {
             $opt = trim($opt);
@@ -144,9 +143,10 @@ final class GeneralCheck implements Rule
      * rNames:
      * - no-option-conflict
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $rawOpts
      */
-    private function checkOptionConflict(RuleErrorBuilder $err, array $rawOpts): void
+    private function checkOptionConflict($err, array $rawOpts): void
     {
         $positive = [];
         $negative = [];
@@ -194,9 +194,10 @@ final class GeneralCheck implements Rule
      * - no-invalid-negated-option
      * - no-invalid-option-negation
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $rawOpts
      */
-    private function checkInvalidNegation(RuleErrorBuilder $err, array $rawOpts): void
+    private function checkInvalidNegation($err, array $rawOpts): void
     {
         foreach ($rawOpts as $opt) {
             $opt = trim($opt);
@@ -221,9 +222,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkOptionAliasRedundant(RuleErrorBuilder $err, array $opts): void
+    private function checkOptionAliasRedundant($err, array $opts): void
     {
         foreach (self::ALIASES as $alias => $canonical) {
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
@@ -237,9 +239,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDeprecatedOptions(RuleErrorBuilder $err, array $opts): void
+    private function checkDeprecatedOptions($err, array $opts): void
     {
         $depOpts = [
             'empty' => null, 'mp4' => null, 'webrtc' => null,
@@ -267,9 +270,10 @@ final class GeneralCheck implements Rule
      * - no-invalid-exception-options
      * - no-invalid-exception-rules
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkExceptionOptions(RuleErrorBuilder $err, array $opts, string $lineContent): void
+    private function checkExceptionOptions($err, array $opts, string $lineContent): void
     {
         $isException = str_starts_with($lineContent, '@@');
 
@@ -335,9 +339,10 @@ final class GeneralCheck implements Rule
      * - no-cross-option-domain-conflict
      * - no-domain-conflict-between-options
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkInterOptionDomainContradiction(RuleErrorBuilder $err, array $opts): void
+    private function checkInterOptionDomainContradiction($err, array $opts): void
     {
         $domain = $this->parseDomainList($opts['domain'] ?? null);
         $from = $this->parseDomainList($opts['from'] ?? null);
@@ -384,9 +389,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDenyallowValue(RuleErrorBuilder $err, array $opts): void
+    private function checkDenyallowValue($err, array $opts): void
     {
         if (!isset($opts['denyallow'])) {
             return;
@@ -423,9 +429,10 @@ final class GeneralCheck implements Rule
     /**
      * Checks $denyallow used together with $to
      *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDenyallowAndToConflict(RuleErrorBuilder $err, array $opts): void
+    private function checkDenyallowAndToConflict($err, array $opts): void
     {
         if (isset($opts['denyallow']) && isset($opts['to'])) {
             $err->message('Redundant usage of $denyallow with $to.')
@@ -435,9 +442,10 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkDenyallowRequiresDomain(RuleErrorBuilder $err, array $opts): void
+    private function checkDenyallowRequiresDomain($err, array $opts): void
     {
         if (isset($opts['denyallow'])
             && !isset($opts['domain'])

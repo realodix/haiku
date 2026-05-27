@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules\Redundant;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
@@ -51,13 +50,11 @@ final class CosmeticCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         if (!$this->config->rules['no_dupe_rules']) {
             return [];
         }
-
-        $err = new RuleErrorBuilder;
 
         // Pass 1: Parsing and Collection
         foreach ($content as $index => $line) {
@@ -166,9 +163,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _CosmeticRule $entry
      */
-    private function checkExactDuplicate(RuleErrorBuilder $err, array $entry): bool
+    private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
         if (isset($this->exactSeen[$line])) {
@@ -186,9 +184,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _CosmeticRule $entry
      */
-    private function checkGlobalRedundancy(RuleErrorBuilder $err, array $entry): bool
+    private function checkGlobalRedundancy($err, array $entry): bool
     {
         $domains = $entry['domains'] ?: ['' => true];
         $candidates = $this->findCandidates($entry, $this->interactionMap);
@@ -251,9 +250,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _CosmeticRule $entry
      */
-    private function checkDomainRedundancy(RuleErrorBuilder $err, array $entry): void
+    private function checkDomainRedundancy($err, array $entry): void
     {
         $candidates = $this->findCandidates($entry, $this->interactionMap);
         $coverageMap = [];

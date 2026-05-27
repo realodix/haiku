@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Linter\Rules;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Util;
 
 final class ScriptletCheck implements Rule
@@ -14,10 +13,8 @@ final class ScriptletCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
-        $err = new RuleErrorBuilder;
-
         foreach ($content as $index => $line) {
             $err->line($index + 1);
             $line = trim($line);
@@ -44,7 +41,10 @@ final class ScriptletCheck implements Rule
         return $err->toArray();
     }
 
-    private function checkDeprecated(RuleErrorBuilder $err, string $value): bool
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkDeprecated($err, string $value): bool
     {
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
             $err->message(sprintf('Deprecated scriptlet: %s', $value))
@@ -59,8 +59,10 @@ final class ScriptletCheck implements Rule
     /**
      * rNames:
      * - no-invalid-scriptlets
+     *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkUnknown(RuleErrorBuilder $err, string $value): void
+    private function checkUnknown($err, string $value): void
     {
         if ($this->config->rules['scriptlet_unknown'] === false) {
             return;

@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Util;
 
 final class CosmeticCheck implements Rule
@@ -13,10 +12,8 @@ final class CosmeticCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
-        $err = new RuleErrorBuilder;
-
         foreach ($content as $index => $line) {
             $err->line($index + 1);
             $line = trim($line);
@@ -42,9 +39,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, string> $node
      */
-    private function checkIdSelectorStartsWithDigit(RuleErrorBuilder $err, array $node): void
+    private function checkIdSelectorStartsWithDigit($err, array $node): void
     {
         if (!$this->config->rules['cosm_id_selector_start']
             || !($node['separator'] === '##' || $node['separator'] === '#@#')
@@ -74,9 +72,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, string> $node
      */
-    private function checkAbpExtendedCssSelectors(RuleErrorBuilder $err, array $node): void
+    private function checkAbpExtendedCssSelectors($err, array $node): void
     {
         if (!str_contains($node['selector'], ':-abp-')
             || ($node['separator'] === '#?#' || $node['separator'] === '#@?#')

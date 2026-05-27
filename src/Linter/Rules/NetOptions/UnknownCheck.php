@@ -5,15 +5,13 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
 
 final class UnknownCheck implements Rule
 {
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
-        $err = new RuleErrorBuilder;
         $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS);
 
         foreach ($content as $index => $line) {

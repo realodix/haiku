@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Linter\Rules\Lines;
 
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
 
 final class ExcessiveEmptyLinesCheck implements Rule
@@ -12,7 +11,7 @@ final class ExcessiveEmptyLinesCheck implements Rule
         private LinterConfig $config,
     ) {}
 
-    public function check(array $content): array
+    public function check(array $content, $err): array
     {
         $mode = $this->config->rules['no_extra_blank_lines'];
 
@@ -20,7 +19,6 @@ final class ExcessiveEmptyLinesCheck implements Rule
             return [];
         }
 
-        $err = new RuleErrorBuilder;
         $emptyLinesCount = 0;
 
         foreach ($content as $index => $line) {
@@ -42,7 +40,10 @@ final class ExcessiveEmptyLinesCheck implements Rule
         return $err->toArray();
     }
 
-    private function reportIfExcessive(RuleErrorBuilder $err, int $lineNum, int $count, int $maxCount): void
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function reportIfExcessive($err, int $lineNum, int $count, int $maxCount): void
     {
         if ($count > $maxCount) {
             $err->message(sprintf(
