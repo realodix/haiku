@@ -93,7 +93,7 @@ Sorts domains inside domain lists to ensure consistent and predictable output.
 **Config**: `fixer.flags.domain_order`, default: `negated_first`
 
 **Possible values**:
-- `name`: Sort domains alphabetically by their name, ignoring the `~` prefix.
+- `name`: Sort the domains by name, ignoring the `~` prefix.
 - `negated_first`: Place negated domains (`~domain`) before non-negated ones.
 <!-- - `localhost_first`: Localhost-related domains appear first. -->
 <!-- - `localhost_negated_first`: Localhost domains first, and within each group negated domains come first. -->
@@ -103,7 +103,7 @@ Sorts domains inside domain lists to ensure consistent and predictable output.
 ~b.com,~d.com,a.com,c.com##.ads
 
 !## AFTER
-! normal
+! name
 a.com,~b.com,c.com,~d.com##.ads
 
 ! negated_first
