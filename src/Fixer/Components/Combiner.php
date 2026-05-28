@@ -39,13 +39,13 @@ final class Combiner
             $nextLineParse = $this->parseDomain($nextLine, $domainPattern);
 
             if ($this->canCombine($currentLineParse, $nextLineParse, $separator)) {
-                $newDomain = $this->combineDomains(
-                    $currentLineParse['domain'],
-                    $nextLineParse['domain'],
+                // Merges two domain lists into a single normalized domain list
+                $newDomain = $this->domainNormalizer->applyFix(
+                    $currentLineParse['domain'].$separator.$nextLineParse['domain'],
                     $separator,
                 );
 
-                // Replace the domain in `$currentLine` and insert it into `$nextLine`.
+                // Replace the domain in `$currentLine` and insert it into `$nextLine`
                 $newFullMatch = str_replace($currentLineParse['domain'], $newDomain, $currentLineParse['full_match']);
                 /** @var array<int, string> $filters */
                 $filters[$i + 1] = preg_replace($domainPattern, $newFullMatch, $currentLine);
@@ -55,21 +55,6 @@ final class Combiner
         }
 
         return $combined;
-    }
-
-    /**
-     * Merges two domain lists into a single normalized domain list.
-     *
-     * @param string $currentDomain The first domain value
-     * @param string $nextDomain The second domain value to combine
-     * @param string $separator Domain separator (`,` or `|`)
-     * @return string The combined domain value
-     */
-    private function combineDomains(string $currentDomain, string $nextDomain, string $separator): string
-    {
-        $newDomain = $currentDomain.$separator.$nextDomain;
-
-        return $this->domainNormalizer->applyFix($newDomain, $separator);
     }
 
     /**
