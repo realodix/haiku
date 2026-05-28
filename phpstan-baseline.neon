@@ -1,13 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			rawMessage: 'Method Realodix\Haiku\Config\FixerConfig::resolveFlags() should return array{adg_non_basic_rule_modifier: bool, attr_to_basic_selector: ''loose''|''strict''|null, combine_option_sets: bool, domain_order: ''name''|''negated_first''|''normal''|null, migrate_deprecated_options: bool, no_legacy_ext_selectors: bool, no_legacy_remove_action: bool, normalize_domain: bool, ...} but returns array<string, mixed>.'
-			identifier: return.type
-			count: 1
-			path: src/Config/FixerConfig.php
-
-		-
-			rawMessage: 'Property Realodix\Haiku\Config\LinterConfig::$rules (array{cosm_id_selector_start: bool, domain_case: bool, net_pattern_anchor: bool, no_dupe_domains: bool, no_dupe_options: bool, no_dupe_rules: bool, no_extra_blank_lines: bool|int, no_short_rules: bool|int, ...}) does not accept array<string, mixed>.'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Config/LinterConfig.php
