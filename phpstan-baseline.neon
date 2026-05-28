@@ -17,9 +17,3 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Linter/Rules/Preprocessor/ExpressionCheck.php
-
-		-
-			rawMessage: 'Parameter #2 $best of method Realodix\Haiku\Linter\Rules\Redundant\CosmeticCheck::isBetter() expects array{lineNum: int, line: string, domains: array<string, bool>, separator: string, selector: string, attrData: array{tag: string, attr: string, operator: string, value: string, modifier: string}|null, hasMixedDomains: bool, isAlmostGlobal: bool}, array<string, mixed> given.'
-			identifier: argument.type
-			count: 1
-			path: src/Linter/Rules/Redundant/CosmeticCheck.php

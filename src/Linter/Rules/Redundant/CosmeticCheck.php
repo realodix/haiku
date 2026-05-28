@@ -192,7 +192,7 @@ final class CosmeticCheck implements Rule
         $domains = $entry['domains'] ?: ['' => true];
         $candidates = $this->findCandidates($entry, $this->interactionMap);
 
-        /** @var array<string, mixed>|null */
+        /** @var _CosmeticRule|null */
         $bestParent = null;
 
         foreach ($candidates as $candidateIndex) {
