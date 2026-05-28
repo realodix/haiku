@@ -28,6 +28,7 @@ final class ExpressionCheck implements Rule
 
         // Stack to track required value from parent "!#if" conditions.
         // This is used to detect conflicts in nested directives.
+        /** @var list<array{lineNum: int, reqValue: list<string>}> */
         $stack = [];
 
         foreach ($content as $index => $line) {

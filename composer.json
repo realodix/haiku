@@ -24,7 +24,7 @@
     "require-dev": {
         "mockery/mockery": "^1.6",
         "phpbench/phpbench": "^1.5",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^13.0",
         "realodix/relax": "^1.20"
     },

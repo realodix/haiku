@@ -11,10 +11,12 @@ final class Util
     /**
      * Resolves and validates configuration overrides.
      *
-     * @param array<string, mixed> $baseConfig Current configuration array
+     * @template T of array<string, mixed>
+     *
+     * @param T $baseConfig Current configuration array
      * @param array<string, mixed> $override Overrides to apply
      * @param string $type Type of configuration for error messages
-     * @return array<string, mixed>
+     * @return T
      */
     public static function resolveOverrides(array $baseConfig, array $override, string $type = 'flag'): array
     {
