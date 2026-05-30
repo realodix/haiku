@@ -157,17 +157,14 @@ class LintCommand extends Command
 
         if (!empty($globalErrors)) {
             $this->renderGlobalErrors($io, $globalErrors);
-        } else {
-            if ($truncated) {
-                $io->note(sprintf(
-                    'Only the first %d errors are shown. %d additional errors were omitted.',
-                    $maxErrors,
-                    $errorReporter->count() - $maxErrors,
-                ));
-            }
 
-            $io->error(sprintf('Found %d errors', $errorReporter->count()));
         }
+
+        $io->error(sprintf(
+            'Found %d %s',
+            $errorReporter->count(),
+            $errorReporter->count() === 1 ? 'error' : 'errors',
+        ));
     }
 
     /**
@@ -181,13 +178,6 @@ class LintCommand extends Command
         foreach ($globalErrors as $error) {
             $io->writeln(sprintf('     %s', $error));
         }
-        $io->newLine();
-
-        $io->error(sprintf(
-            'Found %d %s',
-            count($globalErrors),
-            count($globalErrors) === 1 ? 'error' : 'errors',
-        ));
     }
 
     /**
