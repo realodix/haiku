@@ -157,7 +157,6 @@ class LintCommand extends Command
 
         if (!empty($globalErrors)) {
             $this->renderGlobalErrors($io, $globalErrors);
-
         }
 
         $io->error(sprintf(
