@@ -410,11 +410,9 @@ final class CosmeticCheck implements Rule
             }
 
             $candidates = array_unique($candidates);
-            // Filter berdasarkan conditionKey yang sama
-            $currentConditionKey = $entry['conditionKey'];
 
-            return array_values(array_filter($candidates, function ($idx) use ($currentConditionKey) {
-                return $this->collection[$idx]['conditionKey'] === $currentConditionKey;
+            return array_values(array_filter($candidates, function ($idx) use ($entry) {
+                return $this->collection[$idx]['conditionKey'] === $entry['conditionKey'];
             }));
         }
 
