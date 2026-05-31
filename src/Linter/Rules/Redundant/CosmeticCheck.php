@@ -28,6 +28,7 @@ use Realodix\Haiku\Linter\Util;
  *  attrData: _ParsedAttrSelector|null,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
+ *  conditionKey: string,
  * }
  */
 final class CosmeticCheck implements Rule
@@ -48,6 +49,7 @@ final class CosmeticCheck implements Rule
 
     public function __construct(
         private LinterConfig $config,
+        private ConditionalScope $scope,
     ) {}
 
     public function check(array $content, $err): array
@@ -56,10 +58,17 @@ final class CosmeticCheck implements Rule
             return [];
         }
 
+        $conditionKeys = $this->scope->process($content);
+
         // Pass 1: Parsing and Collection
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $line = trim($line);
+
+            $conditionKey = $conditionKeys[$index];
+            if ($conditionKey === null) {
+                continue;
+            }
 
             if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
                 continue;
@@ -103,6 +112,7 @@ final class CosmeticCheck implements Rule
                 'attrData' => $attrData,
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
+                'conditionKey' => $conditionKey,
             ];
 
             // Group rules into buckets:
@@ -169,16 +179,18 @@ final class CosmeticCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-        if (isset($this->exactSeen[$line])) {
+        $key = $line.'|'.$entry['conditionKey'];
+
+        if (isset($this->exactSeen[$key])) {
             $err->message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
-                $line, $this->exactSeen[$line],
+                $line, $this->exactSeen[$key],
             ))->line($entry['lineNum'])->build();
 
             return true;
         }
 
-        $this->exactSeen[$line] = $entry['lineNum'];
+        $this->exactSeen[$key] = $entry['lineNum'];
 
         return false;
     }
@@ -397,7 +409,13 @@ final class CosmeticCheck implements Rule
                 }
             }
 
-            return array_unique($candidates);
+            $candidates = array_unique($candidates);
+            // Filter berdasarkan conditionKey yang sama
+            $currentConditionKey = $entry['conditionKey'];
+
+            return array_values(array_filter($candidates, function ($idx) use ($currentConditionKey) {
+                return $this->collection[$idx]['conditionKey'] === $currentConditionKey;
+            }));
         }
 
         return $interactionMap['S|'.$separator.$entry['selector']] ?? [];
