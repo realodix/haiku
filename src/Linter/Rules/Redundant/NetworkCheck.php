@@ -24,6 +24,7 @@ use Realodix\Haiku\Linter\Util;
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
  *  regex: string,
+ *  conditionKey: string,
  * }
  */
 final class NetworkCheck implements Rule
@@ -36,7 +37,7 @@ final class NetworkCheck implements Rule
      *
      * @var array{
      *   exact: array<string, int>,
-     *   pattern_options: array<string, array<string, array<string, array<string, int>>>>,
+     *   pattern_options: array<string, array<string, array<string, array<string, array<string, int>>>>>
      * }
      */
     private array $seen;
@@ -59,6 +60,7 @@ final class NetworkCheck implements Rule
 
     public function __construct(
         private LinterConfig $config,
+        private ConditionalScope $scope,
     ) {}
 
     public function check(array $content, $err): array
@@ -69,11 +71,17 @@ final class NetworkCheck implements Rule
 
         /** @var list<_NetRule> */
         $collection = [];
+        $conditionKeys = $this->scope->process($content);
 
         // Pass 1: Parse and collect state
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $line = trim($line);
+
+            $conditionKey = $conditionKeys[$index];
+            if ($conditionKey === null) {
+                continue;
+            }
 
             if ($this->shouldSkip($line)) {
                 continue;
@@ -111,11 +119,12 @@ final class NetworkCheck implements Rule
                 'hasMatchCase' => $hasMatchCase,
                 'hasMixedDomains' => $hasMixedDomains,
                 'isAlmostGlobal' => $isAlmostGlobal,
+                'conditionKey' => $conditionKey,
             ];
             $collection[$lineNum] = $entry;
 
             if ($hasOpts) {
-                $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey];
+                $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey][$conditionKey];
                 foreach ($domains as $d) {
                     $entityKey = $d['type'].':'.$d['name'];
                     if (!isset($seenMap[$entityKey])) {
@@ -127,7 +136,7 @@ final class NetworkCheck implements Rule
             // A rule is considered "specific" only if it contains only an inclusion list and has no negated domain.
             $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$hasMixedDomains;
             if (!$isSpecific) {
-                $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name'));
+                $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name')).'::'.$conditionKey;
                 if (!isset($this->globalIndex['stored'][$type][$uniqueKey])) {
                     $this->globalIndex['stored'][$type][$uniqueKey] = true;
                     $token = $this->getPrimaryToken($pattern);
@@ -197,7 +206,7 @@ final class NetworkCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-        $exactKey = $entry['hasMatchCase'] ? $line : strtolower($line);
+        $exactKey = ($entry['hasMatchCase'] ? $line : strtolower($line)).'|'.$entry['conditionKey'];
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message(sprintf(
                 'Redundant filter: %s already defined on line %d.',
@@ -246,6 +255,10 @@ final class NetworkCheck implements Rule
                     if ($entry['optionsKey'] === '' || $candidate['optionsKey'] !== $entry['optionsKey']) {
                         continue;
                     }
+                }
+
+                if ($candidate['conditionKey'] !== $entry['conditionKey']) {
+                    continue;
                 }
 
                 if (!$this->isCovered($entry, $candidate)) {
@@ -325,7 +338,7 @@ final class NetworkCheck implements Rule
     {
         $type = $entry['type'];
         $optionsKey = $entry['optionsKey'];
-        $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey];
+        $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey][$entry['conditionKey']];
 
         // The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
         // Check if individual domains are redundant against previous domain-specific rules.
