@@ -155,6 +155,14 @@ class LintCommand extends Command
             }
         }
 
+        if ($truncated) {
+            $io->note(sprintf(
+                'Only the first %d errors are shown. %d additional errors were omitted.',
+                $maxErrors,
+                $errorReporter->count() - $maxErrors,
+            ));
+        }
+
         if (!empty($globalErrors)) {
             $this->renderGlobalErrors($io, $globalErrors);
         }
