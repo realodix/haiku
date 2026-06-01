@@ -87,23 +87,16 @@ final class ScriptletCheck implements Rule
     private function getScriptletNames(): array
     {
         $config = $this->config->rules['scriptlet_unknown'];
+        $resources = array_map(
+            fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
+            Util::flatten(Registry::RESOURCES),
+        );
 
-        $names = [];
-        foreach (Util::flatten(Registry::RESOURCES) as $name) {
-            if (str_ends_with($name, '.js')) {
-                $name = substr($name, 0, -3);
-            }
-
-            $names[] = $name;
-        }
-
-        $names = array_merge($names, Registry::SCRIPTLETS);
-
-        if (is_array($config)) {
-            $names = array_merge($names, $config['known']);
-        }
-
-        return array_unique($names);
+        return array_unique([
+            ...$resources,
+            ...Registry::SCRIPTLETS,
+            ...$config['known'] ?? [],
+        ]);
     }
 
     private function normalizeParam(string $param): string

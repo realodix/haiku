@@ -279,13 +279,10 @@ final class GeneralCheck implements Rule
 
         // 1. Must NOT be used in exception rules
         $blockOnly = ['important', 'empty', 'mp4'];
-        foreach ($blockOnly as $opt) {
-            if ($isException && array_key_exists($opt, $opts)) {
-                $err->message(sprintf(
-                    'Invalid filter: $%s is not allowed in exception rules.',
-                    $opt,
-                ))->build();
-            }
+        $foundInvalid = array_find($blockOnly, fn($opt) => $isException && array_key_exists($opt, $opts));
+        if ($foundInvalid) {
+            $err->message(sprintf('Invalid filter: $%s is not allowed in exception rules.', $foundInvalid))
+                ->build();
         }
 
         // 2. Options that REQUIRE exception rule when they have no value
@@ -490,20 +487,9 @@ final class GeneralCheck implements Rule
             return [];
         }
 
-        $domains = [];
-
-        foreach ($values as $value) {
-            if ($value === null) {
-                continue;
-            }
-
-            foreach (explode('|', $value) as $d) {
-                $d = trim($d);
-                if ($d !== '') {
-                    $domains[] = $d;
-                }
-            }
-        }
+        $parts = array_map(fn($v) => explode('|', (string) $v), array_filter($values));
+        $domains = array_merge([], ...$parts);
+        $domains = array_filter(array_map('trim', $domains), fn($d) => $d !== '');
 
         return array_unique($domains);
     }

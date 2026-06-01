@@ -138,12 +138,10 @@ final class Combiner
         // return $hasNormal ? 'maybeMixed' : 'negated';
 
         $domains = explode($separator, $domainList);
-        foreach ($domains as $d) {
-            if (!str_starts_with($d, '~')) {
-                return 'maybeMixed';
-            }
+        if (array_all($domains, fn($d) => str_starts_with($d, '~'))) {
+            return 'negated';
         }
 
-        return 'negated';
+        return 'maybeMixed';
     }
 }

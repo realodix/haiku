@@ -412,13 +412,9 @@ final class NetworkCheck implements Rule
     {
         $targets = is_array($target) ? array_map('strtolower', $target) : [strtolower($target)];
 
-        foreach ($options as $opt) {
-            if (in_array(strtolower(trim($opt)), $targets, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($options, function ($opt) use ($targets) {
+            return in_array(strtolower(trim($opt)), $targets, true);
+        });
     }
 
     //
@@ -508,22 +504,10 @@ final class NetworkCheck implements Rule
      */
     private function isMixedDomains(array $domains): bool
     {
-        $hasIn = false;
-        $hasEx = false;
+        $hasIn = array_any($domains, fn($d) => !str_starts_with($d['name'], '~'));
+        $hasEx = array_any($domains, fn($d) => str_starts_with($d['name'], '~'));
 
-        foreach ($domains as $d) {
-            if (str_starts_with($d['name'], '~')) {
-                $hasEx = true;
-            } else {
-                $hasIn = true;
-            }
-
-            if ($hasIn && $hasEx) {
-                return true;
-            }
-        }
-
-        return false;
+        return $hasIn && $hasEx;
     }
 
     /**
@@ -670,10 +654,8 @@ final class NetworkCheck implements Rule
      */
     private function isDomainMatched(string $domain, array $rule): bool
     {
-        foreach ($rule['domains'] as $rd) {
-            if ($rd['name'] === $domain) {
-                return true;
-            }
+        if (array_any($rule['domains'], fn($rd) => $rd['name'] === $domain)) {
+            return true;
         }
 
         if (
@@ -690,13 +672,7 @@ final class NetworkCheck implements Rule
 
         // Only Almost Global rules (exclusion-only) can cover domains implicitly.
         if ($rule['isAlmostGlobal']) {
-            foreach ($rule['domains'] as $rd) {
-                if ($rd['name'] === '~'.$domain) {
-                    return false;
-                }
-            }
-
-            return true;
+            return array_all($rule['domains'], fn($rd) => $rd['name'] !== '~'.$domain);
         }
 
         return false;

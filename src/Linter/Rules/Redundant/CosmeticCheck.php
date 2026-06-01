@@ -208,26 +208,26 @@ final class CosmeticCheck implements Rule
         $bestParent = null;
 
         foreach ($candidates as $candidateIndex) {
-            if ($entry['lineNum'] === $candidateIndex) {
+            if ($candidateIndex === $entry['lineNum']) {
                 continue;
             }
 
             $candidate = $this->collection[$candidateIndex];
+            $coversAllDomains = true;
 
-            // A candidate can only cover the entire rule if it covers every domain.
-            $coversAll = true;
             foreach ($domains as $domain => $_) {
                 if (!$this->isCovered($entry, $candidate, $domain, $this->ghideExceptions)) {
-                    $coversAll = false;
-
+                    $coversAllDomains = false;
                     break;
                 }
             }
 
-            if ($coversAll && $this->isBetter($candidate, $entry)) {
-                if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
-                    $bestParent = $candidate;
-                }
+            if (!$coversAllDomains || !$this->isBetter($candidate, $entry)) {
+                continue;
+            }
+
+            if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
+                $bestParent = $candidate;
             }
         }
 
@@ -595,22 +595,12 @@ final class CosmeticCheck implements Rule
      */
     private function isMixedDomains(array $domains): bool
     {
-        $hasIn = false;
-        $hasEx = false;
+        $keys = array_keys($domains);
 
-        foreach ($domains as $domain => $_) {
-            if (str_starts_with($domain, '~')) {
-                $hasEx = true;
-            } else {
-                $hasIn = true;
-            }
+        $hasEx = array_any($keys, fn($d) => str_starts_with($d, '~'));
+        $hasIn = array_any($keys, fn($d) => !str_starts_with($d, '~'));
 
-            if ($hasIn && $hasEx) {
-                return true;
-            }
-        }
-
-        return false;
+        return $hasIn && $hasEx;
     }
 
     /**

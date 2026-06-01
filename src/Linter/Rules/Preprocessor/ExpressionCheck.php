@@ -99,7 +99,7 @@ final class ExpressionCheck implements Rule
      */
     private function checkParenthesisError($err, string $condition): bool
     {
-        $balance = $this->balanceCount($condition);
+        $balance = substr_count($condition, '(') - substr_count($condition, ')');
 
         if ($balance === 0) {
             return false;
@@ -139,9 +139,8 @@ final class ExpressionCheck implements Rule
                 ->build();
         }
 
+        $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
-            $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
-
             if (!in_array($value, $knownPreprocessorValues, true)) {
                 $hint = Helper::getSuggestion($knownPreprocessorValues, $value);
 
@@ -178,35 +177,36 @@ final class ExpressionCheck implements Rule
      */
     private function checkNestedExclusive($err, array $required, array $stack): void
     {
-        $parentRequired = [];
-
-        foreach ($stack as $frame) {
-            $parentRequired = array_merge($parentRequired, $frame['reqValue']);
-        }
-        $parentRequired = array_unique($parentRequired);
+        // 1. Flatten all required values from the parent stack frames into a single lookup list.
+        $parentRequired = array_merge(...array_column($stack, 'reqValue'));
 
         foreach ($required as $value) {
-            foreach (self::EXCLUSIVE_GROUPS as $group) {
-                if (in_array($value, $group, true)) {
-                    $others = array_intersect($parentRequired, $group);
-                    $others = array_diff($others, [$value]);
-                    if (!empty($others)) {
-                        $other = array_shift($others);
+            // 2. Identify if the current value belongs to any pre-defined exclusive group.
+            $group = array_find(self::EXCLUSIVE_GROUPS, fn($g) => in_array($value, $g, true));
 
-                        $parentLine = 0;
-                        foreach (array_reverse($stack) as $frame) {
-                            if (in_array($other, $frame['reqValue'], true)) {
-                                $parentLine = $frame['lineNum'];
-                                break;
-                            }
-                        }
+            if (!$group) {
+                continue;
+            }
 
-                        $err->message(sprintf(
-                            '"%s" will always evaluate to "false" with "%s" from the parent "!#if" on line %d.',
-                            $value, $other, $parentLine,
-                        ))->build();
-                    }
-                }
+            // 3. Check for conflicting tokens: find any other member of the same
+            // group already present in the parent context.
+            $other = array_find(
+                $group,
+                fn($item) => $item !== $value && in_array($item, $parentRequired, true),
+            );
+
+            if ($other) {
+                // 4. Trace back through the stack to find the nearest frame
+                // containing the conflicting token for error reporting.
+                $parentFrame = array_find(
+                    array_reverse($stack),
+                    fn($frame) => in_array($other, $frame['reqValue'], true),
+                );
+
+                $err->message(sprintf(
+                    '"%s" will always evaluate to "false" with "%s" from the parent "!#if" on line %d.',
+                    $value, $other, $parentFrame['lineNum'] ?? 0,
+                ))->build();
             }
         }
     }
@@ -231,27 +231,19 @@ final class ExpressionCheck implements Rule
 
         $orParts = $this->splitByOperator($condition, '||');
         if (count($orParts) > 1) {
-            $required = null;
-            foreach ($orParts as $part) {
-                $partRequired = $this->getRequiredValue($part);
-                if ($required === null) {
-                    $required = $partRequired;
-                } else {
-                    $required = array_intersect($required, $partRequired);
-                }
-            }
+            $firstPart = $this->getRequiredValue(array_shift($orParts));
+            $required = array_reduce($orParts, function (array $carry, string $part) {
+                return array_intersect($carry, $this->getRequiredValue($part));
+            }, $firstPart);
 
             return $required ? array_values($required) : [];
         }
 
         $andParts = $this->splitByOperator($condition, '&&');
         if (count($andParts) > 1) {
-            $required = [];
-            foreach ($andParts as $part) {
-                $required = array_merge($required, $this->getRequiredValue($part));
-            }
+            $allRequired = array_map(fn($part) => $this->getRequiredValue($part), $andParts);
 
-            return array_unique($required);
+            return array_unique(array_merge(...$allRequired));
         }
 
         if (preg_match('/^(!?)([a-zA-Z_][a-zA-Z0-9_]*)$/', $condition, $matches)) {
@@ -299,19 +291,5 @@ final class ExpressionCheck implements Rule
         $parts[] = $current;
 
         return array_map('trim', $parts);
-    }
-
-    private function balanceCount(string $str): int
-    {
-        $balance = 0;
-        for ($i = 0; $i < strlen($str); $i++) {
-            if ($str[$i] === '(') {
-                $balance++;
-            } elseif ($str[$i] === ')') {
-                $balance--;
-            }
-        }
-
-        return $balance;
     }
 }
