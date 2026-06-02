@@ -18,25 +18,42 @@ class ScopeConditionalTest extends TestCase
     public function test_1(): void
     {
         $lines = [
-            '||example.com^$third-party',
-            'example.com##.ads',
+            '/ads.',
+            '||example.com^$domain=x.com|y.com',
+            '##[class*="ads" i]',
             'example.com##.banner',
             'x.com,y.com##.banner2',
 
             '!#if env_firefox',
-            '||example.com^',
+            '||example.com^$domain=x.com',
+            '||example.org/ads.js',
             '##.ads',
-            '##.banner',
             'x.com##.banner2',
             '!#endif',
-
-            '##[class*="ads" i]',
-            '##.banner',
         ];
-        $this->analyse($lines, [
-            [2, 'Redundant filter: example.com##.ads is redundant due to more general selector on line 11.'],
-            [3, 'Redundant filter: example.com##.banner already covered by ##.banner on line 12.'],
-        ]);
+        $this->analyse($lines);
+
+        $lines = [
+            '||example.com^',
+            '##.banner_exact',
+
+            '!#if env_firefox',
+            '||example.com^',
+            '##.banner_exact',
+            '!#endif',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            '||example.org/ads.js',
+            'example.com##.ads',
+
+            '!#if env_firefox',
+            '/ads.',
+            '##.ads',
+            '!#endif',
+        ];
+        $this->analyse($lines);
 
         $lines = [
             '##.banner',
