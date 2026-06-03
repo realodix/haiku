@@ -149,9 +149,10 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
-        if (str_ends_with($domain, '.') && !preg_match('/^[\d\.]+$/', $domain)
-            || str_starts_with($domain, '.')
-            || str_contains($domain, '/')
+        if (!str_contains($domain, ' ')
+            && (str_ends_with($domain, '.') && !preg_match('/^[\d\.]+$/', $domain)
+                || str_starts_with($domain, '.')
+                || str_contains($domain, '/'))
         ) {
             $err->message(sprintf('Bad domain name: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $domain.'*'))

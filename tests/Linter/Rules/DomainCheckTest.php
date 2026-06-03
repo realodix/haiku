@@ -112,6 +112,8 @@ class DomainCheckTest extends TestCase
             'example.com , example.org##foo',
             'example.com, example.org##bar',
             'example.com ,example.org##baz',
+
+            '*$domain=exampl e.',
         ];
 
         $this->analyse($lines, [
@@ -124,6 +126,7 @@ class DomainCheckTest extends TestCase
             [5, 'Bad domain name: " example.org" contains unnecessary whitespace.'],
             [6, 'Bad domain name: " example.org" contains unnecessary whitespace.'],
             [7, 'Bad domain name: "example.com " contains unnecessary whitespace.'],
+            [8, 'Bad domain name: "exampl e." contains unnecessary whitespace.'],
         ]);
     }
 
