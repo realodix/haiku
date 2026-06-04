@@ -80,10 +80,7 @@ final class IgnoredErrors
         foreach ($this->ignorePatterns as $index => $pattern) {
             if (is_string($pattern)) {
                 if ($this->isMatch($pattern, $message)) {
-                    $this->patternMatchCount[$index]++;
-                    $this->patternMatched[$index] = true;
-
-                    return true;
+                    return $this->markPatternMatched($index);
                 }
 
                 continue;
@@ -93,14 +90,7 @@ final class IgnoredErrors
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
             if ($msgMatch && $pathMatch) {
-                if (isset($pattern['count']) && $this->patternMatchCount[$index] >= $pattern['count']) {
-                    continue;
-                }
-
-                $this->patternMatchCount[$index]++;
-                $this->patternMatched[$index] = true;
-
-                return true;
+                return $this->markPatternMatched($index, $pattern);
             }
         }
 
@@ -158,6 +148,28 @@ final class IgnoredErrors
         }
 
         return false;
+    }
+
+    /**
+     * Marks a pattern as used and checks its 'count' limit.
+     *
+     * @param int $index Index of the pattern in the ignorePatterns array
+     * @param _IgnoredError|null $pattern
+     * @return bool True if the pattern should be applied (i.e., limit not exceeded)
+     */
+    private function markPatternMatched(int $index, $pattern = null): bool
+    {
+        if (is_array($pattern)
+            && isset($pattern['count'])
+            && $this->patternMatchCount[$index] >= $pattern['count']
+        ) {
+            return false;
+        }
+
+        $this->patternMatchCount[$index]++;
+        $this->patternMatched[$index] = true;
+
+        return true;
     }
 
     /**
