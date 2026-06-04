@@ -228,7 +228,7 @@ YAML);
         $ignoredErrors = new IgnoredErrors($input);
 
         $reflection = new \ReflectionClass($ignoredErrors);
-        $property = $reflection->getProperty('normalizedIgnoreErrors');
+        $property = $reflection->getProperty('ignorePatterns');
 
         $this->assertSame($expected, $property->getValue($ignoredErrors));
     }
@@ -343,7 +343,7 @@ YAML);
         $ignoredErrors = new IgnoredErrors([], [['message' => 'foo']]);
 
         $reflection = new \ReflectionClass($ignoredErrors);
-        $property = $reflection->getProperty('normalizedIgnoreErrors');
+        $property = $reflection->getProperty('ignorePatterns');
 
         $this->assertSame(
             [['isBaseline' => true, 'message' => 'foo']],

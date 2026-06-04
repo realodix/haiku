@@ -16,26 +16,37 @@ use Symfony\Component\Yaml\Yaml;
 final class IgnoredErrors
 {
     /** @var list<_IgnoredError> */
-    private array $normalizedIgnoreErrors;
-
-    /** @var array<int, bool> */
-    private array $usedIgnoreErrors = [];
-
-    /** @var array<int, int> */
-    private array $usedCount = [];
+    private array $ignorePatterns;
 
     /**
-     * @param list<_ConfigIgnoredError> $ignoreErrors
-     * @param list<_ConfigIgnoredError> $baselineErrors
+     * Tracks whether each pattern has been used at least once
+     *
+     * @var array<int, bool>
      */
-    public function __construct(array $ignoreErrors, array $baselineErrors = [])
+    private array $patternMatched = [];
+
+    /**
+     * Number of times each pattern has been matched (for 'count' limits)
+     *
+     * @var array<int, int>
+     */
+    private array $patternMatchCount = [];
+
+    /**
+     * @param list<_ConfigIgnoredError> $configPatterns Ignore patterns from user configuration
+     * @param list<_ConfigIgnoredError> $basePatterns Ignore patterns from baseline file
+     */
+    public function __construct(array $configPatterns, array $basePatterns = [])
     {
-        $this->normalizedIgnoreErrors = array_merge(
-            $this->normalizeIgnoreErrors($ignoreErrors),
-            $this->normalizeIgnoreErrors($baselineErrors, isBaseline: true),
+        $this->ignorePatterns = array_merge(
+            $this->normalizeIgnorePatterns($configPatterns),
+            $this->normalizeIgnorePatterns($basePatterns, isBaseline: true),
         );
-        $this->usedIgnoreErrors = array_fill_keys(array_keys($this->normalizedIgnoreErrors), false);
-        $this->usedCount = array_fill_keys(array_keys($this->normalizedIgnoreErrors), 0);
+
+        foreach ($this->ignorePatterns as $index => $_) {
+            $this->patternMatched[$index] = false;
+            $this->patternMatchCount[$index] = 0;
+        }
     }
 
     /**
@@ -46,15 +57,15 @@ final class IgnoredErrors
      */
     public static function load($config, $cmdOpt): self
     {
-        $baselineErrors = [];
+        $basePatterns = [];
         $baselineFile = base_path('haiku-baseline.yml');
 
         if (!$cmdOpt->generateBaseline && file_exists($baselineFile)) {
             $baseline = Yaml::parseFile($baselineFile);
-            $baselineErrors = $baseline['ignoreErrors'] ?? [];
+            $basePatterns = $baseline['ignoreErrors'] ?? [];
         }
 
-        return new self($config->ignoreErrors, $baselineErrors);
+        return new self($config->ignoreErrors, $basePatterns);
     }
 
     /**
@@ -66,11 +77,11 @@ final class IgnoredErrors
      */
     public function shouldIgnore(string $path, string $message): bool
     {
-        foreach ($this->normalizedIgnoreErrors as $index => $ignore) {
-            if (is_string($ignore)) {
-                if ($this->isMatch($ignore, $message)) {
-                    $this->usedCount[$index]++;
-                    $this->usedIgnoreErrors[$index] = true;
+        foreach ($this->ignorePatterns as $index => $pattern) {
+            if (is_string($pattern)) {
+                if ($this->isMatch($pattern, $message)) {
+                    $this->patternMatchCount[$index]++;
+                    $this->patternMatched[$index] = true;
 
                     return true;
                 }
@@ -78,16 +89,16 @@ final class IgnoredErrors
                 continue;
             }
 
-            $messageMatch = !isset($ignore['message']) || $this->isMatch($ignore['message'], $message);
-            $pathMatch = !isset($ignore['path']) || $this->isMatch($ignore['path'], $path);
+            $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $message);
+            $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
-            if ($messageMatch && $pathMatch) {
-                if (isset($ignore['count']) && $this->usedCount[$index] >= $ignore['count']) {
+            if ($msgMatch && $pathMatch) {
+                if (isset($pattern['count']) && $this->patternMatchCount[$index] >= $pattern['count']) {
                     continue;
                 }
 
-                $this->usedCount[$index]++;
-                $this->usedIgnoreErrors[$index] = true;
+                $this->patternMatchCount[$index]++;
+                $this->patternMatched[$index] = true;
 
                 return true;
             }
@@ -102,100 +113,36 @@ final class IgnoredErrors
      */
     public function reportUnmatched(ErrorReporter $reporter): void
     {
-        foreach ($this->usedIgnoreErrors as $index => $used) {
-            $ignore = $this->normalizedIgnoreErrors[$index];
+        foreach ($this->patternMatched as $index => $used) {
+            $pattern = $this->ignorePatterns[$index];
 
-            if (!$used && !(is_array($ignore) && isset($ignore['isBaseline']))) {
-                $pattern = '';
-                $inPath = '';
-
-                if (is_string($ignore)) {
-                    $pattern = $ignore;
-                } else {
-                    if (isset($ignore['message'])) {
-                        $pattern = $ignore['message'];
-                    }
-                    if (isset($ignore['path'])) {
-                        $inPath = 'in path '.$ignore['path'];
-
-                        if (isset($ignore['message'])) {
-                            $inPath = ' in path '.$ignore['path'];
-                        }
-                    }
-                }
-
-                $reporter->addGlobalError(sprintf(
-                    'Ignored error pattern %s%s was not matched in reported errors.',
-                    $pattern, $inPath,
-                ));
-            }
-        }
-    }
-
-    /**
-     * Normalize the ignore errors array.
-     *
-     * This expands single ignore patterns to multiple entries if needed.
-     *
-     * @param list<_ConfigIgnoredError> $ignoreErrors Array of ignore patterns
-     * @param bool $isBaseline Whether this is for baseline
-     * @return list<_IgnoredError> Normalized ignore errors
-     */
-    private function normalizeIgnoreErrors(array $ignoreErrors, bool $isBaseline = false): array
-    {
-        $normalized = [];
-        foreach ($ignoreErrors as $ignore) {
-            if (is_string($ignore)) {
-                $normalized[] = $ignore;
-
+            if ($used || (is_array($pattern) && isset($pattern['isBaseline']))) {
                 continue;
             }
 
-            if ($isBaseline) {
-                $ignore['isBaseline'] = true;
-            }
+            $patternDesc = '';
+            $locDesc = '';
 
-            $messages = [];
-            if (isset($ignore['message'])) {
-                $messages[] = $ignore['message'];
-            }
-            if (isset($ignore['messages'])) {
-                $messages = array_merge($messages, (array) $ignore['messages']);
-            }
-
-            $paths = [];
-            if (isset($ignore['path'])) {
-                $paths[] = $ignore['path'];
-            }
-            if (isset($ignore['paths'])) {
-                $paths = array_merge($paths, (array) $ignore['paths']);
-            }
-
-            if (empty($messages) && empty($paths)) {
-                continue;
-            }
-
-            $base = $ignore;
-            unset($base['message'], $base['messages'], $base['path'], $base['paths']);
-
-            if (empty($messages)) {
-                foreach ($paths as $p) {
-                    $normalized[] = array_merge($base, ['path' => $p]);
-                }
-            } elseif (empty($paths)) {
-                foreach ($messages as $m) {
-                    $normalized[] = array_merge($base, ['message' => $m]);
-                }
+            if (is_string($pattern)) {
+                $patternDesc = $pattern;
             } else {
-                foreach ($messages as $m) {
-                    foreach ($paths as $p) {
-                        $normalized[] = array_merge($base, ['message' => $m, 'path' => $p]);
+                if (isset($pattern['message'])) {
+                    $patternDesc = $pattern['message'];
+                }
+                if (isset($pattern['path'])) {
+                    $locDesc = 'in path '.$pattern['path'];
+
+                    if (isset($pattern['message'])) {
+                        $locDesc = ' in path '.$pattern['path'];
                     }
                 }
             }
-        }
 
-        return $normalized;
+            $reporter->addGlobalError(sprintf(
+                'Ignored error pattern %s%s was not matched in reported errors.',
+                $patternDesc, $locDesc,
+            ));
+        }
     }
 
     /**
@@ -215,5 +162,68 @@ final class IgnoredErrors
         }
 
         return false;
+    }
+
+    /**
+     * Converts ignore pattern definitions into normalized runtime entries.
+     *
+     * @param list<_ConfigIgnoredError> $patterns Ignore pattern definitions from configuration.
+     * @param bool $isBaseline Whether the patterns originate from the baseline file.
+     * @return list<_IgnoredError> Normalized ignore patterns
+     */
+    private function normalizeIgnorePatterns(array $patterns, bool $isBaseline = false): array
+    {
+        $normalized = [];
+        foreach ($patterns as $pattern) {
+            if (is_string($pattern)) {
+                $normalized[] = $pattern;
+
+                continue;
+            }
+
+            if ($isBaseline) {
+                $pattern['isBaseline'] = true;
+            }
+
+            $messages = [];
+            if (isset($pattern['message'])) {
+                $messages[] = $pattern['message'];
+            }
+            if (isset($pattern['messages'])) {
+                $messages = array_merge($messages, (array) $pattern['messages']);
+            }
+
+            $paths = [];
+            if (isset($pattern['path'])) {
+                $paths[] = $pattern['path'];
+            }
+            if (isset($pattern['paths'])) {
+                $paths = array_merge($paths, (array) $pattern['paths']);
+            }
+
+            if (empty($messages) && empty($paths)) {
+                continue;
+            }
+
+            $base = $pattern;
+            unset($base['message'], $base['messages'], $base['path'], $base['paths']);
+            if (empty($messages)) {
+                foreach ($paths as $p) {
+                    $normalized[] = array_merge($base, ['path' => $p]);
+                }
+            } elseif (empty($paths)) {
+                foreach ($messages as $m) {
+                    $normalized[] = array_merge($base, ['message' => $m]);
+                }
+            } else {
+                foreach ($messages as $m) {
+                    foreach ($paths as $p) {
+                        $normalized[] = array_merge($base, ['message' => $m, 'path' => $p]);
+                    }
+                }
+            }
+        }
+
+        return $normalized;
     }
 }
