@@ -33,12 +33,8 @@ final class IgnoredErrors
      */
     private array $patternMatchCount = [];
 
-    /**
-     * Cache of relevant pattern indices per path
-     *
-     * @var array<string, list<int>>
-     */
-    private array $pathPatternsCache = [];
+    /** @var array<string, array<string, int>> */
+    private array $exactPatternIndex = [];
 
     /**
      * @param list<_ConfigIgnoredError> $configPatterns Ignore patterns from user configuration
@@ -51,9 +47,16 @@ final class IgnoredErrors
             $this->normalizeIgnorePatterns($basePatterns, isBaseline: true),
         );
 
-        foreach ($this->ignorePatterns as $index => $_) {
+        foreach ($this->ignorePatterns as $index => $pattern) {
             $this->patternMatched[$index] = false;
             $this->patternMatchCount[$index] = 0;
+
+            $path = $pattern['path'] ?? '*';
+            $msg = $pattern['message'] ?? null;
+            if ($msg === null) {
+                continue;
+            }
+            $this->exactPatternIndex[$path][$msg] = $index;
         }
     }
 
@@ -85,24 +88,30 @@ final class IgnoredErrors
      */
     public function shouldIgnore(string $path, string $message): bool
     {
-        // Get or compute relevant pattern indices for this path (cached)
-        if (!isset($this->pathPatternsCache[$path])) {
-            $relevant = [];
-            foreach ($this->ignorePatterns as $index => $pattern) {
-                if ($this->isPatternRelevantForPath($pattern, $path)) {
-                    $relevant[] = $index;
-                }
-            }
-            $this->pathPatternsCache[$path] = $relevant;
-        }
-
-        foreach ($this->pathPatternsCache[$path] as $index) {
-            $pattern = $this->ignorePatterns[$index];
+        foreach ($this->ignorePatterns as $index => $pattern) {
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $message);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
             if ($msgMatch && $pathMatch) {
                 return $this->markPatternMatched($index, $pattern);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an error should be ignored exactly.
+     */
+    public function shouldIgnoreExact(string $path, string $message): bool
+    {
+        $path = Path::makeRelative($path, base_path());
+        foreach ([$path, '*'] as $p) {
+            if (isset($this->exactPatternIndex[$p][$message])) {
+                return $this->markPatternMatched(
+                    $this->exactPatternIndex[$p][$message],
+                    $this->ignorePatterns[$this->exactPatternIndex[$p][$message]],
+                );
             }
         }
 
@@ -178,26 +187,6 @@ final class IgnoredErrors
         $this->patternMatched[$index] = true;
 
         return true;
-    }
-
-    /**
-     * Determine whether a pattern is relevant for a given file path.
-     *
-     * @param _IgnoredError $pattern
-     */
-    private function isPatternRelevantForPath($pattern, string $path): bool
-    {
-        if (is_string($pattern)) {
-            // String pattern has no path restriction -> always relevant
-            return true;
-        }
-
-        // Array pattern: relevant if no 'path' key, or if path matches
-        if (!isset($pattern['path'])) {
-            return true;
-        }
-
-        return $this->isMatch($pattern['path'], $path);
     }
 
     /**
