@@ -29,6 +29,7 @@ linter:
       - 'foo'
     - path: tests/Integration/tmp/ignored.txt
       message: 'bar'
+    - path: path_foo.txt
 YAML);
 
         // This triggers DomainCheck: "Unexpected empty domain.."
@@ -46,6 +47,10 @@ YAML);
         );
         $this->assertContains(
             'Ignored error pattern bar in path tests/Integration/tmp/ignored.txt was not matched in reported errors.',
+            $globalErrors,
+        );
+        $this->assertContains(
+            'Ignored error pattern in path path_foo.txt was not matched in reported errors.',
             $globalErrors,
         );
 
