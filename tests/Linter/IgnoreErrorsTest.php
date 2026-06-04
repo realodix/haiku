@@ -36,7 +36,7 @@ YAML);
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
 
@@ -89,7 +89,7 @@ YAML);
         $this->fs->dumpFile($dummyFile_2, 'example.com,example.com###ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
         $globalErrors = $errorReporter->getGlobalErrors();
@@ -123,7 +123,7 @@ YAML);
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku3.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku3.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
 
@@ -154,7 +154,7 @@ YAML);
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku4.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku4.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
 

@@ -33,7 +33,9 @@ class LintCommand extends Command
     {
         $this
             ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to analyse')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and analyse all files')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
+            ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
             ->addOption('generate-baseline', 'b', InputOption::VALUE_NONE, 'Generate baseline file');
     }
 
@@ -54,7 +56,9 @@ class LintCommand extends Command
         $startTime = microtime(true);
         $errorReporter = $this->linter->run(
             new CommandOptions(
+                cachePath: $input->getOption('cache'),
                 configFile: $input->getOption('config'),
+                ignoreCache: (bool) $input->getOption('force'),
                 path: $input->getOption('path'),
                 generateBaseline: $input->getOption('generate-baseline'),
             ),

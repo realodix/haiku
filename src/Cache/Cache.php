@@ -75,6 +75,17 @@ final class Cache
     }
 
     /**
+     * Retrieve the cached data for the given key.
+     *
+     * @param string $key The cache key
+     * @return array<string, mixed>|null
+     */
+    public function get(string $key): ?array
+    {
+        return $this->repository()->get($key);
+    }
+
+    /**
      * Checks whether the stored reference for a key matches the provided reference value.
      *
      * @param string $key The cache key

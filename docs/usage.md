@@ -80,6 +80,10 @@ vendor/bin/haiku lint [options]
 
   Specifies the file or directory to analyze.
 
+- `--force`
+
+  Ignore cache and analyse all files regardless of whether they have changed.
+
 - `--config <path>`
 
   Specifies a custom configuration file.
