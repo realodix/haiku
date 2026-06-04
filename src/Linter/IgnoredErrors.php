@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter;
 
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -31,6 +32,13 @@ final class IgnoredErrors
      * @var array<int, int>
      */
     private array $patternMatchCount = [];
+
+    /**
+     * Cache of relevant pattern indices per path
+     *
+     * @var array<string, list<int>>
+     */
+    private array $pathPatternsCache = [];
 
     /**
      * @param list<_ConfigIgnoredError> $configPatterns Ignore patterns from user configuration
@@ -77,7 +85,19 @@ final class IgnoredErrors
      */
     public function shouldIgnore(string $path, string $message): bool
     {
-        foreach ($this->ignorePatterns as $index => $pattern) {
+        // Get or compute relevant pattern indices for this path (cached)
+        if (!isset($this->pathPatternsCache[$path])) {
+            $relevant = [];
+            foreach ($this->ignorePatterns as $index => $pattern) {
+                if ($this->isPatternRelevantForPath($pattern, $path)) {
+                    $relevant[] = $index;
+                }
+            }
+            $this->pathPatternsCache[$path] = $relevant;
+        }
+
+        foreach ($this->pathPatternsCache[$path] as $index) {
+            $pattern = $this->ignorePatterns[$index];
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $message);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
@@ -158,6 +178,26 @@ final class IgnoredErrors
         $this->patternMatched[$index] = true;
 
         return true;
+    }
+
+    /**
+     * Determine whether a pattern is relevant for a given file path.
+     *
+     * @param _IgnoredError $pattern
+     */
+    private function isPatternRelevantForPath($pattern, string $path): bool
+    {
+        if (is_string($pattern)) {
+            // String pattern has no path restriction -> always relevant
+            return true;
+        }
+
+        // Array pattern: relevant if no 'path' key, or if path matches
+        if (!isset($pattern['path'])) {
+            return true;
+        }
+
+        return $this->isMatch($pattern['path'], $path);
     }
 
     /**
