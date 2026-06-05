@@ -179,14 +179,13 @@ final class NetOptionCombiner
      */
     private function polarityState(array $pos, array $neg): string
     {
-        // @phpstan-ignore match.unhandled
         return match (true) {
             // only positive ($image)
             $pos !== [] && $neg === [] => 'POS',
             // only negated ($~image)
             $pos === [] && $neg !== [] => 'NEG',
             // contains both positive and negated options
-            $pos !== [] && $neg !== [] => 'MIXED',
+            default => 'MIXED',
         };
     }
 
