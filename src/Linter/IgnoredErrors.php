@@ -11,7 +11,7 @@ use Symfony\Component\Yaml\Yaml;
  *  path?: string,
  *  count?: int,
  *  isBaseline?: bool,
- * }|string
+ * }
  */
 final class IgnoredErrors
 {
@@ -78,14 +78,6 @@ final class IgnoredErrors
     public function shouldIgnore(string $path, string $message): bool
     {
         foreach ($this->ignorePatterns as $index => $pattern) {
-            if (is_string($pattern)) {
-                if ($this->isMatch($pattern, $message)) {
-                    return $this->markPatternMatched($index);
-                }
-
-                continue;
-            }
-
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $message);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
@@ -106,22 +98,18 @@ final class IgnoredErrors
         foreach ($this->patternMatched as $index => $used) {
             $pattern = $this->ignorePatterns[$index];
 
-            if ($used || (is_array($pattern) && isset($pattern['isBaseline']))) {
+            if ($used || isset($pattern['isBaseline'])) {
                 continue;
             }
 
             $patternDesc = '';
             $locDesc = '';
 
-            if (is_string($pattern)) {
-                $patternDesc = $pattern;
-            } else {
-                if (isset($pattern['message'])) {
-                    $patternDesc = $pattern['message'];
-                }
-                if (isset($pattern['path'])) {
-                    $locDesc = (isset($pattern['message']) ? ' ' : '').'in path '.$pattern['path'];
-                }
+            if (isset($pattern['message'])) {
+                $patternDesc = $pattern['message'];
+            }
+            if (isset($pattern['path'])) {
+                $locDesc = (isset($pattern['message']) ? ' ' : '').'in path '.$pattern['path'];
             }
 
             $reporter->addGlobalError(sprintf(
@@ -184,7 +172,9 @@ final class IgnoredErrors
         $normalized = [];
         foreach ($patterns as $pattern) {
             if (is_string($pattern)) {
-                $normalized[] = $pattern;
+                $normalized[] = [
+                    'message' => $pattern,
+                ];
 
                 continue;
             }

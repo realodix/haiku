@@ -238,7 +238,7 @@ YAML);
         return [
             'string pattern' => [
                 ['foo'],
-                ['foo'],
+                [['message' => 'foo']],
             ],
             'message only' => [
                 [['message' => 'foo']],
