@@ -102,20 +102,16 @@ final class Linter
         foreach ($this->rules as $rule) {
             foreach ($rule->check($content, new RuleErrorBuilder) as $error) {
                 $rawErrors[] = $error;
+
+                if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
+                    continue;
+                }
+
+                $this->errorReporter->add($path, $error);
             }
         }
 
-        // Store all raw errors in cache (before ignore filtering)
         $this->cache->set($path, $fingerprint, ['errors' => $rawErrors]);
-
-        // Apply ignore filters and report
-        foreach ($rawErrors as $error) {
-            if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
-                continue;
-            }
-
-            $this->errorReporter->add($path, $error);
-        }
     }
 
     /**
