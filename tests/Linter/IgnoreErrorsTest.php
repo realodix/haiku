@@ -192,6 +192,7 @@ YAML);
                 [['message' => 'foo', 'messages' => ['bar', 'baz']]],
                 [['message' => 'foo'], ['message' => 'bar'], ['message' => 'baz']],
             ],
+
             'path only' => [
                 [['path' => 'foo.txt']],
                 [['path' => 'foo.txt']],
@@ -204,6 +205,7 @@ YAML);
                 [['path' => 'foo.txt', 'paths' => ['bar.txt', 'baz.txt']]],
                 [['path' => 'foo.txt'], ['path' => 'bar.txt'], ['path' => 'baz.txt']],
             ],
+
             'message and path' => [
                 [['message' => 'msg', 'path' => 'file.txt']],
                 [['message' => 'msg', 'path' => 'file.txt']],
@@ -231,6 +233,7 @@ YAML);
                     ['message' => 'msg2', 'path' => 'file2.txt'],
                 ],
             ],
+
             'with extra keys (count, etc)' => [
                 [['message' => 'msg', 'path' => 'file.txt', 'count' => 5]],
                 [['count' => 5, 'message' => 'msg', 'path' => 'file.txt']],
@@ -279,6 +282,78 @@ YAML);
                 [],
             ],
         ];
+    }
+
+    #[PHPUnit\Test]
+    #[PHPUnit\DataProvider('normalizeDataProvider_identifier')]
+    public function normalizeIgnoreErrors_identifier(array $input, array $expected): void
+    {
+        $ignoredErrors = new IgnoredErrors($input);
+
+        $reflection = new \ReflectionClass($ignoredErrors);
+        $property = $reflection->getProperty('ignorePatterns');
+
+        $this->assertSame($expected, $property->getValue($ignoredErrors));
+    }
+
+    public static function normalizeDataProvider_identifier(): array
+    {
+        return [
+            'identifier only' => [
+                [['identifier' => 'id_foo']],
+                [['identifier' => 'id_foo']],
+            ],
+            'identifiers only' => [
+                [['identifiers' => ['id_foo', 'id_bar']]],
+                [['identifier' => 'id_foo'], ['identifier' => 'id_bar']],
+            ],
+            'identifier and identifiers' => [
+                [['identifier' => 'id_foo', 'identifiers' => ['id_bar', 'id_baz']]],
+                [['identifier' => 'id_foo'], ['identifier' => 'id_bar'], ['identifier' => 'id_baz']],
+            ],
+
+            'identifier and path' => [
+                [['path' => 'file.txt', 'identifier' => 'id_foo']],
+                [['path' => 'file.txt', 'identifier' => 'id_foo']],
+            ],
+            'identifiers and path' => [
+                [['path' => 'file.txt', 'identifiers' => ['id_foo', 'id_bar']]],
+                [
+                    ['path' => 'file.txt', 'identifier' => 'id_foo'],
+                    ['path' => 'file.txt', 'identifier' => 'id_bar'],
+                ],
+            ],
+            'identifier and paths' => [
+                [['identifier' => 'id_foo', 'paths' => ['file1.txt', 'file2.txt']]],
+                [
+                    ['path' => 'file1.txt', 'identifier' => 'id_foo'],
+                    ['path' => 'file2.txt', 'identifier' => 'id_foo'],
+                ],
+            ],
+            'identifiers and paths' => [
+                [['identifiers' => ['id_foo', 'id_bar'], 'paths' => ['file1.txt', 'file2.txt']]],
+                [
+                    ['path' => 'file1.txt', 'identifier' => 'id_foo'],
+                    ['path' => 'file1.txt', 'identifier' => 'id_bar'],
+                    ['path' => 'file2.txt', 'identifier' => 'id_foo'],
+                    ['path' => 'file2.txt', 'identifier' => 'id_bar'],
+                ],
+            ],
+        ];
+    }
+
+    #[PHPUnit\Test]
+    public function baselineNormalization(): void
+    {
+        $ignoredErrors = new IgnoredErrors([], [['message' => 'foo']]);
+
+        $reflection = new \ReflectionClass($ignoredErrors);
+        $property = $reflection->getProperty('ignorePatterns');
+
+        $this->assertSame(
+            [['isBaseline' => true, 'message' => 'foo']],
+            $property->getValue($ignoredErrors),
+        );
     }
 
     #[PHPUnit\Test]

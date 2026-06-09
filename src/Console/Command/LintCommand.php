@@ -145,7 +145,7 @@ class LintCommand extends Command
                 }
 
                 if (isset($issue['ruleId'])) {
-                    $io->writeln($this->meta($issue['ruleId']));
+                    $io->writeln($this->meta("ID: {$issue['ruleId']}"));
                 }
 
                 if (isset($issue['link'])) {

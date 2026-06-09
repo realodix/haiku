@@ -11,6 +11,7 @@ use Symfony\Component\Yaml\Yaml;
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,
+ *  identifier?: string,
  *  covered_by_line?: int,
  *  count?: int, // from baseline, not user config
  *  isBaseline?: bool,
@@ -312,6 +313,14 @@ final class IgnoredErrors
                 $dimensions['path'] = $paths;
             }
 
+            $identifiers = array_merge(
+                isset($pattern['identifier']) ? [$pattern['identifier']] : [],
+                (array) ($pattern['identifiers'] ?? []),
+            );
+            if (!empty($identifiers)) {
+                $dimensions['identifier'] = $identifiers;
+            }
+
             // Skip if the pattern contains no relevant dimension data
             if (empty($dimensions)) {
                 continue;
@@ -322,6 +331,7 @@ final class IgnoredErrors
             unset(
                 $base['message'], $base['messages'],
                 $base['path'], $base['paths'],
+                $base['identifier'], $base['identifiers'],
             );
 
             // 3. Expand (cartesian product)
