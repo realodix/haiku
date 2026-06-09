@@ -330,6 +330,10 @@ YAML);
                 [[]],
                 [],
             ],
+            'empty entry 2' => [
+                [['message' => 'Error A', 'paths' => []]],
+                [['message' => 'Error A']],
+            ],
             'entry with neither message nor path' => [
                 [['count' => 5]],
                 [],

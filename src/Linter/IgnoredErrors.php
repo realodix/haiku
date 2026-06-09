@@ -183,42 +183,52 @@ final class IgnoredErrors
                 $pattern['isBaseline'] = true;
             }
 
-            $messages = [];
-            if (isset($pattern['message'])) {
-                $messages[] = $pattern['message'];
-            }
-            if (isset($pattern['messages'])) {
-                $messages = array_merge($messages, (array) $pattern['messages']);
+            // 1. Collect and group plural/singular dimensions
+            $dimensions = [];
+
+            $messages = array_merge(
+                isset($pattern['message']) ? [$pattern['message']] : [],
+                (array) ($pattern['messages'] ?? []),
+            );
+            if (!empty($messages)) {
+                $dimensions['message'] = $messages;
             }
 
-            $paths = [];
-            if (isset($pattern['path'])) {
-                $paths[] = $pattern['path'];
-            }
-            if (isset($pattern['paths'])) {
-                $paths = array_merge($paths, (array) $pattern['paths']);
+            $paths = array_merge(
+                isset($pattern['path']) ? [$pattern['path']] : [],
+                (array) ($pattern['paths'] ?? []),
+            );
+            if (!empty($paths)) {
+                $dimensions['path'] = $paths;
             }
 
-            if (empty($messages) && empty($paths)) {
+            // Skip if the pattern contains no relevant dimension data
+            if (empty($dimensions)) {
                 continue;
             }
 
+            // 2. Prepare the base data by removing the dimension keys that will be expanded
             $base = $pattern;
-            unset($base['message'], $base['messages'], $base['path'], $base['paths']);
-            if (empty($messages)) {
-                foreach ($paths as $p) {
-                    $normalized[] = array_merge($base, ['path' => $p]);
-                }
-            } elseif (empty($paths)) {
-                foreach ($messages as $m) {
-                    $normalized[] = array_merge($base, ['message' => $m]);
-                }
-            } else {
-                foreach ($messages as $m) {
-                    foreach ($paths as $p) {
-                        $normalized[] = array_merge($base, ['message' => $m, 'path' => $p]);
+            unset(
+                $base['message'], $base['messages'],
+                $base['path'], $base['paths'],
+            );
+
+            // 3. Expand (cartesian product)
+            $combinations = [[]];
+            foreach ($dimensions as $key => $values) {
+                $next = [];
+                foreach ($combinations as $combo) {
+                    foreach ($values as $value) {
+                        $next[] = array_merge($combo, [$key => $value]);
                     }
                 }
+                $combinations = $next;
+            }
+
+            // Merge the generated combinations back with the base metadata
+            foreach ($combinations as $combo) {
+                $normalized[] = array_merge($base, $combo);
             }
         }
 
