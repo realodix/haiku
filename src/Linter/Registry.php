@@ -46,6 +46,7 @@ final class Registry
         'call-nothrow',
         'close-window', 'window-close-if',
         'disable-newtab-links',
+        'edit-object-on-getter', 'edit-object-on-setter',
         'edit-this-object',
         'evaldata-prune',
         'freeze-element-property',
