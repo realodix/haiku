@@ -36,8 +36,8 @@ final class ExpressionCheck implements Rule
             $err->line($lineNum);
             $line = trim($line);
 
-            if (preg_match('/^!#\s?if(?:\s+(.*)|$)/i', $line, $matches)) {
-                $condition = trim($matches[1] ?? '');
+            if (preg_match('/^!#\s?if(?:\s+(.*)|$)/i', $line, $m)) {
+                $condition = trim($m[1] ?? '');
 
                 if ($condition === '') {
                     $err->message('The "!#if" statement must have a condition.')
@@ -63,8 +63,8 @@ final class ExpressionCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/^!#\s?else(?:\s+(.*)|$)/i', $line, $matches)) {
-                $condition = trim($matches[1] ?? '');
+            if (preg_match('/^!#\s?else(?:\s+(.*)|$)/i', $line, $m)) {
+                $condition = trim($m[1] ?? '');
 
                 if ($condition !== '') {
                     $err->message('The "!#else" statement must not have a condition.')
@@ -246,12 +246,12 @@ final class ExpressionCheck implements Rule
             return array_unique(array_merge(...$allRequired));
         }
 
-        if (preg_match('/^(!?)([a-zA-Z_][a-zA-Z0-9_]*)$/', $condition, $matches)) {
-            if ($matches[1] === '!') {
+        if (preg_match('/^(!?)([a-zA-Z_][a-zA-Z0-9_]*)$/', $condition, $m)) {
+            if ($m[1] === '!') {
                 return [];
             }
 
-            return [$matches[2]];
+            return [$m[2]];
         }
 
         return [];

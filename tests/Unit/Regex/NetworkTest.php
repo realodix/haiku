@@ -77,8 +77,8 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function network_option_domain($string, $expected)
     {
-        preg_match(Regex::NET_OPTION_DOMAIN, $string, $matches);
-        $this->assertSame($expected, $matches[1] ?? null);
+        preg_match(Regex::NET_OPTION_DOMAIN, $string, $m);
+        $this->assertSame($expected, $m[1] ?? null);
     }
 
     public static function network_option_domain_provider()

@@ -61,8 +61,8 @@ final class CosmeticCheck implements Rule
         );
 
         if (preg_match_all('/(?<!\\\)#[0-9][\w-]*/', $cleanSelector, $matches)) {
-            foreach ($matches[0] as $match) {
-                $msg = sprintf('Invalid filter: ID selector %s cannot start with a number.', $match);
+            foreach ($matches[0] as $m) {
+                $msg = sprintf('Invalid filter: ID selector %s cannot start with a number.', $m);
                 $err->message($msg)
                     ->tip('Escape the first digit using its Unicode code point or use another character.')
                     ->link('https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/ident#escaping_characters')

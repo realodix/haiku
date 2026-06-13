@@ -441,9 +441,9 @@ final class NetworkCheck implements Rule
 
         if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
             $longest = '';
-            foreach ($matches[0] as $match) {
-                if (strlen($match) > strlen($longest)) {
-                    $longest = $match;
+            foreach ($matches[0] as $m) {
+                if (strlen($m) > strlen($longest)) {
+                    $longest = $m;
                 }
             }
 
@@ -469,8 +469,8 @@ final class NetworkCheck implements Rule
         }
 
         if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
-            foreach ($matches[0] as $match) {
-                $tokens[strtolower($match)] = true;
+            foreach ($matches[0] as $m) {
+                $tokens[strtolower($m)] = true;
             }
         }
 

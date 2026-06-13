@@ -752,8 +752,8 @@ final class CosmeticCheck implements Rule
         // Partial
         $type = 'A|P|'.$op;
         $limit = self::ATTR_PARTIAL_KEY_LEN;
-        if ($op === '^=' && preg_match('/^https?:\/\/(?:www\.)?/', $val, $matches)) {
-            $limit = strlen($matches[0]) + $limit;
+        if ($op === '^=' && preg_match('/^https?:\/\/(?:www\.)?/', $val, $m)) {
+            $limit = strlen($m[0]) + $limit;
         }
 
         return match ($op) {

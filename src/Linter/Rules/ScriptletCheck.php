@@ -23,8 +23,8 @@ final class ScriptletCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/\+js\(\s*([^,\s\)]+)/', $line, $matches)) {
-                $actualName = $this->normalizeParam($matches[1]);
+            if (preg_match('/\+js\(\s*([^,\s\)]+)/', $line, $m)) {
+                $actualName = $this->normalizeParam($m[1]);
 
                 if (str_starts_with($actualName, 'trusted-')) {
                     continue;

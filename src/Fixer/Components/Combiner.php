@@ -70,10 +70,10 @@ final class Combiner
      */
     private function parseDomain(string $filter, string $domainPattern): array
     {
-        if (preg_match($domainPattern, $filter, $matches)) {
+        if (preg_match($domainPattern, $filter, $m)) {
             return [
-                'full_match' => $matches[0],
-                'domain' => $matches[1] ?? '',
+                'full_match' => $m[0],
+                'domain' => $m[1] ?? '',
                 'pattern' => preg_replace($domainPattern, '', $filter),
             ];
         }
