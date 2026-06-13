@@ -25,13 +25,13 @@ final class IfClosedCheck implements Rule
             $err->line($lineNum);
             $line = trim($line);
 
-            if (preg_match('/^!#\s?if(?:\s|$)/i', $line)) {
+            if (str_starts_with($line, '!#if')) {
                 $stack[] = ['lineNum' => $lineNum, 'type' => 'if', 'hasElse' => false];
 
                 continue;
             }
 
-            if (preg_match('/^!#\s?else\s*$/i', $line)) {
+            if (str_starts_with($line, '!#else')) {
                 if (empty($stack)) {
                     $err->message('Found "!#else" without matching "!#if".')
                         ->build();
@@ -49,7 +49,7 @@ final class IfClosedCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/^!#\s?endif\s*$/i', $line)) {
+            if (str_starts_with($line, '!#endif')) {
                 if (empty($stack)) {
                     $err->message('Found "!#endif" without matching "!#if".')
                         ->build();
