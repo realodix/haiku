@@ -42,12 +42,10 @@ final class AdgModifierForElement
         foreach ($this->networkTidy->splitOptions($modifiers) as $option) {
             $parts = explode('=', $option, 2);
             $name = ltrim($parts[0], '~');
-            $value = $parts[1] ?? null;
+            $value = $parts[1];
 
             if (in_array($name, $multiValue)) {
-                if ($value !== null) {
-                    array_push($parsed[$name], ...[$value]);
-                }
+                array_push($parsed[$name], ...[$value]);
             } else {
                 $parsed['modifiers'][] = $option;
             }
