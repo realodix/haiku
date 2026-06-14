@@ -128,7 +128,7 @@ final class Builder
     /**
      * Computes a deterministic hash for the given source contents.
      *
-     * @param array<int, string> $sources Source contents.
+     * @param array<int, string> ...$sources Source contents.
      * @return string A hash that uniquely represents the current source state.
      */
     private function sourceHash(array ...$sources): string
