@@ -111,7 +111,10 @@ final class Linter
             }
         }
 
-        $this->cache->set($path, $fingerprint, ['errors' => $rawErrors]);
+        $this->cache->set($path, $fingerprint, [
+            'errors' => $rawErrors,
+            'timestamp' => time(),
+        ]);
     }
 
     /**

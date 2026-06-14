@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\App;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -85,19 +84,9 @@ final class LinterConfig
      */
     public function fingerprintSeed(): string
     {
-        $rules = collect($this->rules)
+        return collect($this->rules)
             ->reject(static fn($value) => $value === false)
             ->sortKeys()->toJson();
-
-        if (str_contains(App::VERSION, '.x')) {
-            $v = App::version();
-        } else {
-            // get major and minor version
-            $v = explode('.', App::version());
-            $v = implode('.', array_slice($v, 0, 2));
-        }
-
-        return $v.$rules;
     }
 
     /**
