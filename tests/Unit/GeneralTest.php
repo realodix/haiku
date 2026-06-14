@@ -139,6 +139,8 @@ class GeneralTest extends TestCase
         $input = array_map(fn($value) => str_replace('! ', '# ', $value), $input);
         $expected = ['##.ads', '##.banner', '', '# comment', '##.foo'];
         $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => 'keep_before_comment']));
+        // there is no next line
+        $this->assertSame([], $this->fix([''], ['remove_empty_lines' => 'keep_before_comment']));
     }
 
     #[PHPUnit\Test]
