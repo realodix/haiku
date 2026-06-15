@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\App;
 use Symfony\Component\Filesystem\Path;
 
 /**

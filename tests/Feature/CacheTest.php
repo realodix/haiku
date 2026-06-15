@@ -2,8 +2,8 @@
 
 namespace Realodix\Haiku\Test\Feature;
 
+use Carbon\Carbon;
 use Illuminate\Container\Container;
-use Illuminate\Support\Carbon;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Cache\Repository;
 use Realodix\Haiku\Console\CommandOptions;
