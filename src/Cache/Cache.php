@@ -2,6 +2,8 @@
 
 namespace Realodix\Haiku\Cache;
 
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
@@ -63,12 +65,13 @@ final class Cache
      *
      * @param string $key The key to set
      * @param string $value The reference value
+     * @param array<string, mixed> $extra Extra data to store
      */
-    public function set(string $key, string $value): void
+    public function set(string $key, string $value, array $extra = []): void
     {
-        $this->repository()->set($key, [
+        $this->repository()->set($key, array_merge([
             'reference' => $value,
-        ]);
+        ], $extra));
     }
 
     /**
@@ -79,9 +82,14 @@ final class Cache
      */
     public function isValid(string $key, string $value): bool
     {
-        $cacheEntry = $this->repository()->get($key);
+        $entry = $this->repository()->get($key);
 
-        return data_get($cacheEntry, 'reference') === $value;
+        $timestamp = Arr::get($entry, 'timestamp', time());
+        if (Carbon::createFromTimestamp($timestamp)->diffInDays() > 7) {
+            return false;
+        }
+
+        return Arr::get($entry, 'reference') === $value;
     }
 
     /**
