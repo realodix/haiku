@@ -10,6 +10,7 @@ builder:
     - filename: compiled2.txt
       remove_duplicates: true
       header: |
+        Last modified: %timestamp%
         Description: Foo
         Expires: 5 days (update frequency)
         Homepage: https://example.com/

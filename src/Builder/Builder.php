@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Builder;
 
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
@@ -85,7 +86,7 @@ final class Builder
      */
     private function header(string $data): string
     {
-        $date = new \DateTime()->format('D, d M Y H:i:s \G\M\T');
+        $date = Carbon::now()->toRfc7231String();
 
         $data = str_replace('%timestamp%', $date, $data);
         $data = rtrim($data);

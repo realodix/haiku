@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Test\Feature;
 
+use Carbon\Carbon;
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Test\TestCase;
 
@@ -19,6 +20,8 @@ class BuilderTest extends TestCase
 
     public function testBuild2()
     {
+        Carbon::setTestNow('2026-01-01 10:10:00');
+
         $this->runBuildCommand();
 
         $this->assertFileEquals(
