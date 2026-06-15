@@ -91,19 +91,9 @@ final class FixerConfig
      */
     public function fingerprintSeed(): string
     {
-        $flags = collect($this->flags)
+        return collect($this->flags)
             ->reject(static fn($value) => $value === false || $value === null)
             ->sortKeys()->toJson();
-
-        if (str_contains(App::VERSION, '.x')) {
-            $v = App::version();
-        } else {
-            // get major and minor version
-            $v = explode('.', App::version());
-            $v = implode('.', array_slice($v, 0, 2));
-        }
-
-        return $v.$flags;
     }
 
     /**

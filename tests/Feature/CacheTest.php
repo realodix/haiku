@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Test\Feature;
 
 use Illuminate\Container\Container;
+use Illuminate\Support\Carbon;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Cache\Repository;
 use Realodix\Haiku\Console\CommandOptions;
@@ -279,5 +280,22 @@ class CacheTest extends TestCase
         $newRepository->load();
         $this->assertArrayHasKey($activePath1, $newRepository->all());
         $this->assertArrayNotHasKey($stalePath, $newRepository->all());
+    }
+
+    public function testCacheInvalidationAfterOneWeek(): void
+    {
+        $key = 'testKey';
+        $value = 'testValue';
+        $now = Carbon::now();
+
+        // 1. Set cache (stores current timestamp)
+        $this->cache->set($key, $value, ['timestamp' => $now->timestamp]);
+        $this->assertTrue($this->cache->isValid($key, $value));
+
+        // 2. Modify repository entry timestamp to be 1 week + 1 second ago
+        Carbon::setTestNow($now->addWeek()->addSecond());
+        $this->assertFalse($this->cache->isValid($key, $value));
+
+        Carbon::setTestNow();
     }
 }
