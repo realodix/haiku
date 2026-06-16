@@ -87,10 +87,10 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Domains in the $denyallow value cannot be negated: "~y.com".'],
-            [2, 'Domains in the $denyallow value cannot have a wildcard TLD: "y.*".'],
-            [3, 'Domains in the $denyallow value cannot be negated: "~foo.*".'],
-            [3, 'Domains in the $denyallow value cannot have a wildcard TLD: "~foo.*".'],
+            [1, 'Domains in the $denyallow value cannot be negated: "~y.com"'],
+            [2, 'Domains in the $denyallow value cannot have a wildcard TLD: "y.*"'],
+            [3, 'Domains in the $denyallow value cannot be negated: "~foo.*"'],
+            [3, 'Domains in the $denyallow value cannot have a wildcard TLD: "~foo.*"'],
         ], [GeneralCheck::class]);
     }
 

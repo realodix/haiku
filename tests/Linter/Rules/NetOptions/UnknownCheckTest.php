@@ -17,7 +17,7 @@ class UnknownCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [2, 'Unknown filter option: "foo".'],
+            [2, 'Unknown filter option: "foo"'],
         ]);
     }
 
@@ -29,9 +29,9 @@ class UnknownCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown filter option: "foo".'],
-            [1, 'Unknown filter option: "bar".'],
-            [1, 'Unknown filter option: "baz".'],
+            [1, 'Unknown filter option: "foo"'],
+            [1, 'Unknown filter option: "bar"'],
+            [1, 'Unknown filter option: "baz"'],
         ]);
     }
 
@@ -43,8 +43,8 @@ class UnknownCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown filter option: "foo".'],
-            [1, 'Unknown filter option: "bar".'],
+            [1, 'Unknown filter option: "foo"'],
+            [1, 'Unknown filter option: "bar"'],
         ]);
     }
 

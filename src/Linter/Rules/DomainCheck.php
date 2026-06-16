@@ -69,7 +69,7 @@ final class DomainCheck implements Rule
         $domains = explode($separator, $domainStr);
 
         if (count($domains) > 1 && count(array_filter($domains, fn($d) => trim($d) !== '')) === 0) {
-            $err->message('Invalid filter')
+            $err->message('Invalid filter.')
                 ->build();
 
             return;
@@ -119,14 +119,14 @@ final class DomainCheck implements Rule
         $context = '';
 
         if ($prev !== null && $prev !== '' && $next !== null && $next !== '') {
-            $context = sprintf(' between "%s" and "%s"', $prev, $next);
+            $context = sprintf('between "%s" and "%s"', $prev, $next);
         } elseif ($prev !== null && $prev !== '') {
-            $context = sprintf(' after "%s"', $prev);
+            $context = sprintf('after "%s"', $prev);
         } elseif ($next !== null && $next !== '') {
-            $context = sprintf(' before "%s"', $next);
+            $context = sprintf('before "%s"', $next);
         }
 
-        $err->message(sprintf('Unexpected empty domain%s.', $context))
+        $err->message(sprintf('Unexpected empty domain %s', $context))
             ->build();
 
         return true;

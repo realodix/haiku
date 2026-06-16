@@ -408,14 +408,14 @@ final class GeneralCheck implements Rule
 
                 if (str_starts_with($domain, '~')) {
                     $err->message(sprintf(
-                        'Domains in the $denyallow value cannot be negated: "%s".',
+                        'Domains in the $denyallow value cannot be negated: "%s"',
                         $domain,
                     ))->build();
                 }
 
                 if (str_ends_with($domain, '.*')) {
                     $err->message(sprintf(
-                        'Domains in the $denyallow value cannot have a wildcard TLD: "%s".',
+                        'Domains in the $denyallow value cannot have a wildcard TLD: "%s"',
                         $domain,
                     ))->build();
                 }
