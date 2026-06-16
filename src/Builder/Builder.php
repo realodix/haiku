@@ -77,7 +77,7 @@ final class Builder
         // Step 3: Build and write
         $finalContent = array_merge([$this->header($header)], $content);
         $this->fs->dumpFile($outputPath, ltrim(Helper::joinLines($finalContent)));
-        $this->cache->set($outputPath, $fingerprint);
+        $this->cache->set($outputPath, $fingerprint, false);
         $this->logger->processed($outputPath);
     }
 

@@ -97,9 +97,7 @@ final class Runner
     public function record($result): void
     {
         if ($result['status'] === 'processed') {
-            $this->cache->set($result['path'], $result['hash'], [
-                'timestamp' => time(),
-            ]);
+            $this->cache->set($result['path'], $result['hash']);
             $this->logger->processed($result['path']);
         }
 

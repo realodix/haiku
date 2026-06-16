@@ -289,7 +289,7 @@ class CacheTest extends TestCase
         $now = Carbon::now();
 
         // 1. Set cache (stores current timestamp)
-        $this->cache->set($key, $value, ['timestamp' => $now->timestamp]);
+        $this->cache->set($key, $value);
         $this->assertTrue($this->cache->isValid($key, $value));
 
         // 2. Modify repository entry timestamp to be 1 week + 1 second ago

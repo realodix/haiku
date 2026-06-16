@@ -67,8 +67,12 @@ final class Cache
      * @param string $value The reference value
      * @param array<string, mixed> $extra Extra data to store
      */
-    public function set(string $key, string $value, array $extra = []): void
+    public function set(string $key, string $value, bool $timestamp = true, array $extra = []): void
     {
+        if ($timestamp) {
+            $extra['timestamp'] = Carbon::now()->timestamp;
+        }
+
         $this->repository()->set($key, array_merge([
             'reference' => $value,
         ], $extra));
