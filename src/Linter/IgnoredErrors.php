@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter;
 
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -32,6 +33,9 @@ final class IgnoredErrors
      */
     private array $patternMatchCount = [];
 
+    /** @var array<string, array<string, int>> */
+    private array $exactPatternIndex = [];
+
     /**
      * @param list<_ConfigIgnoredError> $configPatterns Ignore patterns from user configuration
      * @param list<_ConfigIgnoredError> $basePatterns Ignore patterns from baseline file
@@ -43,9 +47,15 @@ final class IgnoredErrors
             $this->normalizeIgnorePatterns($basePatterns, isBaseline: true),
         );
 
-        foreach ($this->ignorePatterns as $index => $_) {
+        foreach ($this->ignorePatterns as $index => $pattern) {
             $this->patternMatched[$index] = false;
             $this->patternMatchCount[$index] = 0;
+
+            $path = $pattern['path'] ?? null;
+            $msg = $pattern['message'] ?? null;
+            if ($path !== null && $msg !== null) {
+                $this->exactPatternIndex[$path][$msg] = $index;
+            }
         }
     }
 
@@ -84,6 +94,22 @@ final class IgnoredErrors
             if ($msgMatch && $pathMatch) {
                 return $this->markPatternMatched($index, $pattern);
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an error should be ignored exactly.
+     */
+    public function shouldIgnoreExact(string $path, string $message): bool
+    {
+        $path = Path::makeRelative($path, base_path());
+        if (isset($this->exactPatternIndex[$path][$message])) {
+            return $this->markPatternMatched(
+                $this->exactPatternIndex[$path][$message],
+                $this->ignorePatterns[$this->exactPatternIndex[$path][$message]],
+            );
         }
 
         return false;

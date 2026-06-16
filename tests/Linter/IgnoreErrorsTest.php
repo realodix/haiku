@@ -3,11 +3,15 @@
 namespace Realodix\Haiku\Test\Linter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Cache\Cache;
+use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
+use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Linter\ErrorReporter;
 use Realodix\Haiku\Linter\IgnoredErrors;
 use Realodix\Haiku\Linter\Linter;
 use Realodix\Haiku\Test\TestCase;
+use Symfony\Component\Filesystem\Path;
 
 class IgnoreErrorsTest extends TestCase
 {
@@ -36,7 +40,7 @@ YAML);
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
 
@@ -89,7 +93,7 @@ YAML);
         $this->fs->dumpFile($dummyFile_2, 'example.com,example.com###ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
         $globalErrors = $errorReporter->getGlobalErrors();
@@ -123,7 +127,7 @@ YAML);
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku3.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku3.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
 
@@ -154,7 +158,7 @@ YAML);
         $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
 
         $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku4.yml');
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku4.yml', cachePath: $this->cacheFile);
 
         $errorReporter = $linter->run($cmdOpt);
 
@@ -376,5 +380,46 @@ YAML);
         // Non-matches
         $this->assertFalse($ignoredErrors->shouldIgnore('file3.txt', 'foo message'));
         $this->assertFalse($ignoredErrors->shouldIgnore('file1.txt', 'baz message'));
+    }
+
+    #[PHPUnit\Test]
+    public function baselineGenerationCachesFilesWithErrors(): void
+    {
+        $configFile = $this->tmpDir.'/haiku_baseline_cache.yml';
+        $dummyFile = $this->tmpDir.'/error_file.txt';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests/Integration/tmp/error_file.txt
+  rules:
+    no_extra_blank_lines: false
+YAML);
+
+        // This triggers DomainCheck: "Unexpected empty domain.."
+        $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
+
+        $linter = app(Linter::class);
+        $cmdOpt = new CommandOptions(
+            configFile: 'tests/Integration/tmp/haiku_baseline_cache.yml',
+            cachePath: $this->cacheFile,
+            generateBaseline: true,
+        );
+
+        // Run the linter in baseline generation mode
+        $linter->run($cmdOpt);
+
+        // Now read cache to verify that $dummyFile is indeed cached
+        $cache = app(Cache::class);
+        $cache->repository()->setCacheFile($this->cacheFile);
+        $cache->repository()->setSection(Section::L);
+        $cache->repository()->load();
+
+        $content = file($dummyFile, FILE_IGNORE_NEW_LINES);
+        $config = app(Config::class)->linter($cmdOpt);
+        $fingerprint = hash('xxh128', implode("\n", $content).$config->fingerprintSeed());
+
+        $canonicalDummyFile = Path::canonicalize($dummyFile);
+        $this->assertTrue($cache->isValid($canonicalDummyFile, $fingerprint));
     }
 }

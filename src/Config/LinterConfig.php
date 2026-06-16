@@ -80,6 +80,16 @@ final class LinterConfig
     }
 
     /**
+     * Generates a fingerprint seed based on the current configuration.
+     */
+    public function fingerprintSeed(): string
+    {
+        return collect($this->rules)
+            ->reject(static fn($value) => $value === false)
+            ->sortKeys()->toJson();
+    }
+
+    /**
      * @param list<_ConfigIgnoredError> $ignoreErrors
      * @return list<_ConfigIgnoredError>
      */

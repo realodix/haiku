@@ -2,9 +2,14 @@
 
 namespace Realodix\Haiku\Linter;
 
+use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
+use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Linter\Rules\Rule;
 
+/**
+ * @phpstan-import-type _RuleError from RuleErrorBuilder
+ */
 final class Linter
 {
     /** @var list<Rule> */
@@ -14,6 +19,7 @@ final class Linter
 
     public function __construct(
         private Config $config,
+        private Cache $cache,
     ) {
         $this->errorReporter = new ErrorReporter;
         $this->rules = Util::loadLinterRules();
@@ -32,17 +38,21 @@ final class Linter
         $config = $this->config->linter($cmdOpt);
         $ignoredErrors = IgnoredErrors::load($config, $cmdOpt);
 
+        $this->cache->prepareForRun($config->paths, $cmdOpt, Section::L);
+
         if ($onStart !== null) {
             $onStart(count($config->paths));
         }
 
         foreach ($config->paths as $path) {
-            $this->analyseFile($path, $ignoredErrors);
+            $this->analyseFile($path, $config, $ignoredErrors);
 
             if ($onAdvance !== null) {
                 $onAdvance();
             }
         }
+
+        $this->cache->repository()->save();
 
         $ignoredErrors->reportUnmatched($this->errorReporter);
 
@@ -53,26 +63,58 @@ final class Linter
      * Analyse a single file and report errors.
      *
      * @param string $path The path to the file to be analysed
+     * @param \Realodix\Haiku\Config\LinterConfig $config
      * @param IgnoredErrors $ignoredErrors The collection of errors to ignore
      */
-    private function analyseFile(string $path, IgnoredErrors $ignoredErrors): void
+    private function analyseFile(string $path, $config, IgnoredErrors $ignoredErrors): void
     {
         $content = $this->read($path);
-
         if ($content === null) {
             $this->errorReporter->addGlobalError(sprintf('Cannot read: %s', $path));
 
             return;
         }
 
-        foreach ($this->rules as $rule) {
-            foreach ($rule->check($content, new RuleErrorBuilder) as $error) {
+        $fingerprint = hash('xxh128', implode("\n", $content).$config->fingerprintSeed());
+
+        // Cache hit: restore cached errors and apply ignore filters
+        if ($this->cache->isValid($path, $fingerprint)) {
+            $cached = $this->cache->get($path);
+            /** @var list<_RuleError> */
+            $cachedErrors = $cached['errors'] ?? [];
+            foreach ($cachedErrors as $error) {
+                if ($ignoredErrors->shouldIgnoreExact($path, $error['message'])) {
+                    continue;
+                }
+
                 if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
                     continue;
                 }
+
+                $this->errorReporter->add($path, $error);
+            }
+
+            return;
+        }
+
+        // Cache miss: run analysis
+        $rawErrors = [];
+        foreach ($this->rules as $rule) {
+            foreach ($rule->check($content, new RuleErrorBuilder) as $error) {
+                $rawErrors[] = $error;
+
+                if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
+                    continue;
+                }
+
                 $this->errorReporter->add($path, $error);
             }
         }
+
+        $this->cache->set($path, $fingerprint, [
+            'errors' => $rawErrors,
+            'timestamp' => time(),
+        ]);
     }
 
     /**
