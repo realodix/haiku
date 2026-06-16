@@ -103,12 +103,15 @@ A list of files or directories to analyze. Paths are relative to the project roo
 A list of files or directories to exclude from analysis. If root-level paths are provided, the `vendor` directory is automatically excluded.
 
 #### `ignoreErrors`
-Errors can be ignored by adding a regular expression to the configuration file under the `ignoreErrors` key. To ignore an error by a regular expression, add a string entry:
+Errors can be ignored by adding a regular expression to the configuration file under the `ignoreErrors` key.
+
+To ignore an error by a regular expression, add a string entry:
 
 ```yml
 linter:
   ignoreErrors:
     - '#Deprecated filter option: "(empty|object-subrequest)"#'
+    - 'Unknown filter option: "documen"'
 ```
 
 To ignore errors by a regular expression only in a specific file, add an entry with `message` or `messages` and `path` or `paths` keys.
