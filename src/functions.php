@@ -13,8 +13,6 @@ if (!function_exists('app')) {
      * @param string|class-string<TClass> $abstract
      * @param list<mixed> $parameters
      * @return ($abstract is class-string<TClass> ? TClass : mixed)
-     *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     function app($abstract = null, array $parameters = [])
     {

@@ -183,8 +183,6 @@ final class Runner
      *
      * @param string $path The target file path
      * @param string $content The content to write
-     *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException If all retry attempts fail
      */
     private function safeDumpFile(string $path, string $content): void
     {
@@ -196,7 +194,7 @@ final class Runner
                 $this->fs->dumpFile($path, $content);
 
                 return;
-            } catch (\Symfony\Component\Filesystem\Exception\IOException $e) {
+            } catch (\RuntimeException $e) {
                 // If this was the final attempt, re-throw the exception
                 if ($attempt === $maxRetries) {
                     throw $e;
