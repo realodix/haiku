@@ -30,6 +30,8 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        new \Realodix\Haiku\Console\Kernel()->bootstrap();
+
         $this->fs = new Filesystem;
 
         // In the test environment, we bind the OutputInterface to a silent,

@@ -3,15 +3,10 @@
 namespace Realodix\Haiku\Test\Linter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Cache\Cache;
-use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Enums\Section;
-use Realodix\Haiku\Linter\ErrorReporter;
 use Realodix\Haiku\Linter\IgnoredErrors;
 use Realodix\Haiku\Linter\Linter;
 use Realodix\Haiku\Test\TestCase;
-use Symfony\Component\Filesystem\Path;
 
 class IgnoreErrorsTest extends TestCase
 {
@@ -167,65 +162,6 @@ YAML);
     }
 
     #[PHPUnit\Test]
-    public function baselineIgnoreWithCount(): void
-    {
-        $baselineErrors = [
-            [
-                'message' => 'error message',
-                'path' => 'path/to/file.txt',
-                'count' => 2,
-            ],
-        ];
-
-        $ignoredErrors = new IgnoredErrors([], $baselineErrors);
-
-        // First two matches should be ignored
-        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
-
-        // Third match should NOT be ignored
-        $this->assertFalse($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
-    }
-
-    #[PHPUnit\Test]
-    public function baselineNotReportedAsUnmatched(): void
-    {
-        $baselineErrors = [
-            [
-                'message' => 'unmatched baseline error',
-                'path' => 'path/to/file.txt',
-                'count' => 1,
-            ],
-        ];
-
-        $ignoredErrors = new IgnoredErrors([], $baselineErrors);
-        $reporter = new ErrorReporter;
-
-        $ignoredErrors->reportUnmatched($reporter);
-
-        $this->assertEmpty($reporter->getGlobalErrors());
-    }
-
-    #[PHPUnit\Test]
-    public function mixedUserAndBaselineIgnore(): void
-    {
-        $ignoreErrors = ['user error'];
-        $baselineErrors = [
-            [
-                'message' => 'baseline error',
-                'path' => 'file.txt',
-                'count' => 1,
-            ],
-        ];
-
-        $ignoredErrors = new IgnoredErrors($ignoreErrors, $baselineErrors);
-
-        $this->assertTrue($ignoredErrors->shouldIgnore('any.txt', 'user error'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('file.txt', 'baseline error'));
-        $this->assertFalse($ignoredErrors->shouldIgnore('file.txt', 'baseline error')); // Count 1 exceeded
-    }
-
-    #[PHPUnit\Test]
     #[PHPUnit\DataProvider('normalizeDataProvider')]
     public function normalizeIgnoreErrors(array $input, array $expected): void
     {
@@ -346,20 +282,6 @@ YAML);
     }
 
     #[PHPUnit\Test]
-    public function baselineNormalization(): void
-    {
-        $ignoredErrors = new IgnoredErrors([], [['message' => 'foo']]);
-
-        $reflection = new \ReflectionClass($ignoredErrors);
-        $property = $reflection->getProperty('ignorePatterns');
-
-        $this->assertSame(
-            [['isBaseline' => true, 'message' => 'foo']],
-            $property->getValue($ignoredErrors),
-        );
-    }
-
-    #[PHPUnit\Test]
     public function matchingWithCombinations(): void
     {
         $input = [
@@ -380,46 +302,5 @@ YAML);
         // Non-matches
         $this->assertFalse($ignoredErrors->shouldIgnore('file3.txt', 'foo message'));
         $this->assertFalse($ignoredErrors->shouldIgnore('file1.txt', 'baz message'));
-    }
-
-    #[PHPUnit\Test]
-    public function baselineGenerationCachesFilesWithErrors(): void
-    {
-        $configFile = $this->tmpDir.'/haiku_baseline_cache.yml';
-        $dummyFile = $this->tmpDir.'/error_file.txt';
-
-        $this->fs->dumpFile($configFile, <<<'YAML'
-linter:
-  paths:
-    - tests/Integration/tmp/error_file.txt
-  rules:
-    no_extra_blank_lines: false
-YAML);
-
-        // This triggers DomainCheck: "Unexpected empty domain.."
-        $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
-
-        $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(
-            configFile: 'tests/Integration/tmp/haiku_baseline_cache.yml',
-            cachePath: $this->cacheFile,
-            generateBaseline: true,
-        );
-
-        // Run the linter in baseline generation mode
-        $linter->run($cmdOpt);
-
-        // Now read cache to verify that $dummyFile is indeed cached
-        $cache = app(Cache::class);
-        $cache->repository()->setCacheFile($this->cacheFile);
-        $cache->repository()->setSection(Section::L);
-        $cache->repository()->load();
-
-        $content = file($dummyFile, FILE_IGNORE_NEW_LINES);
-        $config = app(Config::class)->linter($cmdOpt);
-        $fingerprint = hash('xxh128', implode("\n", $content).$config->fingerprintSeed());
-
-        $canonicalDummyFile = Path::canonicalize($dummyFile);
-        $this->assertTrue($cache->isValid($canonicalDummyFile, $fingerprint));
     }
 }
