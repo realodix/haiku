@@ -106,7 +106,7 @@ final class ParallelRunner
         );
 
         // 4. Spawn persistent worker processes
-        $poolSize = min((new CpuCoreCounter)->getCount(), $fileCount);
+        $poolSize = min(new CpuCoreCounter()->getCount(), $fileCount);
         $address = $server->getAddress();
         for ($i = 0; $i < $poolSize; $i++) {
             $this->spawnPersistentWorker($address, $cmdOpt);

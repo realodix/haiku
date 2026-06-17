@@ -35,7 +35,7 @@ final class OutputLogger
         $path = Path::makeRelative($path, $this->root);
 
         if ($this->stats()->getProcessing() > 0) {
-            (new Cursor($this->output))->moveUp()->clearLine();
+            new Cursor($this->output)->moveUp()->clearLine();
         }
 
         $this->output->writeln("<info>[P]: $path</info>");
