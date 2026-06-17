@@ -5,7 +5,6 @@ namespace Realodix\Haiku\Fixer;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -78,7 +77,7 @@ final class Runner
         }
 
         $content = $this->fixer->fix($content);
-        $content = Helper::joinLines($content);
+        $content = $this->joinLines($content);
 
         $this->safeDumpFile($path, $content);
 
@@ -158,7 +157,7 @@ final class Runner
             return true;
         }
 
-        $fingerprint = $this->hash(Helper::joinLines($content), $config);
+        $fingerprint = $this->hash($this->joinLines($content), $config);
 
         return $this->cache->isValid($path, $fingerprint);
     }
@@ -204,6 +203,14 @@ final class Runner
                 usleep($attempt * $baseRetryDelay);
             }
         }
+    }
+
+    /**
+     * @param array<int, string> $lines
+     */
+    public function joinLines(array $lines): string
+    {
+        return implode("\n", $lines)."\n";
     }
 
     /**

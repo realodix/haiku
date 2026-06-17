@@ -57,17 +57,6 @@ final class Helper
     }
 
     /**
-     * Joins an array of strings into a single string with line breaks.
-     *
-     * @param array<int, string> $lines The array of strings to join
-     * @return string The joined string with line breaks
-     */
-    public static function joinLines(array $lines): string
-    {
-        return implode("\n", $lines)."\n";
-    }
-
-    /**
      * Escapes a string of characters according to the CSS escape rules.
      *
      * https://github.com/tailwindlabs/tailwindcss/blob/v4.3.0/packages/tailwindcss/src/utils/escape.ts#L2

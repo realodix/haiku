@@ -8,7 +8,6 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Enums\Section;
-use Realodix\Haiku\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -76,7 +75,7 @@ final class Builder
 
         // Step 3: Build and write
         $finalContent = array_merge([$this->header($header)], $content);
-        $this->fs->dumpFile($outputPath, ltrim(Helper::joinLines($finalContent)));
+        $this->fs->dumpFile($outputPath, ltrim(implode("\n", $finalContent)."\n"));
         $this->cache->set($outputPath, $fingerprint, false);
         $this->logger->processed($outputPath);
     }
@@ -134,7 +133,7 @@ final class Builder
      */
     private function sourceHash(array ...$sources): string
     {
-        return hash('xxh128', implode('', array_merge(...$sources)));
+        return hash('xxh128', implode(array_merge(...$sources)));
     }
 
     /**
