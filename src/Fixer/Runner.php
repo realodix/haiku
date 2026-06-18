@@ -163,15 +163,15 @@ final class Runner
     }
 
     /**
-     * Generate a deterministic content fingerprint.
-     *
-     * @param string $data The data to hash
      * @param \Realodix\Haiku\Config\FixerConfig $config
-     * @return string The computed hash value
      */
-    private function hash(string $data, $config): string
+    private function hash(string $str, $config): string
     {
-        return hash('xxh128', $data.$config->fingerprintSeed());
+        $seed = collect($config->flags)
+            ->reject(static fn($value) => $value === false || $value === null)
+            ->sortKeys()->toJson();
+
+        return hash('xxh128', $str.$seed);
     }
 
     /**

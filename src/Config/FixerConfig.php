@@ -86,16 +86,6 @@ final class FixerConfig
     }
 
     /**
-     * Generates a fingerprint seed based on the current configuration.
-     */
-    public function fingerprintSeed(): string
-    {
-        return collect($this->flags)
-            ->reject(static fn($value) => $value === false || $value === null)
-            ->sortKeys()->toJson();
-    }
-
-    /**
      * Resolves and validates flag overrides.
      *
      * @param array<string, mixed> $override
