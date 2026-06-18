@@ -4,88 +4,27 @@
 
 Haiku is a powerful command-line tool for managing adblock filter lists efficiently. It automates repetitive tasks such as merging sources, optimizing, and tidying up filter lists effortlessly.
 
-### # Features
-1. **Fixing**: Sorts, combines, normalizes, and optimizes filter rules to produce cleaner and easier-to-maintain filter list.
-2. **Lint**: Analyzes your filter list to quickly identify potential issues.
-3. **Building**: Compiles multiple filter list sources (local files and/or remote URLs) into single unified output files, including regenerating headers metadata and removing unnecessary lines such as comments.
+### # Three capabilities, one tool
 
-Haiku supports multiple adblock syntaxes including Adblock Plus, AdGuard, and uBlock Origin. It uses an incremental caching system to skip unchanged files, enabling efficient processing of large filter lists.
+#### 01/Lint - Static analysis
+Analyze your filter lists to catch syntax errors, structural defects, and invalid filter options / modifiers before they impact users. Built with deep understanding of Adblock Plus, AdGuard, and uBlock Origin syntaxes.
 
-```adblock
-!## BEFORE
-[$path=/page.html,domain=b.com|a.com]##.textad
-example.com##+js(aopw, Fingerprint2)
--banner-$image,domain=example.org
--banner-$image,domain=example.com
-b.com,a.com##.ads
-
-!## AFTER
--banner-$image,domain=example.com|example.org
-a.com,b.com##.ads
-[$domain=a.com|b.com,path=/page.html]##.textad
-example.com##+js(aopw, Fingerprint2)
-```
+#### 02/Fix - Optimizer & Normalizer
+An opinionated optimizer that sorts, combines, and deduplicates rules for a leaner, faster-loading filter list. No manual formatting roulette; drop it in, automate it, and move on.
 
 For a complete list of transformations, see [docs/fixer-feature.md](./docs/fixer-feature.md).
 
-```adblock
-##.ads
-example.com##.ads
-example.com##+js(nowolf)
-```
-```
------- ----------------------------------------------------------------------------
-Line   filter.txt
------- ----------------------------------------------------------------------------
-:2     Redundant filter: 'example.com##.ads' already covered by '##.ads' on line 1.
-        ✏️  filter.txt:2
-:3     Unknown scriptlet: "nowolf"
-        💡 Did you mean "nowoif"?
-        ✏️  filter.txt:3
-```
+#### 03/Build - Compiler & Bundler
+Compile multiple filter sources (local files and/or remote URLs) into a single, unified output. Automatically regenerates header metadata, strips unnecessary lines such as comments, and delivers a production-ready deployment.
 
 
-## Installation
+## Three steps to first run
 
-Install the package via [Composer](https://getcomposer.org/):
-
-```sh
-composer require realodix/haiku
-```
-
-Composer will install Haiku executable in its `bin-dir` which defaults to `vendor/bin`.
-
-
-## Commands
-
-#### Initialize configuration
-
-Creates a `haiku.yml` configuration file in your project.
-
-```sh
-vendor/bin/haiku init
-```
-
-#### Fixer
-
-```sh
-vendor/bin/haiku fix
-```
-
-#### Linter
-
-```sh
-vendor/bin/haiku lint
-```
-
-#### Builder
-
-```sh
-vendor/bin/haiku build
-```
+1. **Install**. Install the package via [Composer](https://getcomposer.org/) — `composer require realodix/haiku`.
+2. **Initialize**. Run `vendor/bin/haiku init` in your project root. Haiku detects your layout and writes a `haiku.yml`.
+2. **Run**. Use `vendor/bin/haiku lint`, `vendor/bin/haiku fix`, or `vendor/bin/haiku build`. Wire it into pre-commit, CI, or your editor.
 
 For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
-
 
 
 ## Configuration
