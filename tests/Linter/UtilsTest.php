@@ -9,31 +9,16 @@ use Realodix\Haiku\Test\TestCase;
 class UtilsTest extends TestCase
 {
     #[PHPUnit\Test]
-    public function flatten(): void
+    public function flattenWithKeys(): void
     {
         $arr = [
-            'a',
-            'b' => ['alias' => ['b1'], 'abp' => ['b2']],
+            'foo',
+            'b' => ['alias' => ['b1'], 'abp' => ['foo']],
             'c' => ['abp' => ['c2']],
             'd' => ['d1'],
         ];
-        $result = ['a', 'b', 'b1', 'b2', 'c', 'c2', 'd', 'd1'];
-
-        $this->assertSame($result, Util::flatten($arr));
-    }
-
-    #[PHPUnit\Test]
-    public function multiple_unknown_options(): void
-    {
-        $arr = [
-            'a',
-            'b' => ['alias' => ['b1'], 'abp' => ['b2']],
-            'c' => ['abp' => ['c2']],
-            'd' => ['d1'],
-        ];
-        $result = ['a', 'b', 'b1', 'b2', 'c', 'c2', 'd', 'd1'];
-
-        $this->assertSame($result, Util::flattenWithFilter($arr));
+        $result = ['foo', 'b', 'b1', 'c', 'c2', 'd', 'd1'];
+        $this->assertSame($result, Util::flattenWithKeys($arr));
 
         $arr = [
             'a',
@@ -42,7 +27,6 @@ class UtilsTest extends TestCase
             'd' => ['d1'],
         ];
         $result = ['a', 'b', 'b1', 'c', 'd', 'd1'];
-
-        $this->assertSame($result, Util::flattenWithFilter($arr, ['alias']));
+        $this->assertSame($result, Util::flattenWithKeys($arr, ['alias']));
     }
 }

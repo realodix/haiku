@@ -89,7 +89,7 @@ final class ScriptletCheck implements Rule
         $config = $this->config->rules['scriptlet_unknown'];
         $resources = array_map(
             fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
-            Util::flatten(Registry::RESOURCES),
+            Util::flattenWithKeys(Registry::RESOURCES),
         );
 
         return array_unique([

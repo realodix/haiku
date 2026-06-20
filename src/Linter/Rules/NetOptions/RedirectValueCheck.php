@@ -74,7 +74,7 @@ final class RedirectValueCheck implements Rule
      */
     private function checkUnknown($err, string $value): void
     {
-        $knownResources = Util::flatten(array_merge(
+        $knownResources = Util::flattenWithKeys(array_merge(
             Registry::RESOURCES,
             Registry::REDIRECT_RESOURCES,
             Registry::AG_REDIRECT_RESOURCES,

@@ -46,56 +46,31 @@ final class Util
     }
 
     /**
-     * Flattens a nested array structure to a single level array.
+     * Flatten a multi-dimensional array by preserving top-level keys, extracting
+     * all nested values regardless of depth, and removing duplicates.
      *
-     * @param array<int|string, mixed> $data The array to flatten
+     * @param array<int|string, mixed> $array The array to flatten
+     * @param array<string, mixed> $subKeys Optional whitelist of associative sub-keys to extract values from.
+     *                                      If empty, all nested values are extracted.
      * @return list<string> The flattened array
      */
-    public static function flatten(array $data): array
+    public static function flattenWithKeys(array $array, array $subKeys = []): array
     {
         $flat = [];
-        foreach ($data as $key => $value) {
+        foreach ($array as $key => $value) {
             $flat[] = is_int($key) ? $value : $key;
+            if (is_array($value)) {
+                if ($subKeys) {
+                    $value = array_filter($value, function ($subKey) use ($subKeys) {
+                        // If the key is an integer (sequential array), let it pass.
+                        // If the key is a string, it must be whitelisted in $subKeys.
+                        return is_int($subKey) || in_array($subKey, $subKeys, true);
+                    }, ARRAY_FILTER_USE_KEY);
+                }
 
-            if (!is_array($value)) {
-                continue;
-            }
-
-            foreach ($value as $v) {
-                foreach ((array) $v as $item) {
+                array_walk_recursive($value, function ($item) use (&$flat) {
                     $flat[] = $item;
-                }
-            }
-        }
-
-        return array_values(array_unique($flat));
-    }
-
-    /**
-     * @param array<int|string, mixed> $data
-     * @param list<string>|null $includeKeys
-     * @return list<string>
-     */
-    public static function flattenWithFilter(array $data, ?array $includeKeys = null): array
-    {
-        $flat = [];
-
-        foreach ($data as $key => $value) {
-            $flat[] = is_int($key) ? $value : $key;
-
-            if (!is_array($value)) {
-                continue;
-            }
-
-            foreach ($value as $type => $v) {
-                // filter hanya jika associative (grouped)
-                if (!is_int($type) && $includeKeys !== null && !in_array($type, $includeKeys, true)) {
-                    continue;
-                }
-
-                foreach ((array) $v as $item) {
-                    $flat[] = $item;
-                }
+                });
             }
         }
 
