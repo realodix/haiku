@@ -18,7 +18,7 @@ For a complete list of transformations, see [docs/fixer-feature.md](./docs/fixer
 Compile multiple filter sources (local files and/or remote URLs) into a single, unified output. Automatically regenerates header metadata, strips unnecessary lines such as comments, and delivers a production-ready deployment.
 
 
-## Three steps to first run
+### # Three steps to first run
 
 1. **Install**. Install the package via [Composer](https://getcomposer.org/) — `composer require realodix/haiku`.
 2. **Initialize**. Run `vendor/bin/haiku init` in your project root. Haiku detects your layout and writes a `haiku.yml`.
@@ -27,7 +27,7 @@ Compile multiple filter sources (local files and/or remote URLs) into a single, 
 For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
 
 
-## Configuration
+### # Configuration
 
 See [configuration file](./docs/configuration.md) documentation or [AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/main/haiku.yml) for a production configuration example.
 
