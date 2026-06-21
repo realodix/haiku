@@ -8,9 +8,9 @@ use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
 use Realodix\Haiku\Console\Command\FixCommand;
 use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -222,7 +222,7 @@ abstract class TestCase extends BaseTestCase
                 $rules[] = app($class);
             }
         } else {
-            $rules = Util::loadLinterRules();
+            $rules = Helper::loadLinterRules();
         }
 
         // Safety: no rules at all

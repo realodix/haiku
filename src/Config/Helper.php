@@ -2,9 +2,9 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
-final class Util
+final class Helper
 {
     /**
      * Resolves and validates configuration overrides.
@@ -31,12 +31,10 @@ final class Util
         // Apply specific overrides
         foreach ($override as $name => $value) {
             if (!array_key_exists($name, $baseConfig)) {
-                $hint = Helper::getSuggestion(array_merge(array_keys($baseConfig), ['fmode']), $name);
+                $hint = Util::getSuggestion(array_merge(array_keys($baseConfig), ['fmode']), $name);
                 throw new InvalidConfigurationException(sprintf(
                     'Unknown %s: "%s"'.($hint ? ", did you mean '%s'?" : '.'),
-                    $type,
-                    $name,
-                    $hint,
+                    $type, $name, $hint,
                 ));
             }
             $baseConfig[$name] = $value;

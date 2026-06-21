@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
 final class ElementTidy
 {
@@ -83,7 +83,7 @@ final class ElementTidy
                     return $full;
                 }
 
-                $value = Helper::cssEscape($value);
+                $value = Util::cssEscape($value);
 
                 return ($attr === 'class' ? '.' : '#').$value;
             },

@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Linter\Rules\Lines;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
 
 final class TooShortLineCheck implements Rule
 {
@@ -28,7 +28,7 @@ final class TooShortLineCheck implements Rule
 
         foreach ($content as $index => $line) {
             $line = trim($line);
-            if (Util::isCommentOrEmpty($line)) {
+            if (Helper::isCommentOrEmpty($line)) {
                 continue;
             }
 

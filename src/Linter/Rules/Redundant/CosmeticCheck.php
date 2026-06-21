@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Linter\Rules\Redundant;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
 
 /**
  * @phpstan-type _ParsedAttrSelector array{
@@ -70,7 +70,7 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+            if (Helper::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
                 continue;
             }
 
@@ -648,7 +648,7 @@ final class CosmeticCheck implements Rule
 
         // Form 2: @@*$ghide,domain=example.com
         if (preg_match(Regex::NET_OPTION, $line, $m)) {
-            $options = Util::splitOptions($m[2]);
+            $options = Helper::splitOptions($m[2]);
             $isGhide = false;
             $domains = [];
 

@@ -3,10 +3,10 @@
 namespace Realodix\Haiku\Test\Unit\Support;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 use Realodix\Haiku\Test\TestCase;
 
-class HelperTest extends TestCase
+class UtilTest extends TestCase
 {
     use \Realodix\Haiku\Test\Unit\GeneralProvider;
 
@@ -14,21 +14,21 @@ class HelperTest extends TestCase
     #[PHPUnit\Test]
     public function isCosmeticRule($data)
     {
-        $this->assertTrue(Helper::isCosmeticRule($data));
+        $this->assertTrue(Util::isCosmeticRule($data));
     }
 
     #[PHPUnit\DataProvider('isNotCosmeticRuleProvider')]
     #[PHPUnit\Test]
     public function isNotCosmeticRule($data)
     {
-        $this->assertFalse(Helper::isCosmeticRule($data));
+        $this->assertFalse(Util::isCosmeticRule($data));
     }
 
     #[PHPUnit\DataProvider('cssEscapeProvider')]
     #[PHPUnit\Test]
     public function cssEscape($input, $expected)
     {
-        $this->assertSame($expected, Helper::cssEscape($input));
+        $this->assertSame($expected, Util::cssEscape($input));
     }
 
     /**

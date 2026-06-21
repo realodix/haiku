@@ -3,10 +3,10 @@
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
 final class UnknownCheck implements Rule
 {
@@ -18,7 +18,7 @@ final class UnknownCheck implements Rule
             $err->line($index + 1);
 
             if ((!preg_match(Regex::NET_OPTION, $line, $m) || preg_match(Regex::IS_COSMETIC_RULE, $line))
-                || Util::isCommentOrEmpty($line)
+                || Helper::isCommentOrEmpty($line)
                 // || str_contains($line, 'replace=')
             ) {
                 continue;
@@ -41,7 +41,7 @@ final class UnknownCheck implements Rule
 
                 if (!in_array($actualName, $knownOptions, true)) {
                     $actualName = Registry::NORMALIZED_UNKNOWN[$actualName] ?? $actualName;
-                    $hint = Helper::getSuggestion($knownOptions, $actualName);
+                    $hint = Util::getSuggestion($knownOptions, $actualName);
 
                     $err->message(sprintf('Unknown filter option: "%s"', $actualName))
                         ->when($hint, function () use ($err, $hint) {

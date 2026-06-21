@@ -8,7 +8,7 @@ use Realodix\Haiku\Fixer\Components\ElementTidy;
 use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Components\NetworkTidy;
 use Realodix\Haiku\Support\Arr;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-type SectionItem array{
@@ -207,7 +207,7 @@ final class Fixer
             // comment
             str_starts_with($line, '!')
             // special comments starting with # but not ## (element hiding)
-            || str_starts_with($line, '#') && !Helper::isCosmeticRule($line)
+            || str_starts_with($line, '#') && !Util::isCosmeticRule($line)
             // header
             || str_starts_with($line, '[') && str_ends_with($line, ']') && !str_contains($line, '$')
             // YAML metadata

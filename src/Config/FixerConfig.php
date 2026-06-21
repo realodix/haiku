@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-type _FixerFlags array{
@@ -74,7 +74,7 @@ final class FixerConfig
      */
     public function make(array $config, array $cmdOpt): self
     {
-        $this->paths = Helper::paths(
+        $this->paths = Util::paths(
             $cmdOpt['path'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );
@@ -95,7 +95,7 @@ final class FixerConfig
     {
         $override = $this->deprecatedFlags($override);
 
-        return Util::resolveOverrides($this->flags, $override);
+        return Helper::resolveOverrides($this->flags, $override);
     }
 
     /**

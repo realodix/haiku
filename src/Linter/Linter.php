@@ -22,7 +22,7 @@ final class Linter
         private Cache $cache,
     ) {
         $this->errorReporter = new ErrorReporter;
-        $this->rules = Util::loadLinterRules();
+        $this->rules = Helper::loadLinterRules();
     }
 
     /**

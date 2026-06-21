@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
 
 final class PatternAnchorCheck implements Rule
 {
@@ -24,7 +24,7 @@ final class PatternAnchorCheck implements Rule
             $line = trim($line);
 
             if (preg_match(Regex::IS_COSMETIC_RULE, $line)
-                || Util::isCommentOrEmpty($line)
+                || Helper::isCommentOrEmpty($line)
             ) {
                 continue;
             }

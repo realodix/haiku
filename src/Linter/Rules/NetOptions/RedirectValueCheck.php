@@ -2,11 +2,11 @@
 
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
 use Realodix\Haiku\Support\Arr;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
 final class RedirectValueCheck implements Rule
 {
@@ -16,7 +16,7 @@ final class RedirectValueCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line)) {
+            if (Helper::isCommentOrEmpty($line)) {
                 continue;
             }
 
@@ -83,7 +83,7 @@ final class RedirectValueCheck implements Rule
 
         if (!in_array($value, $knownResources, true)) {
             $value = Registry::NORMALIZED_UNKNOWN[$value] ?? $value;
-            $hint = Helper::getSuggestion($knownResources, $value);
+            $hint = Util::getSuggestion($knownResources, $value);
 
             $err->message(sprintf('Unknown redirect resource value: "%s"', $value))
                 ->when($hint, function () use ($err, $hint) {

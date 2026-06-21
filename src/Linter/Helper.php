@@ -5,7 +5,7 @@ namespace Realodix\Haiku\Linter;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Symfony\Component\Finder\Finder;
 
-final class Util
+final class Helper
 {
     /**
      * @return list<Rule>

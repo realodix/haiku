@@ -3,10 +3,10 @@
 namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Linter\Util;
 use Realodix\Haiku\Support\Arr;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Util;
 
 final class ScriptletCheck implements Rule
 {
@@ -20,7 +20,7 @@ final class ScriptletCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line)) {
+            if (Helper::isCommentOrEmpty($line)) {
                 continue;
             }
 
@@ -71,7 +71,7 @@ final class ScriptletCheck implements Rule
 
         $scriptlets = $this->getScriptletNames();
         if (!in_array($value, $scriptlets, true)) {
-            $hint = Helper::getSuggestion($scriptlets, $value);
+            $hint = Util::getSuggestion($scriptlets, $value);
 
             $err->message(sprintf('Unknown scriptlet: %s', $value))
                 ->when($hint, function () use ($err, $hint) {

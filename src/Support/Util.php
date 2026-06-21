@@ -5,7 +5,7 @@ namespace Realodix\Haiku\Support;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
-final class Helper
+final class Util
 {
     /**
      * Determines if a given filter line is a cosmetic filter rule.
