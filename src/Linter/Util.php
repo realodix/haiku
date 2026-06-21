@@ -44,36 +44,4 @@ final class Util
 
         return preg_split($pattern, $optionString);
     }
-
-    /**
-     * Flatten a multi-dimensional array by preserving top-level keys, extracting
-     * all nested values regardless of depth, and removing duplicates.
-     *
-     * @param array<int|string, mixed> $array The array to flatten
-     * @param array<string, mixed> $subKeys Optional whitelist of associative sub-keys to extract values from.
-     *                                      If empty, all nested values are extracted.
-     * @return list<string> The flattened array
-     */
-    public static function flattenWithKeys(array $array, array $subKeys = []): array
-    {
-        $flat = [];
-        foreach ($array as $key => $value) {
-            $flat[] = is_int($key) ? $value : $key;
-            if (is_array($value)) {
-                if ($subKeys) {
-                    $value = array_filter($value, function ($subKey) use ($subKeys) {
-                        // If the key is an integer (sequential array), let it pass.
-                        // If the key is a string, it must be whitelisted in $subKeys.
-                        return is_int($subKey) || in_array($subKey, $subKeys, true);
-                    }, ARRAY_FILTER_USE_KEY);
-                }
-
-                array_walk_recursive($value, function ($item) use (&$flat) {
-                    $flat[] = $item;
-                });
-            }
-        }
-
-        return array_values(array_unique($flat));
-    }
 }

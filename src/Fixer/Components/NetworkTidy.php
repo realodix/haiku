@@ -5,7 +5,7 @@ namespace Realodix\Haiku\Fixer\Components;
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Arr;
 
 final class NetworkTidy
 {
@@ -127,7 +127,7 @@ final class NetworkTidy
             return $optionList;
         }
 
-        return Helper::sortBy($optionList, fn($v) => $this->optionOrder($v));
+        return Arr::sortBy($optionList, fn($v) => $this->optionOrder($v));
     }
 
     /**

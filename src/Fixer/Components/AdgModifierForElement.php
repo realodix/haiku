@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Support\Helper;
+use Realodix\Haiku\Support\Arr;
 
 /**
  * https://adguard.com/kb/general/ad-filtering/create-own-filters/#non-basic-rules-modifiers
@@ -60,7 +60,7 @@ final class AdgModifierForElement
                     $value = $domainString;
                 } else {
                     $value = explode('|', $domainString);
-                    $value = Helper::uniqueSortBy($value, fn($d) => ltrim($d, '~'));
+                    $value = Arr::uniqueSortBy($value, fn($d) => ltrim($d, '~'));
                     $value = implode('|', $value);
                 }
 

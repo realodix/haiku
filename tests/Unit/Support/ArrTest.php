@@ -1,12 +1,12 @@
 <?php
 
-namespace Realodix\Haiku\Test\Linter;
+namespace Realodix\Haiku\Test\Unit\Support;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Linter\Util;
+use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Test\TestCase;
 
-class UtilsTest extends TestCase
+class ArrTest extends TestCase
 {
     #[PHPUnit\Test]
     public function flattenWithKeys(): void
@@ -18,7 +18,7 @@ class UtilsTest extends TestCase
             'd' => ['d1'],
         ];
         $result = ['foo', 'b', 'b1', 'c', 'c2', 'd', 'd1'];
-        $this->assertSame($result, Util::flattenWithKeys($arr));
+        $this->assertSame($result, Arr::flattenWithKeys($arr));
 
         $arr = [
             'a',
@@ -27,6 +27,17 @@ class UtilsTest extends TestCase
             'd' => ['d1'],
         ];
         $result = ['a', 'b', 'b1', 'c', 'd', 'd1'];
-        $this->assertSame($result, Util::flattenWithKeys($arr, ['alias']));
+        $this->assertSame($result, Arr::flattenWithKeys($arr, ['alias']));
+    }
+
+    #[PHPUnit\Test]
+    public function uniqueSortBy()
+    {
+        // '0' should not be removed by `array_filter()`
+        $input = ['0', '0'];
+        $expected = ['0'];
+        $output = Arr::uniqueSortBy($input, fn($s) => $s);
+
+        $this->assertSame($expected, $output);
     }
 }

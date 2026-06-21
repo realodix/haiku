@@ -7,6 +7,7 @@ use Realodix\Haiku\Fixer\Components\Combiner;
 use Realodix\Haiku\Fixer\Components\ElementTidy;
 use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Components\NetworkTidy;
+use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Helper;
 
 /**
@@ -116,11 +117,11 @@ final class Fixer
         }
 
         // Cosmetic pipeline
-        $cosmetic = Helper::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
+        $cosmetic = Arr::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
         // Network pipeline
         $network = $this->optionCombiner->applyFix($network);
-        $network = Helper::uniqueSortBy(
+        $network = Arr::uniqueSortBy(
             $network,
             fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
             SORT_STRING | SORT_FLAG_CASE,
