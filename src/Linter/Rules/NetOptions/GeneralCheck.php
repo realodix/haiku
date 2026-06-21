@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Support\Util;
 
 final class GeneralCheck implements Rule
 {
@@ -34,7 +34,7 @@ final class GeneralCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Helper::isCommentOrEmpty($line)) {
+            if (Util::isCommentOrEmpty($line)) {
                 continue;
             }
 
@@ -45,7 +45,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $rawOpts = Helper::splitOptions($m[2]);
+            $rawOpts = Util::splitOptions($m[2]);
 
             $this->checkDuplicateOptions($err, $rawOpts);
             $this->checkOptionConflict($err, $rawOpts);

@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Arr;
+use Realodix\Haiku\Support\Util;
 
 final class NetworkTidy
 {
@@ -39,20 +39,6 @@ final class NetworkTidy
     }
 
     /**
-     * Splits a network filter's options.
-     *
-     * @param string $optionString Raw option string
-     * @return list<string>
-     */
-    public function splitOptions(string $optionString): array
-    {
-        $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
-        $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOptions).')\b|$)/i';
-
-        return preg_split($pattern, $optionString);
-    }
-
-    /**
      * Normalizes and sorts the network filter options.
      *
      * @param string $optionString Parsed options from parseOptions()
@@ -64,7 +50,7 @@ final class NetworkTidy
 
         // 1. Parse raw option string into structured nodes
         $multiIndexes = []; // map: option name -> index of its node in $nodes
-        foreach ($this->splitOptions($optionString) as $option) {
+        foreach (Util::splitOptions($optionString) as $option) {
             $parts = explode('=', $option, 2);
             $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;

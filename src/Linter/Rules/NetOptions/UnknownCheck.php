@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\Util;
@@ -18,7 +17,7 @@ final class UnknownCheck implements Rule
             $err->line($index + 1);
 
             if ((!preg_match(Regex::NET_OPTION, $line, $m) || preg_match(Regex::IS_COSMETIC_RULE, $line))
-                || Helper::isCommentOrEmpty($line)
+                || Util::isCommentOrEmpty($line)
                 // || str_contains($line, 'replace=')
             ) {
                 continue;

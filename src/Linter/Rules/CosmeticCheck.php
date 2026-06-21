@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Helper;
+use Realodix\Haiku\Support\Util;
 
 final class CosmeticCheck implements Rule
 {
@@ -18,7 +18,7 @@ final class CosmeticCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Helper::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+            if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
                 continue;
             }
 

@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
@@ -20,7 +19,7 @@ final class ScriptletCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Helper::isCommentOrEmpty($line)) {
+            if (Util::isCommentOrEmpty($line)) {
                 continue;
             }
 

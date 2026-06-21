@@ -28,20 +28,4 @@ final class Helper
 
         return $rules;
     }
-
-    public static function isCommentOrEmpty(string $str): bool
-    {
-        return $str === '' || str_starts_with($str, '!');
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function splitOptions(string $optionString): array
-    {
-        $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
-        $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOptions).')\b|$)/i';
-
-        return preg_split($pattern, $optionString);
-    }
 }

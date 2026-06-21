@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Support;
 
+use Realodix\Haiku\Linter\Registry;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
@@ -21,6 +22,35 @@ final class Util
         $advanced = preg_match('/^(#(?:@?(?:\$|\?|%)|@?\$\?)#)[^\s]/', $line);
 
         return $basic || $advanced;
+    }
+
+    public static function isCommentOrEmpty(string $str): bool
+    {
+        return $str === '' || str_starts_with($str, '!');
+    }
+
+    public static function isMetaLine(string $line): bool
+    {
+        return
+            // comment
+            str_starts_with($line, '!')
+            // special comments starting with # but not ## (element hiding)
+            || str_starts_with($line, '#') && !self::isCosmeticRule($line)
+            // header
+            || str_starts_with($line, '[') && str_ends_with($line, ']') && !str_contains($line, '$')
+            // YAML metadata
+            || preg_match('/^-+$/', $line);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function splitOptions(string $opt): array
+    {
+        $knownOpts = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
+        $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOpts).')\b|$)/i';
+
+        return preg_split($pattern, $opt);
     }
 
     /**

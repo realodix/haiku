@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Fixer\Components;
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Support\Arr;
+use Realodix\Haiku\Support\Util;
 
 /**
  * https://adguard.com/kb/general/ad-filtering/create-own-filters/#non-basic-rules-modifiers
@@ -12,7 +13,6 @@ use Realodix\Haiku\Support\Arr;
 final class AdgModifierForElement
 {
     public function __construct(
-        private NetworkTidy $networkTidy,
         private FixerConfig $config,
     ) {}
 
@@ -39,7 +39,7 @@ final class AdgModifierForElement
         }
 
         // parse
-        foreach ($this->networkTidy->splitOptions($modifiers) as $option) {
+        foreach (Util::splitOptions($modifiers) as $option) {
             $parts = explode('=', $option, 2);
             $name = ltrim($parts[0], '~');
             $value = $parts[1];

@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
-use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\Arr;
@@ -16,7 +15,7 @@ final class RedirectValueCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Helper::isCommentOrEmpty($line)) {
+            if (Util::isCommentOrEmpty($line)) {
                 continue;
             }
 

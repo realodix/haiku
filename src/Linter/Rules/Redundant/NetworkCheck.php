@@ -5,9 +5,9 @@ namespace Realodix\Haiku\Linter\Rules\Redundant;
 use Illuminate\Support\Str;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-type _NetRule array{
@@ -90,7 +90,7 @@ final class NetworkCheck implements Rule
             $type = str_starts_with($line, '@@') ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
             $hasOpts = (bool) preg_match(Regex::NET_OPTION, $line, $m);
             $optStr = $hasOpts ? $m[2] : '';
-            $opts = $hasOpts ? Helper::splitOptions($optStr) : [];
+            $opts = $hasOpts ? Util::splitOptions($optStr) : [];
             $hasMatchCase = $this->hasOption($opts, 'match-case');
 
             $pattern = $hasOpts ? $m[1] : $line;
@@ -192,7 +192,7 @@ final class NetworkCheck implements Rule
 
     private function shouldSkip(string $line): bool
     {
-        if (Helper::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+        if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
             return true;
         }
 

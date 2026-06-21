@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Registry;
+use Realodix\Haiku\Support\Util;
 
 final class DomainCheck implements Rule
 {
@@ -19,7 +19,7 @@ final class DomainCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Helper::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
+            if (Util::isCommentOrEmpty($line) || str_starts_with($line, '[$')) {
                 continue;
             }
 
@@ -34,7 +34,7 @@ final class DomainCheck implements Rule
 
             // Network rule
             if (preg_match(Regex::NET_OPTION, $line, $m)) {
-                $options = Helper::splitOptions($m[2]);
+                $options = Util::splitOptions($m[2]);
 
                 foreach ($options as $option) {
                     $option = trim($option);
