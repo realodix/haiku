@@ -208,7 +208,7 @@ final class Runner
     /**
      * @param array<int, string> $lines
      */
-    public function joinLines(array $lines): string
+    private function joinLines(array $lines): string
     {
         return implode("\n", $lines)."\n";
     }

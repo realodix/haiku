@@ -41,7 +41,7 @@ final class NetworkTidy
     /**
      * Normalizes and sorts the network filter options.
      *
-     * @param string $optionString Parsed options from parseOptions()
+     * @param string $optionString Parsed options
      * @return array<int, string>
      */
     private function normalizeOption(string $optionString)
