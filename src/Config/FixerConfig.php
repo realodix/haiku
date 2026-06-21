@@ -2,8 +2,6 @@
 
 namespace Realodix\Haiku\Config;
 
-use Symfony\Component\Filesystem\Path;
-
 /**
  * @phpstan-type _FixerFlags array{
  *  adg_non_basic_rule_modifier: bool,
