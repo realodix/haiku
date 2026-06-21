@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
+use Realodix\Haiku\Support\Helper;
 
 final class NetworkTidy
 {

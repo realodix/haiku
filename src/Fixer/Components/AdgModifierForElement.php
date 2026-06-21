@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Helper;
 
 /**
  * https://adguard.com/kb/general/ad-filtering/create-own-filters/#non-basic-rules-modifiers

@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Builder;
 
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Helper;
 
 final class Cleaner
 {

@@ -3,9 +3,9 @@
 namespace Realodix\Haiku\Linter\Rules\Preprocessor;
 
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Support\Helper;
 
 final class ExpressionCheck implements Rule
 {

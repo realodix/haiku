@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Config;
 
+use Realodix\Haiku\Support\Helper;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -68,7 +69,7 @@ final class LinterConfig
      */
     public function make(array $config, array $cmdOpt): self
     {
-        $this->paths = Util::paths(
+        $this->paths = Helper::paths(
             $cmdOpt['path'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );

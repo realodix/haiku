@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Helper;
 
 final class ElementTidy
 {

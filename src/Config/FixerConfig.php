@@ -2,6 +2,8 @@
 
 namespace Realodix\Haiku\Config;
 
+use Realodix\Haiku\Support\Helper;
+
 /**
  * @phpstan-type _FixerFlags array{
  *  adg_non_basic_rule_modifier: bool,
@@ -72,7 +74,7 @@ final class FixerConfig
      */
     public function make(array $config, array $cmdOpt): self
     {
-        $this->paths = Util::paths(
+        $this->paths = Helper::paths(
             $cmdOpt['path'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );

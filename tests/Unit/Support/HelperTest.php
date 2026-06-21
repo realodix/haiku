@@ -1,14 +1,14 @@
 <?php
 
-namespace Realodix\Haiku\Test\Unit;
+namespace Realodix\Haiku\Test\Unit\Support;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Helper;
 use Realodix\Haiku\Test\TestCase;
 
 class HelperTest extends TestCase
 {
-    use GeneralProvider;
+    use \Realodix\Haiku\Test\Unit\GeneralProvider;
 
     #[PHPUnit\Test]
     public function uniqueSortBy()

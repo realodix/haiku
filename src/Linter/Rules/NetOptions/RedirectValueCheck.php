@@ -2,10 +2,10 @@
 
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
-use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Linter\Util;
+use Realodix\Haiku\Support\Helper;
 
 final class RedirectValueCheck implements Rule
 {

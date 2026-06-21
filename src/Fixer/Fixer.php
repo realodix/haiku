@@ -7,7 +7,7 @@ use Realodix\Haiku\Fixer\Components\Combiner;
 use Realodix\Haiku\Fixer\Components\ElementTidy;
 use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Components\NetworkTidy;
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Helper;
 
 /**
  * @phpstan-type SectionItem array{
