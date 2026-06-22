@@ -6,6 +6,7 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Support\File;
 
 /**
  * @phpstan-import-type _RuleError from RuleErrorBuilder
@@ -68,7 +69,7 @@ final class Linter
      */
     private function analyseFile(string $path, $config, IgnoredErrors $ignoredErrors): void
     {
-        $content = $this->read($path);
+        $content = File::read($path);
         if ($content === null) {
             $this->errorReporter->addGlobalError(sprintf('Cannot read: %s', $path));
 
@@ -114,23 +115,6 @@ final class Linter
         $this->cache->set($path, $fingerprint, extra: [
             'errors' => $rawErrors,
         ]);
-    }
-
-    /**
-     * Read file content.
-     *
-     * @param string $filePath Path to file
-     * @return list<string>|null
-     */
-    private function read(string $filePath): ?array
-    {
-        if (!is_readable($filePath)) {
-            return null;
-        }
-
-        $content = file($filePath, FILE_IGNORE_NEW_LINES);
-
-        return $content === false ? null : $content;
     }
 
     /**

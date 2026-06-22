@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Fixer;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
+use Realodix\Haiku\Support\File;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -62,7 +63,7 @@ final class Runner
      */
     public function fixFile(string $path, $config): array
     {
-        $content = $this->read($path);
+        $content = File::read($path);
 
         if ($content === null) {
             return ['status' => 'error', 'path' => $path];
@@ -79,7 +80,7 @@ final class Runner
         $content = $this->fixer->fix($content);
         $content = $this->joinLines($content);
 
-        $this->safeDumpFile($path, $content);
+        File::safeDumpFile($path, $content);
 
         return [
             'status' => 'processed',
@@ -108,23 +109,6 @@ final class Runner
             $message = $result['message'] ?? "Cannot read: {$result['path']}";
             $this->logger->error($message);
         }
-    }
-
-    /**
-     * Read file content.
-     *
-     * @param string $filePath Path to file
-     * @return list<string>|null
-     */
-    private function read(string $filePath): ?array
-    {
-        if (!is_readable($filePath)) {
-            return null;
-        }
-
-        $content = file($filePath, FILE_IGNORE_NEW_LINES);
-
-        return $content === false ? null : $content;
     }
 
     /**
@@ -172,37 +156,6 @@ final class Runner
             ->sortKeys()->toJson();
 
         return hash('xxh128', $str.$seed);
-    }
-
-    /**
-     * Dumps content to a file with an incremental retry mechanism.
-     *
-     * This is particularly useful in environments like Windows, where transient
-     * file locks can cause temporary access denied errors.
-     *
-     * @param string $path The target file path
-     * @param string $content The content to write
-     */
-    private function safeDumpFile(string $path, string $content): void
-    {
-        $maxRetries = 10;
-        $baseRetryDelay = 50000; // 50ms in microseconds
-
-        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
-            try {
-                $this->fs->dumpFile($path, $content);
-
-                return;
-            } catch (\RuntimeException $e) {
-                // If this was the final attempt, re-throw the exception
-                if ($attempt === $maxRetries) {
-                    throw $e;
-                }
-
-                // Incremental delay: 50ms, 100ms, 150ms, etc.
-                usleep($attempt * $baseRetryDelay);
-            }
-        }
     }
 
     /**

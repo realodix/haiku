@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Config;
 
-use Realodix\Haiku\Support\Util;
+use Realodix\Haiku\Support\File;
 
 /**
  * @phpstan-type _FixerFlags array{
@@ -74,7 +74,7 @@ final class FixerConfig
      */
     public function make(array $config, array $cmdOpt): self
     {
-        $this->paths = Util::paths(
+        $this->paths = File::paths(
             $cmdOpt['path'] ?? $config['paths'] ?? [],
             $config['excludes'] ?? [],
         );

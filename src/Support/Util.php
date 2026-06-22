@@ -3,8 +3,6 @@
 namespace Realodix\Haiku\Support;
 
 use Realodix\Haiku\Linter\Registry;
-use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Finder\Finder;
 
 final class Util
 {
@@ -149,63 +147,5 @@ final class Util
         }
 
         return $best;
-    }
-
-    /**
-     * Resolves provided paths into a unique list of absolute file paths.
-     *
-     * @param array<int, string>|string $paths
-     * @param array<int, string> $excludes Excludes files or dirs
-     * @return array<int, string>
-     */
-    public static function paths(array|string $paths, array $excludes): array
-    {
-        $rootPath = base_path();
-        $paths = is_array($paths) ? $paths : [$paths];
-        $paths = !empty($paths) ? $paths : [$rootPath];
-
-        $resolvedPaths = [];
-        foreach ($paths as $path) {
-            if (Path::isRelative($path)) {
-                $path = Path::makeAbsolute($path, $rootPath);
-            }
-
-            if (is_dir($path)) {
-                $finder = self::finder($path, $excludes);
-                foreach ($finder as $file) {
-                    $resolvedPaths[] = $file->getRealPath();
-                }
-            } else {
-                $resolvedPaths[] = $path;
-            }
-        }
-
-        $resolvedPaths = array_map(fn($path) => Path::canonicalize($path), $resolvedPaths);
-
-        return array_unique($resolvedPaths);
-    }
-
-    /**
-     * @param string $dir The directory to use for the search
-     * @param array<int, string> $excludes Excludes files or dirs
-     */
-    private static function finder(string $dir, array $excludes): Finder
-    {
-        if ($dir === base_path()) {
-            $excludes = array_merge($excludes, ['node_modules', 'vendor']);
-        }
-
-        $excludes = array_map(fn($paths) => Path::canonicalize($paths), $excludes);
-        $excludes = array_unique($excludes);
-
-        $finder = new Finder;
-        $finder->files()
-            ->in($dir)
-            ->name(['*.txt', '*.adfl'])
-            ->ignoreDotFiles(true)
-            ->ignoreVCS(true)
-            ->notPath($excludes);
-
-        return $finder;
     }
 }
