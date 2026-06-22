@@ -76,7 +76,7 @@ final class Linter
             return;
         }
 
-        $fingerprint = $this->hash(implode("\n", $content), $config);
+        $fingerprint = Helper::hash(implode("\n", $content), $config);
 
         // Cache hit: restore cached errors and apply ignore filters
         if ($this->cache->isValid($path, $fingerprint)) {
@@ -115,17 +115,5 @@ final class Linter
         $this->cache->set($path, $fingerprint, extra: [
             'errors' => $rawErrors,
         ]);
-    }
-
-    /**
-     * @param \Realodix\Haiku\Config\LinterConfig $config
-     */
-    private function hash(string $str, $config): string
-    {
-        $seed = collect($config->rules)
-            ->reject(static fn($value) => $value === false)
-            ->sortKeys()->toJson();
-
-        return hash('xxh128', $str.$seed);
     }
 }

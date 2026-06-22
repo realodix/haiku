@@ -78,14 +78,14 @@ final class Runner
         }
 
         $content = $this->fixer->fix($content);
-        $content = $this->joinLines($content);
+        $content = Helper::joinLines($content);
 
         File::safeDumpFile($path, $content);
 
         return [
             'status' => 'processed',
             'path' => $path,
-            'hash' => $this->hash($content, $config),
+            'hash' => Helper::hash($content, $config),
         ];
     }
 
@@ -141,29 +141,9 @@ final class Runner
             return true;
         }
 
-        $fingerprint = $this->hash($this->joinLines($content), $config);
+        $fingerprint = Helper::hash(Helper::joinLines($content), $config);
 
         return $this->cache->isValid($path, $fingerprint);
-    }
-
-    /**
-     * @param \Realodix\Haiku\Config\FixerConfig $config
-     */
-    private function hash(string $str, $config): string
-    {
-        $seed = collect($config->flags)
-            ->reject(static fn($value) => $value === false || $value === null)
-            ->sortKeys()->toJson();
-
-        return hash('xxh128', $str.$seed);
-    }
-
-    /**
-     * @param array<int, string> $lines
-     */
-    private function joinLines(array $lines): string
-    {
-        return implode("\n", $lines)."\n";
     }
 
     /**
