@@ -1,45 +1,11 @@
 <?php
 
-namespace Realodix\Haiku;
+namespace Realodix\Haiku\Support;
 
-final class Helper
+use Realodix\Haiku\Linter\Registry;
+
+final class Util
 {
-    /**
-     * Sort the array using the given callback.
-     *
-     * @param array<int, string> $values
-     * @return array<int, string>
-     */
-    public static function sortBy(array $values, ?callable $callback, ?int $flags = null): array
-    {
-        $results = [];
-        foreach ($values as $key => $value) {
-            $results[$key] = $callback($value, $key);
-        }
-
-        asort($results, $flags ?? SORT_REGULAR);
-        foreach (array_keys($results) as $key) {
-            $results[$key] = $values[$key];
-        }
-
-        return $results;
-    }
-
-    /**
-     * Sort the array using the given callback and remove duplicates.
-     *
-     * @param array<int, string> $value
-     * @return list<string>
-     */
-    public static function uniqueSortBy(array $value, ?callable $callback, ?int $flags = null): array
-    {
-        $v = array_filter($value, static fn($s) => $s !== '');
-        $v = array_unique($v);
-        $v = self::sortBy($v, $callback, $flags);
-
-        return array_values($v);
-    }
-
     /**
      * Determines if a given filter line is a cosmetic filter rule.
      *
@@ -54,6 +20,35 @@ final class Helper
         $advanced = preg_match('/^(#(?:@?(?:\$|\?|%)|@?\$\?)#)[^\s]/', $line);
 
         return $basic || $advanced;
+    }
+
+    public static function isCommentOrEmpty(string $str): bool
+    {
+        return $str === '' || str_starts_with($str, '!');
+    }
+
+    public static function isMetaLine(string $line): bool
+    {
+        return
+            // comment
+            str_starts_with($line, '!')
+            // special comments starting with # but not ## (element hiding)
+            || str_starts_with($line, '#') && !self::isCosmeticRule($line)
+            // header
+            || str_starts_with($line, '[') && str_ends_with($line, ']') && !str_contains($line, '$')
+            // YAML metadata
+            || preg_match('/^-+$/', $line);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function splitOptions(string $opt): array
+    {
+        $knownOpts = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
+        $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOpts).')\b|$)/i';
+
+        return preg_split($pattern, $opt);
     }
 
     /**

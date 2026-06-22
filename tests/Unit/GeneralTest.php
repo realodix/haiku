@@ -196,20 +196,6 @@ class GeneralTest extends TestCase
         $this->assertSame($expected, $output);
     }
 
-    #[PHPUnit\DataProvider('isSpecialLineProvider')]
-    #[PHPUnit\Test]
-    public function isSpecialLine($data)
-    {
-        $this->assertTrue(app(Fixer::class)->isSpecialLine($data));
-    }
-
-    #[PHPUnit\DataProvider('isNotSpecialLineProvider')]
-    #[PHPUnit\Test]
-    public function isNotSpecialLine($data)
-    {
-        $this->assertFalse(app(Fixer::class)->isSpecialLine($data));
-    }
-
     #[PHPUnit\Test]
     public function handle_split_comma(): void
     {

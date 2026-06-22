@@ -7,7 +7,8 @@ use Realodix\Haiku\Fixer\Components\Combiner;
 use Realodix\Haiku\Fixer\Components\ElementTidy;
 use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
 use Realodix\Haiku\Fixer\Components\NetworkTidy;
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Arr;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-type SectionItem array{
@@ -48,7 +49,7 @@ final class Fixer
 
             // Check for comments, headers, or include directives,
             // which act as section breaks.
-            if ($this->isSpecialLine($line)) {
+            if (Util::isMetaLine($line)) {
                 // Write current section if it exists and reset counters
                 $this->commitSection($section, $result);
                 $result[] = $line;
@@ -116,11 +117,11 @@ final class Fixer
         }
 
         // Cosmetic pipeline
-        $cosmetic = Helper::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
+        $cosmetic = Arr::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
         // Network pipeline
         $network = $this->optionCombiner->applyFix($network);
-        $network = Helper::uniqueSortBy(
+        $network = Arr::uniqueSortBy(
             $network,
             fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
             SORT_STRING | SORT_FLAG_CASE,
@@ -195,21 +196,5 @@ final class Fixer
         }
 
         return $rule;
-    }
-
-    /**
-     * Determine whether a line is structural rather than a filter rule.
-     */
-    public function isSpecialLine(string $line): bool
-    {
-        return
-            // comment
-            str_starts_with($line, '!')
-            // special comments starting with # but not ## (element hiding)
-            || str_starts_with($line, '#') && !Helper::isCosmeticRule($line)
-            // header
-            || str_starts_with($line, '[') && str_ends_with($line, ']') && !str_contains($line, '$')
-            // YAML metadata
-            || preg_match('/^-+$/', $line);
     }
 }

@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
-use Realodix\Haiku\Linter\Util;
+use Realodix\Haiku\Support\Util;
 
 final class CosmeticCheck implements Rule
 {

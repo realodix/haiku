@@ -5,7 +5,7 @@ namespace Realodix\Haiku\Linter\Rules\Redundant;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-type _ParsedAttrSelector array{

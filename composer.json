@@ -36,7 +36,7 @@
             "Realodix\\Haiku\\": "src"
         },
         "files": [
-            "src/functions.php"
+            "src/Support/functions.php"
         ]
     },
     "autoload-dev": {

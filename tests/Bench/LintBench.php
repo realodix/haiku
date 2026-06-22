@@ -4,8 +4,8 @@ namespace Realodix\Haiku\Test\Bench;
 
 use PhpBench\Attributes as Bench;
 use Realodix\Haiku\Config\LinterConfig;
+use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\RuleErrorBuilder;
-use Realodix\Haiku\Linter\Util;
 
 #[Bench\BeforeMethods('setUp')]
 class LintBench
@@ -159,7 +159,7 @@ class LintBench
             'no_short_rules' => 4,
         ];
 
-        $rules = Util::loadLinterRules();
+        $rules = Helper::loadLinterRules();
         foreach ($rules as $rule) {
             $rule->check($lines, new RuleErrorBuilder);
         }

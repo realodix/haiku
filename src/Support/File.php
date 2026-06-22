@@ -1,50 +1,60 @@
 <?php
 
-namespace Realodix\Haiku\Config;
+namespace Realodix\Haiku\Support;
 
-use Realodix\Haiku\Helper;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
-final class Util
+final class File
 {
     /**
-     * Resolves and validates configuration overrides.
+     * Read file content.
      *
-     * @template T of array<string, mixed>
-     *
-     * @param T $baseConfig Current configuration array
-     * @param array<string, mixed> $override Overrides to apply
-     * @param string $type Type of configuration for error messages
-     * @return T
+     * @param string $filePath Path to file
+     * @return list<string>|null
      */
-    public static function resolveOverrides(array $baseConfig, array $override, string $type = 'flag'): array
+    public static function read(string $filePath): ?array
     {
-        // 'fmode' acts as a bulk toggle for all boolean values
-        if (array_key_exists('fmode', $override)) {
-            $value = (bool) $override['fmode'];
-            foreach ($baseConfig as $name => $defaultValue) {
-                if (is_bool($defaultValue)) {
-                    $baseConfig[$name] = $value;
-                }
-            }
-            unset($override['fmode']);
-        }
-        // Apply specific overrides
-        foreach ($override as $name => $value) {
-            if (!array_key_exists($name, $baseConfig)) {
-                $hint = Helper::getSuggestion(array_merge(array_keys($baseConfig), ['fmode']), $name);
-                throw new InvalidConfigurationException(sprintf(
-                    'Unknown %s: "%s"'.($hint ? ", did you mean '%s'?" : '.'),
-                    $type,
-                    $name,
-                    $hint,
-                ));
-            }
-            $baseConfig[$name] = $value;
+        if (!is_readable($filePath)) {
+            return null;
         }
 
-        return $baseConfig;
+        $content = file($filePath, FILE_IGNORE_NEW_LINES);
+
+        return $content === false ? null : $content;
+    }
+
+    /**
+     * Dumps content to a file with an incremental retry mechanism.
+     *
+     * This is particularly useful in environments like Windows, where transient
+     * file locks can cause temporary access denied errors.
+     *
+     * @param string $path The target file path
+     * @param string $content The content to write
+     */
+    public static function safeDumpFile(string $path, string $content): void
+    {
+        $fs = new Filesystem;
+        $maxRetries = 10;
+        $baseRetryDelay = 50000; // 50ms in microseconds
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                $fs->dumpFile($path, $content);
+
+                return;
+            } catch (\RuntimeException $e) {
+                // If this was the final attempt, re-throw the exception
+                if ($attempt === $maxRetries) {
+                    throw $e;
+                }
+
+                // Incremental delay: 50ms, 100ms, 150ms, etc.
+                usleep($attempt * $baseRetryDelay);
+            }
+        }
     }
 
     /**

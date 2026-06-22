@@ -6,6 +6,7 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Support\File;
 
 /**
  * @phpstan-import-type _RuleError from RuleErrorBuilder
@@ -22,7 +23,7 @@ final class Linter
         private Cache $cache,
     ) {
         $this->errorReporter = new ErrorReporter;
-        $this->rules = Util::loadLinterRules();
+        $this->rules = Helper::loadLinterRules();
     }
 
     /**
@@ -68,14 +69,14 @@ final class Linter
      */
     private function analyseFile(string $path, $config, IgnoredErrors $ignoredErrors): void
     {
-        $content = $this->read($path);
+        $content = File::read($path);
         if ($content === null) {
             $this->errorReporter->addGlobalError(sprintf('Cannot read: %s', $path));
 
             return;
         }
 
-        $fingerprint = $this->hash(implode("\n", $content), $config);
+        $fingerprint = Helper::hash(implode("\n", $content), $config);
 
         // Cache hit: restore cached errors and apply ignore filters
         if ($this->cache->isValid($path, $fingerprint)) {
@@ -114,34 +115,5 @@ final class Linter
         $this->cache->set($path, $fingerprint, extra: [
             'errors' => $rawErrors,
         ]);
-    }
-
-    /**
-     * Read file content.
-     *
-     * @param string $filePath Path to file
-     * @return list<string>|null
-     */
-    private function read(string $filePath): ?array
-    {
-        if (!is_readable($filePath)) {
-            return null;
-        }
-
-        $content = file($filePath, FILE_IGNORE_NEW_LINES);
-
-        return $content === false ? null : $content;
-    }
-
-    /**
-     * @param \Realodix\Haiku\Config\LinterConfig $config
-     */
-    private function hash(string $str, $config): string
-    {
-        $seed = collect($config->rules)
-            ->reject(static fn($value) => $value === false)
-            ->sortKeys()->toJson();
-
-        return hash('xxh128', $str.$seed);
     }
 }

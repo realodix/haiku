@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Builder;
 
-use Realodix\Haiku\Helper;
+use Realodix\Haiku\Support\Util;
 
 final class Cleaner
 {
@@ -59,7 +59,7 @@ final class Cleaner
      */
     private static function removeComment(string $content): string
     {
-        if (str_starts_with($content, '#') && !Helper::isCosmeticRule($content)) {
+        if (str_starts_with($content, '#') && !Util::isCosmeticRule($content)) {
             return '';
         }
 

@@ -1,50 +1,9 @@
 <?php
 
-namespace Realodix\Haiku\Linter;
+namespace Realodix\Haiku\Support;
 
-use Realodix\Haiku\Linter\Rules\Rule;
-use Symfony\Component\Finder\Finder;
-
-final class Util
+final class Arr
 {
-    /**
-     * @return list<Rule>
-     */
-    public static function loadLinterRules(): array
-    {
-        $rules = [];
-        $finder = new Finder;
-        $finder->files()->in(__DIR__.'/Rules')->name('*Check.php');
-
-        foreach ($finder as $file) {
-            $subPath = $file->getRelativePath();
-            $subNamespace = $subPath !== '' ? str_replace('/', '\\', $subPath).'\\' : '';
-            $class = 'Realodix\Haiku\Linter\Rules\\'.$subNamespace.$file->getBasename('.php');
-
-            if (class_exists($class) && is_subclass_of($class, Rule::class)) {
-                $rules[] = app($class);
-            }
-        }
-
-        return $rules;
-    }
-
-    public static function isCommentOrEmpty(string $str): bool
-    {
-        return $str === '' || str_starts_with($str, '!');
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function splitOptions(string $optionString): array
-    {
-        $knownOptions = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
-        $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOptions).')\b|$)/i';
-
-        return preg_split($pattern, $optionString);
-    }
-
     /**
      * Flatten a multi-dimensional array by preserving top-level keys, extracting
      * all nested values regardless of depth, and removing duplicates.
@@ -75,5 +34,41 @@ final class Util
         }
 
         return array_values(array_unique($flat));
+    }
+
+    /**
+     * Sort the array using the given callback.
+     *
+     * @param array<int, string> $values
+     * @return array<int, string>
+     */
+    public static function sortBy(array $values, ?callable $callback, ?int $flags = null): array
+    {
+        $results = [];
+        foreach ($values as $key => $value) {
+            $results[$key] = $callback($value, $key);
+        }
+
+        asort($results, $flags ?? SORT_REGULAR);
+        foreach (array_keys($results) as $key) {
+            $results[$key] = $values[$key];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Sort the array using the given callback and remove duplicates.
+     *
+     * @param array<int, string> $value
+     * @return list<string>
+     */
+    public static function uniqueSortBy(array $value, ?callable $callback, ?int $flags = null): array
+    {
+        $v = array_filter($value, static fn($s) => $s !== '');
+        $v = array_unique($v);
+        $v = self::sortBy($v, $callback, $flags);
+
+        return array_values($v);
     }
 }

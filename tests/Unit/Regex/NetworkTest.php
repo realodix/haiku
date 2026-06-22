@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Test\Unit\Regex;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Components\NetworkTidy;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Test\TestCase;
 
@@ -106,70 +105,6 @@ class NetworkTest extends TestCase
             ['domain=example.com', null],
             ['$domains=example.com', null],
             ['||example.com^', null],
-        ];
-    }
-
-    #[PHPUnit\DataProvider('network_option_split_provider')]
-    #[PHPUnit\Test]
-    public function network_option_split($string, $expected)
-    {
-        $this->assertSame(
-            $expected,
-            $this->callPrivateMethod(app(NetworkTidy::class), 'splitOptions', [$string]),
-        );
-    }
-
-    public static function network_option_split_provider()
-    {
-        return [
-            [
-                '$~third-party,~xmlhttprequest,domain=~www.example.com',
-                ['$~third-party', '~xmlhttprequest', 'domain=~www.example.com'],
-            ],
-            [
-                '$_,removeparam=/^ss\\$/,__,image,1p,3p',
-                ['$_', 'removeparam=/^ss\$/,__', 'image', '1p', '3p'],
-            ],
-
-            // only network options, then the filter rules will also be captured
-            [
-                '||example.com/*.js$1p,script',
-                ['||example.com/*.js$1p', 'script'],
-            ],
-
-            // typo
-            [ // uppercase network option
-                '$IMAGE,DOMAIN=a.com|b.com',
-                ['$IMAGE', 'DOMAIN=a.com|b.com'],
-            ],
-            [ // has superfluous commas
-                '*$,script,,header=via:/1\.1\s+google/,,css,',
-                ['*$', 'script', '', 'header=via:/1\.1\s+google/', '', 'css', ''],
-            ],
-
-            // ignore: escape comma
-            [
-                '$image,permissions=storage-access=()\, camera=(),domain=a.com|b.com',
-                ['$image', 'permissions=storage-access=()\, camera=()', 'domain=a.com|b.com'],
-            ],
-            [
-                '||example.org^$hls=/#UPLYNK-SEGMENT:.*\,ad/t,domain=/a\,b/',
-                ['||example.org^$hls=/#UPLYNK-SEGMENT:.*\,ad/t', 'domain=/a\,b/'],
-            ],
-
-            // ignore: comma inside regex
-            [
-                '/ads.$domain=/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/',
-                ['/ads.$domain=/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/'],
-            ],
-            [
-                '/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/',
-                ['/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/'],
-            ],
-            [ // https://github.com/uBlockOrigin/uBlock-issues/discussions/2234#discussioncomment-5403472
-                '$all,~doc,domain=example.*|/example\.([a-z]{1,2}|[a-z]{4,16})/',
-                ['$all', '~doc', 'domain=example.*|/example\.([a-z]{1,2}|[a-z]{4,16})/'],
-            ],
         ];
     }
 }

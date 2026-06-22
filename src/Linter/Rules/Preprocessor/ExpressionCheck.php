@@ -3,9 +3,9 @@
 namespace Realodix\Haiku\Linter\Rules\Preprocessor;
 
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Helper;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
+use Realodix\Haiku\Support\Util;
 
 final class ExpressionCheck implements Rule
 {
@@ -142,7 +142,7 @@ final class ExpressionCheck implements Rule
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $hint = Helper::getSuggestion($knownPreprocessorValues, $value);
+                $hint = Util::getSuggestion($knownPreprocessorValues, $value);
 
                 $err->message(sprintf('Unknown value "%s" in "!#if" condition.', $value))
                     ->when($hint, function () use ($err, $hint) {

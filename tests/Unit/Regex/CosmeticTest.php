@@ -5,11 +5,10 @@ namespace Realodix\Haiku\Test\Unit\Regex;
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Test\TestCase;
-use Realodix\Haiku\Test\Unit\GeneralProvider;
 
 class CosmeticTest extends TestCase
 {
-    use GeneralProvider;
+    use \Realodix\Haiku\Test\Unit\Support\UtilProvider;
 
     #[PHPUnit\DataProvider('isCosmeticRuleProvider')]
     #[PHPUnit\Test]

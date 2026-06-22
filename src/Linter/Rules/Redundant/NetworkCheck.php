@@ -7,7 +7,7 @@ use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Linter\Util;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-type _NetRule array{
