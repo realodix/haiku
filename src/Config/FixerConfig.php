@@ -93,19 +93,6 @@ final class FixerConfig
      */
     private function resolveFlags(array $override): array
     {
-        $override = $this->deprecatedFlags($override);
-
-        return Helper::resolveOverrides($this->flags, $override);
-    }
-
-    /**
-     * Converts deprecated flags to their new names.
-     *
-     * @param array<string, bool|string> $override
-     * @return array<string, bool|string>
-     */
-    private function deprecatedFlags(array $override): array
-    {
         $renames = [
             // since v1.11.0
             'xmode' => 'fmode',
@@ -122,6 +109,6 @@ final class FixerConfig
             }
         }
 
-        return $override;
+        return Helper::resolveOverrides($this->flags, $override);
     }
 }
