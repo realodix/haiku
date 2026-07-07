@@ -4,10 +4,12 @@
 
 Haiku is a powerful command-line tool for managing adblock filter lists efficiently. It automates repetitive tasks such as merging sources, optimizing, and tidying up filter lists effortlessly.
 
+**Built with a deep understanding of the syntaxes of Adblock Plus, AdGuard, and uBlock Origin.**
+
 ### # Three capabilities, one tool
 
 #### 01/Lint - Static analysis
-Analyze your filter lists to catch syntax errors, structural defects, and invalid filter options / modifiers before they impact users. Built with deep understanding of Adblock Plus, AdGuard, and uBlock Origin syntaxes.
+Analyze your filter lists to perform intelligent redundancy analysis, while catching syntax errors and invalid options or modifiers before they affect users.
 
 #### 02/Fix - Optimizer & Normalizer
 An opinionated optimizer that sorts, combines, and deduplicates rules for a leaner, faster-loading filter list. No manual formatting roulette; drop it in, automate it, and move on.
