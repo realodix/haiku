@@ -7,10 +7,6 @@ use Realodix\Haiku\Test\TestCase;
 
 class CosmeticTest extends TestCase
 {
-    // ========================================================================
-    // Element Hiding Tests (`elementtidy`)
-    // ========================================================================
-
     #[PHPUnit\Test]
     public function rules_order(): void
     {
@@ -233,8 +229,7 @@ class CosmeticTest extends TestCase
             ],
 
             // In the future, if the removal of extra spaces is implemented,
-            // this test should not fail.
-            // remove extra spaces
+            // this test should not fail. Remove extra spaces.
             [
                 'example.com##[class="ads   ads-header"]',
                 'example.com##[class="ads   ads-header"]',
