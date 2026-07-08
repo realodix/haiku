@@ -145,12 +145,4 @@ final class Runner
 
         return $this->cache->isValid($path, $fingerprint);
     }
-
-    /**
-     * @return \Realodix\Haiku\Console\Statistics
-     */
-    public function stats()
-    {
-        return $this->logger->stats();
-    }
 }

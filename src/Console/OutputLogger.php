@@ -2,10 +2,12 @@
 
 namespace Realodix\Haiku\Console;
 
+use Illuminate\Container\Attributes\Singleton;
 use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
+#[Singleton]
 final class OutputLogger
 {
     private string $root;

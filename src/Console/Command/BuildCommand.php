@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Console\Command;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Builder\Builder;
 use Realodix\Haiku\Console\CommandOptions;
+use Realodix\Haiku\Console\OutputLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,6 +21,7 @@ class BuildCommand extends Command
 {
     public function __construct(
         private Builder $builder,
+        private OutputLogger $logger,
     ) {
         parent::__construct();
     }
@@ -47,7 +49,7 @@ class BuildCommand extends Command
             ),
         );
 
-        if ($this->builder->stats()->allSkipped()) {
+        if ($this->logger->stats()->allSkipped()) {
             $io->writeln('<info>[OK] No modified files detected. Nothing to process.</info>');
         }
 

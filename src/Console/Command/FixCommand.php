@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Console\Command;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\CommandOptions;
+use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Fixer\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,6 +22,7 @@ class FixCommand extends Command
 {
     public function __construct(
         private Runner $runner,
+        private OutputLogger $logger,
     ) {
         parent::__construct();
     }
@@ -59,7 +61,7 @@ class FixCommand extends Command
             ),
         );
 
-        $stats = $this->runner->stats();
+        $stats = $this->logger->stats();
         if ($stats->allSkipped()) {
             $io->writeln('<info>All files have been processed.</info>');
             $io->newLine();

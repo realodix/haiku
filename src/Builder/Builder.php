@@ -135,12 +135,4 @@ final class Builder
     {
         return hash('xxh128', implode(array_merge(...$sources)));
     }
-
-    /**
-     * @return \Realodix\Haiku\Console\Statistics
-     */
-    public function stats()
-    {
-        return $this->logger->stats();
-    }
 }
