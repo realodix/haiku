@@ -1,4 +1,7 @@
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/realodix/haiku)
+<p align="right">
+<a href="https://deepwiki.com/realodix/haiku"><img src="https://deepwiki.com/badge.svg"></a>
+<a href="https://packagist.org/packages/realodix/haiku"><img src="https://img.shields.io/packagist/dt/realodix/haiku"></a>
+</p>
 
 # Realodix Haiku
 
