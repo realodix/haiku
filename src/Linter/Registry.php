@@ -64,6 +64,7 @@ final class Registry
         'object-prune',
         'overlay-buster',
         'prevent-canvas',
+        'prevent-clipboard-write',
         'prevent-fetch', 'no-fetch-if',
         'prevent-innerHTML',
         'prevent-navigation',
