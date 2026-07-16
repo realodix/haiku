@@ -115,6 +115,7 @@ final class Registry
         'noeval.js',
         'noeval-silent.js', 'silent-noeval.js',
         'nofab.js' => ['alias' => ['fuckadblock.js-3.2.0'], 'ag' => ['prevent-fab-3.2.0']],
+        'piano-analytics.js',
         'popads.js', 'popads.net.js', 'prevent-popads-net.js',
         'popads-dummy.js',
         'prebid-ads.js' => ['ag' => ['prebid-ads']],
