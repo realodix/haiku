@@ -38,46 +38,34 @@ final class Builder
         );
 
         foreach ($filterSets as $filterSet) {
-            $this->buildFilterList($filterSet, $cmdOpt);
+            // Step 1: Read all source files or URLs
+            $outputPath = $filterSet['output_path'];
+            $header = $filterSet['header'];
+            $rawContent = $this->read($filterSet['source']);
+
+            if ($rawContent === null) {
+                $this->logger->skipped($outputPath);
+
+                continue;
+            }
+
+            // Step 2: Preparing content
+            $content = Cleaner::clean($rawContent, $filterSet['remove_duplicates']);
+            $fingerprint = hash('xxh128', implode(array_merge($content, [$header])));
+            if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $fingerprint)) {
+                $this->logger->skipped($outputPath);
+
+                continue;
+            }
+
+            // Step 3: Build and write
+            $finalContent = array_merge([$this->header($header)], $content);
+            $this->fs->dumpFile($outputPath, ltrim(implode("\n", $finalContent)."\n"));
+            $this->cache->set($outputPath, $fingerprint, false);
+            $this->logger->processed($outputPath);
         }
 
         $this->cache->repository()->save();
-    }
-
-    /**
-     * Builds a single filter list.
-     *
-     * @param _FilterSet $filterSet
-     * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
-     */
-    private function buildFilterList(array $filterSet, $cmdOpt): void
-    {
-        // Step 1: Read all source files or URLs
-        $outputPath = $filterSet['output_path'];
-        $header = $filterSet['header'];
-        $rawContent = $this->read($filterSet['source']);
-
-        if ($rawContent === null) {
-            $this->logger->skipped($outputPath);
-
-            return;
-        }
-
-        // Step 2: Preparing content
-        $content = Cleaner::clean($rawContent, $filterSet['remove_duplicates']);
-        $fingerprint = $this->sourceHash($content, [$header]);
-
-        if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $fingerprint)) {
-            $this->logger->skipped($outputPath);
-
-            return;
-        }
-
-        // Step 3: Build and write
-        $finalContent = array_merge([$this->header($header)], $content);
-        $this->fs->dumpFile($outputPath, ltrim(implode("\n", $finalContent)."\n"));
-        $this->cache->set($outputPath, $fingerprint, false);
-        $this->logger->processed($outputPath);
     }
 
     /**
@@ -123,16 +111,5 @@ final class Builder
         }
 
         return Arr::flatten($text);
-    }
-
-    /**
-     * Computes a deterministic hash for the given source contents.
-     *
-     * @param array<int, string> ...$sources Source contents.
-     * @return string A hash that uniquely represents the current source state.
-     */
-    private function sourceHash(array ...$sources): string
-    {
-        return hash('xxh128', implode(array_merge(...$sources)));
     }
 }
