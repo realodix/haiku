@@ -94,11 +94,11 @@ final class FixerConfig
     private function resolveFlags(array $override): array
     {
         $renames = [
-            // since v1.11.0
+            // @deprecated since v1.11.0
             'xmode' => 'fmode',
-            // since v1.11.3
+            // @deprecated since v1.11.3
             'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
-            // since v1.12.0
+            // @deprecated since v1.12.0
             'normalize_domains' => 'normalize_domain',
         ];
 

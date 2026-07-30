@@ -224,7 +224,7 @@ final class DomainNormalizer
         }
 
         // 'name'|'normal'
-        // 'normal' is deprecated since v1.12.3
+        // 'normal' is @deprecated since v1.12.3
         return [$domain];
     }
 
