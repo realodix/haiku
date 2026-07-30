@@ -193,7 +193,7 @@ builder:
         [Adblock Plus 2.0]
         ! Title: Example List
         ! Last modified: %timestamp%
-      source:
+      includes:
         - local.txt
         - https://example.org/list.txt
       remove_duplicates: true
@@ -208,7 +208,7 @@ An array defining one or more filter lists to build. Each item in the array conf
 - **`filename`** (*Required*): The output filename for the compiled filter list.
 - **`header`**: A multi-line string prepended to the output file. Supports placeholder substitution:
   - `%timestamp%`: Replaced with current date/time in RFC 7231 format.
-- **`source`** (*Required*): A list of source files (local or URL) to build the filter list from.
+- **`includes`** (*Required*): A list of included files (local or URL) that will be used to build the filter list.
 - **`remove_duplicates`**: Controls whether duplicate lines are removed after sources are merged.
   - Possible values: `true` or `false`
   - Default: `false`
@@ -219,7 +219,7 @@ An array defining one or more filter lists to build. Each item in the array conf
 builder:
   filter_list:
     - filename: output.txt
-      source:
+      includes:
         - input.txt
 ```
 

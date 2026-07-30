@@ -4,7 +4,7 @@ builder:
   output_dir: tests/Integration/tmp
   filter_list:
     - filename: compiled1.txt
-      source:
+      includes:
         - tests/Integration/Builder/filter1.txt
         - tests/Integration/Builder/filter2.txt
     - filename: compiled2.txt
@@ -16,7 +16,7 @@ builder:
         Homepage: https://example.com/
         License: MIT
         ------------------------------
-      source:
+      includes:
         - tests/Integration/Builder/filter1.txt
         - tests/Integration/Builder/filter2.txt
     - filename: date_modified.txt

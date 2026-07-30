@@ -38,10 +38,10 @@ final class Builder
         );
 
         foreach ($filterSets as $filterSet) {
-            // Step 1: Read all source files or URLs
+            // Step 1: Step 1: Read all included files or URLs
             $outputPath = $filterSet['output_path'];
             $header = $filterSet['header'];
-            $rawContent = $this->read($filterSet['source']);
+            $rawContent = $this->read($filterSet['includes']);
 
             if ($rawContent === null) {
                 $this->logger->skipped($outputPath);
@@ -82,7 +82,7 @@ final class Builder
     }
 
     /**
-     * Reads all source files or URLs.
+     * Reads all included files or URLs.
      *
      * @param array<int, string> $paths
      * @return array<int, string>|null Source contents, or null if a read fails.

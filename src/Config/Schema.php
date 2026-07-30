@@ -49,7 +49,13 @@ final class Schema
                     'filename' => Expect::string(),
                     'remove_duplicates' => Expect::bool(),
                     'header' => Expect::string(),
-                    'source' => Expect::listOf('string'),
+                    'includes' => Expect::listOf('string'),
+                    // @deprecated since v1.13.13
+                    'source' => Expect::listOf('string')
+                        ->deprecated(
+                            'The "filter_list > source" configuration is deprecated. '
+                            .'Use "includes" instead.',
+                        ),
                 ])),
             ]),
         ]);

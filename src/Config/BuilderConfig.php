@@ -9,13 +9,14 @@ use Symfony\Component\Filesystem\Path;
  * @phpstan-type _FilterSet array{
  *  output_path: string,
  *  header: string,
- *  source: array<int, string>,
+ *  includes: array<int, string>,
  *  remove_duplicates: bool,
  * }
  * @phpstan-type _FilterSetInput list<array{
  *  filename: string,
  *  header?: string,
- *  source: array<int, string>,
+ *  includes?: array<int, string>,
+ *  source?: array<int, string>,
  *  remove_duplicates?: bool,
  * }>
  * @phpstan-type _BuilderConfigInput array{
@@ -91,7 +92,7 @@ final class BuilderConfig
             $filters[] = [
                 'output_path' => Path::join($this->outputDir, $list['filename']),
                 'header' => $list['header'] ?? '',
-                'source' => $list['source'],
+                'includes' => $list['includes'] ?? $list['source'],
                 'remove_duplicates' => $list['remove_duplicates'] ?? false,
             ];
         }
@@ -119,9 +120,16 @@ final class BuilderConfig
                 );
             }
 
-            if (empty($list['source'])) {
+            if (empty($list['includes']) && empty($list['source'])) {
                 throw new InvalidConfigurationException(sprintf(
-                    "The 'builder > filter_list > source' configuration of '%s' is missing.",
+                    "The 'builder > filter_list > includes' configuration of '%s' is missing.",
+                    basename($list['filename']),
+                ));
+            }
+
+            if (isset($list['includes'], $list['source'])) {
+                throw new InvalidConfigurationException(sprintf(
+                    "The 'includes' and deprecated 'source' configurations cannot be used together for '%s'.",
                     basename($list['filename']),
                 ));
             }
