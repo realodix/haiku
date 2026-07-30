@@ -96,6 +96,10 @@ final class Config
         try {
             $config = Yaml::parseFile($this->resolvePath($path));
             $this->validate($config, $section);
+
+            foreach ($this->schemaProcessor->getWarnings() as $warning) {
+                $this->output->writeln("<comment>Warning:</comment> {$warning}");
+            }
         } catch (\Symfony\Component\Yaml\Exception\ParseException) {
             $config = [];
 
