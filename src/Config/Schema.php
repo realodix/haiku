@@ -53,7 +53,7 @@ final class Schema
                     // @deprecated since v1.13.13
                     'source' => Expect::listOf('string')
                         ->deprecated(
-                            'The "filter_list > source" configuration is deprecated. '
+                            'The "source" property in "filter_list" is deprecated. '
                             .'Use "includes" instead.',
                         ),
                 ])),
