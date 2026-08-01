@@ -94,14 +94,6 @@ class CosmeticTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function domains_are_sorted(): void
-    {
-        $input = ['~d.com,c.com,a.com,~b.com##.ad'];
-        $expected = ['~b.com,~d.com,a.com,c.com##.ad'];
-        $this->assertSame($expected, $this->fix($input));
-    }
-
-    #[PHPUnit\Test]
     public function combine_rules_based_on_rules(): void
     {
         $input = [

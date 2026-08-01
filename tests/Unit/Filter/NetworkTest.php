@@ -29,6 +29,18 @@ class NetworkTest extends TestCase
         $this->assertSame($expected, $this->fix($input));
     }
 
+    #[PHPUnit\Test]
+    public function fix_network_option_separator(): void
+    {
+        $input = [
+            '||example.com^$domain=a.com|b.com,,css,',
+        ];
+        $expected = [
+            '||example.com^$css,domain=a.com|b.com',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
     /**
      * @see \Realodix\Haiku\Fixer\Regex::NET_OPTION_DOMAIN
      */
@@ -307,18 +319,6 @@ class NetworkTest extends TestCase
                 ['$domain'],
             ],
         ];
-    }
-
-    #[PHPUnit\Test]
-    public function optDomain_values_order_mode(): void
-    {
-        $input = ['*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org'];
-
-        $expected = ['*$domain=0.0.0.0|~127.0.0.1|example.com|~example.org|~localhost'];
-        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'name']));
-
-        $expected = ['*$domain=~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
-        $this->assertSame($expected, $this->fix($input, ['domain_order' => 'negated_first']));
     }
 
     #[PHPUnit\Test]

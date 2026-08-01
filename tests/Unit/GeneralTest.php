@@ -31,6 +31,31 @@ class GeneralTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function duplicateRules()
+    {
+        $input = [
+            '-ads-',
+            '-ads-',
+        ];
+        $expected = ['-ads-'];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            '##.ads',
+            '##.ads',
+        ];
+        $expected = ['##.ads'];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            'example.com##.adsHeader',
+            'example.com##.adsHeader',
+        ];
+        $expected = ['example.com##.adsHeader'];
+        $this->assertSame($expected, $this->fix($input));
+    }
+
+    #[PHPUnit\Test]
     public function sort()
     {
         $input = [
