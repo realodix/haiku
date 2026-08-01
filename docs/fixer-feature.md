@@ -88,23 +88,13 @@ example.com##+js(no-xhr-if, adsbygoogle.js)
 
 ## Domain List Ordering
 
-Sorts domains inside domain lists to ensure consistent and predictable output.
-
-**Config**: `fixer.flags.domain_order`, default: `negated_first`
-
-**Possible values**:
-- `name`: Sort the domains by name, ignoring the `~` prefix.
-- `negated_first`: Place negated domains (`~domain`) before non-negated ones.
+Sorts domains inside domain lists.
 
 ```adblock
 !## BEFORE
-~b.com,~d.com,a.com,c.com##.ads
-
-!## AFTER
-! name
 a.com,~b.com,c.com,~d.com##.ads
 
-! negated_first
+!## AFTER
 ~b.com,~d.com,a.com,c.com##.ads
 ```
 
