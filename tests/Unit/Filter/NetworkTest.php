@@ -75,8 +75,8 @@ class NetworkTest extends TestCase
                 ['$denyallow=a.com|b.com'],
             ],
             [
-                ['$denyallow=get', '$denyallow=post'],
-                ['$denyallow=get|post'],
+                ['$denyallow=uk', '$denyallow=com'],
+                ['$denyallow=com|uk'],
             ],
 
             // unsupported
