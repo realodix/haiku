@@ -87,6 +87,7 @@ final class NetworkTidy
             // Option: multi value
             if (isset(self::MULTI_VALUE[$name]) && $values !== []) {
                 $caseSensitive = self::MULTI_VALUE[$name]['case_sensitive'] ?? false;
+                $this->domainNormalizer->modifier = $name;
                 $value = $this->domainNormalizer->applyFix(implode('|', $values), '|', $caseSensitive);
                 $optionList[] = $name.'='.$value;
 
