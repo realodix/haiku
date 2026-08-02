@@ -102,6 +102,45 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function bad_tld_or_domain(): void
+    {
+        $lines = [
+            'example##.ad',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain name: "example" is an invalid TLD.'],
+        ]);
+
+        $lines = [
+            '3v4l##.ad', // 3v4l.org
+            'sewa-rumah##.ad', // sewa-rumah.net
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain name: "3v4l"'],
+            [2, 'Bad domain name: "sewa-rumah"'],
+        ]);
+
+        $lines = [
+            'example.coms##.ad',
+            'example.or##.ad',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain name: "example.coms" has an invalid TLD.'],
+            [2, 'Bad domain name: "example.or" has an invalid TLD.'],
+        ]);
+
+        $lines = [
+            'localhost##.ad',
+            'local##.ad',
+            'me##.ad',
+            'example.*##.ad',
+            '*$domain=0.0.0.0',
+            '*$domain=/abc\.bar/',
+        ];
+        $this->analyse($lines, []);
+    }
+
+    #[PHPUnit\Test]
     public function bad_domain_contains_whitespaces(): void
     {
         $lines = [

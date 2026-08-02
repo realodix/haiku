@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Linter\Rules;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Registry;
+use Realodix\Haiku\Support\Tld;
 use Realodix\Haiku\Support\Util;
 
 final class DomainCheck implements Rule
@@ -148,6 +149,8 @@ final class DomainCheck implements Rule
         ) {
             $err->message(sprintf('Bad domain name: "%s"', $domain))
                 ->build();
+
+            return;
         }
 
         // 2. Format / forbidden character check
@@ -159,6 +162,8 @@ final class DomainCheck implements Rule
             $err->message(sprintf('Bad domain name: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
                 ->build();
+
+            return;
         }
 
         // 3. Whitespace check
@@ -167,6 +172,31 @@ final class DomainCheck implements Rule
                 'Bad domain name: "%s" contains unnecessary whitespace.',
                 $domain,
             ))->build();
+
+            return;
+        }
+
+        // 4. TLD problems
+        if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !preg_match('/^[a-z]+$/i', $domain)) {
+            $err->message(sprintf('Bad domain name: "%s"', $domain))
+                ->build();
+        }
+
+        $domain = rtrim($domain, '>'); // clean up the ancestor context
+        if (preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true)) {
+            if (!isset(Tld::VALUES[$domain])) {
+                $err->message(sprintf('Bad domain name: "%s" is an invalid TLD.', $domain))
+                    ->build();
+            }
+        }
+
+        if (str_contains($domain, '.') && !preg_match('/^[\d\.\*]+$/', $domain)) {
+            $tld = strtolower(pathinfo($domain, PATHINFO_EXTENSION));
+
+            if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
+                $err->message(sprintf('Bad domain name: "%s" has an invalid TLD.', $domain))
+                    ->build();
+            }
         }
     }
 
