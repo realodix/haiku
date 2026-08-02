@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Arr;
 
 final class DomainNormalizer
@@ -10,7 +11,7 @@ final class DomainNormalizer
     /**
      * Getting a modifier that applies a domain.
      */
-    public string $modifier = '';
+    public ?string $modifier = null;
 
     public function __construct(
         private FixerConfig $config,
@@ -227,7 +228,9 @@ final class DomainNormalizer
         $isNegated = str_starts_with($str, '~');
 
         if ($flag === 'negated_first') {
-            if ($this->modifier === 'method') {
+            if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true)
+                && $this->modifier !== null
+            ) {
                 return [$isNegated ? 0 : 1, $domain];
             }
 
