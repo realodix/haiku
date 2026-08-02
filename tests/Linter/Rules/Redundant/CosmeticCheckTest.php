@@ -37,7 +37,7 @@ class CosmeticCheckTest extends TestCase
             'example.com##.ads', // Redundant
             '##.ads1',
             // Redundant with more than 2 domains
-            'example.come,example.org,example.site##.ads1',
+            'example.com,example.org,example.site##.ads1',
 
             'example.com,example.org,x.com##.banner',
             'x.com,y.com##.banner',
