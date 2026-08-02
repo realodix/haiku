@@ -142,6 +142,7 @@ final class DomainCheck implements Rule
      */
     private function checkBadDomainName($err, string $domain, string $separator): void
     {
+        // 1. Single character check
         if (strlen($domain) === 1
             && (($domain == '*' && $separator === '|') || $domain !== '*')
         ) {
@@ -149,6 +150,7 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
+        // 2. Format / forbidden character check
         if (!str_contains($domain, ' ')
             && (str_ends_with($domain, '.') && !preg_match('/^[\d\.]+$/', $domain)
                 || str_starts_with($domain, '.')
@@ -159,6 +161,7 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
+        // 3. Whitespace check
         if (preg_match('/\s/', $domain)) {
             $err->message(sprintf(
                 'Bad domain name: "%s" contains unnecessary whitespace.',
