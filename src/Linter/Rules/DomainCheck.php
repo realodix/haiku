@@ -190,7 +190,9 @@ final class DomainCheck implements Rule
             }
         }
 
-        if (str_contains($domain, '.') && !preg_match('/^[\d\.\*]+$/', $domain)) {
+        if (str_contains($domain, '.')
+            && !(preg_match('/\.[\d]{1,3}+$/', $domain) || str_ends_with($domain, '.'))
+        ) {
             $tld = strtolower(pathinfo($domain, PATHINFO_EXTENSION));
 
             if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
