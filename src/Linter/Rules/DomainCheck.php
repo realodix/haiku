@@ -177,13 +177,13 @@ final class DomainCheck implements Rule
         }
 
         // 4. TLD problems
-        if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !preg_match('/^[a-z]+$/i', $domain)) {
+        if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain)) {
             $err->message(sprintf('Bad domain name: "%s"', $domain))
                 ->build();
         }
 
         $domain = rtrim($domain, '>'); // clean up the ancestor context
-        if (preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true)) {
+        if (ctype_alpha($domain) && !in_array($domain, ['localhost', 'local'], true)) {
             if (!isset(Tld::VALUES[$domain])) {
                 $err->message(sprintf('Bad domain name: "%s" is an invalid TLD.', $domain))
                     ->build();
