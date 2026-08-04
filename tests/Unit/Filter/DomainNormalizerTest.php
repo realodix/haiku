@@ -22,13 +22,13 @@ final class DomainNormalizerTest extends TestCase
 
         // TLD
         $input = ['info,me,pm,site,~edu.me,~edu.pm,~proton.me,example.com,~foo.example.com##.ad'];
-        $expected = ['~edu.me,~edu.pm,~foo.example.com,~proton.me,example.com,info,me,pm,site##.ad'];
+        $expected = ['info,me,pm,site,~edu.me,~edu.pm,~foo.example.com,~proton.me,example.com##.ad'];
         $this->assertSame($expected, $this->fix($input));
         $input = ['*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org|uk'];
-        $expected = ['*$domain=~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com|uk'];
+        $expected = ['*$domain=uk|~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
         $this->assertSame($expected, $this->fix($input));
         $input = ['*$script,3p,to=cloudfront.net,from=info|me|pm|site|~edu.pm|~gov.me|~proton.me|example.com|~foo.example.com'];
-        $expected = ['*$3p,script,from=~edu.pm|~foo.example.com|~gov.me|~proton.me|example.com|info|me|pm|site,to=cloudfront.net'];
+        $expected = ['*$3p,script,from=info|me|pm|site|~edu.pm|~foo.example.com|~gov.me|~proton.me|example.com,to=cloudfront.net'];
         $this->assertSame($expected, $this->fix($input));
     }
 

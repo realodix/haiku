@@ -3,10 +3,16 @@
 namespace Realodix\Haiku\Fixer\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Arr;
 
 final class DomainNormalizer
 {
+    /**
+     * Getting a modifier that applies a domain.
+     */
+    public ?string $modifier = null;
+
     public function __construct(
         private FixerConfig $config,
     ) {}
@@ -218,9 +224,18 @@ final class DomainNormalizer
     {
         $flag = $this->config->flags['domain_order'];
         $domain = ltrim($str, '~');
+        $isTld = preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true);
+        $isNegated = str_starts_with($str, '~');
 
         if ($flag === 'negated_first') {
-            return [str_starts_with($str, '~') ? 0 : 1, $domain];
+            if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true) && $this->modifier !== null) {
+                return [$isNegated ? 0 : 1, $domain];
+            }
+
+            return [
+                $isTld ? 0 : ($isNegated ? 1 : 2),
+                $domain,
+            ];
         }
 
         // 'name'|'normal'
