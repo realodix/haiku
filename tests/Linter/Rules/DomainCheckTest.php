@@ -113,11 +113,11 @@ class DomainCheckTest extends TestCase
 
         $lines = [
             '3v4l##.ad', // 3v4l.org
-            'sewa-rumah##.ad', // sewa-rumah.net
+            'laravel-news##.ad', // laravel-news.com
         ];
         $this->analyse($lines, [
             [1, 'Bad domain name: "3v4l"'],
-            [2, 'Bad domain name: "sewa-rumah"'],
+            [2, 'Bad domain name: "laravel-news"'],
         ]);
 
         $lines = [
