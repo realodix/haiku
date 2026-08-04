@@ -228,9 +228,7 @@ final class DomainNormalizer
         $isNegated = str_starts_with($str, '~');
 
         if ($flag === 'negated_first') {
-            if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true)
-                && $this->modifier !== null
-            ) {
+            if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true) && $this->modifier !== null) {
                 return [$isNegated ? 0 : 1, $domain];
             }
 
