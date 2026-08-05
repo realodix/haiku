@@ -42,7 +42,7 @@ class FixFileBench
     #[Bench\Revs(1)]
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
-    #[Bench\RetryThreshold(10.0)]
+    // #[Bench\RetryThreshold(10.0)]
     public function benchComparesFilesFull(): void
     {
         $processingFile = Path::join($this->tmpDir, 'bench_general_actual.txt');
