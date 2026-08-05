@@ -70,6 +70,9 @@ class GeneralTest extends TestCase
             [8, 'Redundant filter: domain example.com already covered on line 7.'],
 
             [10, 'Redundant filter: example.com###ads2a already covered by ###ads2a on line 9.'],
+            [11, 'Redundant filter: example.com###ads2b already covered by ###ads2b on line 12.'],
+            [14, 'Redundant filter: domain example.com already covered on line 13.'],
+            [15, 'Redundant filter: domain example.com already covered on line 16.'],
         ]);
     }
 

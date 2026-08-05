@@ -75,4 +75,38 @@ final class DomainCoverage
 
         return null;
     }
+
+    /**
+     * Determine if domain list A covers domain list B.
+     *
+     * @param array<string, bool> $a Domains of A
+     * @param array<string, bool> $b Domains of B
+     */
+    public static function listCovers(array $a, array $b): bool
+    {
+        // If A is empty, it represents global context, which covers everything
+        if ($a === []) {
+            return true;
+        }
+        // If B is empty but A is not, A cannot cover B
+        if ($b === []) {
+            return false;
+        }
+
+        foreach ($b as $domain => $_) {
+            if ($domain === '') {
+                return false;
+            }
+            if (isset($a[$domain])) {
+                continue;
+            }
+            if (self::getCoveringDomain($domain, $a) !== null) {
+                continue;
+            }
+            return false;
+        }
+
+        return true;
+    }
 }
+

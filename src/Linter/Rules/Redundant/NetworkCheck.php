@@ -373,6 +373,21 @@ final class NetworkCheck implements Rule
                     'domain' => $d['name'],
                     'atLineNum' => $seenMap[$entityKey],
                 ];
+            } else {
+                foreach ($seenMap as $seenKey => $seenLineNum) {
+                    [$seenType, $seenName] = explode(':', $seenKey, 2);
+
+                    if ($seenType === $d['type']
+                        && $entry['lineNum'] !== $seenLineNum
+                        && DomainCoverage::getCoveringDomain($d['name'], [$seenName => true]) !== null
+                    ) {
+                        $redundantDomains[] = [
+                            'domain' => $d['name'],
+                            'atLineNum' => $seenLineNum,
+                        ];
+                        break;
+                    }
+                }
             }
         }
 
@@ -602,13 +617,21 @@ final class NetworkCheck implements Rule
             return false;
         }
 
-        // 3. Globalness (Global rules are better references than domain-specific ones)
-        $candIsGlobal = empty($candidate['domains']);
-        $bestIsGlobal = empty($best['domains']);
-        if ($candIsGlobal && !$bestIsGlobal) {
+        // 3. Domain generality comparison
+        $candDomains = [];
+        foreach ($candidate['domains'] as $d) {
+            $candDomains[$d['name']] = true;
+        }
+        $bestDomains = [];
+        foreach ($best['domains'] as $d) {
+            $bestDomains[$d['name']] = true;
+        }
+        $candCoversBest = DomainCoverage::listCovers($candDomains, $bestDomains);
+        $bestCoversCand = DomainCoverage::listCovers($bestDomains, $candDomains);
+        if ($candCoversBest && !$bestCoversCand) {
             return true;
         }
-        if (!$candIsGlobal && $bestIsGlobal) {
+        if (!$candCoversBest && $bestCoversCand) {
             return false;
         }
 
@@ -670,6 +693,14 @@ final class NetworkCheck implements Rule
     private function isDomainMatched(string $domain, array $rule): bool
     {
         if (array_any($rule['domains'], fn($rd) => $rd['name'] === $domain)) {
+            return true;
+        }
+
+        $candidateDomains = [];
+        foreach ($rule['domains'] as $rd) {
+            $candidateDomains[$rd['name']] = true;
+        }
+        if (DomainCoverage::getCoveringDomain($domain, $candidateDomains) !== null) {
             return true;
         }
 

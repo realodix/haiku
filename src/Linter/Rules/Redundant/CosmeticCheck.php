@@ -503,13 +503,13 @@ final class CosmeticCheck implements Rule
             }
         }
 
-        // 2. Globalness (Global rules are better references than domain-specific ones)
-        $candIsGlobal = empty($candidate['domains']);
-        $bestIsGlobal = empty($best['domains']);
-        if ($candIsGlobal && !$bestIsGlobal) {
+        // 2. Domain generality comparison
+        $candCoversBest = DomainCoverage::listCovers($candidate['domains'], $best['domains']);
+        $bestCoversCand = DomainCoverage::listCovers($best['domains'], $candidate['domains']);
+        if ($candCoversBest && !$bestCoversCand) {
             return true;
         }
-        if (!$candIsGlobal && $bestIsGlobal) {
+        if (!$candCoversBest && $bestCoversCand) {
             return false;
         }
 
