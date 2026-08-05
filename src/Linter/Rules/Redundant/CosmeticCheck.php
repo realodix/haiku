@@ -504,8 +504,15 @@ final class CosmeticCheck implements Rule
         }
 
         // 2. Domain generality comparison
-        $candCoversBest = DomainCoverage::listCovers($candidate['domains'], $best['domains']);
-        $bestCoversCand = DomainCoverage::listCovers($best['domains'], $candidate['domains']);
+        $isEarlier = $candidate['lineNum'] < $best['lineNum'];
+        $candCoversBest = $isEarlier
+            ? DomainCoverage::listCovers($candidate['domains'], $best['domains'])
+            : DomainCoverage::listCovers($candidate['domains'], $best['domains'], true);
+
+        $bestCoversCand = $isEarlier
+            ? DomainCoverage::listCovers($best['domains'], $candidate['domains'], true)
+            : DomainCoverage::listCovers($best['domains'], $candidate['domains']);
+
         if ($candCoversBest && !$bestCoversCand) {
             return true;
         }

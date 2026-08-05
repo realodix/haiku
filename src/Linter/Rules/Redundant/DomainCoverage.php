@@ -82,7 +82,7 @@ final class DomainCoverage
      * @param array<string, bool> $a Domains of A
      * @param array<string, bool> $b Domains of B
      */
-    public static function listCovers(array $a, array $b): bool
+    public static function listCovers(array $a, array $b, bool $genericOnly = false): bool
     {
         // If A is empty, it represents global context, which covers everything
         if ($a === []) {
@@ -93,20 +93,23 @@ final class DomainCoverage
             return false;
         }
 
+        $hasGeneric = false;
         foreach ($b as $domain => $_) {
             if ($domain === '') {
                 return false;
             }
-            if (isset($a[$domain])) {
+            if (isset($a[$domain]) && !$genericOnly) {
                 continue;
             }
             if (self::getCoveringDomain($domain, $a) !== null) {
+                $hasGeneric = true;
+
                 continue;
             }
+
             return false;
         }
 
-        return true;
+        return $genericOnly ? $hasGeneric : true;
     }
 }
-

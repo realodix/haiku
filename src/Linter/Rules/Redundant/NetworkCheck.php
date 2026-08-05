@@ -626,8 +626,15 @@ final class NetworkCheck implements Rule
         foreach ($best['domains'] as $d) {
             $bestDomains[$d['name']] = true;
         }
-        $candCoversBest = DomainCoverage::listCovers($candDomains, $bestDomains);
-        $bestCoversCand = DomainCoverage::listCovers($bestDomains, $candDomains);
+        $isEarlier = $candidate['lineNum'] < $best['lineNum'];
+        $candCoversBest = $isEarlier
+            ? DomainCoverage::listCovers($candDomains, $bestDomains)
+            : DomainCoverage::listCovers($candDomains, $bestDomains, true);
+
+        $bestCoversCand = $isEarlier
+            ? DomainCoverage::listCovers($bestDomains, $candDomains, true)
+            : DomainCoverage::listCovers($bestDomains, $candDomains);
+
         if ($candCoversBest && !$bestCoversCand) {
             return true;
         }
