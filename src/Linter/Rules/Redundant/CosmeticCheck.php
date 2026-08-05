@@ -455,7 +455,8 @@ final class CosmeticCheck implements Rule
                 }
             } else {
                 // Determine if the domain context is covered by the candidate.
-                $isExplicitMatch = isset($candidate['domains'][$domain]);
+                $isExplicitMatch = isset($candidate['domains'][$domain])
+                    || DomainCoverage::getCoveringDomain($domain, $candidate['domains']) !== null;
                 $isAlmostGlobalMatch = $candidate['isAlmostGlobal']
                     && $domain !== ''
                     && $domain[0] !== '~'

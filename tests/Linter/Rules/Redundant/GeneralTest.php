@@ -33,6 +33,44 @@ class GeneralTest extends TestCase
             [4, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
             [4, 'Redundant filter: domain example.com is covered by "example.*".'],
         ]);
+
+        $lines = [
+            '~ads.example.com,example.*###ads1',
+            '*$domain=~ads.example.com|example.*',
+        ];
+        $this->analyse($lines, []);
+    }
+
+    #[PHPUnit\Test]
+    public function tld_wildcard_2(): void
+    {
+        $lines = [
+            'example.com,wikipedia.com###ads1a',
+            'example.com###ads1a',
+            'example.com###ads1b',
+            'example.com,wikipedia.com###ads1b',
+            '/ads1a-$domain=example.com|wikipedia.com',
+            '/ads1a-$domain=example.com',
+            '/ads1b-$domain=example.com',
+            '/ads1b-$domain=example.com|wikipedia.com',
+
+            'example.*,wikipedia.com###ads2a', // 9
+            'example.com###ads2a', // 10
+            'example.com###ads2b', // 11
+            'example.*,wikipedia.com###ads2b', // 12
+            '/ads2a-$domain=example.*|wikipedia.com', // 13
+            '/ads2a-$domain=example.com', // 14
+            '/ads2b-$domain=example.com', // 15
+            '/ads2b-$domain=example.*|wikipedia.com', // 16
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: example.com###ads1a already covered by ###ads1a on line 1.'],
+            [4, 'Redundant filter: domain example.com already covered on line 3.'],
+            [6, 'Redundant filter: domain example.com already covered on line 5.'],
+            [8, 'Redundant filter: domain example.com already covered on line 7.'],
+
+            [10, 'Redundant filter: example.com###ads2a already covered by ###ads2a on line 9.'],
+        ]);
     }
 
     #[PHPUnit\Test]
@@ -46,6 +84,12 @@ class GeneralTest extends TestCase
             [1, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
             [2, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
         ]);
+
+        $lines = [
+            '~ads.example.com,example.com###ads1',
+            '*$domain=~ads.example.com|example.com',
+        ];
+        $this->analyse($lines, []);
     }
 
     #[PHPUnit\Test]
