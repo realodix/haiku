@@ -268,7 +268,7 @@ final class CosmeticCheck implements Rule
     private function checkDomainRedundancy($err, array $entry): void
     {
         $domains = array_keys($entry['domains']);
-        foreach (DomainCoverage::findRedundant($domains) as $domain => $coveringDomain) {
+        foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
             $err->message(sprintf(
                 'Redundant filter: domain %s is covered by "%s".',
                 $domain,
@@ -456,7 +456,7 @@ final class CosmeticCheck implements Rule
             } else {
                 // Determine if the domain context is covered by the candidate.
                 $isExplicitMatch = isset($candidate['domains'][$domain])
-                    || DomainCoverage::getCoveringDomain($domain, $candidate['domains']) !== null;
+                    || DomainCoverage::findCovering($domain, $candidate['domains']) !== null;
                 $isAlmostGlobalMatch = $candidate['isAlmostGlobal']
                     && $domain !== ''
                     && $domain[0] !== '~'
@@ -504,20 +504,11 @@ final class CosmeticCheck implements Rule
         }
 
         // 2. Domain generality comparison
-        $isEarlier = $candidate['lineNum'] < $best['lineNum'];
-        $candCoversBest = $isEarlier
-            ? DomainCoverage::listCovers($candidate['domains'], $best['domains'])
-            : DomainCoverage::listCovers($candidate['domains'], $best['domains'], true);
+        $candCoversBest = DomainCoverage::coversRuleDomains($candidate['domains'], $best['domains'], $candidate['lineNum'] > $best['lineNum']);
+        $bestCoversCand = DomainCoverage::coversRuleDomains($best['domains'], $candidate['domains'], $best['lineNum'] > $candidate['lineNum']);
 
-        $bestCoversCand = $isEarlier
-            ? DomainCoverage::listCovers($best['domains'], $candidate['domains'], true)
-            : DomainCoverage::listCovers($best['domains'], $candidate['domains']);
-
-        if ($candCoversBest && !$bestCoversCand) {
-            return true;
-        }
-        if (!$candCoversBest && $bestCoversCand) {
-            return false;
+        if ($candCoversBest !== $bestCoversCand) {
+            return $candCoversBest;
         }
 
         // 3. Line number (Earlier rules are preferred as reference points)

@@ -342,7 +342,7 @@ final class NetworkCheck implements Rule
         }
 
         foreach ($domainsByType as $domains) {
-            foreach (DomainCoverage::findRedundant($domains) as $domain => $coveringDomain) {
+            foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
                 $err->message(sprintf(
                     'Redundant filter: domain %s is covered by "%s".',
                     $domain,
@@ -379,7 +379,7 @@ final class NetworkCheck implements Rule
 
                     if ($seenType === $d['type']
                         && $entry['lineNum'] !== $seenLineNum
-                        && DomainCoverage::getCoveringDomain($d['name'], [$seenName => true]) !== null
+                        && DomainCoverage::findCovering($d['name'], [$seenName => true]) !== null
                     ) {
                         $redundantDomains[] = [
                             'domain' => $d['name'],
@@ -626,20 +626,11 @@ final class NetworkCheck implements Rule
         foreach ($best['domains'] as $d) {
             $bestDomains[$d['name']] = true;
         }
-        $isEarlier = $candidate['lineNum'] < $best['lineNum'];
-        $candCoversBest = $isEarlier
-            ? DomainCoverage::listCovers($candDomains, $bestDomains)
-            : DomainCoverage::listCovers($candDomains, $bestDomains, true);
+        $candCoversBest = DomainCoverage::coversRuleDomains($candDomains, $bestDomains, $candidate['lineNum'] > $best['lineNum']);
+        $bestCoversCand = DomainCoverage::coversRuleDomains($bestDomains, $candDomains, $best['lineNum'] > $candidate['lineNum']);
 
-        $bestCoversCand = $isEarlier
-            ? DomainCoverage::listCovers($bestDomains, $candDomains, true)
-            : DomainCoverage::listCovers($bestDomains, $candDomains);
-
-        if ($candCoversBest && !$bestCoversCand) {
-            return true;
-        }
-        if (!$candCoversBest && $bestCoversCand) {
-            return false;
+        if ($candCoversBest !== $bestCoversCand) {
+            return $candCoversBest;
         }
 
         // 4. Line order (Earlier rules are preferred as reference points)
@@ -707,7 +698,7 @@ final class NetworkCheck implements Rule
         foreach ($rule['domains'] as $rd) {
             $candidateDomains[$rd['name']] = true;
         }
-        if (DomainCoverage::getCoveringDomain($domain, $candidateDomains) !== null) {
+        if (DomainCoverage::findCovering($domain, $candidateDomains) !== null) {
             return true;
         }
 

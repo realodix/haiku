@@ -10,14 +10,14 @@ final class DomainCoverage
      * @param list<string> $domains
      * @return array<string, string> Redundant domain => covering domain
      */
-    public static function findRedundant(array $domains): array
+    public static function findCovered(array $domains): array
     {
         $domainSet = array_fill_keys($domains, true);
         $redundant = [];
 
         foreach ($domains as $domain) {
             unset($domainSet[$domain]);
-            $coveringDomain = self::getCoveringDomain($domain, $domainSet);
+            $coveringDomain = self::findCovering($domain, $domainSet);
             if ($coveringDomain !== null) {
                 $redundant[$domain] = $coveringDomain;
             }
@@ -38,7 +38,7 @@ final class DomainCoverage
      *
      * @param array<string, bool> $candidateDomains
      */
-    public static function getCoveringDomain(string $domain, array $candidateDomains): ?string
+    public static function findCovering(string $domain, array $candidateDomains): ?string
     {
         if (
             str_starts_with($domain, '~')
@@ -77,12 +77,12 @@ final class DomainCoverage
     }
 
     /**
-     * Determine if domain list A covers domain list B.
+     * Find domains covered by another domain in another list.
      *
      * @param array<string, bool> $a Domains of A
      * @param array<string, bool> $b Domains of B
      */
-    public static function listCovers(array $a, array $b, bool $genericOnly = false): bool
+    public static function coversRuleDomains(array $a, array $b, bool $genericOnly = false): bool
     {
         // If A is empty, it represents global context, which covers everything
         if ($a === []) {
@@ -98,16 +98,18 @@ final class DomainCoverage
             if ($domain === '') {
                 return false;
             }
-            if (isset($a[$domain]) && !$genericOnly) {
-                continue;
+
+            $exactMatch = isset($a[$domain]);
+            $hasCovering = self::findCovering($domain, $a) !== null;
+
+            // Domain must be covered either directly (if not genericOnly) or by a parent domain
+            if (($genericOnly && $exactMatch) || (!$exactMatch && !$hasCovering)) {
+                return false;
             }
-            if (self::getCoveringDomain($domain, $a) !== null) {
+
+            if ($hasCovering) {
                 $hasGeneric = true;
-
-                continue;
             }
-
-            return false;
         }
 
         return $genericOnly ? $hasGeneric : true;
