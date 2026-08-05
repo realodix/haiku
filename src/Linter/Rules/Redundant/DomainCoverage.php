@@ -7,11 +7,19 @@ final class DomainCoverage
     /**
      * Find domains covered by another domain in the same domain list.
      *
+     * Coverage rules:
+     * - example.* covers example.com
+     * - example.* covers ads.example.com
+     * - example.com covers ads.example.com
+     *
+     * Negated domains, wildcard domains, and IP addresses are preserved.
+     *
      * @param list<string> $domains
      * @return array<string, string> Redundant domain => covering domain
      */
     public static function findRedundant(array $domains): array
     {
+        // Build lookup sets for wildcard TLD domains and regular domains.
         $wildcardBases = [];
         $baseSet = [];
 
@@ -49,23 +57,35 @@ final class DomainCoverage
                 continue;
             }
 
-            // example.com is covered by example.*
-            $dotPos = strpos($domain, '.');
-            if ($dotPos !== false) {
-                $base = substr($domain, 0, $dotPos);
+            // Check wildcard TLD coverage iteratively.
+            //
+            // example.* covers:
+            // - example.com
+            // - ads.example.com
+            // - login.ads.example.com
+            $check = $domain;
+
+            while (($dotPos = strpos($check, '.')) !== false) {
+                $base = substr($check, 0, $dotPos);
 
                 if (isset($wildcardBases[$base])) {
                     $redundant[$domain] = $wildcardBases[$base];
 
-                    continue;
+                    continue 2;
                 }
+
+                $check = substr($check, $dotPos + 1);
             }
 
-            // ads.example.com is covered by example.com
+            // Check regular parent-domain coverage.
+            //
+            // example.com covers:
+            // - ads.example.com
+            // - login.ads.example.com
             $parent = $domain;
 
-            while (($pos = strpos($parent, '.')) !== false) {
-                $parent = substr($parent, $pos + 1);
+            while (($dotPos = strpos($parent, '.')) !== false) {
+                $parent = substr($parent, $dotPos + 1);
 
                 if (isset($baseSet[$parent])) {
                     $redundant[$domain] = $parent;

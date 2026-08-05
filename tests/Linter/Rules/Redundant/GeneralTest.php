@@ -18,6 +18,21 @@ class GeneralTest extends TestCase
             [1, 'Redundant filter: domain example.com is covered by "example.*".'],
             [2, 'Redundant filter: domain example.com is covered by "example.*".'],
         ]);
+
+        $lines = [
+            'ads.example.com,example.*###ads1',
+            'ads.example.com,example.*,example.com###ads1a',
+            '*$domain=ads.example.com|example.*',
+            '/ads1a-$domain=ads.example.com|example.*|example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain example.com is covered by "example.*".'],
+            [3, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [4, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [4, 'Redundant filter: domain example.com is covered by "example.*".'],
+        ]);
     }
 
     #[PHPUnit\Test]
