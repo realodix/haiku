@@ -8,6 +8,32 @@ use Realodix\Haiku\Test\TestCase;
 class GeneralTest extends TestCase
 {
     #[PHPUnit\Test]
+    public function tld_wildcard(): void
+    {
+        $lines = [
+            'example.com,example.*###ads1',
+            '*$domain=example.com|example.*',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain example.com is covered by "example.*".'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function parent_domain(): void
+    {
+        $lines = [
+            'ads.example.com,example.com###ads1',
+            '*$domain=ads.example.com|example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function redundant_1(): void
     {
         $lines = [

@@ -336,6 +336,21 @@ final class NetworkCheck implements Rule
      */
     private function checkDomainRedundancy($err, array $entry): void
     {
+        $domainsByType = [];
+        foreach ($entry['domains'] as $domain) {
+            $domainsByType[$domain['type']][] = $domain['name'];
+        }
+
+        foreach ($domainsByType as $domains) {
+            foreach (DomainCoverage::findRedundant($domains) as $domain => $coveringDomain) {
+                $err->message(sprintf(
+                    'Redundant filter: domain %s is covered by "%s".',
+                    $domain,
+                    $coveringDomain,
+                ))->line($entry['lineNum'])->build();
+            }
+        }
+
         $type = $entry['type'];
         $optionsKey = $entry['optionsKey'];
         $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey][$entry['conditionKey']];

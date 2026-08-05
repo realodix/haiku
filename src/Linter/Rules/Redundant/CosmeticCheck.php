@@ -267,6 +267,15 @@ final class CosmeticCheck implements Rule
      */
     private function checkDomainRedundancy($err, array $entry): void
     {
+        $domains = array_keys($entry['domains']);
+        foreach (DomainCoverage::findRedundant($domains) as $domain => $coveringDomain) {
+            $err->message(sprintf(
+                'Redundant filter: domain %s is covered by "%s".',
+                $domain,
+                $coveringDomain,
+            ))->line($entry['lineNum'])->build();
+        }
+
         $candidates = $this->findCandidates($entry, $this->interactionMap);
         $coverageMap = [];
         $parentMap = [];
