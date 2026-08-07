@@ -341,8 +341,11 @@ final class NetworkCheck implements Rule
             $domainsByType[$domain['type']][] = $domain['name'];
         }
 
+        $internallyCoveredDomains = [];
+
         foreach ($domainsByType as $domains) {
             foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
+                $internallyCoveredDomains[] = $domain;
                 $err->message(sprintf(
                     'Redundant filter: domain %s is covered by "%s".',
                     $domain,
@@ -367,6 +370,11 @@ final class NetworkCheck implements Rule
 
         $redundantDomains = [];
         foreach ($entry['domains'] as $d) {
+            // Skip if already covered internally
+            if (in_array($d['name'], $internallyCoveredDomains, true)) {
+                continue;
+            }
+
             $entityKey = $d['type'].':'.$d['name'];
             if (isset($seenMap[$entityKey]) && $entry['lineNum'] > $seenMap[$entityKey]) {
                 $redundantDomains[] = [

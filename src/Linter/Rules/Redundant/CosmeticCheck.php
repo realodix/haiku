@@ -268,7 +268,10 @@ final class CosmeticCheck implements Rule
     private function checkDomainRedundancy($err, array $entry): void
     {
         $domains = array_keys($entry['domains']);
+        $internallyCoveredDomains = [];
+
         foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
+            $internallyCoveredDomains[] = $domain;
             $err->message(sprintf(
                 'Redundant filter: domain %s is covered by "%s".',
                 $domain,
@@ -281,6 +284,11 @@ final class CosmeticCheck implements Rule
         $parentMap = [];
 
         foreach ($entry['domains'] as $domain => $_) {
+            // Skip if already covered internally
+            if (in_array($domain, $internallyCoveredDomains, true)) {
+                continue;
+            }
+
             $bestParent = null;
 
             foreach ($candidates as $candidateIndex) {
