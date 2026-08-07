@@ -49,31 +49,38 @@ final class DomainCoverage
             return null;
         }
 
+        $candidates = [];
+
+        // 1. Collect wildcard matches (e.g., "example.*") from parent segments.
         $parent = $domain;
         while (($dotPos = strpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
-
-            // example.* covers example.com, ads.example.com,
-            // and deeper subdomains.
             $wildcardDomain = $base.'.*';
-
             if (isset($candidateDomains[$wildcardDomain])) {
-                return $wildcardDomain;
+                $candidates[] = $wildcardDomain;
             }
-
             $parent = substr($parent, $dotPos + 1);
         }
 
-        // example.com covers ads.example.com and deeper subdomains
+        // 2. Collect exact parent domains (e.g., "example.com", then "com").
         $parent = $domain;
         while (($dotPos = strpos($parent, '.')) !== false) {
             $parent = substr($parent, $dotPos + 1);
             if (isset($candidateDomains[$parent])) {
-                return $parent;
+                $candidates[] = $parent;
             }
         }
 
-        return null;
+        if (empty($candidates)) {
+            return null;
+        }
+
+        // 3. Prefer the most general covering domain.
+        //    Since shorter domain strings are typically broader (e.g., "com" vs "example.com"),
+        //    we sort by length and pick the shortest.
+        usort($candidates, fn($a, $b) => strlen($a) - strlen($b));
+
+        return $candidates[0];
     }
 
     /**
