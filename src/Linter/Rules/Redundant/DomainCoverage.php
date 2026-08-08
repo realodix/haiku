@@ -53,13 +53,19 @@ final class DomainCoverage
 
         // 1. Collect wildcard matches (e.g., "example.*") from parent segments.
         $parent = $domain;
-        while (($dotPos = strpos($parent, '.')) !== false) {
+        while (($dotPos = strrpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
             $wildcardDomain = $base.'.*';
             if (isset($candidateDomains[$wildcardDomain])) {
                 $candidates[] = $wildcardDomain;
             }
-            $parent = substr($parent, $dotPos + 1);
+
+            $firstDot = strpos($parent, '.');
+            if ($firstDot === $dotPos) {
+                break;
+            }
+
+            $parent = substr($parent, $firstDot + 1);
         }
 
         // 2. Collect exact parent domains (e.g., "example.com", then "com").
