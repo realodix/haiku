@@ -49,15 +49,20 @@ final class DomainCoverage
             return null;
         }
 
-        $candidates = [];
+        $covering = null;
+        $coveringLength = PHP_INT_MAX;
 
-        // 1. Collect wildcard matches (e.g., "example.*") from parent segments.
+        // 1. Check wildcard matches from parent segments.
         $parent = $domain;
+
         while (($dotPos = strrpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
             $wildcardDomain = $base.'.*';
-            if (isset($candidateDomains[$wildcardDomain])) {
-                $candidates[] = $wildcardDomain;
+            if (isset($candidateDomains[$wildcardDomain])
+                && strlen($wildcardDomain) < $coveringLength
+            ) {
+                $covering = $wildcardDomain;
+                $coveringLength = strlen($wildcardDomain);
             }
 
             $firstDot = strpos($parent, '.');
@@ -68,25 +73,20 @@ final class DomainCoverage
             $parent = substr($parent, $firstDot + 1);
         }
 
-        // 2. Collect exact parent domains (e.g., "example.com", then "com").
+        // 2. Check exact parent domains.
         $parent = $domain;
         while (($dotPos = strpos($parent, '.')) !== false) {
             $parent = substr($parent, $dotPos + 1);
-            if (isset($candidateDomains[$parent])) {
-                $candidates[] = $parent;
+
+            if (isset($candidateDomains[$parent])
+                && strlen($parent) < $coveringLength
+            ) {
+                $covering = $parent;
+                $coveringLength = strlen($parent);
             }
         }
 
-        if (empty($candidates)) {
-            return null;
-        }
-
-        // 3. Prefer the most general covering domain.
-        //    Since shorter domain strings are typically broader (e.g., "com" vs "example.com"),
-        //    we sort by length and pick the shortest.
-        usort($candidates, fn($a, $b) => strlen($a) - strlen($b));
-
-        return $candidates[0];
+        return $covering;
     }
 
     /**
@@ -101,6 +101,7 @@ final class DomainCoverage
         if ($a === []) {
             return true;
         }
+
         // If B is empty but A is not, A cannot cover B
         if ($b === []) {
             return false;
@@ -108,15 +109,10 @@ final class DomainCoverage
 
         $hasGeneric = false;
         foreach ($b as $domain => $_) {
-            if ($domain === '') {
-                return false;
-            }
-
             $exactMatch = isset($a[$domain]);
             $hasCovering = self::findCovering($domain, $a) !== null;
 
-            // Domain must be covered either directly (if not genericOnly) or by a parent domain
-            if (($genericOnly && $exactMatch) || (!$exactMatch && !$hasCovering)) {
+            if (!$exactMatch && !$hasCovering) {
                 return false;
             }
 
