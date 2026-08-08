@@ -40,8 +40,7 @@ final class DomainCoverage
      */
     public static function findCovering(string $domain, array $candidateDomains): ?string
     {
-        if (
-            str_starts_with($domain, '~')
+        if (str_starts_with($domain, '~')
             // reduce the candidates
             || str_ends_with($domain, '.*')
             || filter_var($domain, FILTER_VALIDATE_IP) !== false
@@ -58,9 +57,7 @@ final class DomainCoverage
         while (($dotPos = strrpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
             $wildcardDomain = $base.'.*';
-            if (isset($candidateDomains[$wildcardDomain])
-                && strlen($wildcardDomain) < $coveringLength
-            ) {
+            if (isset($candidateDomains[$wildcardDomain]) && strlen($wildcardDomain) < $coveringLength) {
                 $covering = $wildcardDomain;
                 $coveringLength = strlen($wildcardDomain);
             }
@@ -78,9 +75,7 @@ final class DomainCoverage
         while (($dotPos = strpos($parent, '.')) !== false) {
             $parent = substr($parent, $dotPos + 1);
 
-            if (isset($candidateDomains[$parent])
-                && strlen($parent) < $coveringLength
-            ) {
+            if (isset($candidateDomains[$parent]) && strlen($parent) < $coveringLength) {
                 $covering = $parent;
                 $coveringLength = strlen($parent);
             }

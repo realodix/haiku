@@ -348,8 +348,7 @@ final class NetworkCheck implements Rule
                 $internallyCoveredDomains[] = $domain;
                 $err->message(sprintf(
                     'Redundant filter: domain %s is covered by "%s".',
-                    $domain,
-                    $coveringDomain,
+                    $domain, $coveringDomain,
                 ))->line($entry['lineNum'])->build();
             }
         }
