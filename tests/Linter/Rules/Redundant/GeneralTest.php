@@ -65,7 +65,9 @@ class GeneralTest extends TestCase
     {
         $lines = [
             '~ads.example.com,example.*###ads1',
+            'ads.example.com,ads.*###ads2',
             '*$domain=~ads.example.com|example.*',
+            '/ads1a-$domain=ads.example.com|ads.*',
         ];
         $this->analyse($lines);
 
