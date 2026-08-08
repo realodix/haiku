@@ -336,6 +336,24 @@ final class NetworkCheck implements Rule
      */
     private function checkDomainRedundancy($err, array $entry): void
     {
+        $domainsByType = [];
+        foreach ($entry['domains'] as $domain) {
+            $domainsByType[$domain['type']][] = $domain['name'];
+        }
+
+        $internallyCoveredDomains = [];
+
+        foreach ($domainsByType as $domains) {
+            foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
+                $internallyCoveredDomains[] = $domain;
+                $err->message(sprintf(
+                    'Redundant filter: domain %s is covered by "%s".',
+                    $domain,
+                    $coveringDomain,
+                ))->line($entry['lineNum'])->build();
+            }
+        }
+
         $type = $entry['type'];
         $optionsKey = $entry['optionsKey'];
         $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey][$entry['conditionKey']];
@@ -352,12 +370,32 @@ final class NetworkCheck implements Rule
 
         $redundantDomains = [];
         foreach ($entry['domains'] as $d) {
+            // Skip if already covered internally
+            if (in_array($d['name'], $internallyCoveredDomains, true)) {
+                continue;
+            }
+
             $entityKey = $d['type'].':'.$d['name'];
             if (isset($seenMap[$entityKey]) && $entry['lineNum'] > $seenMap[$entityKey]) {
                 $redundantDomains[] = [
                     'domain' => $d['name'],
                     'atLineNum' => $seenMap[$entityKey],
                 ];
+            } else {
+                foreach ($seenMap as $seenKey => $seenLineNum) {
+                    [$seenType, $seenName] = explode(':', $seenKey, 2);
+
+                    if ($seenType === $d['type']
+                        && $entry['lineNum'] !== $seenLineNum
+                        && DomainCoverage::findCovering($d['name'], [$seenName => true]) !== null
+                    ) {
+                        $redundantDomains[] = [
+                            'domain' => $d['name'],
+                            'atLineNum' => $seenLineNum,
+                        ];
+                        break;
+                    }
+                }
             }
         }
 
@@ -587,14 +625,20 @@ final class NetworkCheck implements Rule
             return false;
         }
 
-        // 3. Globalness (Global rules are better references than domain-specific ones)
-        $candIsGlobal = empty($candidate['domains']);
-        $bestIsGlobal = empty($best['domains']);
-        if ($candIsGlobal && !$bestIsGlobal) {
-            return true;
+        // 3. Domain generality comparison
+        $candDomains = [];
+        foreach ($candidate['domains'] as $d) {
+            $candDomains[$d['name']] = true;
         }
-        if (!$candIsGlobal && $bestIsGlobal) {
-            return false;
+        $bestDomains = [];
+        foreach ($best['domains'] as $d) {
+            $bestDomains[$d['name']] = true;
+        }
+        $candCoversBest = DomainCoverage::coversRuleDomains($candDomains, $bestDomains, $candidate['lineNum'] > $best['lineNum']);
+        $bestCoversCand = DomainCoverage::coversRuleDomains($bestDomains, $candDomains, $best['lineNum'] > $candidate['lineNum']);
+
+        if ($candCoversBest !== $bestCoversCand) {
+            return $candCoversBest;
         }
 
         // 4. Line order (Earlier rules are preferred as reference points)
@@ -655,6 +699,14 @@ final class NetworkCheck implements Rule
     private function isDomainMatched(string $domain, array $rule): bool
     {
         if (array_any($rule['domains'], fn($rd) => $rd['name'] === $domain)) {
+            return true;
+        }
+
+        $candidateDomains = [];
+        foreach ($rule['domains'] as $rd) {
+            $candidateDomains[$rd['name']] = true;
+        }
+        if (DomainCoverage::findCovering($domain, $candidateDomains) !== null) {
             return true;
         }
 

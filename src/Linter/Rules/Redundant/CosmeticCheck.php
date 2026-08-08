@@ -267,11 +267,28 @@ final class CosmeticCheck implements Rule
      */
     private function checkDomainRedundancy($err, array $entry): void
     {
+        $domains = array_keys($entry['domains']);
+        $internallyCoveredDomains = [];
+
+        foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
+            $internallyCoveredDomains[] = $domain;
+            $err->message(sprintf(
+                'Redundant filter: domain %s is covered by "%s".',
+                $domain,
+                $coveringDomain,
+            ))->line($entry['lineNum'])->build();
+        }
+
         $candidates = $this->findCandidates($entry, $this->interactionMap);
         $coverageMap = [];
         $parentMap = [];
 
         foreach ($entry['domains'] as $domain => $_) {
+            // Skip if already covered internally
+            if (in_array($domain, $internallyCoveredDomains, true)) {
+                continue;
+            }
+
             $bestParent = null;
 
             foreach ($candidates as $candidateIndex) {
@@ -446,7 +463,8 @@ final class CosmeticCheck implements Rule
                 }
             } else {
                 // Determine if the domain context is covered by the candidate.
-                $isExplicitMatch = isset($candidate['domains'][$domain]);
+                $isExplicitMatch = isset($candidate['domains'][$domain])
+                    || DomainCoverage::findCovering($domain, $candidate['domains']) !== null;
                 $isAlmostGlobalMatch = $candidate['isAlmostGlobal']
                     && $domain !== ''
                     && $domain[0] !== '~'
@@ -493,14 +511,12 @@ final class CosmeticCheck implements Rule
             }
         }
 
-        // 2. Globalness (Global rules are better references than domain-specific ones)
-        $candIsGlobal = empty($candidate['domains']);
-        $bestIsGlobal = empty($best['domains']);
-        if ($candIsGlobal && !$bestIsGlobal) {
-            return true;
-        }
-        if (!$candIsGlobal && $bestIsGlobal) {
-            return false;
+        // 2. Domain generality comparison
+        $candCoversBest = DomainCoverage::coversRuleDomains($candidate['domains'], $best['domains'], $candidate['lineNum'] > $best['lineNum']);
+        $bestCoversCand = DomainCoverage::coversRuleDomains($best['domains'], $candidate['domains'], $best['lineNum'] > $candidate['lineNum']);
+
+        if ($candCoversBest !== $bestCoversCand) {
+            return $candCoversBest;
         }
 
         // 3. Line number (Earlier rules are preferred as reference points)
