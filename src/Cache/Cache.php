@@ -98,10 +98,9 @@ final class Cache
     public function isValid(string $key, string $value): bool
     {
         $entry = $this->repository()->get($key);
-
         $timestamp = Arr::get($entry, 'timestamp', time());
-        $maxAge = 5 + (crc32($key.$timestamp) % 3); // 5, 6, or 7
-        if (Carbon::createFromTimestamp($timestamp)->diffInDays() > $maxAge) {
+
+        if (Carbon::createFromTimestamp($timestamp)->diffInDays() > rand(5, 7)) {
             return false;
         }
 
