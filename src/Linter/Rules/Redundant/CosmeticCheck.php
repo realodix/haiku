@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules\Redundant;
 
+use Illuminate\Support\Str;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -46,6 +47,9 @@ final class CosmeticCheck implements Rule
 
     /** @var array<string, bool> */
     private array $ghideExceptions = [];
+
+    /** @var list<int> Line indices whose selector is a simple selector (tag, id, classes) */
+    private array $simpleSelectorIndices = [];
 
     public function __construct(
         private LinterConfig $config,
@@ -104,7 +108,7 @@ final class CosmeticCheck implements Rule
                 $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
             }
 
-            $this->collection[$lineNum] = [
+            $entry = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'domains' => $domains,
@@ -115,6 +119,12 @@ final class CosmeticCheck implements Rule
                 'isAlmostGlobal' => $isAlmostGlobal,
                 'conditionKey' => $conditionKey,
             ];
+            $this->collection[$lineNum] = $entry;
+
+            // Store indices for simple selectors (tag, id, classes)
+            if ($this->parseSimpleSelector($selector) !== null) {
+                $this->simpleSelectorIndices[] = $lineNum;
+            }
 
             // Group rules into buckets:
             // 'A' (Attribute Selector), 'S' (Standard Selector)
@@ -138,7 +148,9 @@ final class CosmeticCheck implements Rule
                 }
             } else {
                 // Standard bucket (S): Groups unparsed selectors by their exact string.
-                $this->interactionMap['S|'.$separator.$selector][] = $lineNum;
+                // Use canonical for simple selector so .a.b and .b.a go into the same bucket.
+                $canonical = $this->getCanonicalSelector($selector);
+                $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
             }
         }
 
@@ -171,6 +183,7 @@ final class CosmeticCheck implements Rule
         $this->exactSeen = [];
         $this->interactionMap = [];
         $this->ghideExceptions = [];
+        $this->simpleSelectorIndices = [];
     }
 
     /**
@@ -182,7 +195,10 @@ final class CosmeticCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-        $key = $line.'|'.$entry['conditionKey'];
+        // Use canonical for selector and sorted domains
+        $canonicalSelector = $this->getCanonicalSelector($entry['selector']);
+        $domainStr = implode(',', array_keys($entry['domains'])); // original order, but for exact duplicate we use all
+        $key = $domainStr.'|'.$entry['separator'].'|'.$canonicalSelector.'|'.$entry['conditionKey'];
 
         if (isset($this->exactSeen[$key])) {
             $err->message(sprintf(
@@ -256,7 +272,7 @@ final class CosmeticCheck implements Rule
             } else {
                 $message = sprintf(
                     'Redundant filter: %s is redundant due to more general selector on line %d.',
-                    $entry['line'], $bestParent['lineNum'],
+                    Str::limit($entry['line'], 50), $bestParent['lineNum'],
                 );
             }
 
@@ -450,7 +466,45 @@ final class CosmeticCheck implements Rule
             }));
         }
 
-        return $interactionMap['S|'.$separator.$entry['selector']] ?? [];
+        // --- Standard selector (not attribute) ---
+        $selector = $entry['selector'];
+        $canonical = $this->getCanonicalSelector($selector);
+        $key = 'S|'.$separator.$canonical;
+        if (isset($interactionMap[$key])) {
+            $candidates = array_merge($candidates, $interactionMap[$key]);
+        }
+
+        // Additionally: find simple selectors that are more general (subset)
+        $parsed = $this->parseSimpleSelector($selector);
+        if ($parsed !== null) {
+            foreach ($this->simpleSelectorIndices as $idx) {
+                if ($idx === $entry['lineNum']) {
+                    continue;
+                }
+                $cand = $this->collection[$idx];
+                // Only consider the same separator
+                if ($cand['separator'] !== $separator) {
+                    continue;
+                }
+                if ($cand['attrData'] !== null) {
+                    continue;
+                }
+                $candParsed = $this->parseSimpleSelector($cand['selector']);
+                if ($candParsed === null) {
+                    continue;
+                }
+                if ($this->isSimpleSelectorCovered($parsed, $candParsed)) {
+                    $candidates[] = $idx;
+                }
+            }
+        }
+
+        // Filter by conditionKey
+        $candidates = array_unique($candidates);
+
+        return array_values(array_filter($candidates, function ($idx) use ($entry) {
+            return $this->collection[$idx]['conditionKey'] === $entry['conditionKey'];
+        }));
     }
 
     /**
@@ -499,12 +553,27 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // If simple, it's an exact match from bucket S|. If not, it's an attribute comparison.
-        $coverage = $rule['attrData'] === null
-            ? true
-            : $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
+        // --- Selector checking ---
+        // If both are simple selectors, use subset checking
+        $ruleParsed = $this->parseSimpleSelector($rule['selector']);
+        $candParsed = $this->parseSimpleSelector($candidate['selector']);
+        if ($ruleParsed !== null && $candParsed !== null) {
+            return $this->isSimpleSelectorCovered($ruleParsed, $candParsed);
+        }
 
-        return $coverage;
+        // If rule is an attribute, use isAttrCoveredBy
+        if ($rule['attrData'] !== null && $candidate['attrData'] !== null) {
+            return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
+        }
+
+        // Fallback: if either is unparsed, assume false (unless selector identical)
+        if ($rule['selector'] === $candidate['selector']) {
+            return true;
+        }
+
+        // Standard (non-attribute) selector that cannot be parsed as a simple selector
+        // can only be covered if identical (already handled above)
+        return false;
     }
 
     /**
@@ -523,8 +592,22 @@ final class CosmeticCheck implements Rule
      */
     private function isBetter(array $candidate, array $best): bool
     {
-        // 1. Semantic generality (for attribute selectors)
-        if ($candidate['attrData'] && $best['attrData']) {
+        // 1. Semantic generality (for attribute or simple selector)
+        // For simple selectors, use isSimpleSelectorCovered
+        $candParsed = $this->parseSimpleSelector($candidate['selector']);
+        $bestParsed = $this->parseSimpleSelector($best['selector']);
+        if ($candParsed !== null && $bestParsed !== null) {
+            $candCoversBest = $this->isSimpleSelectorCovered($bestParsed, $candParsed);
+            $bestCoversCand = $this->isSimpleSelectorCovered($candParsed, $bestParsed);
+
+            if ($candCoversBest && !$bestCoversCand) {
+                return true;
+            }
+
+            if (!$candCoversBest && $bestCoversCand) {
+                return false;
+            }
+        } elseif ($candidate['attrData'] && $best['attrData']) {
             $candCoversBest = $this->isAttrCoveredBy($best['attrData'], $candidate['attrData']);
             $bestCoversCand = $this->isAttrCoveredBy($candidate['attrData'], $best['attrData']);
 
@@ -812,5 +895,115 @@ final class CosmeticCheck implements Rule
             '$=' => "{$type}|".mb_substr($val, -$limit)."|{$separator}|{$tag}|{$attr}",
             default => "{$type}|{$separator}|{$tag}|{$attr}",
         };
+    }
+
+    // =========================================================================
+    // New methods for handling simple selectors (tag, id, classes)
+    // =========================================================================
+
+    /**
+     * Parse a simple selector consisting only of tag, id, and classes.
+     * Returns null if there are attributes, pseudo-classes, combinators, etc.
+     *
+     * @return array{tag: string, id: string, classes: list<string>}|null
+     */
+    private function parseSimpleSelector(string $selector): ?array
+    {
+        $tag = '';
+        $id = '';
+        $classes = [];
+
+        // Extract tag (letters/numbers/dash at start)
+        if (preg_match('/^[a-zA-Z][a-zA-Z0-9_-]*/', $selector, $m)) {
+            $tag = $m[0];
+            $selector = substr($selector, strlen($tag));
+        }
+
+        // Extract id (only one)
+        if (preg_match('/#([a-zA-Z0-9_-]+)/', $selector, $m)) {
+            $id = $m[1];
+            $selector = str_replace($m[0], '', $selector);
+        }
+
+        // Extract all classes (starting with '.', followed by non-dot characters,
+        // respecting backslash escapes)
+        // Pattern: \. (literal dot), followed by one or more characters that are not dots,
+        // but backslash followed by any character is treated as a single unit.
+        // We use (?:(?![.])[^.]|\\\\.)+ to match one or more characters that are not dots,
+        // but if there is a backslash, the backslash and the following character (including dot)
+        // are ignored.
+        preg_match_all('/\.(?:(?![.])[^.]|\\\\.)+/', $selector, $matches);
+        if (!empty($matches[0])) {
+            foreach ($matches[0] as $match) {
+                // Remove leading dot
+                $classes[] = substr($match, 1);
+            }
+            // Remove all classes from selector
+            $selector = preg_replace('/\.(?:(?![.])[^.]|\\\\.)+/', '', $selector);
+        }
+
+        // After removing components, check if any disallowed characters remain
+        // (spaces, combinators, pseudo, attributes, etc.)
+        if (trim($selector) !== '') {
+            return null;
+        }
+
+        // Sort classes for normalization
+        sort($classes);
+
+        return ['tag' => $tag, 'id' => $id, 'classes' => $classes];
+    }
+
+    /**
+     * Get canonical simple selector (classes sorted).
+     * If not a simple selector, return the original selector.
+     */
+    private function getCanonicalSelector(string $selector): string
+    {
+        $parsed = $this->parseSimpleSelector($selector);
+        if ($parsed === null) {
+            return $selector;
+        }
+
+        $canonical = '';
+        if ($parsed['tag'] !== '') {
+            $canonical .= $parsed['tag'];
+        }
+        if ($parsed['id'] !== '') {
+            $canonical .= '#'.$parsed['id'];
+        }
+        foreach ($parsed['classes'] as $cls) {
+            $canonical .= '.'.$cls;
+        }
+
+        return $canonical;
+    }
+
+    /**
+     * Whether selector $specific (more specific) is covered by $general (more general)?
+     * Assumes both are already parsed by parseSimpleSelector.
+     *
+     * @param array{tag: string, id: string, classes: list<string>} $specific
+     * @param array{tag: string, id: string, classes: list<string>} $general
+     */
+    private function isSimpleSelectorCovered(array $specific, array $general): bool
+    {
+        // Tag: general can be empty (universal) or must be the same
+        if ($general['tag'] !== '' && $general['tag'] !== $specific['tag']) {
+            return false;
+        }
+        // Id: general can be empty or must be the same
+        if ($general['id'] !== '' && $general['id'] !== $specific['id']) {
+            return false;
+        }
+        // Classes: all general classes must be present in specific (subset)
+        $specificClasses = array_fill_keys($specific['classes'], true);
+        foreach ($general['classes'] as $cls) {
+            if (!isset($specificClasses[$cls])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

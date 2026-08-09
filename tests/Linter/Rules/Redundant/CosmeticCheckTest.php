@@ -198,4 +198,36 @@ class CosmeticCheckTest extends TestCase
             [7, 'Redundant filter: example.com##.ads div.img already covered by ##.ads div.img on line 6.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function simpleSelector(): void
+    {
+        $lines = [
+            'kompas.id##.items-center.justify-center.flex.relative.w-full.lg\:min-h-\[132px\].min-h-\[92px\]',
+            'kompas.id##.flex.items-center.justify-center.w-full.relative',
+            'kompas.id##.w-full.relative.z-0.flex.flex-1.flex-col.items-stretch.max-w-\[320px\].min-h-\[100px\]',
+            'kompas.id##.items-stretch.flex-col.flex-1.flex.z-0.relative.w-full',
+            'narasi.tv##.max-xl\:hidden.top-24.left-0.fixed.z-10',
+            'narasi.tv##.max-xl\:hidden.top-24.fixed.z-10',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: kompas.id##.items-center.justify-center.flex.relat... is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: kompas.id##.w-full.relative.z-0.flex.flex-1.flex-c... is redundant due to more general selector on line 4.'],
+            [5, 'Redundant filter: narasi.tv##.max-xl\:hidden.top-24.left-0.fixed.z-1... is redundant due to more general selector on line 6.'],
+        ]);
+
+        $lines = [
+            '##.items-center.justify-center.flex.relative.w-full.lg\:min-h-\[132px\].min-h-\[92px\]',
+            '##.flex.items-center.justify-center.w-full.relative',
+            '##.w-full.relative.z-0.flex.flex-1.flex-col.items-stretch.max-w-\[320px\].min-h-\[100px\]',
+            '##.items-stretch.flex-col.flex-1.flex.z-0.relative.w-full',
+            '##.max-xl\:hidden.top-24.left-0.fixed.z-10',
+            '##.max-xl\:hidden.top-24.fixed.z-10',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##.items-center.justify-center.flex.relative.w-ful... is redundant due to more general selector on line 2.'],
+            [3, 'Redundant filter: ##.w-full.relative.z-0.flex.flex-1.flex-col.items-... is redundant due to more general selector on line 4.'],
+            [5, 'Redundant filter: ##.max-xl\:hidden.top-24.left-0.fixed.z-10 is redundant due to more general selector on line 6.'],
+        ]);
+    }
 }
