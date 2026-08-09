@@ -383,7 +383,6 @@ final class NetworkCheck implements Rule
             } else {
                 foreach ($seenMap as $seenKey => $seenLineNum) {
                     [$seenType, $seenName] = explode(':', $seenKey, 2);
-
                     if ($seenType === $d['type']
                         && $entry['lineNum'] !== $seenLineNum
                         && DomainCoverage::findCovering($d['name'], [$seenName => true]) !== null
@@ -392,6 +391,7 @@ final class NetworkCheck implements Rule
                             'domain' => $d['name'],
                             'atLineNum' => $seenLineNum,
                         ];
+
                         break;
                     }
                 }
@@ -633,9 +633,9 @@ final class NetworkCheck implements Rule
         foreach ($best['domains'] as $d) {
             $bestDomains[$d['name']] = true;
         }
+
         $candCoversBest = DomainCoverage::coversRuleDomains($candDomains, $bestDomains, $candidate['lineNum'] > $best['lineNum']);
         $bestCoversCand = DomainCoverage::coversRuleDomains($bestDomains, $candDomains, $best['lineNum'] > $candidate['lineNum']);
-
         if ($candCoversBest !== $bestCoversCand) {
             return $candCoversBest;
         }
@@ -705,6 +705,7 @@ final class NetworkCheck implements Rule
         foreach ($rule['domains'] as $rd) {
             $candidateDomains[$rd['name']] = true;
         }
+
         if (DomainCoverage::findCovering($domain, $candidateDomains) !== null) {
             return true;
         }

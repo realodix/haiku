@@ -53,7 +53,6 @@ final class DomainCoverage
 
         // 1. Check wildcard matches from parent segments.
         $parent = $domain;
-
         while (($dotPos = strrpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
             $wildcardDomain = $base.'.*';
@@ -104,14 +103,13 @@ final class DomainCoverage
 
         $hasGeneric = false;
         foreach ($b as $domain => $_) {
-            $exactMatch = isset($a[$domain]);
-            $hasCovering = self::findCovering($domain, $a) !== null;
+            $covering = self::findCovering($domain, $a);
 
-            if (!$exactMatch && !$hasCovering) {
+            if (!isset($a[$domain]) && $covering === null) {
                 return false;
             }
 
-            if ($hasCovering) {
+            if ($covering !== null) {
                 $hasGeneric = true;
             }
         }
