@@ -8,6 +8,165 @@ use Realodix\Haiku\Test\TestCase;
 class GeneralTest extends TestCase
 {
     #[PHPUnit\Test]
+    public function parent_domain(): void
+    {
+        $lines = [
+            'ads.example.com,example.com###ads1',
+            '*$domain=ads.example.com|example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
+        ]);
+
+        $lines = [
+            '~ads.example.com,example.com###ads1',
+            '*$domain=~ads.example.com|example.com',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function tld(): void
+    {
+        $lines = [
+            '~example.com,com###ads1',
+            '~ads.google.com,com###ads2',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            'example.com,com###ads1',
+            'ads.example.com,com###ads2',
+            'ads.example.com,com,example.com###ads3',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain example.com is covered by "com".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "com".'],
+            [3, 'Redundant filter: domain ads.example.com is covered by "com".'],
+            [3, 'Redundant filter: domain example.com is covered by "com".'],
+        ]);
+
+        $lines = [
+            '*$domain=example.com|com',
+            '/ads1-$domain=ads.example.com|com',
+            '/ads2-$domain=ads.example.com|com|example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain example.com is covered by "com".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "com".'],
+            [3, 'Redundant filter: domain ads.example.com is covered by "com".'],
+            [3, 'Redundant filter: domain example.com is covered by "com".'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function tld_wildcard(): void
+    {
+        $lines = [
+            '~ads.example.com,example.*###ads1',
+            'ads.example.com,ads.*###ads2',
+            '*$domain=~ads.example.com|example.*',
+            '/ads1a-$domain=ads.example.com|ads.*',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            'example.com,example.*###ads1',
+            'ads.example.com,example.*,example.com###ads1a',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain example.com is covered by "example.*".'],
+        ]);
+
+        $lines = [
+            '*$domain=example.com|example.*',
+            '/ads1a-$domain=ads.example.com|example.*|example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [2, 'Redundant filter: domain example.com is covered by "example.*".'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function cross_rules_parent_and_tld(): void
+    {
+        $lines = [
+            'example.com###ads1',
+            'com###ads1',
+            'ads.example.com###ads1',
+            '*$domain=ads.example.com',
+            '*$domain=com',
+            '*$domain=example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 2.'],
+            [3, 'Redundant filter: ads.example.com###ads1 already covered by ###ads1 on line 2.'],
+            [4, 'Redundant filter: domain ads.example.com already covered on line 5.'],
+            [6, 'Redundant filter: domain example.com already covered on line 5.'],
+        ]);
+
+        $lines = [
+            'example.com###ads1',
+            'com###ads1',
+            '*$domain=com',
+            '*$domain=example.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 2.'],
+            [4, 'Redundant filter: domain example.com already covered on line 3.'],
+        ]);
+
+        $lines = [
+            'example.com,wikipedia.com###ads1a',
+            'example.com###ads1a',
+            'example.com###ads1b',
+            'example.com,wikipedia.com###ads1b',
+            '/ads1a-$domain=example.com|wikipedia.com',
+            '/ads1a-$domain=example.com',
+            '/ads1b-$domain=example.com',
+            '/ads1b-$domain=example.com|wikipedia.com',
+
+            'example.*,wikipedia.com###ads2a', // 9
+            'example.com###ads2a', // 10
+            'example.com###ads2b', // 11
+            'example.*,wikipedia.com###ads2b', // 12
+            '/ads2a-$domain=example.*|wikipedia.com', // 13
+            '/ads2a-$domain=example.com', // 14
+            '/ads2b-$domain=example.com', // 15
+            '/ads2b-$domain=example.*|wikipedia.com', // 16
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: example.com###ads1a already covered by ###ads1a on line 1.'],
+            [4, 'Redundant filter: domain example.com already covered on line 3.'],
+            [6, 'Redundant filter: domain example.com already covered on line 5.'],
+            [8, 'Redundant filter: domain example.com already covered on line 7.'],
+
+            [10, 'Redundant filter: example.com###ads2a already covered by ###ads2a on line 9.'],
+            [11, 'Redundant filter: example.com###ads2b already covered by ###ads2b on line 12.'],
+            [14, 'Redundant filter: domain example.com already covered on line 13.'],
+            [15, 'Redundant filter: domain example.com already covered on line 16.'],
+        ]);
+
+        $lines = [
+            '||example.com^$domain=example.com',
+            '||example.com^$domain=ads.example.com|example.*',
+            'example.com###ads1',
+            'ads.example.com,example.*###ads1',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: domain example.com already covered on line 2.'],
+            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [3, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 4.'],
+            [4, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function redundant_1(): void
     {
         $lines = [
