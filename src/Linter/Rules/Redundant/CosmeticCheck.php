@@ -74,7 +74,8 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
-            // Extract ghide exceptions into the map
+            // Collect generic-hide exception domains so that global rules are
+            // not considered as covering those domains in later checks.
             $ghideDomains = $this->parseDomainExceptRuleOpt($line);
             if ($ghideDomains !== []) {
                 foreach ($ghideDomains as $domain) {
@@ -94,11 +95,11 @@ final class CosmeticCheck implements Rule
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
 
-            // Pre-calculate domain status to optimize isCovered hot path.
+            // Pre-calculate domain status to optimize the isCovered() hot path.
             $isMixed = $this->isMixedDomains($domains);
             $isAlmostGlobal = false;
             if (!$isMixed && $domains !== []) {
-                // An Almost Global rule contains only exclusions (negated domains).
+                // An "almost global" rule contains only exclusions (negated domains).
                 $firstDomain = (string) array_key_first($domains);
                 $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
             }
@@ -125,12 +126,12 @@ final class CosmeticCheck implements Rule
                 $attr = $attrData['attr'];
 
                 if (in_array($op, ['^=', '$=', '*='], true)) {
-                    // Partial bucket (P): Groups rules with wildcard operators by their tag and attribute name.
+                    // Partial bucket (P): groups wildcard-operator rules by tag, attribute name.
                     // Example: [class*="ad"]
                     $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$partialKey][] = $lineNum;
                 } else {
-                    // Exact bucket (E): Groups rules with exact operators (=, ~=) by their specific value.
+                    // Exact bucket (E): groups exact-operator rules (=, ~=).
                     // Example: .ads and [class="ads"]
                     $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$exactKey][] = $lineNum;
@@ -141,19 +142,16 @@ final class CosmeticCheck implements Rule
             }
         }
 
-        // Pass 2: Redundancy Analysis (Optimized with grouping)
+        // Pass 2: Redundancy Analysis
         foreach ($this->collection as $entry) {
-            // 1. Exact duplicate check
             if ($this->checkExactDuplicate($err, $entry)) {
                 continue;
             }
 
-            // 2. Global redundancy check (checks if the entire rule is covered by another)
             if ($this->checkGlobalRedundancy($err, $entry)) {
                 continue;
             }
 
-            // 3. Domain level redundancy (only for rules that specify domains)
             if ($entry['domains'] !== []) {
                 $this->checkDomainRedundancy($err, $entry);
             }
@@ -164,6 +162,9 @@ final class CosmeticCheck implements Rule
         return $err->toArray();
     }
 
+    /**
+     * Resets all internal state so the checker can be reused across files.
+     */
     private function reset(): void
     {
         $this->collection = [];
@@ -173,6 +174,8 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * Checks whether the given rule is an exact duplicate of a previously seen rule.
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _CosmeticRule $entry
      */
@@ -196,6 +199,8 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * Checks whether the entire rule is made redundant by a global rule.
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _CosmeticRule $entry
      */
@@ -213,8 +218,9 @@ final class CosmeticCheck implements Rule
             }
 
             $candidate = $this->collection[$candidateIndex];
-            $coversAllDomains = true;
 
+            // The candidate must cover every domain of the current rule.
+            $coversAllDomains = true;
             foreach ($domains as $domain => $_) {
                 if (!$this->isCovered($entry, $candidate, $domain, $this->ghideExceptions)) {
                     $coversAllDomains = false;
@@ -226,6 +232,7 @@ final class CosmeticCheck implements Rule
                 continue;
             }
 
+            // Track the "best" (most general) parent for a clearer message.
             if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
                 $bestParent = $candidate;
             }
@@ -262,12 +269,19 @@ final class CosmeticCheck implements Rule
     }
 
     /**
+     * Checks for domain-level redundancy.
+     *
+     * Example: `example.com,example.org##.ads` and `example.com##.ads`
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _CosmeticRule $entry
      */
     private function checkDomainRedundancy($err, array $entry): void
     {
         $domains = array_keys($entry['domains']);
+
+        // Phase 1: Internal coverage — detect domains within the same rule that
+        // are already covered by a broader domain in the same list.
         $internallyCoveredDomains = [];
 
         foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
@@ -278,12 +292,14 @@ final class CosmeticCheck implements Rule
             ))->line($entry['lineNum'])->build();
         }
 
+        // Phase 2: External coverage — check whether any domain is covered by
+        // a different rule with an identical or more general selector.
         $candidates = $this->findCandidates($entry, $this->interactionMap);
         $coverageMap = [];
         $parentMap = [];
 
         foreach ($entry['domains'] as $domain => $_) {
-            // Skip if already covered internally
+            // Skip domains already flagged by internal coverage
             if (in_array($domain, $internallyCoveredDomains, true)) {
                 continue;
             }
@@ -336,11 +352,11 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Identify potential candidate rules that could cover the current rule.
+     * Identifies potential candidate rules that could cover the current rule.
      *
-     * This uses the interaction map to narrow down the pool of candidates from
-     * O(N) to a much smaller set of rules that share relevant characteristics
-     * (e.g., same tag, attribute, or selector).
+     * Uses the interaction map to narrow down the candidate pool from O(N) to
+     * a much smaller set of rules that share relevant characteristics (e.g.,
+     * same tag, attribute, or canonical selector).
      *
      * @param _CosmeticRule $entry The rule being checked.
      * @param array<string, list<int>> $interactionMap Map of grouped rule indices.
@@ -357,13 +373,13 @@ final class CosmeticCheck implements Rule
             $tag = $entry['attrData']['tag'];
             $attr = $entry['attrData']['attr'];
 
-            // 1. Exact Candidates
+            // 1. Exact candidates
             $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $val);
             if (isset($interactionMap[$exactKey])) {
                 array_push($candidates, ...$interactionMap[$exactKey]);
             }
 
-            // 1b. Word Candidates (if A is '=')
+            // 1b. Word candidates: when the operator is '='.
             $words = $op === '=' ? (preg_split('/\s+/', $val) ?: []) : [];
             if ($op === '=') {
                 foreach ($words as $word) {
@@ -395,7 +411,8 @@ final class CosmeticCheck implements Rule
                 }
             }
 
-            // 3. Global Candidates (if A has a tag)
+            // 3. Global candidates: rules without a tag qualifier that could
+            // cover tag-specific rules.
             if ($tag !== '') {
                 // Global Exact
                 $geKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $val);
@@ -409,6 +426,7 @@ final class CosmeticCheck implements Rule
                         if ($word === '' || $word === $val) {
                             continue;
                         }
+
                         $globalWordKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $word);
                         if (isset($interactionMap[$globalWordKey])) {
                             array_push($candidates, ...$interactionMap[$globalWordKey]);
@@ -436,18 +454,21 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determine if a cosmetic rule is covered by a candidate rule for a specific domain.
+     * Determines whether a cosmetic rule is covered by a candidate rule for a
+     * specific domain.
      *
      * A rule is covered if:
      * 1. They share the same separator (e.g. ##, #@#).
-     * 2. Rules with mixed domains (~ and +) only cover rules with the exact same domain set.
+     * 2. Rules with mixed domains (~ and +) only cover rules with the exact same
+     *    domain set.
      * 3. The candidate's domain list encompasses the target domain.
-     * 4. The candidate's selector is identical to or more general than the target rule's selector.
+     * 4. The candidate's selector is identical to or strictly more general
+     *    than the target rule's selector.
      *
      * @param _CosmeticRule $rule The rule being checked for redundancy.
      * @param _CosmeticRule $candidate The candidate rule that might cover it.
      * @param string $domain The domain context being evaluated.
-     * @param array<string, bool> $ghideExceptions
+     * @param array<string, bool> $ghideExceptions Domains where generic hiding is disabled.
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
     {
@@ -487,7 +508,15 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determine if the candidate rule is "better" (more general or earlier) than the current best.
+     * Determines whether a candidate rule is "better" (more general or earlier)
+     * than the current best candidate.
+     *
+     * The comparison is performed in three stages:
+     * 1. Selector generality — a selector that covers a broader set of elements
+     *    is preferred.
+     * 2. Domain generality — a rule with a broader domain scope is preferred.
+     * 3. Line number — when all else is equal, the earlier rule is preferred
+     *    as the canonical reference.
      *
      * @param _CosmeticRule $candidate The rule to evaluate.
      * @param _CosmeticRule $best The current best rule to compare against.
@@ -510,14 +539,14 @@ final class CosmeticCheck implements Rule
             }
         }
 
-        // 2. Domain generality comparison
+        // 2. Domain generality
         $candCoversBest = DomainCoverage::coversRuleDomains($candidate['domains'], $best['domains'], $candidate['lineNum'] > $best['lineNum']);
         $bestCoversCand = DomainCoverage::coversRuleDomains($best['domains'], $candidate['domains'], $best['lineNum'] > $candidate['lineNum']);
         if ($candCoversBest !== $bestCoversCand) {
             return $candCoversBest;
         }
 
-        // 3. Line number (Earlier rules are preferred as reference points)
+        // 3. Line number
         return $candidate['lineNum'] < $best['lineNum'];
     }
 
@@ -531,8 +560,8 @@ final class CosmeticCheck implements Rule
      * attribute name.
      *
      * Examples:
-     *   [href="abc"]    is covered by [href*="a"]
-     *   [href^="https"] is covered by [href*="http"]
+     * - [href="abc"]    is covered by [href*="a"]
+     * - [href^="https"] is covered by [href*="http"]
      *
      * @param _ParsedAttrSelector $rule The rule being checked.
      * @param _ParsedAttrSelector $candidate The candidate rule that might cover it.
@@ -549,12 +578,12 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // Determine if we should compare values case-insensitively.
+        // Determine whether to compare values case-insensitively.
         $caseInsensitive = $candidate['modifier'] === 'i';
         $valR = $caseInsensitive ? strtolower($rule['value']) : $rule['value'];
         $valC = $caseInsensitive ? strtolower($candidate['value']) : $candidate['value'];
 
-        // Exact match of operator and value
+        // Exact match of operator and value.
         if ($rule['operator'] === $candidate['operator'] && $valR === $valC) {
             return true;
         }
@@ -610,7 +639,6 @@ final class CosmeticCheck implements Rule
     private function isMixedDomains(array $domains): bool
     {
         $keys = array_keys($domains);
-
         $hasEx = array_any($keys, fn($d) => str_starts_with($d, '~'));
         $hasIn = array_any($keys, fn($d) => !str_starts_with($d, '~'));
 
@@ -618,10 +646,10 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Parse comma-separated domains into a normalized set.
+     * Parses a comma-separated domain string into a normalized set.
      *
-     * @param string $domainStr Comma-separated domain string
-     * @return array<string, bool> Associative array with domain as key and true as value
+     * @param string $domainStr Comma-separated domain string.
+     * @return array<string, bool> Associative array with domain as key and true as value.
      */
     private function parseDomains(string $domainStr): array
     {
@@ -638,7 +666,7 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Gets the domains from execution rule option.
+     * Extracts domains from a exception rule.
      *
      * @param string $line The line to parse.
      * @return list<string> Returns a list of domains, or an empty list.
@@ -698,12 +726,13 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Parse a simple attribute selector.
+     * Parses a simple attribute selector.
      *
      * Supports only selectors in the form:
-     *   tag[attr op "value" i?]
+     * - tag[attr op "value" i?]
      *
-     * @return _ParsedAttrSelector|null
+     * @return _ParsedAttrSelector|null Parsed data, or null if the selector
+     *                                  does not match any supported form.
      */
     private function parseAttributeSelector(string $selector): ?array
     {
@@ -748,12 +777,20 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Builds an attribute key.
+     * Builds a bucket key for attribute-selector grouping.
+     *
+     * @param string $type Bucket type (e.g. 'E', 'P').
+     * @param string $separator The cosmetic separator (##, #@#, etc.).
+     * @param string $tag The tag qualifier (empty for global).
+     * @param string $attr The attribute name.
+     * @param string|null $op The operator (required for partial keys).
+     * @param string|null $val The attribute value.
      */
     private function buildAttrKey(
         string $type, string $separator,
         string $tag, string $attr, ?string $op = null, ?string $val = null,
     ): string {
+        // Global
         if (str_starts_with($type, 'G|')) {
             $tag = '';
         }

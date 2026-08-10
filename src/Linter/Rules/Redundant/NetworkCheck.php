@@ -151,18 +151,14 @@ final class NetworkCheck implements Rule
 
         // Pass 2: Check redundancy
         foreach ($collection as $entry) {
-            // 1. Exact duplicate check (checks if the exact same line was already seen)
             if ($this->checkExactDuplicate($err, $entry)) {
                 continue;
             }
 
-            // 2. Redundancy check against global rules (no domains)
-            // This covers both purely generic rules and rules with matching options.
             if ($this->checkGlobalRedundancy($err, $entry)) {
                 continue;
             }
 
-            // 3. Domain level redundancy (only for rules that specify domains)
             if ($entry['hasDomains']) {
                 $this->checkDomainRedundancy($err, $entry);
             }
@@ -173,6 +169,9 @@ final class NetworkCheck implements Rule
         return $err->toArray();
     }
 
+    /**
+     * Resets all internal state so the checker can be reused across files.
+     */
     private function reset(): void
     {
         $this->seen = [
@@ -200,6 +199,8 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * Checks whether the given rule is an exact duplicate of a previously seen rule.
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _NetRule $entry
      */
@@ -222,6 +223,8 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * Checks whether the entire rule is made redundant by a global rule.
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _NetRule $entry
      */
@@ -331,6 +334,10 @@ final class NetworkCheck implements Rule
     }
 
     /**
+     * Checks for domain-level redundancy.
+     *
+     * Example: `*$domain=example.com|example.org` and `*$domain=example.com`
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param _NetRule $entry
      */
@@ -341,6 +348,8 @@ final class NetworkCheck implements Rule
             $domainsByType[$domain['type']][] = $domain['name'];
         }
 
+        // Phase 1: Internal coverage — detect domains within the same rule that
+        // are already covered by a broader domain in the same list.
         $internallyCoveredDomains = [];
 
         foreach ($domainsByType as $domains) {
@@ -353,6 +362,8 @@ final class NetworkCheck implements Rule
             }
         }
 
+        // Phase 2: External coverage — check whether any domain is covered by
+        // a different rule with an identical or more general selector.
         $type = $entry['type'];
         $optionsKey = $entry['optionsKey'];
         $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey][$entry['conditionKey']];
@@ -369,7 +380,7 @@ final class NetworkCheck implements Rule
 
         $redundantDomains = [];
         foreach ($entry['domains'] as $d) {
-            // Skip if already covered internally
+            // Skip domains already flagged by internal coverage
             if (in_array($d['name'], $internallyCoveredDomains, true)) {
                 continue;
             }
