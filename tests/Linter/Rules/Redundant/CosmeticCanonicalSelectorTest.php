@@ -35,8 +35,8 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            // [2, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 1.'],
-            [3, 'Redundant filter: example.com##.ad.banner.popup is redundant due to more general selector on line 2.'],
+            [2, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 1.'],
+            [3, 'Redundant filter: example.com##.ad.banner.popup is redundant due to more general selector on line 1.'],
         ]);
     }
 
@@ -51,9 +51,8 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Redundant filter: example.com##.ad.banner.popup is redundant due to more general selector on line 2.'],
-            // [1, 'Redundant filter: example.com##.ad.banner.popup is redundant due to more general selector on line 3.'],
-            // [2, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 3.'],
+            [1, 'Redundant filter: example.com##.ad.banner.popup is redundant due to more general selector on line 3.'],
+            [2, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 3.'],
         ]);
     }
 
@@ -73,9 +72,9 @@ final class CosmeticCanonicalSelectorTest extends TestCase
 
         $this->analyse($lines, [
             [2, 'Redundant filter: ##div.ad is redundant due to more general selector on line 1.'],
-            // [3, 'Redundant filter: ##div.ad.banner is redundant due to more general selector on line 1.'],
+            [3, 'Redundant filter: ##div.ad.banner is redundant due to more general selector on line 1.'],
             [4, 'Redundant filter: ##span.ad is redundant due to more general selector on line 1.'],
-            // [6, 'Redundant filter: ##div#main.sidebar is redundant due to more general selector on line 5.'],
+            [6, 'Redundant filter: ##div#main.sidebar is redundant due to more general selector on line 5.'],
         ]);
     }
 
@@ -129,9 +128,9 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            // [2, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 1.'],
-            // [3, 'Redundant filter: sub.example.com,test.com##.ad.promo is redundant due to more general selector on line 1.'],
-            // [4, 'Redundant filter: example.org##.other.ad is redundant due to more general selector on line 1.'],
+            [2, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 1.'],
+            [3, 'Redundant filter: sub.example.com,test.com##.ad.promo is redundant due to more general selector on line 1.'],
+            [4, 'Redundant filter: example.org##.other.ad is redundant due to more general selector on line 1.'],
         ]);
     }
 
@@ -145,7 +144,7 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            // [2, 'Redundant filter: domain example.com in example.com##.ad.banner already covered on line 1.'],
+            [2, 'Redundant filter: domain example.com in example.com##.ad.banner already covered on line 1.'],
         ]);
     }
 
@@ -161,8 +160,8 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            // [3, 'Redundant filter: #@#.ad.banner is redundant due to more general selector on line 2.'],
-            // [4, 'Redundant filter: ##.ad.banner is redundant due to more general selector on line 1.'],
+            [3, 'Redundant filter: #@#.ad.banner is redundant due to more general selector on line 2.'],
+            [4, 'Redundant filter: ##.ad.banner is redundant due to more general selector on line 1.'],
         ]);
     }
 }
