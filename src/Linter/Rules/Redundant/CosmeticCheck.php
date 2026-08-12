@@ -441,10 +441,11 @@ final class CosmeticCheck implements Rule
             }
 
             $candidates = array_unique($candidates);
-
-            return array_values(array_filter($candidates, function ($idx) use ($entry) {
+            $candidates = array_values(array_filter($candidates, function ($idx) use ($entry) {
                 return $this->collection[$idx]['conditionKey'] === $entry['conditionKey'];
             }));
+
+            return $candidates;
         }
 
         return $interactionMap['S|'.$separator.$entry['selector']] ?? [];
