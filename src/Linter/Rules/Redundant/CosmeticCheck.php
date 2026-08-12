@@ -280,10 +280,8 @@ final class CosmeticCheck implements Rule
     {
         $domains = array_keys($entry['domains']);
 
-        // Phase 1: Internal coverage — detect domains within the same rule that
-        // are already covered by a broader domain in the same list.
+        // Phase 1: Internal coverage (single line)
         $internallyCoveredDomains = [];
-
         foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
             $internallyCoveredDomains[] = $domain;
             $err->message(sprintf(
@@ -292,8 +290,7 @@ final class CosmeticCheck implements Rule
             ))->line($entry['lineNum'])->build();
         }
 
-        // Phase 2: External coverage — check whether any domain is covered by
-        // a different rule with an identical or more general selector.
+        // Phase 2: External coverage (multi lines)
         $candidates = $this->findCandidates($entry, $this->interactionMap);
         $coverageMap = [];
         $parentMap = [];
