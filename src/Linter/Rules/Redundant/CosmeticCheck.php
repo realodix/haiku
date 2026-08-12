@@ -28,6 +28,7 @@ use Realodix\Haiku\Support\Util;
  *  separator: string,
  *  selector: string,
  *  attrData: _ParsedAttrSelector|null,
+ *  parsedSimple: _ParsedSimpleSelector|null,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
  *  conditionKey: string,
@@ -101,6 +102,7 @@ final class CosmeticCheck implements Rule
             $selector = $m[5];
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
+            $parsedSimple = $this->parseSimpleSelector($selector);
 
             // Pre-calculate domain status to optimize the isCovered() hot path.
             $isMixed = $this->isMixedDomains($domains);
@@ -119,6 +121,7 @@ final class CosmeticCheck implements Rule
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
+                'parsedSimple' => $parsedSimple,
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
                 'conditionKey' => $conditionKey,
@@ -126,7 +129,7 @@ final class CosmeticCheck implements Rule
             $this->collection[$lineNum] = $entry;
 
             // Store indices for simple selectors (tag, id, classes)
-            if ($this->parseSimpleSelector($selector) !== null) {
+            if ($parsedSimple !== null) {
                 $this->simpleSelectorIndices[] = $lineNum;
             }
 
@@ -152,7 +155,7 @@ final class CosmeticCheck implements Rule
                 }
             } else {
                 // Standard bucket (S): Groups rules with standard selectors by their canonical form.
-                $canonical = $this->getCanonicalSelector($selector);
+                $canonical = $this->getCanonicalSelector($selector, $parsedSimple);
                 $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
             }
         }
@@ -200,9 +203,11 @@ final class CosmeticCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-        // Use canonical for selector and sorted domains
-        $canonicalSelector = $this->getCanonicalSelector($entry['selector']);
-        $domainStr = implode(',', array_keys($entry['domains'])); // original order, but for exact duplicate we use all
+
+        // Using the canonical selector ensures that reordered class lists
+        // (e.g. .b.a vs .a.b) are detected as duplicates.
+        $canonicalSelector = $this->getCanonicalSelector($entry['selector'], $entry['parsedSimple']);
+        $domainStr = implode(',', array_keys($entry['domains']));
         $key = $domainStr.'|'.$entry['separator'].'|'.$canonicalSelector.'|'.$entry['conditionKey'];
 
         if (isset($this->exactSeen[$key])) {
@@ -476,15 +481,18 @@ final class CosmeticCheck implements Rule
         // Look up the canonical bucket. Canonicalization normalizes class
         // order so that .a.b and .b.a resolve to the same bucket.
         $selector = $entry['selector'];
-        $canonical = $this->getCanonicalSelector($selector);
+        $parsed = $entry['parsedSimple'];
+        $canonical = $this->getCanonicalSelector($selector, $parsed);
         $key = 'S|'.$separator.$canonical;
         if (isset($interactionMap[$key])) {
             $candidates = array_merge($candidates, $interactionMap[$key]);
         }
 
-        // Additionally: find simple selectors that are more general (subset)
-        $parsed = $this->parseSimpleSelector($selector);
-        if ($parsed !== null) {
+        // Additional: find more general simple selectors (subset)
+        // Only if the rule has at least 2 classes (otherwise no subset exists)
+        if ($parsed !== null && count($parsed['classes']) > 1) {
+            // Early exit if we already have candidates that might be better?
+            // We'll still check, but we can limit to simple selectors with same separator.
             foreach ($this->simpleSelectorIndices as $idx) {
                 if ($idx === $entry['lineNum']) {
                     continue;
@@ -498,10 +506,16 @@ final class CosmeticCheck implements Rule
                     continue;
                 }
 
-                $candParsed = $this->parseSimpleSelector($cand['selector']);
+                $candParsed = $cand['parsedSimple'];
                 if ($candParsed === null) {
                     continue;
                 }
+
+                // Only consider candidates with fewer or equal classes (more general)
+                if (count($candParsed['classes']) >= count($parsed['classes'])) {
+                    continue;
+                }
+
                 if ($this->isSimpleSelectorCovered($parsed, $candParsed)) {
                     $candidates[] = $idx;
                 }
@@ -571,10 +585,8 @@ final class CosmeticCheck implements Rule
         // =================================================================
 
         // Both rules are simple selectors
-        $ruleParsed = $this->parseSimpleSelector($rule['selector']);
-        $candParsed = $this->parseSimpleSelector($candidate['selector']);
-        if ($ruleParsed !== null && $candParsed !== null) {
-            return $this->isSimpleSelectorCovered($ruleParsed, $candParsed);
+        if ($rule['parsedSimple'] !== null && $candidate['parsedSimple'] !== null) {
+            return $this->isSimpleSelectorCovered($rule['parsedSimple'], $candidate['parsedSimple']);
         }
 
         // Both rules are attribute selectors
@@ -609,11 +621,9 @@ final class CosmeticCheck implements Rule
     private function isBetter(array $candidate, array $best): bool
     {
         // 1. Selector generality
-        $candParsed = $this->parseSimpleSelector($candidate['selector']);
-        $bestParsed = $this->parseSimpleSelector($best['selector']);
-        if ($candParsed !== null && $bestParsed !== null) {
-            $candCoversBest = $this->isSimpleSelectorCovered($bestParsed, $candParsed);
-            $bestCoversCand = $this->isSimpleSelectorCovered($candParsed, $bestParsed);
+        if ($candidate['parsedSimple'] !== null && $best['parsedSimple'] !== null) {
+            $candCoversBest = $this->isSimpleSelectorCovered($best['parsedSimple'], $candidate['parsedSimple']);
+            $bestCoversCand = $this->isSimpleSelectorCovered($candidate['parsedSimple'], $best['parsedSimple']);
 
             // candidate is strictly more general
             if ($candCoversBest && !$bestCoversCand) {
@@ -1008,11 +1018,13 @@ final class CosmeticCheck implements Rule
      * @return string The canonical form of the selector. If the selector cannot be parsed
      *                as a simple selector, it is returned unchanged.
      */
-    private function getCanonicalSelector(string $selector): string
+    private function getCanonicalSelector(string $selector, ?array $parsed = null): string
     {
-        $parsed = $this->parseSimpleSelector($selector);
         if ($parsed === null) {
-            return $selector;
+            $parsed = $this->parseSimpleSelector($selector);
+            if ($parsed === null) {
+                return $selector;
+            }
         }
 
         $canonical = '';
