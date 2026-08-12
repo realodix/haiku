@@ -511,7 +511,7 @@ final class NetworkCheck implements Rule
         // For ||...^ rules, also include domain token (but primary token already covers)
         if (str_starts_with($pattern, '||')) {
             $domainToken = $this->extractAnchoredDomain($pattern);
-            if (!($domainToken === null && str_contains($pattern, '*'))) {
+            if ($domainToken !== null) {
                 $tokens[$domainToken] = true;
             }
         }
