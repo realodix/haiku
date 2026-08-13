@@ -97,10 +97,14 @@ final class Config
             $config = Yaml::parseFile($this->resolvePath($path));
             $this->validate($config, $section);
 
-            foreach ($this->schemaProcessor->getWarnings() as $warning) {
+            $warnings = $this->schemaProcessor->getWarnings();
+            foreach ($warnings as $warning) {
                 $this->output->writeln("<comment>Warning:</comment> {$warning}");
             }
-            $this->output->writeln(PHP_EOL);
+
+            if ($warnings !== []) {
+                $this->output->writeln(PHP_EOL);
+            }
         } catch (\Symfony\Component\Yaml\Exception\ParseException) {
             $config = [];
 
