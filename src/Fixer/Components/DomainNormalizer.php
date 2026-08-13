@@ -222,7 +222,7 @@ final class DomainNormalizer
      */
     private function domainSortKey(string $str): array
     {
-        $flag = $this->config->flags['domain_order'];
+        $flag = $this->config->flags['domain_order']; // @deprecated since v1.13.14
         $domain = ltrim($str, '~');
         $isTld = preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true);
         $isNegated = str_starts_with($str, '~');
