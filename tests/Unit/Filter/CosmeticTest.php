@@ -91,6 +91,30 @@ class CosmeticTest extends TestCase
 
         $v = ['/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/##.ads'];
         $this->assertSame($v, $this->fix($v));
+
+        $input = [
+            'a##b',
+            'b##a',
+        ];
+        $expected = [
+            'b##a',
+            'a##b',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
+            '/a/##b',
+            '/b/##a',
+            '~/a/##.b',
+            '~/b/##.a',
+        ];
+        $expected = [
+            '~/b/##.a',
+            '~/a/##.b',
+            '/b/##a',
+            '/a/##b',
+        ];
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]

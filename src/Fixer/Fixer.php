@@ -175,6 +175,14 @@ final class Fixer
      */
     private function cosmeticSortKey(string $rule): string
     {
+        // regex domain
+        if (str_starts_with($rule, '/') || str_starts_with($rule, '~/')) {
+            preg_match(Regex::COSMETIC_RULE, $rule, $m);
+            $rule = isset($m[1]) ? substr($rule, strlen($m[1])) : $rule;
+
+            return '3'.$rule;
+        }
+
         preg_match(Regex::COSMETIC_DOMAIN, $rule, $m);
         $rule = isset($m[1]) ? substr($rule, strlen($m[1])) : $rule;
 
@@ -188,11 +196,6 @@ final class Fixer
         if (str_starts_with($rule, '##+') || str_starts_with($rule, '#@#+')
             || str_starts_with($rule, '#%#') || str_starts_with($rule, '#@%#')) {
             return '2'.$rule;
-        }
-
-        // regex domain
-        if (str_starts_with($rule, '/')) {
-            return '3'.$rule;
         }
 
         return $rule;
