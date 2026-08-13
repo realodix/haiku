@@ -100,6 +100,7 @@ final class Config
             foreach ($this->schemaProcessor->getWarnings() as $warning) {
                 $this->output->writeln("<comment>Warning:</comment> {$warning}");
             }
+            $this->output->writeln(PHP_EOL);
         } catch (\Symfony\Component\Yaml\Exception\ParseException) {
             $config = [];
 
