@@ -110,6 +110,9 @@ final class DomainNormalizerTest extends TestCase
         $input = [
             '/ads.$domain=/REGEX/',
             '/REGEX/##.ads',
+            '!',
+            '/ads1.$domain=~/REGEX/',
+            '~/REGEX/##.ads1',
         ];
         $this->assertSame($input, $this->fix($input));
     }

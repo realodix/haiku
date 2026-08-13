@@ -252,7 +252,7 @@ final class DomainNormalizer
      */
     private function containsRegexDomain(string $domainStr): bool
     {
-        return str_starts_with($domainStr, '/') && str_ends_with($domainStr, '/')
+        return preg_match('/^~?\/.+\/$/', $domainStr)
             || str_contains($domainStr, '/') && preg_match('/[\\^([{$\\\]/', $domainStr);
     }
 }
