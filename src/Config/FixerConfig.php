@@ -42,11 +42,9 @@ final class FixerConfig
         'adg_non_basic_rule_modifier' => false,
         'attr_to_basic_selector' => null,
         'combine_option_sets' => false,
-        'domain_order' => 'negated_first',
         'migrate_deprecated_options' => false,
         'no_legacy_ext_selectors' => false,
         'no_legacy_remove_action' => false,
-        'normalize_domain' => false,
         'normalize_domain_separators' => false,
         'option_format' => null,
         'option_order' => 'type',
@@ -54,6 +52,9 @@ final class FixerConfig
         'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => 'keep_before_comment',
         'remove_unnecessary_wildcard' => false,
+        // deprecated
+        'domain_order' => 'negated_first',
+        'normalize_domain' => false,
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {
