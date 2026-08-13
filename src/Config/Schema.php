@@ -36,6 +36,8 @@ final class Schema
                         ->assert(fn(string $value): bool => in_array(
                             $value, ['name', 'normal', 'negated_first'], true,
                         )),
+                    'normalize_domain' => Expect::bool() // @deprecated since v1.13.14
+                        ->deprecated('The "normalize_domain" flag is deprecated.'),
                 ])->otherItems(Expect::bool()),
             ]),
         ]);

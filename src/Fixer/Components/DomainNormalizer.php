@@ -85,6 +85,7 @@ final class DomainNormalizer
      */
     private function cleanDomain(string $domain): string
     {
+        // @deprecated since v1.13.14
         if (!$this->config->flags['normalize_domain']) {
             return $domain;
         }

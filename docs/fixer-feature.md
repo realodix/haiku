@@ -348,8 +348,6 @@ example.com,example.org##.ads
 
 ### # Domain Sanitization
 
-`fixer.flags.normalize_domain`
-
 Removes trailing slashes, leading dots, or other invalid characters accidentally included in domain strings.
 
 ```adblock
