@@ -36,11 +36,7 @@ final class DomainNormalizer
                 continue;
             }
 
-            if (!$caseSensitive) {
-                $d = strtolower($d);
-            }
-
-            $domains[$key] = $this->cleanDomain($d);
+            $domains[$key] = $this->normalizeDomain($d, $caseSensitive);
         }
 
         $domains = $this->removeWildcardCoveredDomains($domains);
@@ -83,11 +79,15 @@ final class DomainNormalizer
     /**
      * Normalize a single domain entry.
      */
-    private function cleanDomain(string $domain): string
+    private function normalizeDomain(string $domain, bool $caseSensitive): string
     {
         // @deprecated since v1.13.14
         if (!$this->config->flags['normalize_domain']) {
             return $domain;
+        }
+
+        if (!$caseSensitive) {
+            $domain = strtolower($domain);
         }
 
         if (str_starts_with($domain, '/') || str_starts_with($domain, '.')) {
