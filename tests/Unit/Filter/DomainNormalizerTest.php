@@ -20,6 +20,11 @@ final class DomainNormalizerTest extends TestCase
         $expected = ['*$domain=~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
         $this->assertSame($expected, $this->fix($input, ['domain_order' => 'negated_first']));
 
+        // Path-in-domain syntax
+        $input = ['site.com/path,example.com##.sidebar-ad'];
+        $expected = ['example.com,site.com/path##.sidebar-ad'];
+        $this->assertSame($expected, $this->fix($input));
+
         // TLD
         $input = ['info,me,pm,site,~edu.me,~edu.pm,~proton.me,example.com,~foo.example.com##.ad'];
         $expected = ['info,me,pm,site,~edu.me,~edu.pm,~foo.example.com,~proton.me,example.com##.ad'];

@@ -58,7 +58,12 @@ class DomainCheckTest extends TestCase
     {
         $lines = [
             '*$domain=*',
+            // just wildcard
             '*##.ad',
+            // path-in-domain syntax
+            // https://adguard.com/kb/general/ad-filtering/create-own-filters/#path-in-domain-syntax
+            'news.site.com/path##.sidebar-ad',
+            'domain1.com,example.org/path##.banner',
         ];
         $this->analyse($lines, [
             [1, 'Bad domain name: "*"'],
