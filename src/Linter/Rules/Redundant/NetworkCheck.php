@@ -180,14 +180,14 @@ final class NetworkCheck implements Rule
     {
         $this->seen = [
             'exact' => [],
-            'pattern_options' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+            'pattern_options' => [],
         ];
 
         $this->globalIndex = [
-            'by_token' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
-            'no_token' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+            'by_token' => [],
+            'no_token' => [],
             // For global rules deduplication
-            'stored' => [self::TYPE_BLACKLIST => [], self::TYPE_WHITELIST => []],
+            'stored' => [],
         ];
 
         $this->regexCache = [];
