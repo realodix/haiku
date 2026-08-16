@@ -214,6 +214,7 @@ class GeneralCheckTest extends TestCase
             '*$uritransform',
             '*$replace',
             '*$urlskip',
+            '||example.org^$removeheader',
         ];
 
         $this->analyse($lines, [
@@ -224,6 +225,7 @@ class GeneralCheckTest extends TestCase
             [5, 'Invalid filter: $uritransform without value is only allowed in exception rules.'],
             [6, 'Invalid filter: $replace without value is only allowed in exception rules.'],
             [7, 'Invalid filter: $urlskip without value is only allowed in exception rules.'],
+            [8, 'Invalid filter: $removeheader without value is only allowed in exception rules.'],
         ]);
 
         $lines = [
@@ -235,6 +237,7 @@ class GeneralCheckTest extends TestCase
             '@@*$replace',
             '@@*$urlskip',
             '*$urlskip=foo',
+            '@@||example.org^$removeheader',
         ];
 
         $this->analyse($lines);

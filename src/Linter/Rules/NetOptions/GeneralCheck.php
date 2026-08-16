@@ -318,6 +318,8 @@ final class GeneralCheck implements Rule
         $reqExcIfNoValue = [
             'csp', 'permissions', 'redirect', 'redirect-rule', 'replace',
             'uritransform', 'urlskip',
+            // AG
+            'removeheader',
         ];
 
         foreach ($reqExcIfNoValue as $opt) {
