@@ -1018,13 +1018,10 @@ final class CosmeticCheck implements Rule
      * @return string The canonical form of the selector. If the selector cannot be parsed
      *                as a simple selector, it is returned unchanged.
      */
-    private function getCanonicalSelector(string $selector, ?array $parsed = null): string
+    private function getCanonicalSelector(string $selector, ?array $parsed): string
     {
         if ($parsed === null) {
-            $parsed = $this->parseSimpleSelector($selector);
-            if ($parsed === null) {
-                return $selector;
-            }
+            return $selector;
         }
 
         $canonical = '';
