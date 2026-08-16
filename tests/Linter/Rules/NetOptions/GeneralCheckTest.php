@@ -186,7 +186,27 @@ class GeneralCheckTest extends TestCase
         $lines = [
             '*$cname',
             '*$genericblock',
+        ];
 
+        $this->analyse($lines, [
+            [1, 'Invalid filter: $cname is only allowed in exception rules.'],
+            [2, 'Invalid filter: $genericblock is only allowed in exception rules.'],
+        ]);
+
+        $lines = [
+            '*$important',
+
+            '@@*$cname',
+            '@@*$genericblock',
+        ];
+
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function checkValueOptionalExceptionOnly(): void
+    {
+        $lines = [
             '*$csp',
             '*$permissions',
             '*$redirect',
@@ -197,23 +217,16 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Invalid filter: $cname is only allowed in exception rules.'],
-            [2, 'Invalid filter: $genericblock is only allowed in exception rules.'],
-            [3, 'Invalid filter: $csp without value is only allowed in exception rules.'],
-            [4, 'Invalid filter: $permissions without value is only allowed in exception rules.'],
-            [5, 'Invalid filter: $redirect without value is only allowed in exception rules.'],
-            [6, 'Invalid filter: $redirect-rule without value is only allowed in exception rules.'],
-            [7, 'Invalid filter: $uritransform without value is only allowed in exception rules.'],
-            [8, 'Invalid filter: $replace without value is only allowed in exception rules.'],
-            [9, 'Invalid filter: $urlskip without value is only allowed in exception rules.'],
+            [1, 'Invalid filter: $csp without value is only allowed in exception rules.'],
+            [2, 'Invalid filter: $permissions without value is only allowed in exception rules.'],
+            [3, 'Invalid filter: $redirect without value is only allowed in exception rules.'],
+            [4, 'Invalid filter: $redirect-rule without value is only allowed in exception rules.'],
+            [5, 'Invalid filter: $uritransform without value is only allowed in exception rules.'],
+            [6, 'Invalid filter: $replace without value is only allowed in exception rules.'],
+            [7, 'Invalid filter: $urlskip without value is only allowed in exception rules.'],
         ]);
 
         $lines = [
-            '*$important',
-
-            '@@*$cname',
-            '@@*$genericblock',
-
             '@@*$csp=foo',
             '@@*$permissions',
             '@@*$redirect',

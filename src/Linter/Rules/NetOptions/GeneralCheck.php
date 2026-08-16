@@ -57,6 +57,7 @@ final class GeneralCheck implements Rule
             $this->checkOptionAliasRedundant($err, $opts);
             $this->checkDeprecatedOptions($err, $opts);
             $this->checkExceptionOptions($err, $opts, $line);
+            $this->checkValueOptionalExceptionOnly($err, $opts, $line);
             $this->checkInterOptionDomainContradiction($err, $opts);
             $this->checkDenyallowValue($err, $opts);
             $this->checkDenyallowAndToConflict($err, $opts);
@@ -285,15 +286,41 @@ final class GeneralCheck implements Rule
                 ->build();
         }
 
-        // 2. Options that REQUIRE exception rule when they have no value
-        // - With value -> allowed anywhere
-        // - Without value -> only allowed in exception rules
-        $requiresExceptionIfNoValue = [
+        // 2. Options that are ONLY allowed in exception rules
+        $exceptionOnly = [
+            'cname',
+            'genericblock',
+        ];
+
+        foreach ($exceptionOnly as $opt) {
+            if (array_key_exists($opt, $opts) && !$isException) {
+                $err->message(sprintf(
+                    'Invalid filter: $%s is only allowed in exception rules.',
+                    $opt,
+                ))->build();
+            }
+        }
+    }
+
+    /**
+     * Check that valueless options are only used in exception rules.
+     *
+     * Condition:
+     * - With value -> allowed anywhere.
+     * - Without value -> only allowed in exception rules.
+     *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param array<string, list<string|null>> $opts
+     */
+    private function checkValueOptionalExceptionOnly($err, array $opts, string $lineContent): void
+    {
+        $isException = str_starts_with($lineContent, '@@');
+        $reqExcIfNoValue = [
             'csp', 'permissions', 'redirect', 'redirect-rule', 'replace',
             'uritransform', 'urlskip',
         ];
 
-        foreach ($requiresExceptionIfNoValue as $opt) {
+        foreach ($reqExcIfNoValue as $opt) {
             if (!array_key_exists($opt, $opts)) {
                 continue;
             }
@@ -311,21 +338,6 @@ final class GeneralCheck implements Rule
                         $opt,
                     ))->build();
                 }
-            }
-        }
-
-        // 3. Options that are ONLY allowed in exception rules
-        $exceptionOnly = [
-            'cname',
-            'genericblock',
-        ];
-
-        foreach ($exceptionOnly as $opt) {
-            if (array_key_exists($opt, $opts) && !$isException) {
-                $err->message(sprintf(
-                    'Invalid filter: $%s is only allowed in exception rules.',
-                    $opt,
-                ))->build();
             }
         }
     }
