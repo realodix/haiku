@@ -50,9 +50,6 @@ final class CosmeticCheck implements Rule
     /** @var array<string, bool> */
     private array $ghideExceptions = [];
 
-    /** @var list<int> Line indices whose selector is a simple selector (tag, id, classes) */
-    private array $simpleSelectorIndices = [];
-
     public function __construct(
         private LinterConfig $config,
         private ConditionalScope $scope,
@@ -128,11 +125,6 @@ final class CosmeticCheck implements Rule
             ];
             $this->collection[$lineNum] = $entry;
 
-            // Store indices for simple selectors (tag, id, classes)
-            if ($parsedSimple !== null) {
-                $this->simpleSelectorIndices[] = $lineNum;
-            }
-
             // Group rules into interaction buckets:
             // 'A' (Attribute Selector), 'S' (Standard Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
@@ -155,6 +147,13 @@ final class CosmeticCheck implements Rule
                 }
             } else {
                 // Standard bucket (S): Groups rules with standard selectors by their canonical form.
+                $canonical = $this->getCanonicalSelector($selector, $parsedSimple);
+                $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
+            }
+
+            // Also put all simple selectors (parsedSimple !== null) into the 'S' bucket
+            // so they can be found by subset searches (e.g. .ad for .ad.banner).
+            if ($parsedSimple !== null) {
                 $canonical = $this->getCanonicalSelector($selector, $parsedSimple);
                 $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
             }
@@ -191,7 +190,6 @@ final class CosmeticCheck implements Rule
         $this->exactSeen = [];
         $this->interactionMap = [];
         $this->ghideExceptions = [];
-        $this->simpleSelectorIndices = [];
     }
 
     /**
@@ -488,36 +486,55 @@ final class CosmeticCheck implements Rule
             $candidates = array_merge($candidates, $interactionMap[$key]);
         }
 
-        // Additional: find more general simple selectors (subset)
-        // Only if the rule has at least 2 classes (otherwise no subset exists)
-        if ($parsed !== null && count($parsed['classes']) > 1) {
-            // Early exit if we already have candidates that might be better?
-            // We'll still check, but we can limit to simple selectors with same separator.
-            foreach ($this->simpleSelectorIndices as $idx) {
-                if ($idx === $entry['lineNum']) {
+        // Subset scan: find more general simple selectors whose class list is
+        // a proper subset of the current rule's classes.
+        // Example: given the rule `.ad.banner.text`, a candidate `.ad` or
+        // `.ad.banner` is more general and therefore covers it.
+        if ($parsed !== null) {
+            $components = [];
+            if ($parsed['tag'] !== '') {
+                $components[] = $parsed['tag'];
+            }
+
+            if ($parsed['id'] !== '') {
+                $components[] = '#'.$parsed['id'];
+            }
+
+            foreach ($parsed['classes'] as $cls) {
+                $components[] = '.'.$cls;
+            }
+
+            // Generate all subsets except the full set
+            $n = count($components);
+            for ($mask = 0; $mask < (1 << $n); $mask++) {
+                // skip full set
+                if ($mask === (1 << $n) - 1) {
                     continue;
                 }
 
-                $cand = $this->collection[$idx];
-                if ($cand['separator'] !== $separator) {
-                    continue;
-                }
-                if ($cand['attrData'] !== null) {
-                    continue;
-                }
-
-                $candParsed = $cand['parsedSimple'];
-                if ($candParsed === null) {
-                    continue;
+                $subset = [];
+                for ($i = 0; $i < $n; $i++) {
+                    if ($mask & (1 << $i)) {
+                        $subset[] = $components[$i];
+                    }
                 }
 
-                // Only consider candidates with fewer or equal classes (more general)
-                if (count($candParsed['classes']) >= count($parsed['classes'])) {
-                    continue;
-                }
+                // Components are already in order: tag, id, classes (classes sorted).
+                $subCanonical = implode('', $subset);
+                $subKey = 'S|'.$separator.$subCanonical;
+                if (isset($interactionMap[$subKey])) {
+                    foreach ($interactionMap[$subKey] as $idx) {
+                        if ($idx === $entry['lineNum']) {
+                            continue;
+                        }
 
-                if ($this->isSimpleSelectorCovered($parsed, $candParsed)) {
-                    $candidates[] = $idx;
+                        // Candidate should have parsedSimple not null, as we only
+                        // put simple selectors into S bucket.
+                        $cand = $this->collection[$idx];
+                        if ($cand['parsedSimple'] !== null) {
+                            $candidates[] = $idx;
+                        }
+                    }
                 }
             }
         }
