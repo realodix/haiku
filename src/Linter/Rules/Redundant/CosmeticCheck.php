@@ -60,7 +60,9 @@ final class CosmeticCheck implements Rule
 
         $conditionKeys = $this->scope->process($content);
 
+        // =====================================================================
         // Pass 1: Parsing and Collection
+        // =====================================================================
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $line = trim($line);
@@ -99,7 +101,8 @@ final class CosmeticCheck implements Rule
             $isMixed = $this->isMixedDomains($domains);
             $isAlmostGlobal = false;
             if (!$isMixed && $domains !== []) {
-                // An "almost global" rule contains only exclusions (negated domains).
+                // An "almost global" rule contains only exclusions (negated domains,
+                // prefixed with ~).
                 $firstDomain = (string) array_key_first($domains);
                 $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
             }
@@ -116,9 +119,13 @@ final class CosmeticCheck implements Rule
                 'conditionKey' => $conditionKey,
             ];
 
-            // Group rules into buckets:
+            // Group rules into interaction buckets:
             // 'A' (Attribute Selector), 'S' (Standard Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
+            //
+            // Bucket keys are designed so that only rules sharing relevant characteristics
+            // end up in the same bucket, drastically reducing the number of pairwise
+            // comparisons in Pass 2.
             if ($attrData) {
                 $val = strtolower($attrData['value']);
                 $op = $attrData['operator'];
@@ -126,8 +133,8 @@ final class CosmeticCheck implements Rule
                 $attr = $attrData['attr'];
 
                 if (in_array($op, ['^=', '$=', '*='], true)) {
-                    // Partial bucket (P): groups wildcard-operator rules by tag, attribute name.
-                    // Example: [class*="ad"]
+                    // Partial bucket (P)
+                    // Example: div[class*="ad"]
                     $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$partialKey][] = $lineNum;
                 } else {
@@ -142,7 +149,9 @@ final class CosmeticCheck implements Rule
             }
         }
 
+        // =====================================================================
         // Pass 2: Redundancy Analysis
+        // =====================================================================
         foreach ($this->collection as $entry) {
             if ($this->checkExactDuplicate($err, $entry)) {
                 continue;
@@ -357,7 +366,7 @@ final class CosmeticCheck implements Rule
      *
      * @param _CosmeticRule $entry The rule being checked.
      * @param array<string, list<int>> $interactionMap Map of grouped rule indices.
-     * @return list<int> List of candidate rule indices.
+     * @return list<int> List of candidate rule indices (line numbers).
      */
     private function findCandidates(array $entry, array $interactionMap): array
     {
@@ -483,6 +492,9 @@ final class CosmeticCheck implements Rule
                 // Determine if the domain context is covered by the candidate.
                 $isExplicitMatch = isset($candidate['domains'][$domain])
                     || DomainCoverage::findCovering($domain, $candidate['domains']) !== null;
+
+                // Almost-global rules (only exclusions) implicitly cover any
+                // non-negated domain that is not explicitly excluded.
                 $isAlmostGlobalMatch = $candidate['isAlmostGlobal']
                     && $domain !== ''
                     && $domain[0] !== '~'
@@ -667,7 +679,8 @@ final class CosmeticCheck implements Rule
      * Extracts domains from a exception rule.
      *
      * @param string $line The line to parse.
-     * @return list<string> Returns a list of domains, or an empty list.
+     * @return list<string> Returns a list of domains, or an empty list if the
+     *                      line is not a ghide/ehide exception.
      */
     private function parseDomainExceptRuleOpt(string $line): array
     {
@@ -726,15 +739,13 @@ final class CosmeticCheck implements Rule
     /**
      * Parses a simple attribute selector.
      *
-     * Supports only selectors in the form:
-     * - tag[attr op "value" i?]
-     *
+     * @param string $selector The CSS selector to parse.
      * @return _ParsedAttrSelector|null Parsed data, or null if the selector
      *                                  does not match any supported form.
      */
     private function parseAttributeSelector(string $selector): ?array
     {
-        // Explicit attribute selector: tag[attr op "value" mod]
+        // Explicit attribute selector: tag[attr op "value" mod?]
         if (preg_match(
             '/^(?:(?<tag>[a-z0-9_-]+))?\[(?<attr>[a-z0-9_-]+)\s*(?<op>\^=|\$=|\*=|=|~=)\s*"(?<val>[^"]+)"\s*(?<mod>i)?\]$/i',
             $selector,
@@ -801,6 +812,8 @@ final class CosmeticCheck implements Rule
         // Partial
         $type = 'A|P|'.$op;
         $limit = self::ATTR_PARTIAL_KEY_LEN;
+        // For URLs, extend the truncation limit to include the protocol and
+        // optional www prefix, since those are highly discriminative.
         if ($op === '^=' && preg_match('/^https?:\/\/(?:www\.)?/', $val, $m)) {
             $limit = strlen($m[0]) + $limit;
         }

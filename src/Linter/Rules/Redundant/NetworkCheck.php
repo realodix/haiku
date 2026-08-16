@@ -73,7 +73,9 @@ final class NetworkCheck implements Rule
         $collection = [];
         $conditionKeys = $this->scope->process($content);
 
-        // Pass 1: Parse and collect state
+        // =====================================================================
+        // Pass 1: Parsing and collect state
+        // =====================================================================
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $line = trim($line);
@@ -149,7 +151,9 @@ final class NetworkCheck implements Rule
             }
         }
 
-        // Pass 2: Check redundancy
+        // =====================================================================
+        // Pass 2: Redundancy Analysis
+        // =====================================================================
         foreach ($collection as $entry) {
             if ($this->checkExactDuplicate($err, $entry)) {
                 continue;
