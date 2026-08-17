@@ -29,6 +29,7 @@ use Realodix\Haiku\Support\Util;
  *  selector: string,
  *  attrData: _ParsedAttrSelector|null,
  *  parsedSimple: _ParsedSimpleSelector|null,
+ *  canonicalSelector: string,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
  *  conditionKey: string,
@@ -37,6 +38,8 @@ use Realodix\Haiku\Support\Util;
 final class CosmeticCheck implements Rule
 {
     private const ATTR_PARTIAL_KEY_LEN = 2;
+
+    private const MAX_SELECTOR_COMPONENT = 12;
 
     /** @var array<string, int> */
     private array $exactSeen = [];
@@ -119,6 +122,7 @@ final class CosmeticCheck implements Rule
                 'selector' => $selector,
                 'attrData' => $attrData,
                 'parsedSimple' => $parsedSimple,
+                'canonicalSelector' => $this->getCanonicalSelector($selector, $parsedSimple),
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
                 'conditionKey' => $conditionKey,
@@ -149,8 +153,7 @@ final class CosmeticCheck implements Rule
 
             // S: Groups rules with standard selectors by their canonical form
             if ($parsedSimple !== null) {
-                $canonical = $this->getCanonicalSelector($selector, $parsedSimple);
-                $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
+                $this->interactionMap['S|'.$entry['separator'].$entry['canonicalSelector']][] = $lineNum;
             }
         }
 
@@ -196,12 +199,8 @@ final class CosmeticCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-
-        // Using the canonical selector ensures that reordered class lists
-        // (e.g. .b.a vs .a.b) are detected as duplicates.
-        $canonicalSelector = $this->getCanonicalSelector($entry['selector'], $entry['parsedSimple']);
         $domainStr = implode(',', array_keys($entry['domains']));
-        $key = $domainStr.'|'.$entry['separator'].'|'.$canonicalSelector.'|'.$entry['conditionKey'];
+        $key = $domainStr.'|'.$entry['separator'].'|'.$entry['canonicalSelector'].'|'.$entry['conditionKey'];
 
         if (isset($this->exactSeen[$key])) {
             $err->message(sprintf(
@@ -473,10 +472,8 @@ final class CosmeticCheck implements Rule
 
         // Look up the canonical bucket. Canonicalization normalizes class
         // order so that .a.b and .b.a resolve to the same bucket.
-        $selector = $entry['selector'];
         $parsed = $entry['parsedSimple'];
-        $canonical = $this->getCanonicalSelector($selector, $parsed);
-        $key = 'S|'.$separator.$canonical;
+        $key = 'S|'.$separator.$entry['canonicalSelector'];
         if (isset($interactionMap[$key])) {
             $candidates = array_merge($candidates, $interactionMap[$key]);
         }
@@ -499,35 +496,32 @@ final class CosmeticCheck implements Rule
                 $components[] = '.'.$cls;
             }
 
-            // Generate all subsets except the full set
-            $n = count($components);
-            for ($mask = 0; $mask < (1 << $n); $mask++) {
-                // skip full set
-                if ($mask === (1 << $n) - 1) {
-                    continue;
-                }
-
-                $subset = [];
-                for ($i = 0; $i < $n; $i++) {
-                    if ($mask & (1 << $i)) {
-                        $subset[] = $components[$i];
+            $componentCount = count($components);
+            if ($componentCount <= self::MAX_SELECTOR_COMPONENT) {
+                // Process ALL subsets (without size restrictions)
+                for ($mask = 0; $mask < (1 << $componentCount); $mask++) {
+                    if ($mask === (1 << $componentCount) - 1) {
+                        continue; // skip full set
                     }
-                }
 
-                // Components are already in order: tag, id, classes (classes sorted).
-                $subCanonical = implode('', $subset);
-                $subKey = 'S|'.$separator.$subCanonical;
-                if (isset($interactionMap[$subKey])) {
-                    foreach ($interactionMap[$subKey] as $idx) {
-                        if ($idx === $entry['lineNum']) {
-                            continue;
+                    $subset = [];
+                    for ($i = 0; $i < $componentCount; $i++) {
+                        if ($mask & (1 << $i)) {
+                            $subset[] = $components[$i];
                         }
+                    }
 
-                        // Candidate should have parsedSimple not null, as we only
-                        // put simple selectors into S bucket.
-                        $cand = $this->collection[$idx];
-                        if ($cand['parsedSimple'] !== null) {
-                            $candidates[] = $idx;
+                    $subCanonical = implode('', $subset);
+                    $subKey = 'S|'.$separator.$subCanonical;
+                    if (isset($interactionMap[$subKey])) {
+                        foreach ($interactionMap[$subKey] as $idx) {
+                            if ($idx === $entry['lineNum']) {
+                                continue;
+                            }
+                            $cand = $this->collection[$idx];
+                            if ($cand['parsedSimple'] !== null) {
+                                $candidates[] = $idx;
+                            }
                         }
                     }
                 }
