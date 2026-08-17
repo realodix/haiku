@@ -122,10 +122,6 @@ final class CosmeticCheck implements Rule
             // Group rules into interaction buckets:
             // 'A' (Attribute Selector), 'S' (Standard Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
-            //
-            // Bucket keys are designed so that only rules sharing relevant characteristics
-            // end up in the same bucket, drastically reducing the number of pairwise
-            // comparisons in Pass 2.
             if ($attrData) {
                 $val = strtolower($attrData['value']);
                 $op = $attrData['operator'];
