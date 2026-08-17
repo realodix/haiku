@@ -16,7 +16,7 @@ use Realodix\Haiku\Support\Util;
  *  value: string,
  *  modifier: string
  * }
- * @phpstan-type _ParsedSimpleSelector array{
+ * @phpstan-type _ParsedCompoundSelector array{
  *  tag: string,
  *  id: string,
  *  classes: list<string>
@@ -28,7 +28,7 @@ use Realodix\Haiku\Support\Util;
  *  separator: string,
  *  selector: string,
  *  attrData: _ParsedAttrSelector|null,
- *  parsedSimple: _ParsedSimpleSelector|null,
+ *  compoundData: _ParsedCompoundSelector|null,
  *  canonicalSelector: string,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
@@ -102,7 +102,7 @@ final class CosmeticCheck implements Rule
             $selector = $m[5];
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
-            $parsedSimple = $this->parseSimpleSelector($selector);
+            $compoundData = $this->parseCompoundSelector($selector);
 
             // Pre-calculate domain status to optimize the isCovered() hot path.
             $isMixed = $this->isMixedDomains($domains);
@@ -121,8 +121,8 @@ final class CosmeticCheck implements Rule
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
-                'parsedSimple' => $parsedSimple,
-                'canonicalSelector' => $this->getCanonicalSelector($selector, $parsedSimple),
+                'compoundData' => $compoundData,
+                'canonicalSelector' => $this->getCanonicalSelector($selector, $compoundData),
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
                 'conditionKey' => $conditionKey,
@@ -152,7 +152,7 @@ final class CosmeticCheck implements Rule
             }
 
             // S: Groups rules with standard selectors by their canonical form
-            if ($parsedSimple !== null) {
+            if ($compoundData !== null) {
                 $this->interactionMap['S|'.$entry['separator'].$entry['canonicalSelector']][] = $lineNum;
             }
         }
@@ -472,13 +472,13 @@ final class CosmeticCheck implements Rule
 
         // Look up the canonical bucket. Canonicalization normalizes class
         // order so that .a.b and .b.a resolve to the same bucket.
-        $parsed = $entry['parsedSimple'];
+        $parsed = $entry['compoundData'];
         $key = 'S|'.$separator.$entry['canonicalSelector'];
         if (isset($interactionMap[$key])) {
             $candidates = array_merge($candidates, $interactionMap[$key]);
         }
 
-        // Subset scan: find more general simple selectors whose class list is
+        // Subset scan: find more general compound selectors whose class list is
         // a proper subset of the current rule's classes.
         // Example: given the rule `.ad.banner.text`, a candidate `.ad` or
         // `.ad.banner` is more general and therefore covers it.
@@ -545,7 +545,7 @@ final class CosmeticCheck implements Rule
                                 continue;
                             }
                             $cand = $this->collection[$idx];
-                            if ($cand['parsedSimple'] !== null) {
+                            if ($cand['compoundData'] !== null) {
                                 $candidates[] = $idx;
                             }
                         }
@@ -616,9 +616,9 @@ final class CosmeticCheck implements Rule
         // Selector matching
         // =================================================================
 
-        // Both rules are simple selectors
-        if ($rule['parsedSimple'] !== null && $candidate['parsedSimple'] !== null) {
-            return $this->isSimpleSelectorCovered($rule['parsedSimple'], $candidate['parsedSimple']);
+        // Both rules are compound selectors
+        if ($rule['compoundData'] !== null && $candidate['compoundData'] !== null) {
+            return $this->isCompoundCoveredBy($rule['compoundData'], $candidate['compoundData']);
         }
 
         // Both rules are attribute selectors
@@ -653,9 +653,9 @@ final class CosmeticCheck implements Rule
     private function isBetter(array $candidate, array $best): bool
     {
         // 1. Selector generality
-        if ($candidate['parsedSimple'] !== null && $best['parsedSimple'] !== null) {
-            $candCoversBest = $this->isSimpleSelectorCovered($best['parsedSimple'], $candidate['parsedSimple']);
-            $bestCoversCand = $this->isSimpleSelectorCovered($candidate['parsedSimple'], $best['parsedSimple']);
+        if ($candidate['compoundData'] !== null && $best['compoundData'] !== null) {
+            $candCoversBest = $this->isCompoundCoveredBy($best['compoundData'], $candidate['compoundData']);
+            $bestCoversCand = $this->isCompoundCoveredBy($candidate['compoundData'], $best['compoundData']);
 
             // candidate is strictly more general
             if ($candCoversBest && !$bestCoversCand) {
@@ -975,11 +975,11 @@ final class CosmeticCheck implements Rule
      * - div[data-x] (attribute selector)
      *
      * @param string $selector The CSS selector to parse.
-     * @return _ParsedSimpleSelector|null Parsed components with classes sorted
-     *                                    alphabetically, or null if the selector
-     *                                    contains unsupported constructs.
+     * @return _ParsedCompoundSelector|null Parsed components with classes sorted
+     *                                      alphabetically, or null if the selector
+     *                                      contains unsupported constructs.
      */
-    private function parseSimpleSelector(string $selector): ?array
+    private function parseCompoundSelector(string $selector): ?array
     {
         $tag = '';
         $id = '';
@@ -1045,10 +1045,10 @@ final class CosmeticCheck implements Rule
      * selectors written in different class orders resolve to the same bucket.
      *
      * @param string $selector The original selector string.
-     * @param _ParsedSimpleSelector|null $parsed Pre-parsed data (avoids redundant parsing
-     *                                           when already available).
+     * @param _ParsedCompoundSelector|null $parsed Pre-parsed data (avoids redundant parsing
+     *                                             when already available).
      * @return string The canonical form of the selector. If the selector cannot be parsed
-     *                as a simple selector, it is returned unchanged.
+     *                as a compound selector, it is returned unchanged.
      */
     private function getCanonicalSelector(string $selector, ?array $parsed): string
     {
@@ -1064,7 +1064,7 @@ final class CosmeticCheck implements Rule
             $canonical .= '#'.$parsed['id'];
         }
 
-        // Classes are already sorted by parseSimpleSelector(), producing a
+        // Classes are already sorted by parseCompoundSelector(), producing a
         // deterministic order.
         foreach ($parsed['classes'] as $cls) {
             $canonical .= '.'.$cls;
@@ -1074,7 +1074,7 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Determines whether a specific simple selector is covered by a more
+     * Determines whether a specific compound selector is covered by a more
      * general one.
      *
      * Examples:
@@ -1083,11 +1083,11 @@ final class CosmeticCheck implements Rule
      * - `span.ad` does NOT cover `div.ad.banner` (different tag)
      * - `#main` covers `#main.widget` (same ID, subset of classes)
      *
-     * @param _ParsedSimpleSelector $specific The more specific selector.
-     * @param _ParsedSimpleSelector $general The potentially covering selector.
+     * @param _ParsedCompoundSelector $specific The more specific selector.
+     * @param _ParsedCompoundSelector $general The potentially covering selector.
      * @return bool True if $general covers $specific.
      */
-    private function isSimpleSelectorCovered(array $specific, array $general): bool
+    private function isCompoundCoveredBy(array $specific, array $general): bool
     {
         // Tag: general can be empty (universal) or must match
         if ($general['tag'] !== '' && $general['tag'] !== $specific['tag']) {
