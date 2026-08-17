@@ -383,16 +383,14 @@ final class CosmeticCheck implements Rule
 
             // 1b. Word candidates: when the operator is '='.
             $words = $op === '=' ? (preg_split('/\s+/', $val) ?: []) : [];
-            if ($op === '=') {
-                foreach ($words as $word) {
-                    if ($word === '' || $word === $val) {
-                        continue;
-                    }
+            foreach ($words as $word) {
+                if ($word === '' || $word === $val) {
+                    continue;
+                }
 
-                    $wordKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $word);
-                    if (isset($interactionMap[$wordKey])) {
-                        array_push($candidates, ...$interactionMap[$wordKey]);
-                    }
+                $wordKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $word);
+                if (isset($interactionMap[$wordKey])) {
+                    array_push($candidates, ...$interactionMap[$wordKey]);
                 }
             }
 
@@ -423,16 +421,14 @@ final class CosmeticCheck implements Rule
                 }
 
                 // Global Word
-                if ($op === '=') {
-                    foreach ($words as $word) {
-                        if ($word === '' || $word === $val) {
-                            continue;
-                        }
+                foreach ($words as $word) {
+                    if ($word === '' || $word === $val) {
+                        continue;
+                    }
 
-                        $globalWordKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $word);
-                        if (isset($interactionMap[$globalWordKey])) {
-                            array_push($candidates, ...$interactionMap[$globalWordKey]);
-                        }
+                    $globalWordKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $word);
+                    if (isset($interactionMap[$globalWordKey])) {
+                        array_push($candidates, ...$interactionMap[$globalWordKey]);
                     }
                 }
 
