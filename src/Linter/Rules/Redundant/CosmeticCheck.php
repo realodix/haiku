@@ -145,14 +145,9 @@ final class CosmeticCheck implements Rule
                     $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$exactKey][] = $lineNum;
                 }
-            } else {
-                // Standard bucket (S): Groups rules with standard selectors by their canonical form.
-                $canonical = $this->getCanonicalSelector($selector, $parsedSimple);
-                $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
             }
 
-            // Also put all simple selectors (parsedSimple !== null) into the 'S' bucket
-            // so they can be found by subset searches (e.g. .ad for .ad.banner).
+            // S: Groups rules with standard selectors by their canonical form
             if ($parsedSimple !== null) {
                 $canonical = $this->getCanonicalSelector($selector, $parsedSimple);
                 $this->interactionMap['S|'.$separator.$canonical][] = $lineNum;
