@@ -39,7 +39,7 @@ final class CosmeticCheck implements Rule
 {
     private const ATTR_PARTIAL_KEY_LEN = 2;
 
-    private const MAX_SELECTOR_COMPONENT = 12;
+    private const MAX_SELECTOR_COMPONENT = 15;
 
     /** @var array<string, int> */
     private array $exactSeen = [];
@@ -498,10 +498,36 @@ final class CosmeticCheck implements Rule
 
             $componentCount = count($components);
             if ($componentCount <= self::MAX_SELECTOR_COMPONENT) {
-                // Process ALL subsets (without size restrictions)
-                for ($mask = 0; $mask < (1 << $componentCount); $mask++) {
-                    if ($mask === (1 << $componentCount) - 1) {
-                        continue; // skip full set
+                // Determine the size of the subset to be processed
+                $sizesToProcess = [];
+
+                // 1. Small subset: sizes 1, 2, 3 (as long as < n)
+                for ($size = 1; $size <= 3 && $size < $componentCount; $size++) {
+                    $sizesToProcess[] = $size;
+                }
+
+                // 2. Large subset: n-1, n-2, n-3 (as long as > 3 and < n)
+                for ($size = $componentCount - 1; $size >= max(4, $componentCount - 3) && $size < $componentCount; $size--) {
+                    $sizesToProcess[] = $size;
+                }
+
+                $sizesToProcess = array_unique($sizesToProcess);
+                sort($sizesToProcess);
+
+                $totalMasks = 1 << $componentCount;
+                for ($mask = 0; $mask < $totalMasks; $mask++) {
+                    // Skip the full set (all bits 1) – it's the rule itself, not a more general parent.
+                    if ($mask === $totalMasks - 1) {
+                        continue;
+                    }
+
+                    // Count how many bits are set (subset size).
+                    // $popcount = gmp_popcount($mask);
+                    $popcount = substr_count(decbin($mask), '1');
+                    // Only process subsets with sizes we care about: small (1-3) and large (n-1 to n-3).
+                    // This avoids checking all subsets, drastically improving performance.
+                    if (!in_array($popcount, $sizesToProcess, true)) {
+                        continue;
                     }
 
                     $subset = [];
