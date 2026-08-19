@@ -93,13 +93,13 @@ class ScopeConditionalTest extends TestCase
             '##.banner', // 14
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: ||example.com^$third-party already covered by ||example.com^ on line 5.'],
-            [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 6.'],
-            [3, 'Redundant filter: example.com##.banner already covered by ##.banner on line 7.'],
-            [10, 'Redundant filter: ||example.com^ already defined on line 5.'],
-            [11, 'Redundant filter: ##.ads already defined on line 6.'],
-            [13, 'Redundant filter: ##.ads already defined on line 6.'],
-            [14, 'Redundant filter: ##.banner already defined on line 7.'],
+            [1, 'Redundant filter: ||example.com^$third-party already covered by ||example.com^ on line 5'],
+            [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 6'],
+            [3, 'Redundant filter: example.com##.banner already covered by ##.banner on line 7'],
+            [10, 'Redundant filter: ||example.com^ already defined on line 5'],
+            [11, 'Redundant filter: ##.ads already defined on line 6'],
+            [13, 'Redundant filter: ##.ads already defined on line 6'],
+            [14, 'Redundant filter: ##.banner already defined on line 7'],
         ], self::RULE);
     }
 }

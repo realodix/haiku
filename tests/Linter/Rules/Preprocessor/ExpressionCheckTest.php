@@ -101,7 +101,7 @@ class ExpressionCheckTest extends TestCase
             '!#endif',
         ];
         $this->analyse($lines, [
-            [2, '"env_chromium" will always evaluate to "false" with "env_firefox" from the parent "!#if" on line 1.'],
+            [2, '"env_chromium" will always evaluate to "false" with "env_firefox" from the parent "!#if" on line 1'],
         ]);
     }
 

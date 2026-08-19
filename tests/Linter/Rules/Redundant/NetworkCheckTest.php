@@ -24,9 +24,9 @@ class NetworkCheckTest extends TestCase
             '*$domain=a.com',
         ];
         $this->analyse($lines, [
-            [4, 'Redundant filter: ||example.org^$script already defined on line 2.'],
-            [5, 'Redundant filter: ||example.com^ already defined on line 1.'],
-            [8, 'Redundant filter: *$domain=a.com already defined on line 7.'],
+            [4, 'Redundant filter: ||example.org^$script already defined on line 2'],
+            [5, 'Redundant filter: ||example.com^ already defined on line 1'],
+            [8, 'Redundant filter: *$domain=a.com already defined on line 7'],
         ], self::RULE);
 
         // case insensitive
@@ -37,8 +37,8 @@ class NetworkCheckTest extends TestCase
             '||example.org^$SCRIPT',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: /Ads/* already defined on line 1.'],
-            [4, 'Redundant filter: ||example.org^$SCRIPT already defined on line 3.'],
+            [2, 'Redundant filter: /Ads/* already defined on line 1'],
+            [4, 'Redundant filter: ||example.org^$SCRIPT already defined on line 3'],
         ], self::RULE);
     }
 
@@ -59,11 +59,11 @@ class NetworkCheckTest extends TestCase
             '/ads-',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||somesite.com/ads/ already covered by /ads/* on line 1.'],
-            [4, 'Redundant filter: ||somesite.com^*/banner-$image already covered by /banner- on line 3.'],
-            [6, 'Redundant filter: /banner/ads- already covered by /banner/* on line 7.'],
-            [8, 'Redundant filter: /banner2/ads-$image already covered by /banner2/* on line 9.'],
-            [10, 'Redundant filter: /ads-$image,domain=a.com|b.com already covered by /ads- on line 11.'],
+            [2, 'Redundant filter: ||somesite.com/ads/ already covered by /ads/* on line 1'],
+            [4, 'Redundant filter: ||somesite.com^*/banner-$image already covered by /banner- on line 3'],
+            [6, 'Redundant filter: /banner/ads- already covered by /banner/* on line 7'],
+            [8, 'Redundant filter: /banner2/ads-$image already covered by /banner2/* on line 9'],
+            [10, 'Redundant filter: /ads-$image,domain=a.com|b.com already covered by /ads- on line 11'],
         ]);
 
         $lines = [
@@ -78,10 +78,10 @@ class NetworkCheckTest extends TestCase
             '||example.com^*/path',
         ];
         $this->analyse($lines, [
-            [3, 'Redundant filter: ||somesite.com^*/banner-$image already covered by ||somesite.com^ on line 1.'],
-            [4, 'Redundant filter: ||somesite.com^*/path already covered by ||somesite.com^ on line 1.'],
-            [7, 'Redundant filter: ||example.com^*/banner2-$image already covered by /banner2- on line 5.'],
-            [8, 'Redundant filter: ||example.com^*/path already covered by ||example.com^ on line 6.'],
+            [3, 'Redundant filter: ||somesite.com^*/banner-$image already covered by ||somesite.com^ on line 1'],
+            [4, 'Redundant filter: ||somesite.com^*/path already covered by ||somesite.com^ on line 1'],
+            [7, 'Redundant filter: ||example.com^*/banner2-$image already covered by /banner2- on line 5'],
+            [8, 'Redundant filter: ||example.com^*/path already covered by ||example.com^ on line 6'],
         ]);
 
         $lines = [
@@ -89,7 +89,7 @@ class NetworkCheckTest extends TestCase
             '/banner-$image,css',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /banner-$image,domain=x.com|y.com,css already covered by global filter on line 2.'],
+            [1, 'Redundant filter: /banner-$image,domain=x.com|y.com,css already covered by global filter on line 2'],
         ]);
 
         $lines = [
@@ -98,7 +98,7 @@ class NetworkCheckTest extends TestCase
             '/adv/ads',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: @@/adv/ads already covered by @@/adv/* on line 2.'],
+            [1, 'Redundant filter: @@/adv/ads already covered by @@/adv/* on line 2'],
         ]);
 
         $lines = [
@@ -109,7 +109,7 @@ class NetworkCheckTest extends TestCase
             '/banner/*$image',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||somesite.com/ads/$image already covered by /ads/* on line 1.'],
+            [2, 'Redundant filter: ||somesite.com/ads/$image already covered by /ads/* on line 1'],
         ]);
     }
 
@@ -125,9 +125,9 @@ class NetworkCheckTest extends TestCase
             '/mailer.*/o/*$image',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=ex... already covered by ||example.org/wp-content/uploads/*/google-play-spoticatolico.png on line 1.'],
-            [3, 'Redundant filter: ||secure---sso---robinhood---com-cdn.webflow.io^$doc already covered by -sso-*.webflow.io^ on line 4.'],
-            [5, 'Redundant filter: /mailer.hostinger.io/o/*$image already covered by /mailer.*/o/* on line 6.'],
+            [2, 'Redundant filter: ||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=ex... already covered by ||example.org/wp-content/uploads/*/google-play-spoticatolico.png on line 1'],
+            [3, 'Redundant filter: ||secure---sso---robinhood---com-cdn.webflow.io^$doc already covered by -sso-*.webflow.io^ on line 4'],
+            [5, 'Redundant filter: /mailer.hostinger.io/o/*$image already covered by /mailer.*/o/* on line 6'],
         ]);
 
         $lines = [
@@ -150,15 +150,15 @@ class NetworkCheckTest extends TestCase
             '||x.example.com^',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||inc-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
-            [3, 'Redundant filter: ||inc1-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
-            [4, 'Redundant filter: ||increase*-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
-            [5, 'Redundant filter: ||increase2-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1.'],
-            [7, 'Redundant filter: ||increase-rev1.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6.'],
-            [8, 'Redundant filter: ||increase-rev2.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6.'],
-            [10, 'Redundant filter: ||increase1rev.static-cloudflare.workers.dev^ already covered by ||increase*rev.static-cloudflare.workers.dev^ on line 9.'],
-            [11, 'Redundant filter: ||somesite1.com^ already covered by ||somesite*.com^ on line 12.'],
-            [14, 'Redundant filter: ||x.example.com^ already covered by ||*.example.com^ on line 13.'],
+            [2, 'Redundant filter: ||inc-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1'],
+            [3, 'Redundant filter: ||inc1-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1'],
+            [4, 'Redundant filter: ||increase*-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1'],
+            [5, 'Redundant filter: ||increase2-rev.static-cloudflare.workers.dev^ already covered by ||inc*-rev.static-cloudflare.workers.dev on line 1'],
+            [7, 'Redundant filter: ||increase-rev1.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6'],
+            [8, 'Redundant filter: ||increase-rev2.static-cloudflare.workers.dev^ already covered by ||increase-rev*.static-cloudflare.workers.dev^ on line 6'],
+            [10, 'Redundant filter: ||increase1rev.static-cloudflare.workers.dev^ already covered by ||increase*rev.static-cloudflare.workers.dev^ on line 9'],
+            [11, 'Redundant filter: ||somesite1.com^ already covered by ||somesite*.com^ on line 12'],
+            [14, 'Redundant filter: ||x.example.com^ already covered by ||*.example.com^ on line 13'],
         ]);
     }
 
@@ -191,12 +191,12 @@ class NetworkCheckTest extends TestCase
             '/ads-m-c/ads$domain=~example.org|example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /banner-$image,domain=~x.com|y.com,css already covered by global filter on line 2.'],
-            [4, 'Redundant filter: adv$domain=~x.com already covered by adv on line 3.'],
-            [6, 'Redundant filter: $to=~example.com,removeparam=utm_referrer already covered by global filter on line 5.'],
-            [8, 'Redundant filter: ||ads.com^$domain=~a.com|~b.com already covered by ||ads.com^ on line 7.'],
-            [10, 'Redundant filter: test_rule$domain=~neg.com|pos.com already covered by test_rule on line 9.'],
-            [12, 'Redundant filter: /ads-m-c/ads$domain=~example.org|example.com already covered by global filter on line 11.'],
+            [1, 'Redundant filter: /banner-$image,domain=~x.com|y.com,css already covered by global filter on line 2'],
+            [4, 'Redundant filter: adv$domain=~x.com already covered by adv on line 3'],
+            [6, 'Redundant filter: $to=~example.com,removeparam=utm_referrer already covered by global filter on line 5'],
+            [8, 'Redundant filter: ||ads.com^$domain=~a.com|~b.com already covered by ||ads.com^ on line 7'],
+            [10, 'Redundant filter: test_rule$domain=~neg.com|pos.com already covered by test_rule on line 9'],
+            [12, 'Redundant filter: /ads-m-c/ads$domain=~example.org|example.com already covered by global filter on line 11'],
         ]);
 
         // Almost-global filter should cover local filter on a different domain
@@ -209,9 +209,9 @@ class NetworkCheckTest extends TestCase
             '||a.com$domain=~example.net',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ||example.org/banner/ already covered by /banner/* on line 1.'],
-            [4, 'Redundant filter: ||somesite.com^*/banner-$image already covered by /banner- on line 3.'],
-            [6, 'Redundant filter: ||a.com$domain=~example.net already covered by ||a.com on line 5.'],
+            [2, 'Redundant filter: ||example.org/banner/ already covered by /banner/* on line 1'],
+            [4, 'Redundant filter: ||somesite.com^*/banner-$image already covered by /banner- on line 3'],
+            [6, 'Redundant filter: ||a.com$domain=~example.net already covered by ||a.com on line 5'],
         ]);
 
         // Almost-global filter should NOT cover global filter
@@ -223,7 +223,7 @@ class NetworkCheckTest extends TestCase
             '/banner/*$domain=~example.org',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /ads/*$domain=~example.org already covered by /ads/* on line 2.'],
+            [1, 'Redundant filter: /ads/*$domain=~example.org already covered by /ads/* on line 2'],
         ]);
 
         $lines = [
@@ -253,8 +253,8 @@ class NetworkCheckTest extends TestCase
             '/adv/$image',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3.'],
-            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3.'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3'],
+            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3'],
         ]);
 
         $lines = [
@@ -262,7 +262,7 @@ class NetworkCheckTest extends TestCase
             '/\.(gif|webp)/',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /ads.gif|$image already covered by /\.(gif|webp)/ on line 2.'],
+            [1, 'Redundant filter: /ads.gif|$image already covered by /\.(gif|webp)/ on line 2'],
         ]);
     }
 
@@ -275,7 +275,7 @@ class NetworkCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [2, 'Redundant filter: *$script,image already defined on line 1.'],
+            [2, 'Redundant filter: *$script,image already defined on line 1'],
         ]);
     }
 
@@ -288,9 +288,9 @@ class NetworkCheckTest extends TestCase
             '*$to=~c.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: *$to=a.com|b.com|~c.com already covered by global filter on line 3.'],
-            [2, 'Redundant filter: *$to=a.com already covered by global filter on line 3.'],
-            [3, 'Redundant filter: domain ~c.com already covered on line 1.'],
+            [1, 'Redundant filter: *$to=a.com|b.com|~c.com already covered by global filter on line 3'],
+            [2, 'Redundant filter: *$to=a.com already covered by global filter on line 3'],
+            [3, 'Redundant filter: domain ~c.com already covered on line 1'],
         ]);
 
         $lines = [
@@ -300,7 +300,7 @@ class NetworkCheckTest extends TestCase
             '-banner-$image,domain=x.com',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: domain a.com already covered on line 1.'],
+            [2, 'Redundant filter: domain a.com already covered on line 1'],
         ]);
     }
 
@@ -328,8 +328,8 @@ class NetworkCheckTest extends TestCase
             '||somesite.com/ads1/',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: /ADS/* already defined on line 1.'],
-            [4, 'Redundant filter: ||somesite.com/ads1/ already covered by /ads1/* on line 3.'],
+            [2, 'Redundant filter: /ADS/* already defined on line 1'],
+            [4, 'Redundant filter: ||somesite.com/ads1/ already covered by /ads1/* on line 3'],
         ]);
 
         $lines = [
@@ -338,7 +338,7 @@ class NetworkCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [2, 'Option "SCRIPT" must be lowercase.'],
-            [2, 'Redundant filter: ||example.org^$SCRIPT already defined on line 1.'],
+            [2, 'Redundant filter: ||example.org^$SCRIPT already defined on line 1'],
         ]);
 
         // case sensitive
@@ -386,8 +386,8 @@ class NetworkCheckTest extends TestCase
             '/advertisement/*$image',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 2.'],
-            [3, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 2.'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 2'],
+            [3, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 2'],
         ]);
 
         // assert 2
@@ -397,8 +397,8 @@ class NetworkCheckTest extends TestCase
             '/adv/',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3.'],
-            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3.'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3'],
+            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3'],
         ]);
 
         // assert 3
@@ -408,8 +408,8 @@ class NetworkCheckTest extends TestCase
             '/adv/$image',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3.'],
-            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3.'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3'],
+            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3'],
         ]);
     }
 

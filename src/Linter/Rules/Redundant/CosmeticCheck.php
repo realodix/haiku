@@ -191,7 +191,7 @@ final class CosmeticCheck implements Rule
 
         if (isset($this->exactSeen[$key])) {
             $err->message(sprintf(
-                'Redundant filter: %s already defined on line %d.',
+                'Redundant filter: %s already defined on line %d',
                 $line, $this->exactSeen[$key],
             ))->line($entry['lineNum'])->build();
 
@@ -253,14 +253,14 @@ final class CosmeticCheck implements Rule
                 }
 
                 $message = sprintf(
-                    'Redundant filter: %s already covered by %s on line %d.',
+                    'Redundant filter: %s already covered by %s on line %d',
                     $content,
                     $bestParent['separator'].$bestParent['selector'],
                     $bestParent['lineNum'],
                 );
             } else {
                 $message = sprintf(
-                    'Redundant filter: %s is redundant due to more general selector on line %d.',
+                    'Redundant filter: %s is redundant due to more general selector on line %d',
                     $entry['line'], $bestParent['lineNum'],
                 );
             }
@@ -337,12 +337,12 @@ final class CosmeticCheck implements Rule
                 $message = '';
                 if ($entry['selector'] === $parent['selector']) {
                     $message = sprintf(
-                        'Redundant filter: domain %s already covered on line %d.',
+                        'Redundant filter: domain %s already covered on line %d',
                         $domain, $parent['lineNum'],
                     );
                 } else {
                     $message = sprintf(
-                        'Redundant filter: domain %s in %s already covered on line %d.',
+                        'Redundant filter: domain %s in %s already covered on line %d',
                         $domain,
                         $domain.$entry['separator'].$entry['selector'],
                         $parent['lineNum'],

@@ -214,7 +214,7 @@ final class NetworkCheck implements Rule
         $exactKey = ($entry['hasMatchCase'] ? $line : strtolower($line)).'|'.$entry['conditionKey'];
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message(sprintf(
-                'Redundant filter: %s already defined on line %d.',
+                'Redundant filter: %s already defined on line %d',
                 $line, $this->seen['exact'][$exactKey],
             ))->line($entry['lineNum'])->build();
 
@@ -309,7 +309,7 @@ final class NetworkCheck implements Rule
                 && $pattern === $best['pattern']
             ) {
                 $err->message(sprintf(
-                    'Redundant filter: %s already defined on line %d.',
+                    'Redundant filter: %s already defined on line %d',
                     $entry['line'], $best['lineNum'],
                 ))->line($entry['lineNum'])->build();
 
@@ -319,7 +319,7 @@ final class NetworkCheck implements Rule
             // Adjust message based on candidate type for domain-specific filters
             if ($entry['hasDomains'] && $best['hasOptions']) {
                 $err->message(sprintf(
-                    'Redundant filter: %s already covered by global filter on line %d.',
+                    'Redundant filter: %s already covered by global filter on line %d',
                     Str::limit($entry['line'], 80), $best['lineNum'],
                 ))->line($entry['lineNum'])->build();
 
@@ -327,7 +327,7 @@ final class NetworkCheck implements Rule
             }
 
             $err->message(sprintf(
-                'Redundant filter: %s already covered by %s on line %d.',
+                'Redundant filter: %s already covered by %s on line %d',
                 Str::limit($entry['line'], 80), $best['pattern'], $best['lineNum'],
             ))->line($entry['lineNum'])->build();
 
@@ -417,7 +417,7 @@ final class NetworkCheck implements Rule
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
                 $err->message(sprintf(
-                    'Redundant filter: domain %s already covered on line %d.',
+                    'Redundant filter: domain %s already covered on line %d',
                     $rd['domain'], $rd['atLineNum'],
                 ))->line($entry['lineNum'])->build();
             }
