@@ -11,10 +11,12 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ['8.4', '8.5']
+        phpunit-flags: [''] # The default is empty
         include:
           - php-version: '8.6'
             flags: "--ignore-platform-req=php"
             stability: prefer-stable
+            phpunit-flags: "--display-deprecations"
 
     name: PHP ${{ matrix.php-version }}
 
@@ -34,7 +36,8 @@ jobs:
           timeout_minutes: 5
           max_attempts: 5
           command: |
-              composer -V
-              composer update --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
+            composer -V
+            composer update --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
+
       - name: Execute tests
-        run: ./vendor/bin/phpunit
+        run: ./vendor/bin/phpunit ${{ matrix.phpunit-flags }}
