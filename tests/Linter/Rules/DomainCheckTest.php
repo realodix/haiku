@@ -66,7 +66,7 @@ class DomainCheckTest extends TestCase
             'domain1.com,example.org/path##.banner',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "*"'],
+            [1, 'Bad domain: "*"'],
         ]);
 
         $lines = [
@@ -76,12 +76,12 @@ class DomainCheckTest extends TestCase
             'e xample.com##.ad',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "a"'],
-            [1, 'Bad domain name: "c"'],
-            [2, 'Bad domain name: "a"'],
-            [2, 'Bad domain name: "c"'],
-            [3, 'Bad domain name: "example."'],
-            [4, 'Bad domain name: "e xample.com" contains unnecessary whitespace.'],
+            [1, 'Bad domain: "a"'],
+            [1, 'Bad domain: "c"'],
+            [2, 'Bad domain: "a"'],
+            [2, 'Bad domain: "c"'],
+            [3, 'Bad domain: "example."'],
+            [4, 'Bad domain: "e xample.com" contains unnecessary whitespace.'],
         ]);
 
         $lines = [
@@ -94,10 +94,10 @@ class DomainCheckTest extends TestCase
             '*$domain=domain.com/',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "example."'],
-            [5, 'Bad domain name: "/domain.com"'],
-            [6, 'Bad domain name: ".domain.com"'],
-            [7, 'Bad domain name: "domain.com/"'],
+            [1, 'Bad domain: "example."'],
+            [5, 'Bad domain: "/domain.com"'],
+            [6, 'Bad domain: ".domain.com"'],
+            [7, 'Bad domain: "domain.com/"'],
         ]);
 
         $lines = [
@@ -113,7 +113,7 @@ class DomainCheckTest extends TestCase
             'example##.ad',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "example" is an invalid TLD.'],
+            [1, 'Bad domain: "example" is an invalid TLD'],
         ]);
 
         $lines = [
@@ -121,8 +121,8 @@ class DomainCheckTest extends TestCase
             'laravel-news##.ad', // laravel-news.com
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "3v4l"'],
-            [2, 'Bad domain name: "laravel-news"'],
+            [1, 'Bad domain: "3v4l"'],
+            [2, 'Bad domain: "laravel-news"'],
         ]);
 
         $lines = [
@@ -130,8 +130,8 @@ class DomainCheckTest extends TestCase
             'example.or##.ad',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "example.coms" has an invalid TLD.'],
-            [2, 'Bad domain name: "example.or" has an invalid TLD.'],
+            [1, 'Bad domain: "example.coms" has an invalid TLD'],
+            [2, 'Bad domain: "example.or" has an invalid TLD'],
         ]);
 
         $lines = [
@@ -161,16 +161,16 @@ class DomainCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Bad domain name: " example.com" contains unnecessary whitespace.'],
-            [2, 'Bad domain name: "example.com " contains unnecessary whitespace.'],
-            [2, 'Bad domain name: " example.org" contains unnecessary whitespace.'],
-            [3, 'Bad domain name: " example.org" contains unnecessary whitespace.'],
-            [4, 'Bad domain name: "example.com " contains unnecessary whitespace.'],
-            [5, 'Bad domain name: "example.com " contains unnecessary whitespace.'],
-            [5, 'Bad domain name: " example.org" contains unnecessary whitespace.'],
-            [6, 'Bad domain name: " example.org" contains unnecessary whitespace.'],
-            [7, 'Bad domain name: "example.com " contains unnecessary whitespace.'],
-            [8, 'Bad domain name: "exampl e." contains unnecessary whitespace.'],
+            [1, 'Bad domain: " example.com" contains unnecessary whitespace.'],
+            [2, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [2, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [3, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [4, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [5, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [5, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [6, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [7, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [8, 'Bad domain: "exampl e." contains unnecessary whitespace.'],
         ]);
     }
 
@@ -188,15 +188,15 @@ class DomainCheckTest extends TestCase
             'example.com>>>##.ads',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "example.com>"'],
-            [2, 'Bad domain name: "example.com>>>"'],
+            [1, 'Bad domain: "example.com>"'],
+            [2, 'Bad domain: "example.com>>>"'],
         ]);
 
         $lines = [
             '*$domain=example.com>>',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain name: "example.com>>". The network filter does not support ancestor context.'],
+            [1, 'Bad domain: "example.com>>". The network filter does not support ancestor context.'],
         ]);
     }
 

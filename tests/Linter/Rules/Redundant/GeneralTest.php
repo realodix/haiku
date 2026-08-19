@@ -15,8 +15,8 @@ class GeneralTest extends TestCase
             '*$domain=ads.example.com|example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
-            [2, 'Redundant filter: domain ads.example.com is covered by "example.com".'],
+            [1, 'Redundant domain: ads.example.com is covered by example.com'],
+            [2, 'Redundant domain: ads.example.com is covered by example.com'],
         ]);
 
         $lines = [
@@ -41,10 +41,10 @@ class GeneralTest extends TestCase
             'ads.example.com,com,example.com###ads3',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: domain example.com is covered by "com".'],
-            [2, 'Redundant filter: domain ads.example.com is covered by "com".'],
-            [3, 'Redundant filter: domain ads.example.com is covered by "com".'],
-            [3, 'Redundant filter: domain example.com is covered by "com".'],
+            [1, 'Redundant domain: example.com is covered by com TLD'],
+            [2, 'Redundant domain: ads.example.com is covered by com TLD'],
+            [3, 'Redundant domain: ads.example.com is covered by com TLD'],
+            [3, 'Redundant domain: example.com is covered by com TLD'],
         ]);
 
         $lines = [
@@ -53,10 +53,10 @@ class GeneralTest extends TestCase
             '/ads2-$domain=ads.example.com|com|example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: domain example.com is covered by "com".'],
-            [2, 'Redundant filter: domain ads.example.com is covered by "com".'],
-            [3, 'Redundant filter: domain ads.example.com is covered by "com".'],
-            [3, 'Redundant filter: domain example.com is covered by "com".'],
+            [1, 'Redundant domain: example.com is covered by com TLD'],
+            [2, 'Redundant domain: ads.example.com is covered by com TLD'],
+            [3, 'Redundant domain: ads.example.com is covered by com TLD'],
+            [3, 'Redundant domain: example.com is covered by com TLD'],
         ]);
     }
 
@@ -76,9 +76,9 @@ class GeneralTest extends TestCase
             'ads.example.com,example.*,example.com###ads1a',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: domain example.com is covered by "example.*".'],
-            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
-            [2, 'Redundant filter: domain example.com is covered by "example.*".'],
+            [1, 'Redundant domain: example.com is covered by example.*'],
+            [2, 'Redundant domain: ads.example.com is covered by example.*'],
+            [2, 'Redundant domain: example.com is covered by example.*'],
         ]);
 
         $lines = [
@@ -86,9 +86,9 @@ class GeneralTest extends TestCase
             '/ads1a-$domain=ads.example.com|example.*|example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: domain example.com is covered by "example.*".'],
-            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
-            [2, 'Redundant filter: domain example.com is covered by "example.*".'],
+            [1, 'Redundant domain: example.com is covered by example.*'],
+            [2, 'Redundant domain: ads.example.com is covered by example.*'],
+            [2, 'Redundant domain: example.com is covered by example.*'],
         ]);
     }
 
@@ -160,9 +160,9 @@ class GeneralTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: domain example.com already covered on line 2.'],
-            [2, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [2, 'Redundant domain: ads.example.com is covered by example.*'],
             [3, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 4.'],
-            [4, 'Redundant filter: domain ads.example.com is covered by "example.*".'],
+            [4, 'Redundant domain: ads.example.com is covered by example.*'],
         ]);
     }
 

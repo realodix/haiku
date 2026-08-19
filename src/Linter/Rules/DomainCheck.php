@@ -147,7 +147,7 @@ final class DomainCheck implements Rule
         if (strlen($domain) === 1
             && (($domain == '*' && $separator === '|') || $domain !== '*')
         ) {
-            $err->message(sprintf('Bad domain name: "%s"', $domain))
+            $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->build();
 
             return;
@@ -159,7 +159,7 @@ final class DomainCheck implements Rule
                 || str_starts_with($domain, '.')
                 || str_contains($domain, '/'))
         ) {
-            $err->message(sprintf('Bad domain name: "%s"', $domain))
+            $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
                 ->build();
 
@@ -169,7 +169,7 @@ final class DomainCheck implements Rule
         // 3. Whitespace check
         if (preg_match('/\s/', $domain)) {
             $err->message(sprintf(
-                'Bad domain name: "%s" contains unnecessary whitespace.',
+                'Bad domain: "%s" contains unnecessary whitespace.',
                 $domain,
             ))->build();
 
@@ -178,14 +178,14 @@ final class DomainCheck implements Rule
 
         // 4. TLD problems
         if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain)) {
-            $err->message(sprintf('Bad domain name: "%s"', $domain))
+            $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->build();
         }
 
         $domain = rtrim($domain, '>'); // clean up the ancestor context
         if (ctype_alpha($domain) && !in_array($domain, ['localhost', 'local'], true)) {
             if (!isset(Tld::VALUES[$domain])) {
-                $err->message(sprintf('Bad domain name: "%s" is an invalid TLD.', $domain))
+                $err->message(sprintf('Bad domain: "%s" is an invalid TLD', $domain))
                     ->build();
             }
         }
@@ -196,7 +196,7 @@ final class DomainCheck implements Rule
             $tld = strtolower(pathinfo($domain, PATHINFO_EXTENSION));
 
             if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
-                $err->message(sprintf('Bad domain name: "%s" has an invalid TLD.', $domain))
+                $err->message(sprintf('Bad domain: "%s" has an invalid TLD', $domain))
                     ->build();
             }
         }
@@ -213,7 +213,7 @@ final class DomainCheck implements Rule
 
         if ($separator === '|') {
             $err->message(sprintf(
-                'Bad domain name: "%s". The network filter does not support ancestor context.',
+                'Bad domain: "%s". The network filter does not support ancestor context.',
                 $domain,
             ))->build();
 
@@ -223,7 +223,7 @@ final class DomainCheck implements Rule
         preg_match('/([^>]+)([>]+)/', $domain, $m);
 
         if (strlen($m[2]) !== 2) {
-            $err->message(sprintf('Bad domain name: "%s"', $domain))
+            $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
                 ->build();
         }
