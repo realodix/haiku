@@ -20,13 +20,7 @@ final class RedirectValueCheck implements Rule
             }
 
             if (preg_match('/(?<=[$,])redirect(?:-rule)?\s*=\s*([\w\-\.\:]+)?(?=,|$)/', $line, $m)) {
-                $value = isset($m[1])
-                    ? preg_replace('/:(?:-)?\d+$/', '', $m[1])
-                    : null;
-
-                if ($this->checkInvalid($err, $value)) {
-                    continue;
-                }
+                $value = preg_replace('/:(?:-)?\d+$/', '', $m[1]);
 
                 if ($this->checkDeprecated($err, $value)) {
                     continue;
@@ -37,21 +31,6 @@ final class RedirectValueCheck implements Rule
         }
 
         return $err->toArray();
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     */
-    private function checkInvalid($err, ?string $value): bool
-    {
-        if ($value === null) {
-            $err->message('Invalid redirect resource value syntax.')
-                ->build();
-
-            return true;
-        }
-
-        return false;
     }
 
     /**
