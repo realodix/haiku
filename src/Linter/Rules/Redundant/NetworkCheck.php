@@ -259,7 +259,7 @@ final class NetworkCheck implements Rule
                 }
 
                 if ($candidate['optionsKey'] !== '') {
-                    if ($entry['optionsKey'] === '' || $candidate['optionsKey'] !== $entry['optionsKey']) {
+                    if ($candidate['optionsKey'] !== $entry['optionsKey']) {
                         continue;
                     }
                 }
@@ -632,15 +632,7 @@ final class NetworkCheck implements Rule
             return false; // $best is strictly more general
         }
 
-        // 2. Options — no options is better (more general)
-        if ($candidate['optionsKey'] === '' && $best['optionsKey'] !== '') {
-            return true;
-        }
-        if ($candidate['optionsKey'] !== '' && $best['optionsKey'] === '') {
-            return false;
-        }
-
-        // 3. Domain generality comparison
+        // 2. Domain generality comparison
         $candDomains = [];
         foreach ($candidate['domains'] as $d) {
             $candDomains[$d['name']] = true;
@@ -656,7 +648,7 @@ final class NetworkCheck implements Rule
             return $candCoversBest;
         }
 
-        // 4. Line order (Earlier rules are preferred as reference points)
+        // 3. Line order (Earlier rules are preferred as reference points)
         return $candidate['lineNum'] < $best['lineNum'];
     }
 
