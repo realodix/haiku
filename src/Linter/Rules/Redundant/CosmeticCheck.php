@@ -130,7 +130,7 @@ final class CosmeticCheck implements Rule
             $this->collection[$lineNum] = $entry;
 
             // Group rules into interaction buckets:
-            // 'A' (Attribute Selector), 'S' (Standard Selector)
+            // 'A' (Attribute Selector), 'S' (Standard Selector), 'U' (Unparsed/Complex Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
             if ($attrData) {
                 $val = strtolower($attrData['value']);
@@ -154,6 +154,10 @@ final class CosmeticCheck implements Rule
             // Standard bucket (S): Groups rules with standard selectors by their canonical form.
             if ($compoundData !== null) {
                 $this->interactionMap['S|'.$separator.$entry['canonicalSelector']][] = $lineNum;
+            }
+            // Unparsed/Complex bucket (U): Groups rules with unparsed selectors by their raw form.
+            if ($attrData === null) {
+                $this->interactionMap['U|'.$separator.$selector][] = $lineNum;
             }
         }
 
@@ -478,6 +482,12 @@ final class CosmeticCheck implements Rule
             $candidates = array_merge($candidates, $interactionMap[$key]);
         }
 
+        // Get candidates with the same raw selector for an unparsed selector
+        $unparsedKey = 'U|'.$separator.$entry['selector'];
+        if (isset($interactionMap[$unparsedKey])) {
+            $candidates = array_merge($candidates, $interactionMap[$unparsedKey]);
+        }
+
         // Subset scan: find more general compound selectors whose class list is
         // a proper subset of the current rule's classes.
         // Example: given the rule `.ad.banner.text`, a candidate `.ad` or
@@ -626,14 +636,9 @@ final class CosmeticCheck implements Rule
             return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
         }
 
-        // Fallback: if either is unparsed, assume false (unless selector identical)
-        if ($rule['selector'] === $candidate['selector']) {
-            return true;
-        }
-
-        // Standard (non-attribute) selector that cannot be parsed as a simple selector
-        // can only be covered if identical (already handled above)
-        return false;
+        // For unparsed or complex selectors, coverage is only possible through
+        // identical selectors.
+        return $rule['selector'] === $candidate['selector'];
     }
 
     /**

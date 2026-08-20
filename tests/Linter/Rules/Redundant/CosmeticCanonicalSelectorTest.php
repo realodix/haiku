@@ -140,6 +140,19 @@ final class CosmeticCanonicalSelectorTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function global_covers_domain_specific_for_complex_unparsed_selector(): void
+    {
+        $lines = [
+            '##div > .ad.banner',             // Global rule (unparsed selector)
+            'example.com##div > .ad.banner',  // Specific domain rule (identical selector)
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: example.com##div > .ad.banner already covered by ##div > .ad.banner on line 1'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function unsupported_or_complex_selectors_fallback_to_exact_match(): void
     {
         // Complex selectors (combinators, pseudo-classes) cannot be parsed as simple selectors; fallback to string comparison
