@@ -722,10 +722,6 @@ final class NetworkCheck implements Rule
             $candidateDomains[$rd['name']] = true;
         }
 
-        if (DomainCoverage::findCovering($domain, $candidateDomains) !== null) {
-            return true;
-        }
-
         if (
             // A rule that specifies any domain restrictions (inclusions or exclusions)
             // cannot match the global context. An empty string represents the global domain,
