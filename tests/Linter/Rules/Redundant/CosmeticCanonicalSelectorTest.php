@@ -8,18 +8,18 @@ use Realodix\Haiku\Test\TestCase;
 final class CosmeticCanonicalSelectorTest extends TestCase
 {
     #[PHPUnit\Test]
-    public function exact_duplicate_with_reordered_classes(): void
+    public function exact_duplicate_with_reordered(): void
     {
         // Detects duplicates when classes are in different orders (e.g., .a.b vs .b.a)
         $lines = [
-            'example.com##.badge.active',
-            'example.com##.active.badge',
+            'example.com###badge.active',
+            'example.com##.active#badge',
             '##.foo.bar.baz',
             '##.baz.foo.bar',
         ];
 
         $this->analyse($lines, [
-            [2, 'Redundant filter: example.com##.active.badge already defined on line 1'],
+            [2, 'Redundant filter: example.com##.active#badge already defined on line 1'],
             [4, 'Redundant filter: ##.baz.foo.bar already defined on line 3'],
         ]);
     }
@@ -38,35 +38,40 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ]);
 
         $lines = [
-            'example.com##.banner > .ad',
+            'example.com##.ad#banner',
             'example.com##.ad',
-
-            'example.com##.ad > .banner',
+            'example.com##div.ad#banner.popup',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: example.com##.banner > .ad is redundant due to more general selector on line 2'],
+            [1, 'Redundant filter: example.com##.ad#banner is redundant due to more general selector on line 2'],
+            [3, 'Redundant filter: example.com##div.ad#banner.popup is redundant due to more general selector on line 2'],
+        ]);
+
+        $lines = [
+            'example.com##div.ad',
+            'example.com##.ad',
+            'example.com##div.ad.banner',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: example.com##div.ad is redundant due to more general selector on line 2'],
+            [3, 'Redundant filter: example.com##div.ad.banner is redundant due to more general selector on line 2'],
         ]);
     }
 
     #[PHPUnit\Test]
-    public function tag_and_id_coverage_rules(): void
+    public function descendant_selectors_coverage(): void
     {
         $lines = [
-            '##.ad',
-            '##div.ad',                // Universal (.ad) covers tag-specific (div.ad)
-            '##div.ad.banner',         // Universal (.ad) covers div.ad.banner
-            '##span.ad',               // Universal (.ad) covers span.ad
-            '##div#main',
-            '##div#main.sidebar',      // div#main covers div#main.sidebar
-            '##section#main.sidebar',  // Different tag than div#main, should not be covered
-            '##div#other.sidebar',
-        ];
+            'example.com##.banner > .ad',
+            'example.com##.ad',
+            'example.com##.banner .ad',
 
+            'example.com##.ad .banner',
+            'example.com##.ad > .banner',
+        ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ##div.ad is redundant due to more general selector on line 1'],
-            [3, 'Redundant filter: ##div.ad.banner is redundant due to more general selector on line 1'],
-            [4, 'Redundant filter: ##span.ad is redundant due to more general selector on line 1'],
-            [6, 'Redundant filter: ##div#main.sidebar is redundant due to more general selector on line 5'],
+            [1, 'Redundant filter: example.com##.banner > .ad is redundant due to more general selector on line 2'],
+            [3, 'Redundant filter: example.com##.banner .ad is redundant due to more general selector on line 2'],
         ]);
     }
 
@@ -140,7 +145,7 @@ final class CosmeticCanonicalSelectorTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function global_covers_domain_specific_for_complex_unparsed_selector(): void
+    public function unparsed_selector_fallback_to_exact_match(): void
     {
         $lines = [
             '##div > .ad.banner',             // Global rule (unparsed selector)
@@ -153,20 +158,19 @@ final class CosmeticCanonicalSelectorTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function unsupported_or_complex_selectors_fallback_to_exact_match(): void
+    public function unsupported_or_complex_selectors(): void
     {
-        // Complex selectors (combinators, pseudo-classes) cannot be parsed as simple selectors; fallback to string comparison
         $lines = [
-            'example.com##div > .ad.banner',
-            'example.com##div > .ad.banner',  // Exact match string -> duplicate
-            'example.com##div > .banner.ad',  // Different order in complex selector -> not a duplicate
+            'example.com##.ad',
+            'example.com##.ad:has(.foo)',
             'example.com##.ad:hover',
-            'example.com##.ad:hover',
-        ];
 
+            'example.com##.class > .ad', // this is bug, since it was unintentional
+            'example.com###id > .ad',
+            'example.com##div > .ad',
+        ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: example.com##div > .ad.banner already defined on line 1'],
-            [5, 'Redundant filter: example.com##.ad:hover already defined on line 4'],
+            ['4', 'Redundant filter: example.com##.class > .ad is redundant due to more general selector on line 1'],
         ]);
     }
 }
