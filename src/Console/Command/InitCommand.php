@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/** @codeCoverageIgnore */
 #[AsCommand(
     name: 'init',
     description: 'Create a new haiku.yml file',

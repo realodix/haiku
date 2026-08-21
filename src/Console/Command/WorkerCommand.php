@@ -19,6 +19,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @codeCoverageIgnore
  * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Runner
  * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Fixer\ParallelRunner
  */

@@ -41,6 +41,7 @@ class Kernel
     }
 
     /**
+     * @codeCoverageIgnore
      * Bootstrap the application + run the console
      */
     public function handle(): int

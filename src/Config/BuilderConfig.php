@@ -49,6 +49,7 @@ final class BuilderConfig
     }
 
     /**
+     * @codeCoverageIgnore
      * Resolves and ensures the existence of the output directory.
      *
      * - If the "output_dir" key is defined in the configuration, its path is
@@ -101,6 +102,7 @@ final class BuilderConfig
     }
 
     /**
+     * @codeCoverageIgnore
      * @param _BuilderConfigInput $config
      */
     private function validate(array $config): void

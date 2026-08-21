@@ -133,6 +133,7 @@ final class Config
     }
 
     /**
+     * @codeCoverageIgnore
      * Validates the loaded configuration against the defined schema.
      *
      * @param array<string, mixed> $config

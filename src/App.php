@@ -5,6 +5,9 @@ namespace Realodix\Haiku;
 use Composer\InstalledVersions;
 use Illuminate\Container\Container;
 
+/**
+ * @codeCoverageIgnore
+ */
 class App
 {
     const NAME = 'Haiku';

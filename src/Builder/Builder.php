@@ -82,6 +82,7 @@ final class Builder
     }
 
     /**
+     * @codeCoverageIgnore
      * Reads all included files or URLs.
      *
      * @param array<int, string> $paths

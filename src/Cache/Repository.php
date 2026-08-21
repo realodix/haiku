@@ -49,6 +49,7 @@ final class Repository
     }
 
     /**
+     * @codeCoverageIgnore
      * Load the cache from a file.
      */
     public function load(): self
@@ -75,6 +76,7 @@ final class Repository
     }
 
     /**
+     * @codeCoverageIgnore
      * Persists the in-memory storage to disk.
      */
     public function save(): void

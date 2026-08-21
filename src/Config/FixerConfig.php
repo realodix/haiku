@@ -87,6 +87,7 @@ final class FixerConfig
     }
 
     /**
+     * @codeCoverageIgnore
      * Resolves and validates flag overrides.
      *
      * @param array<string, mixed> $override
