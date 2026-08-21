@@ -171,15 +171,38 @@ final class Registry
     ];
 
     /**
-     * https://github.com/gorhill/uBlock/blob/1.71.0/src/js/static-filtering-parser.js#L603
+     * https://github.com/gorhill/uBlock/blob/1.73.1b6/src/js/static-filtering-parser.js#L603
      * https://adguard.com/kb/general/ad-filtering/create-own-filters/#preprocessor-directives
      */
     const PREPROCESSOR_DIRECTIVES = [
-        'false', 'cap_html_filtering', 'cap_ipaddress', 'cap_user_stylesheet',
-        'env_chromium', 'env_edge', 'env_firefox', 'env_legacy', 'env_mobile', 'env_mv3', 'env_safari', 'ext_abp', 'ext_devbuild', 'ext_ublock', 'ext_ubol',
-        'adguard', 'adguard_app_android', 'adguard_app_ios', 'adguard_app_mac', 'adguard_app_windows', 'adguard_ext_android_cb', 'adguard_ext_chromium', 'adguard_ext_edge', 'adguard_ext_firefox', 'adguard_ext_opera', 'adguard_ext_safari',
-        // adguard
-        'adguard_app_cli', 'adguard_ext_chromium_mv3',
+        'ext_ublock',
+        'ext_ubol',
+        'ext_devbuild',
+        'env_brave',
+        'env_chromium',
+        'env_edge',
+        'env_firefox',
+        'env_legacy',
+        'env_mobile',
+        'env_mv3',
+        'env_safari',
+        'cap_html_filtering',
+        'cap_ipaddress',
+        'false',
+        'ext_abp',
+        'adguard',
+        'adguard_app_android',
+        'adguard_app_cli',
+        'adguard_app_ios',
+        'adguard_app_mac',
+        'adguard_app_windows',
+        'adguard_ext_android_cb',
+        'adguard_ext_chromium',
+        'adguard_ext_chromium_mv3',
+        'adguard_ext_edge',
+        'adguard_ext_firefox',
+        'adguard_ext_opera',
+        'adguard_ext_safari',
     ];
 
     /**
