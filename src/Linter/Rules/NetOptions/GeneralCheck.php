@@ -416,9 +416,6 @@ final class GeneralCheck implements Rule
 
             foreach (explode('|', $value) as $domain) {
                 $domain = trim($domain);
-                if ($domain === '') {
-                    continue;
-                }
 
                 if (str_starts_with($domain, '~')) {
                     $err->message(sprintf(
