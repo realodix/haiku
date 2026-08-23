@@ -509,38 +509,46 @@ final class CosmeticCheck implements Rule
 
             $componentCount = count($components);
             if ($componentCount <= self::MAX_SELECTOR_COMPONENT) {
-                // Determine the size of the subset to be processed
-                $sizesToProcess = [];
+                $totalMasks = 1 << $componentCount; // Total number of possible subsets = 2^componentCount
+                $sizesToProcess = null; // null means process all sizes
 
-                // 1. Small subset: sizes 1, 2, 3 (as long as < n)
-                for ($size = 1; $size <= 3 && $size < $componentCount; $size++) {
-                    $sizesToProcess[] = $size;
+                // If components > max n, limit the subset size
+                if ($componentCount > 10) {
+                    $sizesToProcess = [];
+                    // Add sizes 1, 2, 3 (if they exist)
+                    for ($size = 1; $size <= 3; $size++) {
+                        $sizesToProcess[] = $size;
+                    }
+                    // Add sizes componentCount-1, -2, -3 (but not below 4)
+                    for ($size = $componentCount - 1; $size >= max(4, $componentCount - 3) && $size < $componentCount; $size--) {
+                        $sizesToProcess[] = $size;
+                    }
+
+                    $sizesToProcess = array_unique($sizesToProcess);
+                    sort($sizesToProcess);
                 }
 
-                // 2. Large subset: n-1, n-2, n-3 (as long as > 3 and < n)
-                for ($size = $componentCount - 1; $size >= max(4, $componentCount - 3) && $size < $componentCount; $size--) {
-                    $sizesToProcess[] = $size;
-                }
-
-                $sizesToProcess = array_unique($sizesToProcess);
-                sort($sizesToProcess);
-
-                $totalMasks = 1 << $componentCount;
+                // Iterate over all subsets using a bitmask. Each bit position corresponds
+                // to a component in $components.
+                // for ($mask = 0; $mask < $totalMasks; $mask++) {
                 for ($mask = 0; $mask < $totalMasks; $mask++) {
-                    // Skip the full set (all bits 1) – it's the rule itself, not a more general parent.
-                    if ($mask === $totalMasks - 1) {
-                        continue;
-                    }
+                // for ($mask = 0; $mask < $totalMasks - 1; $mask++) {
+                    // note: This filter reduces the number of subsets processed when
+                    //       component count is high (e.g., > 15). However, with the
+                    //       current MAX_SELECTOR_COMPONENT = 15, the total iterations
+                    //       (2^15 = 32768) are already trivial in PHP, so this block
+                    //       adds more cognitive load than performance gain.
+                    // If we limited the subset sizes, skip masks whose popcount
+                    // (number of set bits) is not in the allowed list.
+                    // if ($sizesToProcess !== null) {
+                    //     $popcount = substr_count(decbin($mask), '1');
+                    //     if (!in_array($popcount, $sizesToProcess, true)) {
+                    //         continue;
+                    //     }
+                    // }
 
-                    // Count how many bits are set (subset size).
-                    // $popcount = gmp_popcount($mask);
-                    $popcount = substr_count(decbin($mask), '1');
-                    // Only process subsets with sizes we care about: small (1-3) and large (n-1 to n-3).
-                    // This avoids checking all subsets, drastically improving performance.
-                    if (!in_array($popcount, $sizesToProcess, true)) {
-                        continue;
-                    }
-
+                    // Build the subset selector by concatenating the components
+                    // whose corresponding bit is set.
                     $subset = [];
                     for ($i = 0; $i < $componentCount; $i++) {
                         if ($mask & (1 << $i)) {
@@ -548,13 +556,20 @@ final class CosmeticCheck implements Rule
                         }
                     }
 
+                    // Reconstruct the canonical form of this subset selector.
+                    // Example: components = ['div', '#main', '.ad', '.banner']
+                    //   mask for bits 0 and 2 => 'div.ad'
                     $subCanonical = implode('', $subset);
                     $subKey = 'S|'.$separator.$subCanonical;
+
+                    // Look up this canonical subset in the interaction map.
+                    // Any rules with that exact canonical selector are candidates
+                    // because they are more general (fewer components) than the
+                    // current rule.
                     if (isset($interactionMap[$subKey])) {
                         foreach ($interactionMap[$subKey] as $idx) {
-                            if ($idx === $entry['lineNum']) {
-                                continue;
-                            }
+                            // Additional safety: ensure the candidate is a compound selector
+                            // (it should be, because it came from the 'S' bucket).
                             $cand = $this->collection[$idx];
                             if ($cand['compoundData'] !== null) {
                                 $candidates[] = $idx;

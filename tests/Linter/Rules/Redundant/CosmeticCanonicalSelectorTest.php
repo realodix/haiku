@@ -168,9 +168,13 @@ final class CosmeticCanonicalSelectorTest extends TestCase
             'example.com##.class > .ad', // this is bug, since it was unintentional
             'example.com###id > .ad',
             'example.com##div > .ad',
+
+            '##.a.b.c.d.e',
+            '##.a.b.c.d.e.f.g.h.i.j.k',
         ];
         $this->analyse($lines, [
             ['4', 'Redundant filter: example.com##.class > .ad is redundant due to more general selector on line 1'],
+            ['8', 'Redundant filter: ##.a.b.c.d.e.f.g.h.i.j.k is redundant due to more general selector on line 7'],
         ]);
     }
 }
