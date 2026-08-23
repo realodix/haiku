@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
-use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
 
 final class RedirectValueCheck implements Rule
@@ -53,11 +52,10 @@ final class RedirectValueCheck implements Rule
      */
     private function checkUnknown($err, string $value): void
     {
-        $knownResources = Arr::flattenWithKeys(array_merge(
-            Registry::RESOURCES,
-            Registry::REDIRECT_RESOURCES,
+        $knownResources = array_merge(
+            Util::getRedirectResources(),
             Registry::AG_REDIRECT_RESOURCES,
-        ));
+        );
 
         if (!in_array($value, $knownResources, true)) {
             $value = Registry::NORMALIZED_UNKNOWN[$value] ?? $value;

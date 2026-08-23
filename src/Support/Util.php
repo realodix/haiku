@@ -52,6 +52,34 @@ final class Util
     }
 
     /**
+     * @return list<string>
+     */
+    public static function getRedirectResources(bool $scriptlet = false): array
+    {
+        $result = [];
+
+        foreach (Registry::REDIRECT_RESOURCE as $key => $value) {
+            if (is_int($key)) {
+                $name = $value;
+                $config = [];
+            } else {
+                $name = $key;
+                $config = $value;
+            }
+
+            $isScriptlet = $config['scriptlet'] ?? false;
+            if (!$scriptlet || $isScriptlet) {
+                $result[] = $name;
+                foreach ($config['alias'] ?? [] as $alias) {
+                    $result[] = $alias;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Escapes a string of characters according to the CSS escape rules.
      *
      * https://github.com/tailwindlabs/tailwindcss/blob/v4.3.0/packages/tailwindcss/src/utils/escape.ts#L2

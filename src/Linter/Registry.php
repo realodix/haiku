@@ -98,60 +98,110 @@ final class Registry
         'golem.de',
     ];
 
-    const RESOURCES = [
-        'amazon_ads.js', 'amazon-adsystem.com/aax2/amzn_ads.js',
-        'amazon_apstag.js' => ['ag' => ['amazon-apstag']],
-        'adthrive_abd.js',
-        'doubleclick_instream_ad_status.js', 'doubleclick.net/instream/ad_status.js',
-        'fingerprint2.js' => ['ag' => ['fingerprintjs2']],
-        'fingerprint3.js' => ['ag' => ['fingerprintjs3']],
-        'google-analytics_analytics.js' => ['alias' => ['google-analytics.com/analytics.js', 'googletagmanager_gtm.js', 'googletagmanager.com/gtm.js'], 'ag' => ['google-analytics']],
-        'google-analytics_ga.js' => ['alias' => ['google-analytics.com/ga.js'], 'ag' => ['google-analytics-ga']],
-        'google-ima.js', 'google-ima3',
-        'googlesyndication_adsbygoogle.js', 'googlesyndication.com/adsbygoogle.js', 'googlesyndication-adsbygoogle',
-        'googletagservices_gpt.js', 'googletagservices.com/gpt.js', 'googletagservices-gpt',
-        'nitropay_ads.js',
-        'nobab2.js',
-        'noeval.js',
-        'noeval-silent.js', 'silent-noeval.js',
-        'nofab.js' => ['alias' => ['fuckadblock.js-3.2.0'], 'ag' => ['prevent-fab-3.2.0']],
-        'piano-analytics.js',
-        'popads.js', 'popads.net.js', 'prevent-popads-net.js',
-        'popads-dummy.js',
-        'prebid-ads.js' => ['ag' => ['prebid-ads']],
-        'sensors-analytics.js',
-    ];
-
-    const REDIRECT_RESOURCES = [
-        '1x1.gif', '1x1-transparent.gif',
-        '2x2.png', '2x2-transparent.png',
-        '3x2.png', '3x2-transparent.png',
-        '32x32.png', '32x32-transparent.png',
-        'click2load.html',
-        'empty',
+    const REDIRECT_RESOURCE = [
         'none',
-        'noop-0.1s.mp3', 'noopmp3-0.1s', 'abp-resource:blank-mp3',
-        'noop-0.5s.mp3',
-        'noop-1s.mp4', 'noopmp4-1s', 'abp-resource:blank-mp4',
-        'noop.css' => ['ag' => ['noopcss']],
-        'noop.html', 'noopframe',
-        'noop.js', 'noopjs', 'abp-resource:blank-js',
-        'noop.json', 'noopjson',
-        'noop.txt', 'nooptext',
-        'noop-vast2.xml', 'noopvast-2.0',
-        'noop-vast3.xml', 'noopvast-3.0',
-        'noop-vast4.xml', 'noopvast-4.0',
-        'noop-vmap1.xml', 'noop-vmap1.0.xml', 'noopvmap-1.0',
-
-        'ampproject_v0.js', 'ampproject.org/v0.js',
-        'google-analytics_cx_api.js', 'google-analytics.com/cx/api.js',
-        'google-analytics_inpage_linkid.js', 'google-analytics.com/inpage_linkid.js',
+        '1x1.gif' => ['alias' => ['1x1-transparent.gif']],
+        '2x2.png' => ['alias' => ['2x2-transparent.png']],
+        '3x2.png' => ['alias' => ['3x2-transparent.png']],
+        '32x32.png' => ['alias' => ['32x32-transparent.png']],
+        'amazon_ads.js' => [
+            'alias' => ['amazon-adsystem.com/aax2/amzn_ads.js'],
+            'scriptlet' => true,
+        ],
+        'amazon_apstag.js' => ['alias' => ['amazon-apstag' /* AG */]],
+        'ampproject_v0.js' => ['alias' => ['ampproject.org/v0.js']],
+        'adthrive_abd.js' => ['scriptlet' => true],
+        'click2load.html',
+        'doubleclick_instream_ad_status.js' => [
+            'alias' => ['doubleclick.net/instream/ad_status.js'],
+            'scriptlet' => true,
+        ],
+        'empty',
+        'fingerprint2.js' => ['alias' => ['fingerprintjs2']],
+        'fingerprint3.js' => ['alias' => ['fingerprintjs3']],
+        'google-analytics_analytics.js' => [
+            'alias' => [
+                'google-analytics.com/analytics.js',
+                'googletagmanager_gtm.js',
+                'googletagmanager.com/gtm.js',
+                // AG
+                'google-analytics',
+            ],
+            'scriptlet' => true,
+        ],
+        'google-analytics_cx_api.js' => ['alias' => ['google-analytics.com/cx/api.js']],
+        'google-analytics_ga.js' => [
+            'alias' => [
+                'google-analytics.com/ga.js',
+                // AG
+                'google-analytics-ga',
+            ],
+            'scriptlet' => true,
+        ],
+        'google-analytics_inpage_linkid.js' => ['alias' => ['google-analytics.com/inpage_linkid.js']],
+        'google-ima.js' => [
+            'alias' => ['google-ima3'],
+            'scriptlet' => true
+        ],
+        'googlesyndication_adsbygoogle.js' => [
+            'alias' => [
+                'googlesyndication.com/adsbygoogle.js',
+                'googlesyndication-adsbygoogle',
+            ],
+            'scriptlet' => true,
+        ],
+        'googletagservices_gpt.js' => [
+            'alias' => [
+                'googletagservices.com/gpt.js',
+                'googletagservices-gpt',
+            ],
+            'scriptlet' => true,
+        ],
         'hd-main.js',
-        'outbrain-widget.js', 'widgets.outbrain.com/outbrain.js',
-        'scorecardresearch_beacon.js', 'scorecardresearch.com/beacon.js',
+        'nitropay_ads.js' => ['scriptlet' => true],
+        'nobab2.js' => ['scriptlet' => true],
+        'noeval.js' => ['scriptlet' => true],
+        'noeval-silent.js', 'silent-noeval.js',
+        'nofab.js' => [
+            'alias' => [
+                'fuckadblock.js-3.2.0',
+                // AG
+                'prevent-fab-3.2.0',
+            ],
+            'scriptlet' => true,
+        ],
+        'noop-0.1s.mp3' => ['alias' => ['noopmp3-0.1s', 'abp-resource:blank-mp3']],
+        'noop-0.5s.mp3',
+        'noop-1s.mp4' => ['alias' => ['noopmp4-1s', 'abp-resource:blank-mp4']],
+        'noop.css' => ['alias' => ['noopcss' /* AG */]],
+        'noop.html' => ['alias' => ['noopframe']],
+        'noop.js' => ['alias' => ['noopjs', 'abp-resource:blank-js']],
+        'noop.json' => ['alias' => ['noopjson']],
+        'noop.txt' => ['alias' => ['nooptext']],
+        'noop-vast2.xml' => ['alias' => ['noopvast-2.0']],
+        'noop-vast3.xml' => ['alias' => ['noopvast-3.0']],
+        'noop-vast4.xml' => ['alias' => ['noopvast-4.0']],
+        'noop-vmap1.xml' => ['alias' => ['noop-vmap1.0.xml', 'noopvmap-1.0']],
+        'outbrain-widget.js' => ['alias' => ['widgets.outbrain.com/outbrain.js']],
+        'piano-analytics.js',
+        'popads.js' => [
+            'alias' => [
+                'popads.net.js',
+                'prevent-popads-net.js',
+            ],
+            'scriptlet' => true,
+        ],
+        'popads-dummy.js' => ['scriptlet' => true],
+        'prebid-ads.js' => [
+            'alias' => ['prebid-ads' /* AG */],
+            'scriptlet' => true,
+        ],
+
+        'scorecardresearch_beacon.js' => ['alias' => ['scorecardresearch.com/beacon.js']],
+        'sensors-analytics.js' => ['scriptlet' => true],
 
         // Deprecated, but found in uBlock-1.70.1b4
-        'chartbeat.js', 'static.chartbeat.com/chartbeat.js',
+        'chartbeat.js' => ['alias' => ['static.chartbeat.com/chartbeat.js']],
     ];
 
     const DEPRECATED_REDIRECT_RESOURCES = [

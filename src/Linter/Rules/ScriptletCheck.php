@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Linter\Registry;
-use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
 
 final class ScriptletCheck implements Rule
@@ -89,7 +88,7 @@ final class ScriptletCheck implements Rule
         $config = $this->config->rules['scriptlet_unknown'];
         $resources = array_map(
             fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
-            Arr::flattenWithKeys(Registry::RESOURCES),
+            Util::getRedirectResources(scriptlet: true),
         );
 
         return array_unique([
