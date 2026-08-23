@@ -143,6 +143,10 @@ final class Registry
             'alias' => ['google-ima3'],
             'scriptlet' => true
         ],
+        'google-ima-dai.js' => [
+            'alias' => ['google-ima3-dai'],
+            'scriptlet' => true
+        ],
         'googlesyndication_adsbygoogle.js' => [
             'alias' => [
                 'googlesyndication.com/adsbygoogle.js',
