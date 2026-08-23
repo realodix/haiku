@@ -63,10 +63,10 @@ final class DomainNormalizer
             return $domainStr;
         }
 
-        // @phpstan-ignore match.unhandled
         $typo = match ($separator) {
             '|' => ',',
             ',' => '|',
+            default => throw new \InvalidArgumentException("Unknown separator '$separator'"),
         };
 
         if (str_contains($domainStr, $typo)) {
