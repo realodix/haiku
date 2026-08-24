@@ -1448,5 +1448,8 @@ final class Tld
         'zone' => true,
         'zuerich' => true,
         'zw' => true,
+
+        // https://www.iana.org/assignments/special-use-domain-names
+        'onion' => true,
     ];
 }

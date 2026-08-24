@@ -143,6 +143,13 @@ class DomainCheckTest extends TestCase
             '*$domain=/abc\.bar/',
         ];
         $this->analyse($lines, []);
+
+        // special
+        $lines = [
+            // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/BaseFilter/sections/allowlist.txt#L2162
+            'example.onion##.ads',
+        ];
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
