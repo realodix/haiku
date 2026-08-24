@@ -67,6 +67,7 @@ final class DomainCheck implements Rule
             return;
         }
 
+        $domainStr = $separator === '|' ? preg_replace('/,[_]+$/', '', $domainStr) : $domainStr; // remove noop option
         $domains = explode($separator, $domainStr);
 
         if (count($domains) > 1 && count(array_filter($domains, fn($d) => trim($d) !== '')) === 0) {

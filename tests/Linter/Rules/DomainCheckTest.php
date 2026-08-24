@@ -104,6 +104,12 @@ class DomainCheckTest extends TestCase
             '[$domain=/example.net/]##.ad-branding',
         ];
         $this->analyse($lines);
+
+        // contain noop option
+        $lines = [
+            '*$script,third-party,denyallow=x.com,_____,domain=example.com',
+        ];
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
