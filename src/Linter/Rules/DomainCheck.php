@@ -184,6 +184,8 @@ final class DomainCheck implements Rule
         }
 
         $domain = rtrim($domain, '>'); // clean up the ancestor context
+        $domain = idn_to_ascii($domain);
+
         if (ctype_alpha($domain) && !in_array($domain, ['localhost', 'local'], true)) {
             if (!isset(Tld::VALUES[$domain])) {
                 $err->message(sprintf('Bad domain: "%s" is an invalid TLD', $domain))

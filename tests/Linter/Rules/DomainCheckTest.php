@@ -154,6 +154,8 @@ class DomainCheckTest extends TestCase
         $lines = [
             // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/BaseFilter/sections/allowlist.txt#L2162
             'example.onion##.ads',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/CyrillicFilters/RussianFilter/sections/specific.txt#L7850
+            'скачатьофис.рф##a[href^="https://active-keys.ru/"]',
         ];
         $this->analyse($lines);
     }
