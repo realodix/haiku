@@ -156,6 +156,8 @@ class DomainCheckTest extends TestCase
             'example.onion##.ads',
             // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/CyrillicFilters/RussianFilter/sections/specific.txt#L7850
             'скачатьофис.рф##a[href^="https://active-keys.ru/"]',
+            // https://github.com/AdguardTeam/AdguardFilters/commit/f76f2fc392fdd69101fc2a74da03f3e59aea0486
+            '@@||api.ip.sb/geoip$domain=tauri.localhost',
         ];
         $this->analyse($lines);
     }

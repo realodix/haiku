@@ -1451,5 +1451,6 @@ final class Tld
 
         // https://www.iana.org/assignments/special-use-domain-names
         'onion' => true,
+        'localhost' => true,
     ];
 }
