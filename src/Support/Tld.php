@@ -1452,5 +1452,12 @@ final class Tld
         // https://www.iana.org/assignments/special-use-domain-names
         'onion' => true,
         'localhost' => true,
+
+        // others
+        // https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains#Non-IANA_domains
+        'lib' => true,
+
+        'dns' => true,
+        'ip' => true,
     ];
 }

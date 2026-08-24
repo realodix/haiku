@@ -169,6 +169,19 @@ class DomainCheckTest extends TestCase
             '@@||api.ip.sb/geoip$domain=tauri.localhost',
         ];
         $this->analyse($lines);
+
+        // others
+        $lines = [
+            // https://github.com/AdguardTeam/AdguardFilters/commit/585fd71ca0568b94fcba6e7b102462017a4dcc33
+            // https://github.com/AdguardTeam/AdguardFilters/commit/f7ad8a011f75559da68a3192f1990ae2d5a283fb
+            '||m.yap.yahoo.com^$domain=~not.dns',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/CyrillicFilters/RussianFilter/sections/general_extensions.txt#L1325
+            'pornolab.lib,rutracker.lib##.ads',
+            // https://github.com/easylist/easylist/blob/9c1013d0d5/easyprivacy/easyprivacy_thirdparty_international.txt#L3
+            // https://github.com/easylist/easylist/blob/9c1013d0d5/easyprivacy/easyprivacy_thirdparty_international.txt#L655
+            '||example.com^$domain=~fc2.jp.ip|~sprueche-zitate.net.ip',
+        ];
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
