@@ -141,11 +141,11 @@ final class Registry
         'google-analytics_inpage_linkid.js' => ['alias' => ['google-analytics.com/inpage_linkid.js']],
         'google-ima.js' => [
             'alias' => ['google-ima3'],
-            'scriptlet' => true
+            'scriptlet' => true,
         ],
         'google-ima-dai.js' => [
             'alias' => ['google-ima3-dai'],
-            'scriptlet' => true
+            'scriptlet' => true,
         ],
         'googlesyndication_adsbygoogle.js' => [
             'alias' => [

@@ -2,13 +2,13 @@
 
 namespace Realodix\Haiku\Support;
 
-/**
- * https://github.com/arubacao/tld-checker/blob/master/src/RootZoneDatabase.php
- * Version 2026072500, Last Updated Sat Jul 25 07:07:01 2026 UTC
- * d767afd
- */
 final class Tld
 {
+    /**
+     * https://github.com/arubacao/tld-checker/blob/master/src/RootZoneDatabase.php
+     * Version 2026072500, Last Updated Sat Jul 25 07:07:01 2026 UTC
+     * d767afd
+     */
     const VALUES = [
         'aaa' => true,
         'aarp' => true,
