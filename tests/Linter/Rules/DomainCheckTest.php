@@ -149,13 +149,22 @@ class DomainCheckTest extends TestCase
             '*$domain=/abc\.bar/',
         ];
         $this->analyse($lines, []);
+    }
 
-        // special
+    #[PHPUnit\Test]
+    public function bad_tld_special(): void
+    {
+        // Non ascii domain
+        $lines = [
+            // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/CyrillicFilters/RussianFilter/sections/specific.txt#L7850
+            'скачатьофис.рф##a[href^="https://active-keys.ru/"]',
+        ];
+        $this->analyse($lines);
+
+        // iana (special use)
         $lines = [
             // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/BaseFilter/sections/allowlist.txt#L2162
             'example.onion##.ads',
-            // https://github.com/AdguardTeam/AdguardFilters/blob/378a138ac0/CyrillicFilters/RussianFilter/sections/specific.txt#L7850
-            'скачатьофис.рф##a[href^="https://active-keys.ru/"]',
             // https://github.com/AdguardTeam/AdguardFilters/commit/f76f2fc392fdd69101fc2a74da03f3e59aea0486
             '@@||api.ip.sb/geoip$domain=tauri.localhost',
         ];
