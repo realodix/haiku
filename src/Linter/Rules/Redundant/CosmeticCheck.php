@@ -39,8 +39,6 @@ final class CosmeticCheck implements Rule
 {
     private const ATTR_PARTIAL_KEY_LEN = 2;
 
-    private const MAX_SELECTOR_COMPONENT = 15;
-
     /** @var array<string, int> */
     private array $exactSeen = [];
 
@@ -122,7 +120,8 @@ final class CosmeticCheck implements Rule
                 'selector' => $selector,
                 'attrData' => $attrData,
                 'compoundData' => $compoundData,
-                'canonicalSelector' => $this->getCanonicalSelector($selector, $compoundData),
+                'canonicalSelector' => $compoundData === null ? $selector
+                    : implode('', $this->getCompoundComponents($compoundData)),
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
                 'conditionKey' => $conditionKey,
@@ -154,6 +153,10 @@ final class CosmeticCheck implements Rule
             // S: Groups rules with standard selectors by their canonical form
             if ($compoundData !== null) {
                 $this->interactionMap['S|'.$entry['separator'].$entry['canonicalSelector']][] = $lineNum;
+
+                foreach ($this->getCompoundComponents($compoundData) as $component) {
+                    $this->interactionMap['C|'.$entry['separator'].$component][] = $lineNum;
+                }
             }
 
             // U: Groups rules with unparsed selectors by their raw form
@@ -483,99 +486,18 @@ final class CosmeticCheck implements Rule
             $candidates = array_merge($candidates, $interactionMap[$key]);
         }
 
-        // Get candidates with the same raw selector for an unparsed selector
+        // Look up candidates with the same raw selector for unparsed selectors.
         $unparsedKey = 'U|'.$separator.$entry['selector'];
         if (isset($interactionMap[$unparsedKey])) {
             $candidates = array_merge($candidates, $interactionMap[$unparsedKey]);
         }
 
-        // Subset scan: find more general compound selectors whose class list is
-        // a proper subset of the current rule's classes.
-        // Example: given the rule `.ad.banner.text`, a candidate `.ad` or
-        // `.ad.banner` is more general and therefore covers it.
+        // Look up candidates sharing any component of the current selector.
         if ($parsed !== null) {
-            $components = [];
-            if ($parsed['tag'] !== '') {
-                $components[] = $parsed['tag'];
-            }
-
-            if ($parsed['id'] !== '') {
-                $components[] = '#'.$parsed['id'];
-            }
-
-            foreach ($parsed['classes'] as $cls) {
-                $components[] = '.'.$cls;
-            }
-
-            $componentCount = count($components);
-            if ($componentCount <= self::MAX_SELECTOR_COMPONENT) {
-                $totalMasks = 1 << $componentCount; // Total number of possible subsets = 2^componentCount
-                $sizesToProcess = null; // null means process all sizes
-
-                // If components > max n, limit the subset size
-                if ($componentCount > 10) {
-                    $sizesToProcess = [];
-                    // Add sizes 1, 2, 3 (if they exist)
-                    for ($size = 1; $size <= 3; $size++) {
-                        $sizesToProcess[] = $size;
-                    }
-                    // Add sizes componentCount-1, -2, -3 (but not below 4)
-                    for ($size = $componentCount - 1; $size >= max(4, $componentCount - 3) && $size < $componentCount; $size--) {
-                        $sizesToProcess[] = $size;
-                    }
-
-                    $sizesToProcess = array_unique($sizesToProcess);
-                    sort($sizesToProcess);
-                }
-
-                // Iterate over all subsets using a bitmask. Each bit position corresponds
-                // to a component in $components.
-                // for ($mask = 0; $mask < $totalMasks; $mask++) {
-                for ($mask = 0; $mask < $totalMasks; $mask++) {
-                // for ($mask = 0; $mask < $totalMasks - 1; $mask++) {
-                    // note: This filter reduces the number of subsets processed when
-                    //       component count is high (e.g., > 15). However, with the
-                    //       current MAX_SELECTOR_COMPONENT = 15, the total iterations
-                    //       (2^15 = 32768) are already trivial in PHP, so this block
-                    //       adds more cognitive load than performance gain.
-                    // If we limited the subset sizes, skip masks whose popcount
-                    // (number of set bits) is not in the allowed list.
-                    // if ($sizesToProcess !== null) {
-                    //     $popcount = substr_count(decbin($mask), '1');
-                    //     if (!in_array($popcount, $sizesToProcess, true)) {
-                    //         continue;
-                    //     }
-                    // }
-
-                    // Build the subset selector by concatenating the components
-                    // whose corresponding bit is set.
-                    $subset = [];
-                    for ($i = 0; $i < $componentCount; $i++) {
-                        if ($mask & (1 << $i)) {
-                            $subset[] = $components[$i];
-                        }
-                    }
-
-                    // Reconstruct the canonical form of this subset selector.
-                    // Example: components = ['div', '#main', '.ad', '.banner']
-                    //   mask for bits 0 and 2 => 'div.ad'
-                    $subCanonical = implode('', $subset);
-                    $subKey = 'S|'.$separator.$subCanonical;
-
-                    // Look up this canonical subset in the interaction map.
-                    // Any rules with that exact canonical selector are candidates
-                    // because they are more general (fewer components) than the
-                    // current rule.
-                    if (isset($interactionMap[$subKey])) {
-                        foreach ($interactionMap[$subKey] as $idx) {
-                            // Additional safety: ensure the candidate is a compound selector
-                            // (it should be, because it came from the 'S' bucket).
-                            $cand = $this->collection[$idx];
-                            if ($cand['compoundData'] !== null) {
-                                $candidates[] = $idx;
-                            }
-                        }
-                    }
+            foreach ($this->getCompoundComponents($parsed) as $component) {
+                $key = 'C|'.$separator.$component;
+                if (isset($interactionMap[$key])) {
+                    array_push($candidates, ...$interactionMap[$key]);
                 }
             }
         }
@@ -1058,40 +980,28 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * Gets the canonical (normalized) string form of a selector.
+     * Gets the individual components of a compound selector.
      *
-     * Canonicalization reorders class tokens alphabetically and reconstructs
-     * the selector in a deterministic order: tag -> #id -> .classes. This is used
-     * as the bucket key in the interaction map so that semantically identical
-     * selectors written in different class orders resolve to the same bucket.
-     *
-     * @param string $selector The original selector string.
-     * @param _ParsedCompoundSelector|null $parsed Pre-parsed data (avoids redundant parsing
-     *                                             when already available).
-     * @return string The canonical form of the selector. If the selector cannot be parsed
-     *                as a compound selector, it is returned unchanged.
+     * @param _ParsedCompoundSelector $parsed Pre-parsed data.
+     * @return list<string> List of component strings.
      */
-    private function getCanonicalSelector(string $selector, ?array $parsed): string
+    private function getCompoundComponents(array $parsed): array
     {
-        if ($parsed === null) {
-            return $selector;
-        }
+        $components = [];
 
-        $canonical = '';
         if ($parsed['tag'] !== '') {
-            $canonical .= $parsed['tag'];
+            $components[] = $parsed['tag'];
         }
+
         if ($parsed['id'] !== '') {
-            $canonical .= '#'.$parsed['id'];
+            $components[] = '#'.$parsed['id'];
         }
 
-        // Classes are already sorted by parseCompoundSelector(), producing a
-        // deterministic order.
-        foreach ($parsed['classes'] as $cls) {
-            $canonical .= '.'.$cls;
+        foreach ($parsed['classes'] as $class) {
+            $components[] = '.'.$class;
         }
 
-        return $canonical;
+        return $components;
     }
 
     /**

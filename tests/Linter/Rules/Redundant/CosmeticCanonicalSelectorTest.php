@@ -56,6 +56,35 @@ final class CosmeticCanonicalSelectorTest extends TestCase
             [1, 'Redundant filter: example.com##div.ad is redundant due to more general selector on line 2'],
             [3, 'Redundant filter: example.com##div.ad.banner is redundant due to more general selector on line 2'],
         ]);
+
+        $lines = [
+            'example.com##div.Ad',
+            'example.com##.ad',
+            '##div.a.b',
+            '##span.a',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function simple_class_subset_coverage_2(): void
+    {
+        $lines = [
+            '##.a.b.c.d.e',
+            '##.a.b.c.d.e.f.g.h.i.j.k',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ##.a.b.c.d.e.f.g.h.i.j.k is redundant due to more general selector on line 1'],
+        ]);
+
+        $lines = [
+            '##.a.b.c.d.e',
+            '##.a.c.e',
+            '##.b.x',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##.a.b.c.d.e is redundant due to more general selector on line 2'],
+        ]);
     }
 
     #[PHPUnit\Test]
@@ -168,13 +197,9 @@ final class CosmeticCanonicalSelectorTest extends TestCase
             'example.com##.class > .ad', // this is bug, since it was unintentional
             'example.com###id > .ad',
             'example.com##div > .ad',
-
-            '##.a.b.c.d.e',
-            '##.a.b.c.d.e.f.g.h.i.j.k',
         ];
         $this->analyse($lines, [
             ['4', 'Redundant filter: example.com##.class > .ad is redundant due to more general selector on line 1'],
-            ['8', 'Redundant filter: ##.a.b.c.d.e.f.g.h.i.j.k is redundant due to more general selector on line 7'],
         ]);
     }
 }
