@@ -144,6 +144,14 @@ final class DomainCheck implements Rule
      */
     private function checkBadDomainName($err, string $domain, string $separator): void
     {
+        $whitelist = [
+            'chrome-extension-scheme', 'moz-extension-scheme', 'addons.about-scheme',
+            'localhost', 'local', 'parked.domain'
+        ];
+        if (in_array(ltrim($domain, '~'), $whitelist)) {
+            return;
+        }
+
         // 1. Single character check
         if (strlen($domain) === 1
             && (($domain == '*' && $separator === '|') || $domain !== '*')
@@ -186,7 +194,7 @@ final class DomainCheck implements Rule
         $domain = rtrim($domain, '>'); // clean up the ancestor context
         $domain = idn_to_ascii($domain);
 
-        if (ctype_alpha($domain) && !in_array($domain, ['localhost', 'local'], true)) {
+        if (ctype_alpha($domain)) {
             if (!isset(Tld::VALUES[$domain])) {
                 $err->message(sprintf('Bad domain: "%s" is an invalid TLD', $domain))
                     ->build();

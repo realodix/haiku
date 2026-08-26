@@ -104,6 +104,11 @@ class DomainCheckTest extends TestCase
             '[$domain=/example.net/]##.ad-branding',
             // contain noop option
             '*$script,third-party,denyallow=x.com,_____,domain=example.com',
+            // https://github.com/easylist/easylist/commit/05b4a59ff6d6eeb00c044b05132d3817ca42bd7f
+            // https://github.com/easylist/easylist/blob/d8630ca8f9/easylist/easylist_allowlist.txt#L175
+            '@@||lastpass.com/ads.php$subdocument,domain=chrome-extension-scheme|moz-extension-scheme|addons.about-scheme',
+            // https://github.com/uBlockOrigin/uAssets/blob/3bf1b42bd6/filters/filters-2024.txt#L3763
+            '*$doc,ipaddress=199.59.243.227,to=~parked.domain',
         ];
         $this->analyse($lines);
     }
