@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules\Redundant;
 
+use Illuminate\Support\Str;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -15,9 +16,10 @@ use Realodix\Haiku\Support\Util;
  *  value: string,
  *  modifier: string
  * }
- * @phpstan-type _SeenAttrSelector array{
- *  data: _ParsedAttrSelector,
- *  line: int
+ * @phpstan-type _ParsedCompoundSelector array{
+ *  tag: string,
+ *  id: string,
+ *  classes: list<string>
  * }
  * @phpstan-type _CosmeticRule array{
  *  lineNum: int,
@@ -26,6 +28,8 @@ use Realodix\Haiku\Support\Util;
  *  separator: string,
  *  selector: string,
  *  attrData: _ParsedAttrSelector|null,
+ *  compoundData: _ParsedCompoundSelector|null,
+ *  canonicalSelector: string,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
  *  conditionKey: string,
@@ -96,6 +100,7 @@ final class CosmeticCheck implements Rule
             $selector = $m[5];
             $domains = $this->parseDomains($domainStr);
             $attrData = $this->parseAttributeSelector($selector);
+            $compoundData = $this->parseCompoundSelector($selector);
 
             // Pre-calculate domain status to optimize the isCovered() hot path.
             $isMixed = $this->isMixedDomains($domains);
@@ -107,20 +112,24 @@ final class CosmeticCheck implements Rule
                 $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
             }
 
-            $this->collection[$lineNum] = [
+            $entry = [
                 'lineNum' => $lineNum,
                 'line' => $line,
                 'domains' => $domains,
                 'separator' => $separator,
                 'selector' => $selector,
                 'attrData' => $attrData,
+                'compoundData' => $compoundData,
+                'canonicalSelector' => $compoundData === null ? $selector
+                    : implode('', $this->getCompoundComponents($compoundData)),
                 'hasMixedDomains' => $isMixed,
                 'isAlmostGlobal' => $isAlmostGlobal,
                 'conditionKey' => $conditionKey,
             ];
+            $this->collection[$lineNum] = $entry;
 
             // Group rules into interaction buckets:
-            // 'A' (Attribute Selector), 'S' (Standard Selector)
+            // 'A' (Attribute Selector), 'S' (Standard Selector), 'U' (Unparsed/Complex Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
             if ($attrData) {
                 $val = strtolower($attrData['value']);
@@ -139,9 +148,20 @@ final class CosmeticCheck implements Rule
                     $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $op, $val);
                     $this->interactionMap[$exactKey][] = $lineNum;
                 }
-            } else {
-                // Standard bucket (S): Groups unparsed selectors by their exact string.
-                $this->interactionMap['S|'.$separator.$selector][] = $lineNum;
+            }
+
+            // S: Groups rules with standard selectors by their canonical form
+            if ($compoundData !== null) {
+                $this->interactionMap['S|'.$entry['separator'].$entry['canonicalSelector']][] = $lineNum;
+
+                foreach ($this->getCompoundComponents($compoundData) as $component) {
+                    $this->interactionMap['C|'.$entry['separator'].$component][] = $lineNum;
+                }
+            }
+
+            // U: Groups rules with unparsed selectors by their raw form
+            if ($attrData === null) {
+                $this->interactionMap['U|'.$entry['separator'].$entry['selector']][] = $lineNum;
             }
         }
 
@@ -187,7 +207,8 @@ final class CosmeticCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-        $key = $line.'|'.$entry['conditionKey'];
+        $domainStr = implode(',', array_keys($entry['domains']));
+        $key = $domainStr.'|'.$entry['separator'].'|'.$entry['canonicalSelector'].'|'.$entry['conditionKey'];
 
         if (isset($this->exactSeen[$key])) {
             $err->message(sprintf(
@@ -261,7 +282,7 @@ final class CosmeticCheck implements Rule
             } else {
                 $message = sprintf(
                     'Redundant filter: %s is redundant due to more general selector on line %d',
-                    $entry['line'], $bestParent['lineNum'],
+                    Str::limit($entry['line'], 50), $bestParent['lineNum'],
                 );
             }
 
@@ -370,6 +391,9 @@ final class CosmeticCheck implements Rule
         $candidates = [];
         $separator = $entry['separator'];
 
+        // -----------------------------------------------------------------
+        // Attribute selector candidates
+        // -----------------------------------------------------------------
         if ($entry['attrData']) {
             $val = strtolower($entry['attrData']['value']);
             $op = $entry['attrData']['operator'];
@@ -450,7 +474,40 @@ final class CosmeticCheck implements Rule
             return $candidates;
         }
 
-        return $interactionMap['S|'.$separator.$entry['selector']] ?? [];
+        // -----------------------------------------------------------------
+        // Standard (non-attribute) selector candidates
+        // -----------------------------------------------------------------
+
+        // Look up the canonical bucket. Canonicalization normalizes class
+        // order so that .a.b and .b.a resolve to the same bucket.
+        $parsed = $entry['compoundData'];
+        $key = 'S|'.$separator.$entry['canonicalSelector'];
+        if (isset($interactionMap[$key])) {
+            $candidates = array_merge($candidates, $interactionMap[$key]);
+        }
+
+        // Look up candidates with the same raw selector for unparsed selectors.
+        $unparsedKey = 'U|'.$separator.$entry['selector'];
+        if (isset($interactionMap[$unparsedKey])) {
+            $candidates = array_merge($candidates, $interactionMap[$unparsedKey]);
+        }
+
+        // Look up candidates sharing any component of the current selector.
+        if ($parsed !== null) {
+            foreach ($this->getCompoundComponents($parsed) as $component) {
+                $key = 'C|'.$separator.$component;
+                if (isset($interactionMap[$key])) {
+                    array_push($candidates, ...$interactionMap[$key]);
+                }
+            }
+        }
+
+        $candidates = array_unique($candidates);
+        $candidates = array_values(array_filter($candidates, function ($idx) use ($entry) {
+            return $this->collection[$idx]['conditionKey'] === $entry['conditionKey'];
+        }));
+
+        return $candidates;
     }
 
     /**
@@ -472,8 +529,9 @@ final class CosmeticCheck implements Rule
      */
     private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
     {
-        // Scenario: Domain matching
-        // Rule domains must be covered by candidate domains.
+        // =================================================================
+        // Domain matching
+        // =================================================================
         if ($candidate['domains'] !== []) {
             // A rule with a mix of inclusions and exclusions should not cover other rules
             // unless they have the exact same domain set.
@@ -502,12 +560,23 @@ final class CosmeticCheck implements Rule
             return false;
         }
 
-        // If simple, it's an exact match from bucket S|. If not, it's an attribute comparison.
-        $coverage = $rule['attrData'] === null
-            ? true
-            : $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
+        // =================================================================
+        // Selector matching
+        // =================================================================
 
-        return $coverage;
+        // Both rules are compound selectors
+        if ($rule['compoundData'] !== null && $candidate['compoundData'] !== null) {
+            return $this->isCompoundCoveredBy($rule['compoundData'], $candidate['compoundData']);
+        }
+
+        // Both rules are attribute selectors
+        if ($rule['attrData'] !== null && $candidate['attrData'] !== null) {
+            return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
+        }
+
+        // For unparsed or complex selectors, coverage is only possible through
+        // identical selectors.
+        return $rule['selector'] === $candidate['selector'];
     }
 
     /**
@@ -526,8 +595,21 @@ final class CosmeticCheck implements Rule
      */
     private function isBetter(array $candidate, array $best): bool
     {
-        // 1. Semantic generality (for attribute selectors)
-        if ($candidate['attrData'] && $best['attrData']) {
+        // 1. Selector generality
+        if ($candidate['compoundData'] !== null && $best['compoundData'] !== null) {
+            $candCoversBest = $this->isCompoundCoveredBy($best['compoundData'], $candidate['compoundData']);
+            $bestCoversCand = $this->isCompoundCoveredBy($candidate['compoundData'], $best['compoundData']);
+
+            // candidate is strictly more general
+            if ($candCoversBest && !$bestCoversCand) {
+                return true;
+            }
+
+            // best is strictly more general
+            if (!$candCoversBest && $bestCoversCand) {
+                return false;
+            }
+        } elseif ($candidate['attrData'] && $best['attrData']) {
             $candCoversBest = $this->isAttrCoveredBy($best['attrData'], $candidate['attrData']);
             $bestCoversCand = $this->isAttrCoveredBy($candidate['attrData'], $best['attrData']);
 
@@ -816,5 +898,146 @@ final class CosmeticCheck implements Rule
             '$=' => "{$type}|".mb_substr($val, -$limit)."|{$separator}|{$tag}|{$attr}",
             default => "{$type}|{$separator}|{$tag}|{$attr}",
         };
+    }
+
+    // =========================================================================
+    // Simple selector utilities
+    // =========================================================================
+
+    /**
+     * Parses a CSS selector into its simple components (tag, #id, .classes).
+     *
+     * Examples of parseable selectors:
+     * - div        => tag=div, id='', classes=[]
+     * - .ad.banner => tag='', id='', classes=['ad','banner']
+     * - div#ad.x.y => tag=div, id='ad', classes=['x','y']
+     *
+     * Examples of unparseable selectors (returns null):
+     * - div > span  (combinator)
+     * - .ad:hover   (pseudo-class)
+     * - div[data-x] (attribute selector)
+     *
+     * @param string $selector The CSS selector to parse.
+     * @return _ParsedCompoundSelector|null Parsed components with classes sorted
+     *                                      alphabetically, or null if the selector
+     *                                      contains unsupported constructs.
+     */
+    private function parseCompoundSelector(string $selector): ?array
+    {
+        $tag = '';
+        $id = '';
+        $classes = [];
+
+        // Extract tag (at start)
+        if (preg_match('/^[a-zA-Z][a-zA-Z0-9_-]*/', $selector, $m)) {
+            $tag = $m[0];
+            $selector = substr($selector, strlen($tag));
+        }
+
+        // Extract the #id component
+        if (preg_match('/#([a-zA-Z0-9_-]+)/', $selector, $m)) {
+            $id = $m[1];
+            $selector = str_replace($m[0], '', $selector);
+        }
+
+        // Extract all .class components.
+        //
+        // The regex handles backslash-escaped characters within class names
+        // (e.g. `.foo\.bar` is a single class "foo.bar"). Each match starts
+        // with a literal dot followed by one or more characters that are
+        // neither dots nor unescaped special characters.
+        //
+        // Pattern breakdown:
+        //   \.                  — literal dot (class prefix)
+        //   (?:                 — one or more of:
+        //     (?![.])[^.]       —   a non-dot character, OR
+        //     |\\\\.            —   a backslash followed by any character
+        //   )+                  —   (escape sequence)
+        preg_match_all('/\.(?:(?![.])[^.]|\\\\.)+/', $selector, $matches);
+        if (!empty($matches[0])) {
+            foreach ($matches[0] as $match) {
+                // Strip the leading dot to get the bare class name
+                $classes[] = substr($match, 1);
+            }
+
+            // Remove all matched class tokens from the selector so we can
+            // verify that nothing meaningful remains.
+            $selector = preg_replace('/\.(?:(?![.])[^.]|\\\\.)+/', '', $selector);
+        }
+
+        // After extracting all recognized components, any remaining non-empty
+        // content indicates an unsupported construct (combinator, pseudo-class,
+        // attribute selector, etc.). Bail out in that case.
+        if (trim($selector) !== '') {
+            return null;
+        }
+
+        // Sort classes for normalization. This ensures that `.a.b` and `.b.a`
+        // are treated as structurally identical.
+        sort($classes);
+
+        return ['tag' => $tag, 'id' => $id, 'classes' => $classes];
+    }
+
+    /**
+     * Gets the individual components of a compound selector.
+     *
+     * @param _ParsedCompoundSelector $parsed Pre-parsed data.
+     * @return list<string> List of component strings.
+     */
+    private function getCompoundComponents(array $parsed): array
+    {
+        $components = [];
+
+        if ($parsed['tag'] !== '') {
+            $components[] = $parsed['tag'];
+        }
+
+        if ($parsed['id'] !== '') {
+            $components[] = '#'.$parsed['id'];
+        }
+
+        foreach ($parsed['classes'] as $class) {
+            $components[] = '.'.$class;
+        }
+
+        return $components;
+    }
+
+    /**
+     * Determines whether a specific compound selector is covered by a more
+     * general one.
+     *
+     * Examples:
+     * - `.ad` covers `.ad.banner` (subset of classes)
+     * - `div.ad` covers `div.ad.banner` (same tag, subset of classes)
+     * - `span.ad` does NOT cover `div.ad.banner` (different tag)
+     * - `#main` covers `#main.widget` (same ID, subset of classes)
+     *
+     * @param _ParsedCompoundSelector $specific The more specific selector.
+     * @param _ParsedCompoundSelector $general The potentially covering selector.
+     * @return bool True if $general covers $specific.
+     */
+    private function isCompoundCoveredBy(array $specific, array $general): bool
+    {
+        // Tag: general can be empty (universal) or must match
+        if ($general['tag'] !== '' && $general['tag'] !== $specific['tag']) {
+            return false;
+        }
+
+        // ID: general can be empty or must match
+        if ($general['id'] !== '' && $general['id'] !== $specific['id']) {
+            return false;
+        }
+
+        // Classes: all general classes must be present in specific
+        $specificClasses = array_fill_keys($specific['classes'], true);
+        foreach ($general['classes'] as $cls) {
+            if (!isset($specificClasses[$cls])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
