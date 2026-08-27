@@ -56,11 +56,13 @@ class ScriptletCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function trusted_parameter(): void
+    public function trusted_and_custom_parameter(): void
     {
         $lines = [
             'example.org##+js(trusted-something)',
             'example.org##+js(trusted-something.js)',
+            // https://github.com/brave/adblock-lists/blob/81ca1eac58/brave-lists/brave-specific.txt#L139
+            'youtube.*##+js(brave-youtube-theater-fix)',
         ];
 
         $this->analyse($lines);

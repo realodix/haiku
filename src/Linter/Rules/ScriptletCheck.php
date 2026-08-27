@@ -25,7 +25,7 @@ final class ScriptletCheck implements Rule
             if (preg_match('/\+js\(\s*([^,\s\)]+)/', $line, $m)) {
                 $actualName = $this->normalizeParam($m[1]);
 
-                if (str_starts_with($actualName, 'trusted-')) {
+                if (str_starts_with($actualName, 'trusted-') || str_starts_with($actualName, 'brave-')) {
                     continue;
                 }
 
