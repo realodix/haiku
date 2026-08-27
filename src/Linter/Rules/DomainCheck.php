@@ -162,25 +162,32 @@ final class DomainCheck implements Rule
             return;
         }
 
-        // 2. Format / forbidden character check
-        if (!str_contains($domain, ' ')
-            && (str_ends_with($domain, '.') && !preg_match('/^[\d\.]+$/', $domain)
-                || str_starts_with($domain, '.')
-                || str_contains($domain, '/'))
-        ) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
-                ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
-                ->build();
-
-            return;
-        }
-
-        // 3. Whitespace check
+        // 2. Whitespace check
         if (preg_match('/\s/', $domain)) {
             $err->message(sprintf(
                 'Bad domain: "%s" contains unnecessary whitespace.',
                 $domain,
             ))->build();
+
+            return;
+        }
+
+        // 3. Format / forbidden character check
+        $dIdnaAscii = idn_to_ascii($domain);
+        if ($dIdnaAscii === false) {
+            $err->message(sprintf('Bad domain: "%s"', $domain))
+                ->build();
+
+            return;
+        }
+
+        if (str_ends_with($domain, '.') && !preg_match('/^[\d\.]+$/', $domain)
+            || str_starts_with($domain, '.')
+            || str_contains($domain, '/')
+        ) {
+            $err->message(sprintf('Bad domain: "%s"', $domain))
+                ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
+                ->build();
 
             return;
         }
@@ -191,8 +198,7 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
-        $domain = rtrim($domain, '>'); // clean up the ancestor context
-        $domain = idn_to_ascii($domain);
+        $domain = rtrim($dIdnaAscii, '>'); // clean up the ancestor context
 
         if (ctype_alpha($domain)) {
             if (!isset(Tld::VALUES[$domain])) {

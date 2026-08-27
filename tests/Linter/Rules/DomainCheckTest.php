@@ -100,6 +100,16 @@ class DomainCheckTest extends TestCase
             [7, 'Bad domain: "domain.com/"'],
         ]);
 
+        // idn_to_ascii() will return FALSE if it fails and passing a non-string argument to ctype_alpha() is deprecated.
+        // https://github.com/realodix/haiku/blob/7ee019c35e/src/Linter/Rules/DomainCheck.php#L197
+        $lines = [
+            // https://github.com/DandelionSprout/adfilt/blob/26ed32a07c/Alternate%20versions%20Anti-Malware%20List/AntiMalwareABP.txt#L24728
+            '||gitcoin-developers.$all,domain=~blatant_scammers_who_have_no_actual_relations_with_github_whatsoever.*',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain: "~blatant_scammers_who_have_no_actual_relations_with_github_whatsoever.*"'],
+        ]);
+
         $lines = [
             '[$domain=/example.net/]##.ad-branding',
             // contain noop option
