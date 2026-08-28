@@ -65,12 +65,30 @@ class FoundationTest extends TestCase
         $lines = [
             'a.com,b.com##.abanner',
             'b.com,a.com##.abanner',
+
+            'a.com,b.com,c.co,d.co,e.co,f.co,g.co,h.co,i.co,j.co,k.co,l.co,m.co,n.co,o.co,p.co,q.co,r.co,s.co,t.co,u.co,v.co,w.co,x.co,y.co,z.co##.a2banner',
+            'b.com,a.com,c.co,d.co,e.co,f.co,g.co,h.co,i.co,j.co,k.co,l.co,m.co,n.co,o.co,p.co,q.co,r.co,s.co,t.co,u.co,v.co,w.co,x.co,y.co,z.co##.a2banner',
+
+            'a.com,b.com,c.co,d.co,e.co,f.co,g.co,h.co,i.co,j.co,k.co,l.co,m.co,n.co,o.co,p.co,q.co,r.co,s.co,t.co,u.co,v.co,w.co,x.co,y.co,z.co##.a3banner',
+            '##.a3banner',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Duplicate filter: identical to the filter rule on line 1'],
+            [4, 'Duplicate filter: identical to the filter rule on line 3'],
+            [5, 'Redundant filter: ...,z.co##.a3banner already covered by ##.a3banner on line 6'],
+        ]);
+
+        $lines = [
+            'example.com,example.org##a',
+            'example.com##a',
+
             'a.com,b.com.c.com##.bbanner',
             'b.com,a.com##.bbanner',
         ];
 
         $this->analyse($lines, [
-            [2, 'Redundant filter: b.com,a.com##.abanner already covered by ##.abanner on line 1'],
+            [2, 'Duplicate filter: identical to the filter rule on line 1'],
             [4, 'Redundant filter: domain a.com already covered on line 3'],
         ]);
     }

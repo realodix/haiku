@@ -73,7 +73,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             'a.com,x.com,b.com##a[title="Adv-1" i]',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: example.com##a already covered by ##a on line 1'],
+            [2, 'Duplicate filter: identical to the filter rule on line 1'],
             [3, 'Redundant filter: domain a.com in a.com##a[title="Ads-1" i] already covered on line 4'],
             [3, 'Redundant filter: domain b.com in b.com##a[title="Ads-1" i] already covered on line 4'],
             [6, 'Redundant filter: domain a.com in a.com##a[title="Adv-1" i] already covered on line 5'],

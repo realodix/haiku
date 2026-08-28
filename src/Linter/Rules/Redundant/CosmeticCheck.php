@@ -276,18 +276,25 @@ final class CosmeticCheck implements Rule
         if ($bestParent) {
             $message = '';
             if ($entry['selector'] === $bestParent['selector']) {
-                $content = $entry['line'];
-                if (count($entry['domains']) > 2) {
-                    $content = '...,'.array_key_last($entry['domains'])
-                        .$entry['separator'].$entry['selector'];
-                }
+                if ($bestParent['domains'] === []) {
+                    $entryLine = $entry['line'];
+                    if (count($entry['domains']) > 2) {
+                        $entryLine = '...,'.array_key_last($entry['domains'])
+                            .$entry['separator'].$entry['selector'];
+                    }
 
-                $message = sprintf(
-                    'Redundant filter: %s already covered by %s on line %d',
-                    $content,
-                    $bestParent['separator'].$bestParent['selector'],
-                    $bestParent['lineNum'],
-                );
+                    $message = sprintf(
+                        'Redundant filter: %s already covered by %s on line %d',
+                        $entryLine,
+                        $bestParent['separator'].$bestParent['selector'],
+                        $bestParent['lineNum'],
+                    );
+                } else {
+                    $message = sprintf(
+                        'Duplicate filter: identical to the filter rule on line %d',
+                        $bestParent['lineNum'],
+                    );
+                }
             } else {
                 $message = sprintf(
                     'Redundant filter: %s is redundant due to more general selector on line %d',

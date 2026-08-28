@@ -104,8 +104,8 @@ class GeneralTest extends TestCase
             '*$domain=example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 2'],
-            [3, 'Redundant filter: ads.example.com###ads1 already covered by ###ads1 on line 2'],
+            [1, 'Duplicate filter: identical to the filter rule on line 2'],
+            [3, 'Duplicate filter: identical to the filter rule on line 2'],
             [4, 'Redundant filter: domain ads.example.com already covered on line 5'],
             [6, 'Redundant filter: domain example.com already covered on line 5'],
         ]);
@@ -117,7 +117,7 @@ class GeneralTest extends TestCase
             '*$domain=example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 2'],
+            [1, 'Duplicate filter: identical to the filter rule on line 2'],
             [4, 'Redundant filter: domain example.com already covered on line 3'],
         ]);
 
@@ -141,13 +141,13 @@ class GeneralTest extends TestCase
             '/ads2b-$domain=example.*|wikipedia.com', // 16
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: example.com###ads1a already covered by ###ads1a on line 1'],
+            [2, 'Duplicate filter: identical to the filter rule on line 1'],
             [4, 'Redundant filter: domain example.com already covered on line 3'],
             [6, 'Redundant filter: domain example.com already covered on line 5'],
             [8, 'Redundant filter: domain example.com already covered on line 7'],
 
-            [10, 'Redundant filter: example.com###ads2a already covered by ###ads2a on line 9'],
-            [11, 'Redundant filter: example.com###ads2b already covered by ###ads2b on line 12'],
+            [10, 'Duplicate filter: identical to the filter rule on line 9'],
+            [11, 'Duplicate filter: identical to the filter rule on line 12'],
             [14, 'Redundant filter: domain example.com already covered on line 13'],
             [15, 'Redundant filter: domain example.com already covered on line 16'],
         ]);
@@ -161,7 +161,7 @@ class GeneralTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: domain example.com already covered on line 2'],
             [2, 'Redundant domain: ads.example.com is covered by example.*'],
-            [3, 'Redundant filter: example.com###ads1 already covered by ###ads1 on line 4'],
+            [3, 'Duplicate filter: identical to the filter rule on line 4'],
             [4, 'Redundant domain: ads.example.com is covered by example.*'],
         ]);
     }
