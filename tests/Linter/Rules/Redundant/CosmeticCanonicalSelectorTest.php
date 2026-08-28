@@ -19,8 +19,8 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [2, 'Redundant filter: example.com##.active#badge already defined on line 1'],
-            [4, 'Redundant filter: ##.baz.foo.bar already defined on line 3'],
+            [2, 'Duplicate filter: identical to the filter rule on line 1'],
+            [4, 'Duplicate filter: ##.baz.foo.bar already defined on line 3'],
         ]);
     }
 
@@ -120,7 +120,7 @@ final class CosmeticCanonicalSelectorTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: ##.w-full.relative.z-0.flex.flex-1.flex-col.items-... is redundant due to more general selector on line 2'],
             [3, 'Redundant filter: ##.lg\:min-h-\[132px\].flex.relative is redundant due to more general selector on line 4'],
-            [6, 'Redundant filter: ##.baz.foo\.bar already defined on line 5'],
+            [6, 'Duplicate filter: ##.baz.foo\.bar already defined on line 5'],
         ]);
     }
 

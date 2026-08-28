@@ -268,7 +268,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
         $this->analyse($lines, [
             [1, 'Redundant filter: ##[class="ads1"] is redundant due to more general selector on line 2'],
             [3, 'Redundant filter: ##.ads1 is redundant due to more general selector on line 2'],
-            [5, 'Redundant filter: ##[class="foo"] already defined on line 4'],
+            [5, 'Duplicate filter: ##[class="foo"] already defined on line 4'],
         ]);
 
         // '~='
@@ -279,7 +279,7 @@ class CosmeticAttrSelectorCheckTest extends TestCase
             '##.ads1',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: ##[class~="ads1 ads2"] already defined on line 1'],
+            [2, 'Duplicate filter: ##[class~="ads1 ads2"] already defined on line 1'],
             [4, 'Redundant filter: ##.ads1 is redundant due to more general selector on line 3'],
         ]);
 

@@ -24,9 +24,9 @@ class NetworkCheckTest extends TestCase
             '*$domain=a.com',
         ];
         $this->analyse($lines, [
-            [4, 'Redundant filter: ||example.org^$script already defined on line 2'],
-            [5, 'Redundant filter: ||example.com^ already defined on line 1'],
-            [8, 'Redundant filter: *$domain=a.com already defined on line 7'],
+            [4, 'Duplicate filter: ||example.org^$script already defined on line 2'],
+            [5, 'Duplicate filter: ||example.com^ already defined on line 1'],
+            [8, 'Duplicate filter: *$domain=a.com already defined on line 7'],
         ], self::RULE);
 
         // case insensitive
@@ -35,10 +35,12 @@ class NetworkCheckTest extends TestCase
             '/Ads/*',
             '||example.org^$script',
             '||example.org^$SCRIPT',
+            // '||europeangaming.eu/portal/wp-admin/admin-ajax.php?action=acc_get_banners',
+            // '||europeangaming.eu/portal/wp-admin/admin-ajax.php?action=acc_get_banners',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: /Ads/* already defined on line 1'],
-            [4, 'Redundant filter: ||example.org^$SCRIPT already defined on line 3'],
+            [2, 'Duplicate filter: /Ads/* already defined on line 1'],
+            [4, 'Duplicate filter: ||example.org^$SCRIPT already defined on line 3'],
         ], self::RULE);
     }
 
@@ -275,7 +277,7 @@ class NetworkCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [2, 'Redundant filter: *$script,image already defined on line 1'],
+            [2, 'Duplicate filter: *$script,image already defined on line 1'],
         ]);
     }
 
@@ -328,7 +330,7 @@ class NetworkCheckTest extends TestCase
             '||somesite.com/ads1/',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: /ADS/* already defined on line 1'],
+            [2, 'Duplicate filter: /ADS/* already defined on line 1'],
             [4, 'Redundant filter: ||somesite.com/ads1/ already covered by /ads1/* on line 3'],
         ]);
 
@@ -338,7 +340,7 @@ class NetworkCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [2, 'Option "SCRIPT" must be lowercase.'],
-            [2, 'Redundant filter: ||example.org^$SCRIPT already defined on line 1'],
+            [2, 'Duplicate filter: ||example.org^$SCRIPT already defined on line 1'],
         ]);
 
         // case sensitive

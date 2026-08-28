@@ -24,8 +24,8 @@ class CosmeticCheckTest extends TestCase
 
         $this->analyse($lines, [
             [3, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1'],
-            [4, 'Redundant filter: example.com##.ads already defined on line 3'],
-            [6, 'Redundant filter: ##[id^="div-gpt-ad"] already defined on line 5'],
+            [4, 'Duplicate filter: identical to the filter rule on line 3'],
+            [6, 'Duplicate filter: ##[id^="div-gpt-ad"] already defined on line 5'],
         ], self::RULE);
     }
 
@@ -123,8 +123,8 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [5, 'Redundant filter: ##.ads already defined on line 1'],
-            [7, 'Redundant filter: ##.ads already defined on line 1'],
+            [5, 'Duplicate filter: ##.ads already defined on line 1'],
+            [7, 'Duplicate filter: ##.ads already defined on line 1'],
         ], self::RULE);
     }
 
@@ -139,7 +139,7 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [4, 'Redundant filter: ##.ads already defined on line 1'],
+            [4, 'Duplicate filter: ##.ads already defined on line 1'],
         ], self::RULE);
     }
 
@@ -193,7 +193,7 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [3, 'Redundant filter: ##.ads .banner already defined on line 2'],
+            [3, 'Duplicate filter: ##.ads .banner already defined on line 2'],
             [5, 'Redundant filter: example.org,example.site##.ads img already covered by ##.ads img on line 4'],
             [7, 'Redundant filter: example.com##.ads div.img already covered by ##.ads div.img on line 6'],
         ]);

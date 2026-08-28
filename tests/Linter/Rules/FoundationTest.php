@@ -48,4 +48,30 @@ class FoundationTest extends TestCase
 
         $this->analyse($lines);
     }
+
+    #[PHPUnit\Test]
+    public function test_3(): void
+    {
+        $lines = [
+            'a.com,b.com##.ads',
+            'a.com,b.com##.ads',
+            '##.sads',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Duplicate filter: identical to the filter rule on line 1'],
+        ]);
+
+        $lines = [
+            'a.com,b.com##.abanner',
+            'b.com,a.com##.abanner',
+            'a.com,b.com.c.com##.bbanner',
+            'b.com,a.com##.bbanner',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Redundant filter: b.com,a.com##.abanner already covered by ##.abanner on line 1'],
+            [4, 'Redundant filter: domain a.com already covered on line 3'],
+        ]);
+    }
 }

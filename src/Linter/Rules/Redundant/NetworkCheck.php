@@ -214,7 +214,7 @@ final class NetworkCheck implements Rule
         $exactKey = ($entry['hasMatchCase'] ? $line : strtolower($line)).'|'.$entry['conditionKey'];
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message(sprintf(
-                'Redundant filter: %s already defined on line %d',
+                'Duplicate filter: %s already defined on line %d',
                 $line, $this->seen['exact'][$exactKey],
             ))->line($entry['lineNum'])->build();
 
@@ -309,7 +309,7 @@ final class NetworkCheck implements Rule
                 && $pattern === $best['pattern']
             ) {
                 $err->message(sprintf(
-                    'Redundant filter: %s already defined on line %d',
+                    'Duplicate filter: %s already defined on line %d',
                     $entry['line'], $best['lineNum'],
                 ))->line($entry['lineNum'])->build();
 
