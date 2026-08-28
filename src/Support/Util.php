@@ -24,7 +24,9 @@ final class Util
 
     public static function isCommentOrEmpty(string $str): bool
     {
-        return $str === '' || str_starts_with($str, '!');
+        return trim($str) === ''
+            || str_starts_with($str, '!')
+            || preg_match('/^#(?=[^#@$?%])/', $str);
     }
 
     public static function isMetaLine(string $line): bool

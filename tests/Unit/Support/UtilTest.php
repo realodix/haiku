@@ -24,6 +24,20 @@ class UtilTest extends TestCase
         $this->assertFalse(Util::isCosmeticRule($data));
     }
 
+    #[PHPUnit\DataProvider('isCommentOrEmptyProvider')]
+    #[PHPUnit\Test]
+    public function isCommentOrEmpty($data)
+    {
+        $this->assertTrue(Util::isCommentOrEmpty($data));
+    }
+
+    #[PHPUnit\DataProvider('isNotCommentProvider')]
+    #[PHPUnit\Test]
+    public function isNotComment($data)
+    {
+        $this->assertFalse(Util::isCommentOrEmpty($data));
+    }
+
     #[PHPUnit\DataProvider('isMetaLineProvider')]
     #[PHPUnit\Test]
     public function isMetaLine($data)

@@ -91,6 +91,31 @@ trait UtilProvider
         ];
     }
 
+    public static function isCommentOrEmptyProvider(): array
+    {
+        return [
+            [''],
+            ['   '],
+            ['!comment'],
+            ['! comment'],
+            ['#comment'],
+            ['# comment'],
+        ];
+    }
+
+    public static function isNotCommentProvider(): array
+    {
+        return [
+            ['##div'],
+            ['##.ads'],
+            ['#@#.ads'],
+            ['###ads'],
+            ['#$#'],
+            ['#?#'],
+            ['#%#'],
+        ];
+    }
+
     public static function isMetaLineProvider(): array
     {
         return [
