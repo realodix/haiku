@@ -17,10 +17,10 @@ use Realodix\Haiku\Support\File;
  *  normalize_domain_separators: bool,
  *  option_format: null|'native'|'long'|'short',
  *  option_order: false|'name'|'type',
- *  reduce_subdomains: bool,
- *  reduce_wildcard_covered_domains: bool,
  *  remove_empty_lines: bool|'keep_before_comment',
+ *  remove_subdomains: bool,
  *  remove_unnecessary_wildcard: bool,
+ *  remove_wildcard_covered_domains: bool,
  * }
  */
 final class FixerConfig
@@ -48,10 +48,10 @@ final class FixerConfig
         'normalize_domain_separators' => false,
         'option_format' => null,
         'option_order' => 'type',
-        'reduce_subdomains' => false,
-        'reduce_wildcard_covered_domains' => false,
         'remove_empty_lines' => 'keep_before_comment',
+        'remove_subdomains' => false,
         'remove_unnecessary_wildcard' => false,
+        'remove_wildcard_covered_domains' => false,
         // deprecated
         'domain_order' => 'negated_first',
         'normalize_domain' => false,
@@ -103,6 +103,9 @@ final class FixerConfig
             'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
             // @deprecated since v1.12.0
             'normalize_domains' => 'normalize_domain',
+            // @deprecated since v1.13.17
+            'reduce_subdomains' => 'remove_subdomains',
+            'reduce_wildcard_covered_domains' => 'remove_wildcard_covered_domains',
         ];
 
         foreach ($renames as $old => $new) {

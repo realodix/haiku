@@ -7,7 +7,7 @@ Some transformations can be toggled via the `fixer.flags` configuration option.
 fixer:
   flags:
     option_format: short
-    reduce_wildcard_covered_domains: true
+    remove_wildcard_covered_domains: true
 ```
 
 
@@ -274,7 +274,7 @@ Reduces domain lists by eliminating entries that are semantically covered by mor
 
 #### Wildcard TLD Coverage
 
-`fixer.flags.reduce_wildcard_covered_domains`
+`fixer.flags.remove_wildcard_covered_domains`
 
 Eliminates explicit domains that are already covered by wildcard TLD domains. When a wildcard domain like `example.*` is present, specific domains like `example.com` are redundant and removed. Negated domains are preserved.
 
@@ -288,7 +288,7 @@ example.com,~example.net,example.*##.ads
 
 #### Subdomain Coverage
 
-`fixer.flags.reduce_subdomains`
+`fixer.flags.remove_subdomains`
 
 Removes subdomain entries that are covered by their parent domain. When a base domain like `example.com` is present, subdomains like `api.example.com` are redundant. Negated subdomains are preserved.
 

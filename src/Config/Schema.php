@@ -38,6 +38,17 @@ final class Schema
                         )),
                     'normalize_domain' => Expect::bool() // @deprecated since v1.13.14
                         ->deprecated('The "normalize_domain" flag is deprecated.'),
+                    // @deprecated since v1.13.17
+                    'reduce_subdomains' => Expect::bool()
+                        ->deprecated(
+                            'The "reduce_subdomains" flag is deprecated. '
+                            .'Use "remove_subdomains" instead.',
+                        ),
+                    'reduce_wildcard_covered_domains' => Expect::bool()
+                        ->deprecated(
+                            'The "reduce_wildcard_covered_domains" flag is deprecated. '
+                            .'Use "remove_wildcard_covered_domains" instead.',
+                        ),
                 ])->otherItems(Expect::bool()),
             ]),
         ]);
