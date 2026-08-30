@@ -58,7 +58,8 @@ final class FixerConfig
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {
-            $this->flags = $this->resolveFlags($value);
+            $value = $this->deprecatedFlags($value);
+            $this->flags = Helper::resolveOverrides($this->flags, $value);
         }
     }
 
@@ -88,12 +89,12 @@ final class FixerConfig
 
     /**
      * @codeCoverageIgnore
-     * Resolves and validates flag overrides.
+     * Convert deprecated flag names to their new names
      *
      * @param array<string, mixed> $override
-     * @return _FixerFlags
+     * @return array<string, mixed>
      */
-    private function resolveFlags(array $override): array
+    private function deprecatedFlags(array $override): array
     {
         $renames = [
             // @deprecated since v1.11.0
@@ -111,6 +112,6 @@ final class FixerConfig
             }
         }
 
-        return Helper::resolveOverrides($this->flags, $override);
+        return $override;
     }
 }
