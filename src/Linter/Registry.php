@@ -120,8 +120,8 @@ final class Registry
             'scriptlet' => true,
         ],
         'empty',
-        'fingerprint2.js' => ['alias' => ['fingerprintjs2']],
-        'fingerprint3.js' => ['alias' => ['fingerprintjs3']],
+        'fingerprint2.js' => ['alias' => ['fingerprintjs2'], 'scriptlet' => true],
+        'fingerprint3.js' => ['alias' => ['fingerprintjs3'], 'scriptlet' => true],
         'google-analytics_analytics.js' => [
             'alias' => [
                 'google-analytics.com/analytics.js',
