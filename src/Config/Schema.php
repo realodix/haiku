@@ -39,6 +39,16 @@ final class Schema
                     'normalize_domain' => Expect::bool() // @deprecated since v1.13.14
                         ->deprecated('The "normalize_domain" flag is deprecated.'),
                     // @deprecated since v1.13.17
+                    'no_legacy_ext_selectors' => Expect::bool()
+                        ->deprecated(
+                            'The "no_legacy_ext_selectors" flag is deprecated. '
+                            .'Use "convert_legacy_ext_selectors" instead.',
+                        ),
+                    'no_legacy_remove_action' => Expect::bool()
+                        ->deprecated(
+                            'The "no_legacy_remove_action" flag is deprecated. '
+                            .'Use "convert_legacy_remove_action" instead.',
+                        ),
                     'reduce_subdomains' => Expect::bool()
                         ->deprecated(
                             'The "reduce_subdomains" flag is deprecated. '

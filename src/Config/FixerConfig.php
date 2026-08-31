@@ -9,10 +9,10 @@ use Realodix\Haiku\Support\File;
  *  adg_non_basic_rule_modifier: bool,
  *  attr_to_basic_selector: null|'strict'|'loose',
  *  combine_option_sets: bool,
+ *  convert_legacy_ext_selectors: bool,
+ *  convert_legacy_remove_action: bool,
  *  domain_order: null|'name'|'normal'|'negated_first',
  *  migrate_deprecated_options: bool,
- *  no_legacy_ext_selectors: bool,
- *  no_legacy_remove_action: bool,
  *  normalize_domain: bool,
  *  normalize_domain_separators: bool,
  *  option_format: null|'native'|'long'|'short',
@@ -42,9 +42,9 @@ final class FixerConfig
         'adg_non_basic_rule_modifier' => false,
         'attr_to_basic_selector' => null,
         'combine_option_sets' => false,
+        'convert_legacy_ext_selectors' => false,
+        'convert_legacy_remove_action' => false,
         'migrate_deprecated_options' => false,
-        'no_legacy_ext_selectors' => false,
-        'no_legacy_remove_action' => false,
         'normalize_domain_separators' => false,
         'option_format' => null,
         'option_order' => 'type',
@@ -104,6 +104,8 @@ final class FixerConfig
             // @deprecated since v1.12.0
             'normalize_domains' => 'normalize_domain',
             // @deprecated since v1.13.17
+            'no_legacy_ext_selectors' => 'convert_legacy_ext_selectors',
+            'no_legacy_remove_action' => 'convert_legacy_remove_action',
             'reduce_subdomains' => 'remove_subdomains',
             'reduce_wildcard_covered_domains' => 'remove_wildcard_covered_domains',
         ];
