@@ -1456,6 +1456,10 @@ final class Tld
         // others
         // https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains#Non-IANA_domains
         'lib' => true,
+        // https://en.wikipedia.org/wiki/Proposed_top-level_domains#Internationalized_country_code_top-level_domains
+        'xn--wgv71a' => true,
+        'xn--vcst06ab2a' => true,
+        'xn--mgbb7fyab' => true,
 
         'dns' => true,
         'ip' => true,
