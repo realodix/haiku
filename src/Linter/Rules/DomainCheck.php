@@ -152,7 +152,9 @@ final class DomainCheck implements Rule
             return;
         }
 
-        // 1. Single character check
+        // =================================================================
+        // Single character check
+        // =================================================================
         if (strlen($domain) === 1
             && (($domain == '*' && $separator === '|') || $domain !== '*')
         ) {
@@ -162,7 +164,9 @@ final class DomainCheck implements Rule
             return;
         }
 
-        // 2. Whitespace check
+        // =================================================================
+        // Whitespace check
+        // =================================================================
         if (preg_match('/\s/', $domain)) {
             $err->message(sprintf(
                 'Bad domain: "%s" contains unnecessary whitespace.',
@@ -172,7 +176,9 @@ final class DomainCheck implements Rule
             return;
         }
 
-        // 3. Format / forbidden character check
+        // =================================================================
+        // Format / forbidden character check
+        // =================================================================
         $dIdnaAscii = idn_to_ascii($domain);
         if ($dIdnaAscii === false) {
             $err->message(sprintf('Bad domain: "%s"', $domain))
@@ -192,7 +198,9 @@ final class DomainCheck implements Rule
             return;
         }
 
-        // 4. TLD problems
+        // =================================================================
+        // TLD problems
+        // =================================================================
         if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain)) {
             $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->build();
