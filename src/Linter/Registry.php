@@ -169,7 +169,7 @@ final class Registry
         'nitropay_ads.js' => ['scriptlet' => true],
         'nobab2.js' => ['scriptlet' => true],
         'noeval.js' => ['scriptlet' => true],
-        'noeval-silent.js', 'silent-noeval.js',
+        'noeval-silent.js' => ['alias' => ['silent-noeval.js'], 'scriptlet' => true],
         'nofab.js' => [
             'alias' => [
                 'fuckadblock.js-3.2.0',
