@@ -146,7 +146,7 @@ final class DomainCheck implements Rule
     {
         $whitelist = [
             'chrome-extension-scheme', 'moz-extension-scheme', 'addons.about-scheme',
-            'localhost', 'local', 'parked.domain',
+            'localhost', 'local', 'dotblocking.dummy', 'parked.domain',
         ];
         if (in_array(ltrim($domain, '~'), $whitelist)) {
             return;
