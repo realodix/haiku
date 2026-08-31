@@ -428,7 +428,7 @@ Normalizes network filter option names into a consistent format.
 *$~third-party,document
 ```
 
-### # Deprecated Filter Options
+### # Migrate Deprecated Filter Option
 
 `fixer.flags.migrate_deprecated_options`
 
