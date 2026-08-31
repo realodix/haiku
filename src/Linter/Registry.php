@@ -98,6 +98,9 @@ final class Registry
         'golem.de',
     ];
 
+    /**
+     * https://github.com/gorhill/uBlock/blob/1.74.0/src/js/redirect-resources.js
+     */
     const REDIRECT_RESOURCE = [
         'none',
         '1x1.gif' => ['alias' => ['1x1-transparent.gif']],
@@ -209,8 +212,8 @@ final class Registry
     ];
 
     const DEPRECATED_REDIRECT_RESOURCES = [
-        'ligatus_angular-tag.js', 'ligatus.com/*/angular-tag.js',
         'addthis_widget.js', 'addthis.com/addthis_widget.js',
+        'ligatus_angular-tag.js', 'ligatus.com/*/angular-tag.js',
         'monkeybroker.js', 'd3pkae9owd2lcf.cloudfront.net/mb105.js',
     ];
 
@@ -257,6 +260,8 @@ final class Registry
         'adguard_ext_firefox',
         'adguard_ext_opera',
         'adguard_ext_safari',
+        // https://github.com/gorhill/uBlock/commit/fb09b0947d
+        // 'cap_user_stylesheet',
     ];
 
     /**
