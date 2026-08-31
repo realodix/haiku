@@ -26,7 +26,7 @@ final class Util
     {
         return trim($str) === ''
             || str_starts_with($str, '!')
-            || preg_match('/^#(?=[^#@$?%])/', $str);
+            || preg_match('/^#$|^#(?=[^#@$?%])/', $str);
     }
 
     public static function isMetaLine(string $line): bool

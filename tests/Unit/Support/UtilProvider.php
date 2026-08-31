@@ -96,8 +96,10 @@ trait UtilProvider
         return [
             [''],
             ['   '],
+            ['!'],
             ['!comment'],
             ['! comment'],
+            ['#'],
             ['#comment'],
             ['# comment'],
         ];
