@@ -92,7 +92,6 @@ final class DomainCheck implements Rule
 
             $this->checkBadDomainName($err, $domain, $separator);
             $this->checkAncestorContexts($err, $domain, $separator);
-            $this->checkLowercase($err, $domain);
 
             $this->trackDuplicate($domain, $state);
             $this->trackContradiction($domain, $state);
@@ -177,6 +176,14 @@ final class DomainCheck implements Rule
         }
 
         // =================================================================
+        // Lowercase check
+        // =================================================================
+        if ($this->config->rules['domain_case'] && strtolower($domain) !== $domain) {
+            $err->message(sprintf('Domain %s must be lowercase.', $domain))
+                ->build();
+        }
+
+        // =================================================================
         // Format / forbidden character check
         // =================================================================
         $dIdnaAscii = idn_to_ascii($domain);
@@ -250,23 +257,6 @@ final class DomainCheck implements Rule
         if (strlen($m[2]) !== 2) {
             $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
-                ->build();
-        }
-    }
-
-    /**
-     * Check if the domain is lowercase.
-     *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     */
-    private function checkLowercase($err, string $domain): void
-    {
-        if (!$this->config->rules['domain_case']) {
-            return;
-        }
-
-        if (strtolower($domain) !== $domain) {
-            $err->message(sprintf('Domain %s must be lowercase.', $domain))
                 ->build();
         }
     }
