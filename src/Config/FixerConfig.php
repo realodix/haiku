@@ -12,9 +12,9 @@ use Realodix\Haiku\Support\File;
  *  convert_legacy_ext_selectors: bool,
  *  convert_legacy_remove_action: bool,
  *  domain_order: null|'name'|'normal'|'negated_first',
+ *  fix_domain_separators: bool,
  *  migrate_deprecated_options: bool,
  *  normalize_domain: bool,
- *  normalize_domain_separators: bool,
  *  option_format: null|'native'|'long'|'short',
  *  option_order: false|'name'|'type',
  *  remove_empty_lines: bool|'keep_before_comment',
@@ -44,8 +44,8 @@ final class FixerConfig
         'combine_option_sets' => false,
         'convert_legacy_ext_selectors' => false,
         'convert_legacy_remove_action' => false,
+        'fix_domain_separators' => false,
         'migrate_deprecated_options' => false,
-        'normalize_domain_separators' => false,
         'option_format' => null,
         'option_order' => 'type',
         'remove_empty_lines' => 'keep_before_comment',
@@ -106,6 +106,7 @@ final class FixerConfig
             // @deprecated since v1.13.17
             'no_legacy_ext_selectors' => 'convert_legacy_ext_selectors',
             'no_legacy_remove_action' => 'convert_legacy_remove_action',
+            'normalize_domain_separators' => 'fix_domain_separators',
             'reduce_subdomains' => 'remove_subdomains',
             'reduce_wildcard_covered_domains' => 'remove_wildcard_covered_domains',
         ];

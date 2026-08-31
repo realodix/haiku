@@ -59,7 +59,7 @@ final class DomainNormalizer
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
-        if (!$this->config->flags['normalize_domain_separators']) {
+        if (!$this->config->flags['fix_domain_separators']) {
             return $domainStr;
         }
 

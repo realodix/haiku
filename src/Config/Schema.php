@@ -49,6 +49,11 @@ final class Schema
                             'The "no_legacy_remove_action" flag is deprecated. '
                             .'Use "convert_legacy_remove_action" instead.',
                         ),
+                    'normalize_domain_separators' => Expect::bool()
+                        ->deprecated(
+                            'The "normalize_domain_separators" flag is deprecated. '
+                            .'Use "fix_domain_separators" instead.',
+                        ),
                     'reduce_subdomains' => Expect::bool()
                         ->deprecated(
                             'The "reduce_subdomains" flag is deprecated. '
