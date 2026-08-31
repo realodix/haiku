@@ -75,6 +75,7 @@ final class Registry
         'prevent-setTimeout', 'no-setTimeout-if', 'nostif', 'setTimeout-defuser',
         'prevent-window-open', 'nowoif', 'no-window-open-if', 'window.open-defuser',
         'prevent-xhr', 'no-xhr-if',
+        'proxy-apply-config',
         'remove-attr', 'ra',
         'remove-cache-storage-item', 'adjust-setInterval', 'nano-setInterval-booster', 'nano-sib',
         'remove-class', 'rc',
