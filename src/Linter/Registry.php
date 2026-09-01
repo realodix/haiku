@@ -56,6 +56,7 @@ final class Registry
         'json-prune-xhr-response',
         'json-prune',
         'm3u-prune',
+        'mpegdash-prune',
         'multiup',
         'noeval-if', 'prevent-eval-if',
         'noeval-silent',
