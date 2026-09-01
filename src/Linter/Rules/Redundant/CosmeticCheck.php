@@ -210,20 +210,13 @@ final class CosmeticCheck implements Rule
         $key = $domainStr.'|'.$entry['separator'].'|'.$entry['canonicalSelector'].'|'.$entry['conditionKey'];
 
         if (isset($this->exactSeen[$key])) {
-            $err->when($domainStr === '',
-                function () use ($err, $entry, $key) {
-                    return $err->message(sprintf(
-                        'Duplicate filter: %s already defined on line %d',
-                        $entry['line'], $this->exactSeen[$key],
-                    ));
-                },
-                function () use ($err, $key) {
-                    return $err->message(sprintf(
-                        'Duplicate filter: identical to the filter rule on line %d',
-                        $this->exactSeen[$key],
-                    ));
-                },
-            )->line($entry['lineNum'])->build();
+            $msg = $domainStr === '' ?
+                sprintf('Duplicate filter: %s already defined on line %d', $entry['line'], $this->exactSeen[$key])
+                : sprintf('Duplicate filter: identical to the filter rule on line %d', $this->exactSeen[$key]);
+
+            $err->message($msg)
+                ->line($entry['lineNum'])
+                ->build();
 
             return true;
         }
