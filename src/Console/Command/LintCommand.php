@@ -84,17 +84,13 @@ class LintCommand extends Command
             }
 
             $this->generateBaseline($io, $errorReporter);
+            $this->renderPerformanceMetrics($io, $startTime);
 
             return Command::SUCCESS;
         }
 
         $this->renderErrors($io, $errorReporter);
-
-        $io->writeln(sprintf(
-            'Time: %s seconds, Memory: %s',
-            round(microtime(true) - $startTime, 2),
-            round(memory_get_peak_usage(true) / 1024 / 1024, 2).' MB',
-        ));
+        $this->renderPerformanceMetrics($io, $startTime);
 
         return $errorReporter->count() > 0 ? Command::FAILURE : Command::SUCCESS;
     }
@@ -175,6 +171,15 @@ class LintCommand extends Command
             'Found %d %s',
             $errorReporter->count(),
             $errorReporter->count() === 1 ? 'error' : 'errors',
+        ));
+    }
+
+    private function renderPerformanceMetrics(SymfonyStyle $io, float $startTime): void
+    {
+        $io->writeln(sprintf(
+            'Time: %s seconds, Memory: %s',
+            round(microtime(true) - $startTime, 2),
+            round(memory_get_peak_usage(true) / 1024 / 1024, 2).' MB',
         ));
     }
 
