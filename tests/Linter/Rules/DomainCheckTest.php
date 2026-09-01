@@ -127,10 +127,12 @@ class DomainCheckTest extends TestCase
     public function bad_tld_or_domain(): void
     {
         $lines = [
+            'exa##.ad',
             'example##.ad',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain: "example" is an invalid TLD'],
+            [1, 'Bad domain: "exa" is an invalid TLD'],
+            [2, 'Bad domain: "example"'],
         ]);
 
         $lines = [

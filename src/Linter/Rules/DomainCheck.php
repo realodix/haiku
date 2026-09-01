@@ -217,8 +217,11 @@ final class DomainCheck implements Rule
 
         if (ctype_alpha($domain)) {
             if (!isset(Tld::VALUES[$domain])) {
-                $err->message(sprintf('Bad domain: "%s" is an invalid TLD', $domain))
-                    ->build();
+                $msg = strlen($domain) <= 4 ?
+                    sprintf('Bad domain: "%s" is an invalid TLD', $domain)
+                    : sprintf('Bad domain: "%s"', $domain);
+
+                $err->message($msg)->build();
             }
         }
 
