@@ -9,8 +9,8 @@
         "php": "^8.4",
         "clue/ndjson-react": "^1.3",
         "fidry/cpu-core-counter": "^1.3",
-        "illuminate/container": "^13.14",
-        "illuminate/support": "^13.14",
+        "illuminate/container": "^13.30",
+        "illuminate/support": "^13.30",
         "nesbot/carbon": "^3.12",
         "nette/schema": "^1.3",
         "react/child-process": "^0.6.7",
@@ -24,9 +24,9 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.6",
-        "phpbench/phpbench": "^1.6",
+        "phpbench/phpbench": "^1.7",
         "phpstan/phpstan": "^2.2",
-        "phpunit/phpunit": "^13.2",
+        "phpunit/phpunit": "^13.3",
         "realodix/relax": "^1.22"
     },
     "minimum-stability": "dev",
