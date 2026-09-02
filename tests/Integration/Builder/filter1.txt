@@ -18,3 +18,13 @@ true_conditions_rules_list
 !#else
 false_conditions_rules_list
 !#endif
+
+!#safari_cb_affinity(content_blockers)
+safari_cb_affinity_rules_list
+!#safari_cb_affinity
+
+!+ NOT_OPTIMIZED
+!+ NOT_OPTIMIZED PLATFORM(android)
+!+ PLATFORM(windows,mac,android)
+!+ NOT_PLATFORM(ext_safari, ext_android_cb, ios)
+!+ NOT_VALIDATE

@@ -63,7 +63,7 @@ final class Cleaner
             return '';
         }
 
-        // https://regex101.com/r/VSOcD6/1
-        return preg_replace('/^!(?!#\s?(?:include\s|if|endif|else)).*/m', '', $content);
+        // https://regex101.com/r/VSOcD6/2
+        return preg_replace('/^!(?!#\s?(?:include\s|if|endif|else|safari_cb_affinity)|\+).*/m', '', $content);
     }
 }
