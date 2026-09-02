@@ -200,7 +200,7 @@ builder:
 ```
 
 #### `output_dir`
-The directory where compiled filter lists are written. The directory is created automatically if it doesn't exist.
+The directory where output files are written. The directory is created automatically if it doesn't exist.
 
 #### `filter_list`
 An array defining one or more filter lists to build. Each item in the array configures a single output filter list. At least one filter list must be defined.
