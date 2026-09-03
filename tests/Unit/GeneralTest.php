@@ -295,4 +295,49 @@ class GeneralTest extends TestCase
         ];
         $this->assertSame($input, $this->fix($input));
     }
+
+    /**
+     * Don't touch: Not to be crushed, do not combine
+     */
+    #[PHPUnit\Test]
+    public function another_syntax(): void
+    {
+        $input = [
+            // Host
+            '0.0.0.0 example.com',
+            '0.0.0.0 example.org',
+            '127.0.0.1 example.com',
+            '127.0.0.1 example.org',
+            '!', // Dnsmasq
+            'address /example.com/#',
+            'address /example.org/#',
+            'address=/example.com/0.0.0.0',
+            'address=/example.org/0.0.0.0',
+            'server=/example.com/',
+            'server=/example.org/',
+            '!', // RPZ / BIND
+            'example.com CNAME .',
+            'example.org CNAME . ; Malware download (2020-05-25), see https://urlhaus.abuse.ch/host/0022a601.pphost.net/',
+            'zone "0022a601.pphost.net" { type master; notify no; file "null.zone.file"; };',
+            'zone "0following.com" { type master; notify no; file "null.zone.file"; };',
+            '!', // UNBOUND
+            'local-zone: "example.com" nxdomain',
+            'local-zone: "example.org" nxdomain',
+            '!', // Privoxy
+            '.example.com',
+            '.example.org',
+        ];
+
+        $this->assertSame($input, $this->fix($input));
+        $this->analyse($input);
+
+        $input = [
+            '!', // MinerBlock and uBlacklist
+            '*://*.example.com/*',
+            '*://*.example.org/*',
+        ];
+
+        $this->assertSame($input, $this->fix($input));
+        $this->analyse($input);
+    }
 }
