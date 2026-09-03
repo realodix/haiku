@@ -11,23 +11,24 @@ use Illuminate\Container\Container;
 class App
 {
     const NAME = 'Haiku';
-    const VERSION = '1.13.18';
+    const VERSION = '1.13.18-dev';
 
     public static function version(): string
     {
-        if (str_contains(self::VERSION, '.x')) {
+        $version = 'v'.self::VERSION;
+
+        if (str_ends_with($version, '-dev')) {
             $cRef = InstalledVersions::getReference('realodix/haiku');
 
             if ($cRef === null) {
-                return self::VERSION;
+                return $version;
             }
 
             $cRefShort = substr($cRef, 0, 7);
-
-            return str_replace('x', "x ({$cRefShort})", self::VERSION);
+            $version = str_replace('-dev', "-dev ({$cRefShort})", $version);
         }
 
-        return self::VERSION;
+        return $version;
     }
 
     /**
