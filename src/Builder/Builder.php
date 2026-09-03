@@ -11,7 +11,7 @@ use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @phpstan-import-type _FilterSet from \Realodix\Haiku\Config\BuilderConfig
+ * @phpstan-import-type _FilterList from \Realodix\Haiku\Config\BuilderConfig
  */
 final class Builder
 {
@@ -29,19 +29,19 @@ final class Builder
      */
     public function handle($cmdOpt): void
     {
-        $filterSets = $this->config->builder($cmdOpt)->filterSet;
+        $filterLists = $this->config->builder($cmdOpt)->filterLists;
         $this->cache->prepareForRun(
             // builder.filter_lists.filename
-            array_map(fn($filterSet) => $filterSet['outdir'], $filterSets),
+            array_map(fn($filterList) => $filterList['outdir'], $filterLists),
             $cmdOpt,
             Section::B,
         );
 
-        foreach ($filterSets as $filterSet) {
+        foreach ($filterLists as $filterList) {
             // Step 1: Step 1: Read all included files or URLs
-            $outputPath = $filterSet['outdir'];
-            $header = $filterSet['header'];
-            $rawContent = $this->read($filterSet['includes']);
+            $outputPath = $filterList['outdir'];
+            $header = $filterList['header'];
+            $rawContent = $this->read($filterList['includes']);
 
             if ($rawContent === null) {
                 $this->logger->skipped($outputPath);
@@ -50,7 +50,7 @@ final class Builder
             }
 
             // Step 2: Preparing content
-            $content = Cleaner::clean($rawContent, $filterSet['remove_duplicates']);
+            $content = Cleaner::clean($rawContent, $filterList['remove_duplicates']);
             $fingerprint = hash('xxh128', implode(array_merge($content, [$header])));
             if (!$cmdOpt->ignoreCache && $this->cache->isValid($outputPath, $fingerprint)) {
                 $this->logger->skipped($outputPath);

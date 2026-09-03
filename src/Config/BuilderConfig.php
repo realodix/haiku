@@ -6,28 +6,28 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * @phpstan-type _FilterSet array{
+ * @phpstan-type _FilterList array{
  *  outdir: string,
  *  header: string,
  *  includes: array<int, string>,
  *  remove_duplicates: bool,
  * }
- * @phpstan-type _FilterSetInput list<array{
+ * @phpstan-type _FilterListInput list<array{
  *  filename: string,
  *  header?: string,
  *  includes?: array<int, string>,
  *  source?: array<int, string>,
  *  remove_duplicates?: bool,
  * }>
- * @phpstan-type _BuilderConfigInput array{
+ * @phpstan-type _BuilderConfig array{
  *  output_dir?: string,
- *  filter_lists: _FilterSetInput,
+ *  filter_lists: _FilterListInput,
  * }
  */
 final class BuilderConfig
 {
-    /** @var list<_FilterSet> */
-    public private(set) array $filterSet;
+    /** @var list<_FilterList> */
+    public private(set) array $filterLists;
 
     private string $outputDir;
 
@@ -36,14 +36,14 @@ final class BuilderConfig
     ) {}
 
     /**
-     * @param _BuilderConfigInput $config
+     * @param _BuilderConfig $config
      */
     public function make(array $config): self
     {
         $this->validate($config);
 
         $this->outputDir = $this->outputDir($config['output_dir'] ?? null);
-        $this->filterSet = $this->filterSets($config['filter_lists']);
+        $this->filterLists = $this->filterLists($config['filter_lists']);
 
         return $this;
     }
@@ -83,10 +83,10 @@ final class BuilderConfig
     /**
      * Resolves the filter list configuration for each filter list.
      *
-     * @param _FilterSetInput $entries
-     * @return list<_FilterSet>
+     * @param _FilterListInput $entries
+     * @return list<_FilterList>
      */
-    private function filterSets(array $entries): array
+    private function filterLists(array $entries): array
     {
         $sets = [];
         foreach ($entries as $entry) {
@@ -103,7 +103,7 @@ final class BuilderConfig
 
     /**
      * @codeCoverageIgnore
-     * @param _BuilderConfigInput $config
+     * @param _BuilderConfig $config
      */
     private function validate(array $config): void
     {
