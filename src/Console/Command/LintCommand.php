@@ -135,7 +135,11 @@ class LintCommand extends Command
                     break 2;
                 }
 
-                $io->writeln(sprintf('  :%-5d %s', $issue['line'], $issue['message']));
+                $msg = isset($issue['covered_by_line'])
+                    ? $issue['message'].' on line '.$issue['covered_by_line']
+                    : $issue['message'];
+
+                $io->writeln(sprintf('  :%-5d %s', $issue['line'], $msg));
 
                 if (isset($issue['tip'])) {
                     $io->writeln($this->meta($issue['tip'], '💡'));

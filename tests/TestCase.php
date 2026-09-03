@@ -180,9 +180,13 @@ abstract class TestCase extends BaseTestCase
 
         $actualErrors = array_map(
             static function (array $error) use ($strictlyTypedSprintf): string {
+                $message = isset($error['covered_by_line'])
+                    ? $error['message'].' on line '.$error['covered_by_line']
+                    : $error['message'];
+
                 return $strictlyTypedSprintf(
                     $error['line'],
-                    $error['message'],
+                    $message,
                     // $error['tip'] ?? null,
                 );
             },
