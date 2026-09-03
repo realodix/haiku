@@ -99,10 +99,6 @@ final class FixerConfig
         $renames = [
             // @deprecated since v1.11.0
             'xmode' => 'fmode',
-            // @deprecated since v1.11.3
-            'adg_non_basic_rules_modifiers' => 'adg_non_basic_rule_modifier',
-            // @deprecated since v1.12.0
-            'normalize_domains' => 'normalize_domain',
             // @deprecated since v1.13.17
             'no_legacy_ext_selectors' => 'convert_legacy_ext_selectors',
             'no_legacy_remove_action' => 'convert_legacy_remove_action',
