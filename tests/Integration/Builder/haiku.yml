@@ -2,7 +2,7 @@ cache_dir: tests/Integration/tmp
 
 builder:
   output_dir: tests/Integration/tmp
-  filter_list:
+  filter_lists:
     - filename: compiled1.txt
       includes:
         - tests/Integration/Builder/filter1.txt

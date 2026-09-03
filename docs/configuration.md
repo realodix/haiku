@@ -187,7 +187,7 @@ This section configures the behavior for the `build` command.
 ```yml
 builder:
   output_dir: dist
-  filter_list:
+  filter_lists:
     - filename: example.txt
       header: |
         [Adblock Plus 2.0]
@@ -202,7 +202,7 @@ builder:
 #### `output_dir`
 The directory where output files are written. The directory is created automatically if it doesn't exist.
 
-#### `filter_list`
+#### `filter_lists`
 An array defining one or more filter lists to build. Each item in the array configures a single output filter list. At least one filter list must be defined.
 
 - **`filename`** (*Required*): The output filename for the compiled filter list.
@@ -217,7 +217,7 @@ An array defining one or more filter lists to build. Each item in the array conf
 # A minimal configuration requires for the build command:
 
 builder:
-  filter_list:
+  filter_lists:
     - filename: output.txt
       includes:
         - input.txt

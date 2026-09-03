@@ -77,7 +77,7 @@ final class Schema
         return self::global()->extend([
             'builder' => Expect::structure([
                 'output_dir' => Expect::string(),
-                'filter_list' => Expect::listOf(Expect::structure([
+                'filter_lists' => Expect::listOf(Expect::structure([
                     'filename' => Expect::string(),
                     'remove_duplicates' => Expect::bool(),
                     'header' => Expect::string(),

@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Path;
  * }>
  * @phpstan-type _BuilderConfigInput array{
  *  output_dir?: string,
- *  filter_list: _FilterSetInput,
+ *  filter_lists: _FilterSetInput,
  * }
  */
 final class BuilderConfig
@@ -43,7 +43,7 @@ final class BuilderConfig
         $this->validate($config);
 
         $this->outputDir = $this->outputDir($config['output_dir'] ?? null);
-        $this->filterSet = $this->filterSets($config['filter_list']);
+        $this->filterSet = $this->filterSets($config['filter_lists']);
 
         return $this;
     }
@@ -107,24 +107,24 @@ final class BuilderConfig
      */
     private function validate(array $config): void
     {
-        if (empty($config['filter_list'])) {
+        if (empty($config['filter_lists'])) {
             throw new InvalidConfigurationException(
-                "The 'builder > filter_list' configuration is missing.",
+                "The 'builder > filter_lists' configuration is missing.",
             );
         }
 
         $index = 0;
-        foreach ($config['filter_list'] as $entry) {
+        foreach ($config['filter_lists'] as $entry) {
             $index++;
             if (empty($entry['filename'])) {
                 throw new InvalidConfigurationException(
-                    "The 'builder > filter_list > {$index} > filename' configuration is missing.",
+                    "The 'builder > filter_lists > {$index} > filename' configuration is missing.",
                 );
             }
 
             if (empty($entry['includes'])) {
                 throw new InvalidConfigurationException(sprintf(
-                    "The 'builder > filter_list > includes' configuration of '%s' is missing.",
+                    "The 'builder > filter_lists > includes' configuration of '%s' is missing.",
                     basename($entry['filename']),
                 ));
             }

@@ -59,7 +59,7 @@ fixer:
 # Settings for the `build` command
 builder:
   output_dir: dist
-  filter_list:
+  filter_lists:
     - filename: general_blocklist.txt # Required
       remove_duplicates: true
       header: |

@@ -31,7 +31,7 @@ final class Builder
     {
         $filterSets = $this->config->builder($cmdOpt)->filterSet;
         $this->cache->prepareForRun(
-            // builder.filter_list.filename
+            // builder.filter_lists.filename
             array_map(fn($filterSet) => $filterSet['outdir'], $filterSets),
             $cmdOpt,
             Section::B,
