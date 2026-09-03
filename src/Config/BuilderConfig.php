@@ -7,7 +7,7 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * @phpstan-type _FilterSet array{
- *  output_path: string,
+ *  outdir: string,
  *  header: string,
  *  includes: array<int, string>,
  *  remove_duplicates: bool,
@@ -72,33 +72,33 @@ final class BuilderConfig
             ));
         }
 
-        $outputDir = base_path($dir);
-        if (!$this->fs->exists($outputDir)) {
-            $this->fs->mkdir($outputDir);
+        $dir = base_path($dir);
+        if (!$this->fs->exists($dir)) {
+            $this->fs->mkdir($dir);
         }
 
-        return $outputDir;
+        return $dir;
     }
 
     /**
      * Resolves the filter list configuration for each filter list.
      *
-     * @param _FilterSetInput $filterLists
+     * @param _FilterSetInput $entries
      * @return list<_FilterSet>
      */
-    private function filterSets(array $filterLists): array
+    private function filterSets(array $entries): array
     {
-        $filters = [];
-        foreach ($filterLists as $list) {
-            $filters[] = [
-                'output_path' => Path::join($this->outputDir, $list['filename']),
-                'header' => $list['header'] ?? '',
-                'includes' => $list['includes'] ?? $list['source'],
-                'remove_duplicates' => $list['remove_duplicates'] ?? false,
+        $sets = [];
+        foreach ($entries as $entry) {
+            $sets[] = [
+                'outdir' => Path::join($this->outputDir, $entry['filename']),
+                'header' => $entry['header'] ?? '',
+                'includes' => $entry['includes'] ?? $entry['source'],
+                'remove_duplicates' => $entry['remove_duplicates'] ?? false,
             ];
         }
 
-        return $filters;
+        return $sets;
     }
 
     /**
@@ -114,25 +114,25 @@ final class BuilderConfig
         }
 
         $index = 0;
-        foreach ($config['filter_list'] as $list) {
+        foreach ($config['filter_list'] as $entry) {
             $index++;
-            if (empty($list['filename'])) {
+            if (empty($entry['filename'])) {
                 throw new InvalidConfigurationException(
                     "The 'builder > filter_list > {$index} > filename' configuration is missing.",
                 );
             }
 
-            if (empty($list['includes']) && empty($list['source'])) {
+            if (empty($entry['includes']) && empty($entry['source'])) {
                 throw new InvalidConfigurationException(sprintf(
                     "The 'builder > filter_list > includes' configuration of '%s' is missing.",
-                    basename($list['filename']),
+                    basename($entry['filename']),
                 ));
             }
 
-            if (isset($list['includes'], $list['source'])) {
+            if (isset($entry['includes'], $entry['source'])) {
                 throw new InvalidConfigurationException(sprintf(
                     "The 'includes' and deprecated 'source' configurations cannot be used together for '%s'.",
-                    basename($list['filename']),
+                    basename($entry['filename']),
                 ));
             }
         }

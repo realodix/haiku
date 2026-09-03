@@ -32,14 +32,14 @@ final class Builder
         $filterSets = $this->config->builder($cmdOpt)->filterSet;
         $this->cache->prepareForRun(
             // builder.filter_list.filename
-            array_map(fn($filterSet) => $filterSet['output_path'], $filterSets),
+            array_map(fn($filterSet) => $filterSet['outdir'], $filterSets),
             $cmdOpt,
             Section::B,
         );
 
         foreach ($filterSets as $filterSet) {
             // Step 1: Step 1: Read all included files or URLs
-            $outputPath = $filterSet['output_path'];
+            $outputPath = $filterSet['outdir'];
             $header = $filterSet['header'];
             $rawContent = $this->read($filterSet['includes']);
 
