@@ -180,9 +180,15 @@ abstract class TestCase extends BaseTestCase
 
         $actualErrors = array_map(
             static function (array $error) use ($strictlyTypedSprintf): string {
+                $message = $error['message'];
+                // @phpstan-ignore-next-line notIdentical.alwaysTrue
+                if (isset($error['base_line']) && $error['base_line'] !== null) {
+                    $message .= ' on line '.$error['base_line'];
+                }
+
                 return $strictlyTypedSprintf(
                     $error['line'],
-                    $error['message'],
+                    $message,
                     // $error['tip'] ?? null,
                 );
             },
