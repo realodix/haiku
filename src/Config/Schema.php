@@ -82,12 +82,6 @@ final class Schema
                     'remove_duplicates' => Expect::bool(),
                     'header' => Expect::string(),
                     'includes' => Expect::listOf('string'),
-                    // @deprecated since v1.13.13
-                    'source' => Expect::listOf('string')
-                        ->deprecated(
-                            'The "source" property in "filter_list" is deprecated. '
-                            .'Use "includes" instead.',
-                        ),
                 ])),
             ]),
         ]);

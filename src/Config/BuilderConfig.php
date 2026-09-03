@@ -93,7 +93,7 @@ final class BuilderConfig
             $sets[] = [
                 'outdir' => Path::join($this->outputDir, $entry['filename']),
                 'header' => $entry['header'] ?? '',
-                'includes' => $entry['includes'] ?? $entry['source'],
+                'includes' => $entry['includes'],
                 'remove_duplicates' => $entry['remove_duplicates'] ?? false,
             ];
         }
@@ -122,16 +122,9 @@ final class BuilderConfig
                 );
             }
 
-            if (empty($entry['includes']) && empty($entry['source'])) {
+            if (empty($entry['includes'])) {
                 throw new InvalidConfigurationException(sprintf(
                     "The 'builder > filter_list > includes' configuration of '%s' is missing.",
-                    basename($entry['filename']),
-                ));
-            }
-
-            if (isset($entry['includes'], $entry['source'])) {
-                throw new InvalidConfigurationException(sprintf(
-                    "The 'includes' and deprecated 'source' configurations cannot be used together for '%s'.",
                     basename($entry['filename']),
                 ));
             }

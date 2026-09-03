@@ -22,5 +22,5 @@ builder:
     - filename: date_modified.txt
       header: |
         date_modified: %timestamp%
-      source:
+      includes:
         - tests/Integration/Builder/filter1.txt
