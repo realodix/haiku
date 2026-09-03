@@ -6,6 +6,7 @@ namespace Realodix\Haiku\Linter;
  * @phpstan-type _RuleError array{
  *  message: string,
  *  line: int,
+ *  base_line?: int,
  *  tip?: string,
  *  ruleId?: string,
  *  link?: string
@@ -18,6 +19,8 @@ final class RuleErrorBuilder
     private string $message;
 
     private int $line;
+
+    private ?int $baseLine = null;
 
     private ?string $identifier = null;
 
@@ -38,6 +41,13 @@ final class RuleErrorBuilder
     public function line(int $line): self
     {
         $this->line = $line;
+
+        return $this;
+    }
+
+    public function baseLine(int $line): self
+    {
+        $this->baseLine = $line;
 
         return $this;
     }
@@ -70,6 +80,10 @@ final class RuleErrorBuilder
             'line' => $this->line,
         ];
 
+        if ($this->baseLine !== null) {
+            $error['base_line'] = $this->baseLine;
+        }
+
         if ($this->identifier !== null) {
             $error['ruleId'] = $this->identifier;
         }
@@ -86,6 +100,7 @@ final class RuleErrorBuilder
 
         // Reset state for the next error
         unset($this->message);
+        $this->baseLine = null;
         $this->identifier = null;
         $this->tip = null;
         $this->link = null;

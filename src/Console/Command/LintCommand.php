@@ -134,7 +134,11 @@ class LintCommand extends Command
                     break 2;
                 }
 
-                $io->writeln(sprintf('  :%-5d %s', $issue['line'], $issue['message']));
+                $msg = isset($issue['base_line']) ?
+                    $issue['message'].' on line '.$issue['base_line']
+                    : $issue['message'];
+
+                $io->writeln(sprintf('  :%-5d %s', $issue['line'], $msg));
 
                 if (isset($issue['tip'])) {
                     $io->writeln($this->meta($issue['tip'], '💡'));
@@ -203,25 +207,45 @@ class LintCommand extends Command
     {
         $baselineFile = base_path('haiku-baseline.yml');
         $baselineErrors = [];
+
+        // Loop 1: Group by path, message, AND base_line (if exist)
         foreach ($errorReporter->getErrors() as $path => $issues) {
             $relativePath = Path::makeRelative($path, base_path());
+
             foreach ($issues as $issue) {
                 $message = $issue['message'];
-                if (!isset($baselineErrors[$relativePath][$message])) {
-                    $baselineErrors[$relativePath][$message] = 0;
+                $baseLine = $issue['base_line'] ?? null;
+                // Create a custom key to distinguish between different 'base_line' values (or 'none' if null)
+                $baseLineKey = $baseLine !== null ? (string) $baseLine : 'none';
+
+                if (!isset($baselineErrors[$relativePath][$message][$baseLineKey])) {
+                    $baselineErrors[$relativePath][$message][$baseLineKey] = [
+                        'count' => 0,
+                        'base_line' => $baseLine,
+                    ];
                 }
-                $baselineErrors[$relativePath][$message]++;
+
+                $baselineErrors[$relativePath][$message][$baseLineKey]['count']++;
             }
         }
 
+        // Loop 2: Compile $finalBaseline
         $finalBaseline = [];
         foreach ($baselineErrors as $path => $messages) {
-            foreach ($messages as $message => $count) {
-                $finalBaseline[] = [
-                    'message' => $message,
-                    'path' => $path,
-                    'count' => $count,
-                ];
+            foreach ($messages as $message => $baseLineGroups) {
+                foreach ($baseLineGroups as $data) {
+                    $item = [
+                        'message' => $message,
+                        'path'    => $path,
+                        'count'   => $data['count'],
+                    ];
+
+                    if ($data['base_line'] !== null) {
+                        $item['base_line'] = $data['base_line'];
+                    }
+
+                    $finalBaseline[] = $item;
+                }
             }
         }
 

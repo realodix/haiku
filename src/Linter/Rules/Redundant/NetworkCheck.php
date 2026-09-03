@@ -213,10 +213,10 @@ final class NetworkCheck implements Rule
         $line = $entry['line'];
         $exactKey = ($entry['hasMatchCase'] ? $line : strtolower($line)).'|'.$entry['conditionKey'];
         if (isset($this->seen['exact'][$exactKey])) {
-            $err->message(sprintf(
-                'Duplicate filter: %s already defined on line %d',
-                $line, $this->seen['exact'][$exactKey],
-            ))->line($entry['lineNum'])->build();
+            $err->message(sprintf('Duplicate filter: %s already defined', $line))
+                ->line($entry['lineNum'])
+                ->baseLine($this->seen['exact'][$exactKey])
+                ->build();
 
             return true;
         }
@@ -308,10 +308,10 @@ final class NetworkCheck implements Rule
                 && $best['hasOptions'] === $entry['hasOptions']
                 && $pattern === $best['pattern']
             ) {
-                $err->message(sprintf(
-                    'Duplicate filter: %s already defined on line %d',
-                    $entry['line'], $best['lineNum'],
-                ))->line($entry['lineNum'])->build();
+                $err->message(sprintf('Duplicate filter: %s already defined', $entry['line']))
+                    ->baseLine($best['lineNum'])
+                    ->line($entry['lineNum'])
+                    ->build();
 
                 return true;
             }
@@ -319,17 +319,21 @@ final class NetworkCheck implements Rule
             // Adjust message based on candidate type for domain-specific filters
             if ($entry['hasDomains'] && $best['hasOptions']) {
                 $err->message(sprintf(
-                    'Redundant filter: %s already covered by global filter on line %d',
-                    Str::limit($entry['line'], 80), $best['lineNum'],
-                ))->line($entry['lineNum'])->build();
+                    'Redundant filter: %s already covered by global filter',
+                    Str::limit($entry['line'], 80),
+                ))->line($entry['lineNum'])
+                    ->baseLine($best['lineNum'])
+                    ->build();
 
                 return true;
             }
 
             $err->message(sprintf(
-                'Redundant filter: %s already covered by %s on line %d',
-                Str::limit($entry['line'], 80), $best['pattern'], $best['lineNum'],
-            ))->line($entry['lineNum'])->build();
+                'Redundant filter: %s already covered by %s',
+                Str::limit($entry['line'], 80), $best['pattern'],
+            ))->line($entry['lineNum'])
+                ->baseLine($best['lineNum'])
+                ->build();
 
             return true;
         }
@@ -416,10 +420,10 @@ final class NetworkCheck implements Rule
 
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
-                $err->message(sprintf(
-                    'Redundant filter: domain %s already covered on line %d',
-                    $rd['domain'], $rd['atLineNum'],
-                ))->line($entry['lineNum'])->build();
+                $err->message(sprintf('Redundant filter: domain %s already covered', $rd['domain']))
+                    ->line($entry['lineNum'])
+                    ->baseLine($rd['atLineNum'])
+                    ->build();
             }
         }
     }
