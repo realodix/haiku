@@ -11,6 +11,7 @@ use Symfony\Component\Yaml\Yaml;
  *  message?: string,
  *  path?: string,
  *  count?: int,
+ *  base_line?: int,
  *  isBaseline?: bool,
  * }
  */
@@ -33,7 +34,7 @@ final class IgnoredErrors
      */
     private array $patternMatchCount = [];
 
-    /** @var array<string, array<string, int>> */
+    /** @var array<string, array<string, array<string, int>>> */
     private array $exactPatternIndex = [];
 
     /**
@@ -53,8 +54,12 @@ final class IgnoredErrors
 
             $path = $pattern['path'] ?? null;
             $msg = $pattern['message'] ?? null;
+
             if ($path !== null && $msg !== null) {
-                $this->exactPatternIndex[$path][$msg] = $index;
+                $baseLine = $pattern['base_line'] ?? null;
+                $baseLineKey = $baseLine === null ? '' : (string) $baseLine;
+
+                $this->exactPatternIndex[$path][$msg][$baseLineKey] = $index;
             }
         }
     }
@@ -102,13 +107,17 @@ final class IgnoredErrors
     /**
      * Check if an error should be ignored exactly.
      */
-    public function shouldIgnoreExact(string $path, string $message): bool
+    public function shouldIgnoreExact(string $path, string $message, ?int $baseLine = null): bool
     {
         $path = Path::makeRelative($path, base_path());
-        if (isset($this->exactPatternIndex[$path][$message])) {
+        $baseLineKey = $baseLine === null ? '' : (string) $baseLine;
+
+        if (isset($this->exactPatternIndex[$path][$message][$baseLineKey])) {
+            $index = $this->exactPatternIndex[$path][$message][$baseLineKey];
+
             return $this->markPatternMatched(
-                $this->exactPatternIndex[$path][$message],
-                $this->ignorePatterns[$this->exactPatternIndex[$path][$message]],
+                $index,
+                $this->ignorePatterns[$index],
             );
         }
 
