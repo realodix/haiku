@@ -107,7 +107,7 @@ final class IgnoredErrors
     /**
      * Check if an error should be ignored exactly.
      */
-    public function shouldIgnoreExact(string $path, string $message, ?int $baseLine = null): bool
+    public function shouldIgnoreExact(string $path, string $message, ?int $baseLine): bool
     {
         $path = Path::makeRelative($path, base_path());
         $baseLineKey = $baseLine === null ? '' : (string) $baseLine;
