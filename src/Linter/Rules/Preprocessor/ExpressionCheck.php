@@ -206,7 +206,7 @@ final class ExpressionCheck implements Rule
                 $err->message(sprintf(
                     '"%s" will always evaluate to "false" with "%s" from the parent "!#if"',
                     $value, $other,
-                ))->baseLine($parentFrame['lineNum'])
+                ))->coverLine($parentFrame['lineNum'])
                     ->build();
             }
         }

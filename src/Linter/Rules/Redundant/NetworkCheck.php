@@ -215,7 +215,7 @@ final class NetworkCheck implements Rule
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message(sprintf('Duplicate filter: %s already defined', $line))
                 ->line($entry['lineNum'])
-                ->baseLine($this->seen['exact'][$exactKey])
+                ->coverLine($this->seen['exact'][$exactKey])
                 ->build();
 
             return true;
@@ -309,7 +309,7 @@ final class NetworkCheck implements Rule
                 && $pattern === $best['pattern']
             ) {
                 $err->message(sprintf('Duplicate filter: %s already defined', $entry['line']))
-                    ->baseLine($best['lineNum'])
+                    ->coverLine($best['lineNum'])
                     ->line($entry['lineNum'])
                     ->build();
 
@@ -322,7 +322,7 @@ final class NetworkCheck implements Rule
                     'Redundant filter: %s already covered by global filter',
                     Str::limit($entry['line'], 80),
                 ))->line($entry['lineNum'])
-                    ->baseLine($best['lineNum'])
+                    ->coverLine($best['lineNum'])
                     ->build();
 
                 return true;
@@ -332,7 +332,7 @@ final class NetworkCheck implements Rule
                 'Redundant filter: %s already covered by %s',
                 Str::limit($entry['line'], 80), $best['pattern'],
             ))->line($entry['lineNum'])
-                ->baseLine($best['lineNum'])
+                ->coverLine($best['lineNum'])
                 ->build();
 
             return true;
@@ -422,7 +422,7 @@ final class NetworkCheck implements Rule
             foreach ($redundantDomains as $rd) {
                 $err->message(sprintf('Redundant filter: domain %s already covered', $rd['domain']))
                     ->line($entry['lineNum'])
-                    ->baseLine($rd['atLineNum'])
+                    ->coverLine($rd['atLineNum'])
                     ->build();
             }
         }

@@ -134,8 +134,8 @@ class LintCommand extends Command
                     break 2;
                 }
 
-                $msg = isset($issue['base_line']) ?
-                    $issue['message'].' on line '.$issue['base_line']
+                $msg = isset($issue['covered_by_line']) ?
+                    $issue['message'].' on line '.$issue['covered_by_line']
                     : $issue['message'];
 
                 $io->writeln(sprintf('  :%-5d %s', $issue['line'], $msg));
@@ -208,19 +208,19 @@ class LintCommand extends Command
         $baselineFile = base_path('haiku-baseline.yml');
         $baselineErrors = [];
 
-        // Group reported errors by path, message, and base_line when applicable.
+        // Group reported errors by path, message, and covered_by_line when applicable.
         foreach ($errorReporter->getErrors() as $path => $issues) {
             $relativePath = Path::makeRelative($path, base_path());
 
             foreach ($issues as $issue) {
                 $message = $issue['message'];
-                $baseLine = $issue['base_line'] ?? null;
-                $groupKey = $baseLine !== null ? $message."\0".$baseLine : $message;
+                $coverLine = $issue['covered_by_line'] ?? null;
+                $groupKey = $coverLine !== null ? $message."\0".$coverLine : $message;
 
                 if (!isset($baselineErrors[$relativePath][$groupKey])) {
                     $baselineErrors[$relativePath][$groupKey] = [
                         'message' => $message,
-                        'base_line' => $baseLine,
+                        'covered_by_line' => $coverLine,
                         'count' => 0,
                     ];
                 }
@@ -239,8 +239,8 @@ class LintCommand extends Command
                     'count' => $data['count'],
                 ];
 
-                if ($data['base_line'] !== null) {
-                    $entry['base_line'] = $data['base_line'];
+                if ($data['covered_by_line'] !== null) {
+                    $entry['covered_by_line'] = $data['covered_by_line'];
                 }
 
                 $finalBaseline[] = $entry;
