@@ -10,6 +10,7 @@ use Realodix\Haiku\Linter\IgnoredErrors;
 use Realodix\Haiku\Linter\Linter;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Yaml\Yaml;
 
 class BaselineTest extends TestCase
 {
@@ -96,10 +97,10 @@ class BaselineTest extends TestCase
         $configFile = $this->tmpDir.'/haiku_baseline_cache.yml';
         $dummyFile = $this->tmpDir.'/error_file.txt';
 
-        $this->fs->dumpFile($configFile, <<<'YAML'
+        $this->fs->dumpFile($configFile, <<<YAML
 linter:
   paths:
-    - tests/Integration/tmp/error_file.txt
+    - {$dummyFile}
 YAML);
 
         // This triggers DomainCheck: "Unexpected empty domain.."
@@ -127,11 +128,11 @@ YAML);
         $dummyFile1 = $this->tmpDir.'/error_file1.txt';
         $dummyFile2 = $this->tmpDir.'/error_file2.txt';
 
-        $this->fs->dumpFile($configFile, <<<'YAML'
+        $this->fs->dumpFile($configFile, <<<YAML
 linter:
   paths:
-    - tests/Integration/tmp/error_file1.txt
-    - tests/Integration/tmp/error_file2.txt
+    - {$dummyFile1}
+    - {$dummyFile2}
 YAML);
 
         // 1. Create file 1 with an error. File 2 has no error yet.
@@ -164,7 +165,7 @@ YAML);
             ]);
 
             $this->assertFileExists($baselineFile);
-            $baselineContent = \Symfony\Component\Yaml\Yaml::parseFile($baselineFile);
+            $baselineContent = Yaml::parseFile($baselineFile);
             $ignoredErrors = $baselineContent['ignoreErrors'] ?? [];
 
             $pathsInBaseline = array_column($ignoredErrors, 'path');
@@ -179,6 +180,59 @@ YAML);
             $cachedData2 = $cache->get(Path::canonicalize($dummyFile2));
             $this->assertNotNull($cachedData2);
             $this->assertNotEmpty($cachedData2['errors'] ?? []);
+        } finally {
+            if (file_exists($baselineFile)) {
+                unlink($baselineFile);
+            }
+        }
+    }
+
+    #[PHPUnit\Test]
+    public function baselineSuppressesErrorsOnSubsequentRun(): void
+    {
+        $configFile = $this->tmpDir.'/haiku_baseline_suppress.yml';
+        $dummyFile = $this->tmpDir.'/error_file_suppress.txt';
+        $baselineFile = base_path('haiku-baseline.yml');
+
+        $this->fs->dumpFile($configFile, <<<YAML
+linter:
+  paths:
+    - {$dummyFile}
+YAML);
+
+        $content = [
+            'a.com,b.com##foo',
+            'b.com,a.com##foo',
+            'x.co,y.co##foo',
+            'y.co,x.co##foo',
+        ];
+        $this->fs->dumpFile($dummyFile, implode("\n", $content));
+
+        try {
+            // 1. Run with --generate-baseline
+            $tester1 = $this->runLintCommand([
+                '--config' => $configFile,
+                '--cache' => $this->cacheFile,
+                '--generate-baseline' => true,
+            ]);
+
+            // Make sure the baseline is created and contains the expected errors
+            $this->assertFileExists($baselineFile);
+            $baselineContent = Yaml::parseFile($baselineFile);
+            $this->assertNotEmpty($baselineContent['ignoreErrors'] ?? []);
+            $pathsInBaseline = array_column($baselineContent['ignoreErrors'], 'path');
+            $this->assertContains(Path::makeRelative($dummyFile, base_path()), $pathsInBaseline);
+            $this->assertStringContainsString('Baseline generated', $tester1->getDisplay());
+
+            // 2. Run again without --generate-baseline
+            $tester2 = $this->runLintCommand([
+                '--config' => $configFile,
+                '--cache' => $this->cacheFile,
+            ]);
+
+            $output = $tester2->getDisplay();
+            $this->assertStringContainsString('No errors found!', $output);
+            $this->assertSame(0, $tester2->getStatusCode());
         } finally {
             if (file_exists($baselineFile)) {
                 unlink($baselineFile);
