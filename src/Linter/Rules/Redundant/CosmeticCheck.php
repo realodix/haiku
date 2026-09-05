@@ -216,7 +216,7 @@ final class CosmeticCheck implements Rule
 
             $err->message($msg)
                 ->line($entry['lineNum'])
-                ->baseLine($this->exactSeen[$key])
+                ->coverLine($this->exactSeen[$key])
                 ->build();
 
             return true;
@@ -294,7 +294,7 @@ final class CosmeticCheck implements Rule
 
             $err->message($message)
                 ->line($entry['lineNum'])
-                ->baseLine($bestParent['lineNum'])
+                ->coverLine($bestParent['lineNum'])
                 ->build();
 
             return true;
@@ -380,7 +380,7 @@ final class CosmeticCheck implements Rule
 
                 $err->message($message)
                     ->line($entry['lineNum'])
-                    ->baseLine($parent['lineNum'])
+                    ->coverLine($parent['lineNum'])
                     ->build();
             }
         }

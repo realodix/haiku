@@ -84,7 +84,7 @@ final class Linter
             /** @var list<_RuleError> */
             $cachedErrors = $cached['errors'] ?? [];
             foreach ($cachedErrors as $error) {
-                if ($ignoredErrors->shouldIgnoreExact($path, $error['message'], $error['base_line'] ?? null)) {
+                if ($ignoredErrors->shouldIgnoreExact($path, $error['message'], $error['covered_by_line'] ?? null)) {
                     continue;
                 }
 
