@@ -86,13 +86,18 @@ final class IgnoredErrors
      *
      * @param string $path The path to the file
      * @param string $message The error message
+     * @param int|null $coverLine The line number of the covering rule (if any)
      * @return bool True if the error should be ignored, false otherwise
      */
-    public function shouldIgnore(string $path, string $message): bool
+    public function shouldIgnore(string $path, string $message, ?int $coverLine = null): bool
     {
         foreach ($this->ignorePatterns as $index => $pattern) {
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $message);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
+
+            if (isset($pattern['covered_by_line']) && $pattern['covered_by_line'] !== $coverLine) {
+                continue;
+            }
 
             if ($msgMatch && $pathMatch) {
                 return $this->markPatternMatched($index, $pattern);

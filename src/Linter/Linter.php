@@ -104,7 +104,7 @@ final class Linter
             foreach ($rule->check($content, new RuleErrorBuilder) as $error) {
                 $rawErrors[] = $error;
 
-                if ($ignoredErrors->shouldIgnore($path, $error['message'])) {
+                if ($ignoredErrors->shouldIgnore($path, $error['message'], $error['covered_by_line'] ?? null)) {
                     continue;
                 }
 
