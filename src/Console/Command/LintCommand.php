@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Console\Command;
 use Realodix\Haiku\App;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\CommandOptions;
+use Realodix\Haiku\Linter\IgnoredErrors;
 use Realodix\Haiku\Linter\Linter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -202,35 +203,14 @@ class LintCommand extends Command
     private function generateBaseline(SymfonyStyle $io, $errorReporter): void
     {
         $baselineFile = base_path('haiku-baseline.yml');
-        $baselineErrors = [];
-        foreach ($errorReporter->getErrors() as $path => $issues) {
-            $relativePath = Path::makeRelative($path, base_path());
-            foreach ($issues as $issue) {
-                $message = $issue['message'];
-                if (!isset($baselineErrors[$relativePath][$message])) {
-                    $baselineErrors[$relativePath][$message] = 0;
-                }
-                $baselineErrors[$relativePath][$message]++;
-            }
-        }
-
-        $finalBaseline = [];
-        foreach ($baselineErrors as $path => $messages) {
-            foreach ($messages as $message => $count) {
-                $finalBaseline[] = [
-                    'message' => $message,
-                    'path' => $path,
-                    'count' => $count,
-                ];
-            }
-        }
+        $baseline = IgnoredErrors::makeBaseline($errorReporter);
 
         file_put_contents(
             $baselineFile,
-            Yaml::dump(['ignoreErrors' => $finalBaseline], 4, 2),
+            Yaml::dump(['ignoreErrors' => $baseline], 4, 2),
         );
 
-        $errorsCount = count($finalBaseline);
+        $errorsCount = count($baseline);
         $io->success(sprintf(
             'Baseline generated with %d %s.',
             $errorsCount,

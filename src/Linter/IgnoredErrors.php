@@ -79,6 +79,41 @@ final class IgnoredErrors
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
+     * @return list<_IgnoredError>
+     */
+    public static function makeBaseline($errorReporter): array
+    {
+        $baselineErrors = [];
+        foreach ($errorReporter->getErrors() as $path => $issues) {
+            $relativePath = Path::makeRelative($path, base_path());
+
+            foreach ($issues as $issue) {
+                $message = $issue['message'];
+
+                if (!isset($baselineErrors[$relativePath][$message])) {
+                    $baselineErrors[$relativePath][$message] = 0;
+                }
+
+                $baselineErrors[$relativePath][$message]++;
+            }
+        }
+
+        $finalBaseline = [];
+        foreach ($baselineErrors as $path => $messages) {
+            foreach ($messages as $message => $count) {
+                $finalBaseline[] = [
+                    'message' => $message,
+                    'path' => $path,
+                    'count' => $count,
+                ];
+            }
+        }
+
+        return $finalBaseline;
+    }
+
+    /**
      * Check if an error should be ignored.
      *
      * @param string $path The path to the file
