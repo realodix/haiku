@@ -34,7 +34,7 @@ final class IgnoredErrors
      */
     private array $patternMatchCount = [];
 
-    /** @var array<string, array<string, array<string, int>>> */
+    /** @var array<string, int> */
     private array $exactPatternIndex = [];
 
     /**
@@ -56,8 +56,8 @@ final class IgnoredErrors
             $msg = $pattern['message'] ?? null;
 
             if ($path !== null && $msg !== null) {
-                $coverLineKey = $pattern['covered_by_line'] ?? '';
-                $this->exactPatternIndex[$path][$msg][$coverLineKey] = $index;
+                $exactKey = $path."\0".$msg."\0".($pattern['covered_by_line'] ?? '');
+                $this->exactPatternIndex[$exactKey] = $index;
             }
         }
     }
@@ -110,13 +110,13 @@ final class IgnoredErrors
     /**
      * Check if an error should be ignored exactly.
      */
-    public function shouldIgnoreExact(string $path, string $message, ?int $coverLine): bool
+    public function shouldIgnoreExact(string $path, string $message, int|string $coverLine): bool
     {
         $path = Path::makeRelative($path, base_path());
-        $coverLineKey = $coverLine ?? '';
+        $exactKey = $path."\0".$message."\0".$coverLine;
 
-        if (isset($this->exactPatternIndex[$path][$message][$coverLineKey])) {
-            $index = $this->exactPatternIndex[$path][$message][$coverLineKey];
+        if (isset($this->exactPatternIndex[$exactKey])) {
+            $index = $this->exactPatternIndex[$exactKey];
 
             return $this->markPatternMatched($index, $this->ignorePatterns[$index]);
         }
