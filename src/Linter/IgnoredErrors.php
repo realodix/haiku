@@ -148,6 +148,10 @@ final class IgnoredErrors
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $errors['message']);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
+            if (isset($pattern['covered_by_line']) && $pattern['covered_by_line'] !== ($errors['covered_by_line'] ?? null)) {
+                continue;
+            }
+
             if ($msgMatch && $pathMatch) {
                 return $this->markPatternMatched($index, $pattern);
             }

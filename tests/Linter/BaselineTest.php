@@ -228,6 +228,7 @@ YAML);
             $tester2 = $this->runLintCommand([
                 '--config' => $configFile,
                 '--cache' => $this->cacheFile,
+                '--force' => true,
             ]);
 
             $output = $tester2->getDisplay();
