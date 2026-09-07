@@ -34,7 +34,7 @@ final class IgnoredErrors
      */
     private array $patternMatchCount = [];
 
-    /** @var array<string, array<string, int>> */
+    /** @var array<string, int> */
     private array $exactPatternIndex = [];
 
     /**
@@ -54,8 +54,11 @@ final class IgnoredErrors
 
             $path = $pattern['path'] ?? null;
             $msg = $pattern['message'] ?? null;
+
             if ($path !== null && $msg !== null) {
-                $this->exactPatternIndex[$path][$msg] = $index;
+                $exactKey = $path."\0".$msg;
+
+                $this->exactPatternIndex[$exactKey] = $index;
             }
         }
     }
@@ -143,11 +146,12 @@ final class IgnoredErrors
     public function shouldIgnoreExact(string $path, array $errors): bool
     {
         $path = Path::makeRelative($path, base_path());
-        if (isset($this->exactPatternIndex[$path][$errors['message']])) {
-            return $this->markPatternMatched(
-                $this->exactPatternIndex[$path][$errors['message']],
-                $this->ignorePatterns[$this->exactPatternIndex[$path][$errors['message']]],
-            );
+        $exactKey = $path."\0".$errors['message'];
+
+        if (isset($this->exactPatternIndex[$exactKey])) {
+            $index = $this->exactPatternIndex[$exactKey];
+
+            return $this->markPatternMatched($index, $this->ignorePatterns[$index]);
         }
 
         return false;
