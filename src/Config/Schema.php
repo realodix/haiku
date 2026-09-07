@@ -32,11 +32,6 @@ final class Schema
                     'option_order' => Expect::anyOf('name', 'type', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
                     // @deprecated since v1.13.17
-                    'no_legacy_ext_selectors' => Expect::bool()
-                        ->deprecated(
-                            'The "no_legacy_ext_selectors" flag is deprecated. '
-                            .'Use "convert_legacy_ext_selectors" instead.',
-                        ),
                     'no_legacy_remove_action' => Expect::bool()
                         ->deprecated(
                             'The "no_legacy_remove_action" flag is deprecated. '
