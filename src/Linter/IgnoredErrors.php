@@ -18,6 +18,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class IgnoredErrors
 {
+    const BASELINE_FILE = 'haiku-baseline.yml';
+
     /** @var list<_IgnoredError> */
     private array $ignorePatterns;
 
@@ -73,7 +75,7 @@ final class IgnoredErrors
     public static function load($config, $cmdOpt): self
     {
         $basePatterns = [];
-        $baselineFile = base_path('haiku-baseline.yml');
+        $baselineFile = base_path(self::BASELINE_FILE);
 
         if (!$cmdOpt->generateBaseline && file_exists($baselineFile)) {
             $baseline = Yaml::parseFile($baselineFile);

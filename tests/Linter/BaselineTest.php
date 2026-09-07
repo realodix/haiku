@@ -152,7 +152,7 @@ YAML);
         // 2. Introduce a new error in dummyFile2
         $this->fs->dumpFile($dummyFile2, 'example.org,##.ads');
         // Run lint command with --generate-baseline
-        $baselineFile = base_path('haiku-baseline.yml');
+        $baselineFile = base_path(IgnoredErrors::BASELINE_FILE);
         if (file_exists($baselineFile)) {
             unlink($baselineFile);
         }
@@ -192,7 +192,7 @@ YAML);
     {
         $configFile = $this->tmpDir.'/haiku_baseline_suppress.yml';
         $dummyFile = $this->tmpDir.'/error_file_suppress.txt';
-        $baselineFile = base_path('haiku-baseline.yml');
+        $baselineFile = base_path(IgnoredErrors::BASELINE_FILE);
 
         $this->fs->dumpFile($configFile, <<<YAML
 linter:

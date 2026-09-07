@@ -206,7 +206,7 @@ class LintCommand extends Command
      */
     private function generateBaseline(SymfonyStyle $io, $errorReporter): void
     {
-        $baselineFile = base_path('haiku-baseline.yml');
+        $baselineFile = base_path(IgnoredErrors::BASELINE_FILE);
         $baseline = IgnoredErrors::makeBaseline($errorReporter);
 
         file_put_contents(
