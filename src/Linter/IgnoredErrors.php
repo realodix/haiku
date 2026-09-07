@@ -59,7 +59,7 @@ final class IgnoredErrors
             $msg = $pattern['message'] ?? null;
 
             if ($path !== null && $msg !== null) {
-                $exactKey = $path."\0".$msg."\0".($pattern['covered_by_line'] ?? '');
+                $exactKey = $path.$msg.($pattern['covered_by_line'] ?? '');
 
                 $this->exactPatternIndex[$exactKey] = $index;
             }
@@ -101,7 +101,7 @@ final class IgnoredErrors
                 $message = $issue['message'];
                 $coverLine = $issue['covered_by_line'] ?? null;
                 $groupKey = $coverLine !== null
-                    ? $message."\0".$coverLine
+                    ? $message.$coverLine
                     : $message;
 
                 if (!isset($baselineErrors[$relativePath][$groupKey])) {
@@ -170,7 +170,7 @@ final class IgnoredErrors
     public function shouldIgnoreExact(string $path, array $errors): bool
     {
         $path = Path::makeRelative($path, base_path());
-        $exactKey = $path."\0".$errors['message']."\0".($errors['covered_by_line'] ?? '');
+        $exactKey = $path.$errors['message'].($errors['covered_by_line'] ?? '');
 
         if (isset($this->exactPatternIndex[$exactKey])) {
             $index = $this->exactPatternIndex[$exactKey];
