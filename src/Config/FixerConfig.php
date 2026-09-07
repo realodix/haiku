@@ -14,7 +14,6 @@ use Realodix\Haiku\Support\File;
  *  domain_order: null|'name'|'normal'|'negated_first',
  *  fix_domain_separators: bool,
  *  migrate_deprecated_options: bool,
- *  normalize_domain: bool,
  *  option_format: null|'native'|'long'|'short',
  *  option_order: false|'name'|'type',
  *  remove_empty_lines: bool|'keep_before_comment',
@@ -54,7 +53,6 @@ final class FixerConfig
         'remove_wildcard_covered_domains' => false,
         // deprecated
         'domain_order' => 'negated_first',
-        'normalize_domain' => false,
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {

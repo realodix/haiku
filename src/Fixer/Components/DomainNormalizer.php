@@ -81,11 +81,6 @@ final class DomainNormalizer
      */
     private function normalizeDomain(string $domain, bool $caseSensitive): string
     {
-        // @deprecated since v1.13.14
-        if (!$this->config->flags['normalize_domain']) {
-            return $domain;
-        }
-
         if (!$caseSensitive) {
             $domain = strtolower($domain);
         }
