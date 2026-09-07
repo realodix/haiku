@@ -7,6 +7,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * @phpstan-import-type _ConfigIgnoredError from \Realodix\Haiku\Config\LinterConfig
+ * @phpstan-import-type _RuleError from RuleErrorBuilder
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,
@@ -117,13 +118,13 @@ final class IgnoredErrors
      * Check if an error should be ignored.
      *
      * @param string $path The path to the file
-     * @param string $message The error message
+     * @param _RuleError $errors
      * @return bool True if the error should be ignored, false otherwise
      */
-    public function shouldIgnore(string $path, string $message): bool
+    public function shouldIgnore(string $path, array $errors): bool
     {
         foreach ($this->ignorePatterns as $index => $pattern) {
-            $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $message);
+            $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $errors['message']);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
             if ($msgMatch && $pathMatch) {
@@ -136,14 +137,16 @@ final class IgnoredErrors
 
     /**
      * Check if an error should be ignored exactly.
+     *
+     * @param _RuleError $errors
      */
-    public function shouldIgnoreExact(string $path, string $message): bool
+    public function shouldIgnoreExact(string $path, array $errors): bool
     {
         $path = Path::makeRelative($path, base_path());
-        if (isset($this->exactPatternIndex[$path][$message])) {
+        if (isset($this->exactPatternIndex[$path][$errors['message']])) {
             return $this->markPatternMatched(
-                $this->exactPatternIndex[$path][$message],
-                $this->ignorePatterns[$this->exactPatternIndex[$path][$message]],
+                $this->exactPatternIndex[$path][$errors['message']],
+                $this->ignorePatterns[$this->exactPatternIndex[$path][$errors['message']]],
             );
         }
 

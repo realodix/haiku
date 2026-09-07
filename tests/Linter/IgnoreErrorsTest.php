@@ -294,13 +294,13 @@ YAML);
         $ignoredErrors = new IgnoredErrors($input);
 
         // Matches
-        $this->assertTrue($ignoredErrors->shouldIgnore('file1.txt', 'foo message'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('file2.txt', 'foo message'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('file1.txt', 'bar message'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('file2.txt', 'bar message'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file1.txt', ['message' => 'foo message']));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file2.txt', ['message' => 'foo message']));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file1.txt', ['message' => 'bar message']));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file2.txt', ['message' => 'bar message']));
 
         // Non-matches
-        $this->assertFalse($ignoredErrors->shouldIgnore('file3.txt', 'foo message'));
-        $this->assertFalse($ignoredErrors->shouldIgnore('file1.txt', 'baz message'));
+        $this->assertFalse($ignoredErrors->shouldIgnore('file3.txt', ['message' => 'foo message']));
+        $this->assertFalse($ignoredErrors->shouldIgnore('file1.txt', ['message' => 'baz message']));
     }
 }

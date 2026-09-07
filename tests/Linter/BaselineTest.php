@@ -28,9 +28,9 @@ class BaselineTest extends TestCase
 
         $ignoredErrors = new IgnoredErrors($ignoreErrors, $baselineErrors);
 
-        $this->assertTrue($ignoredErrors->shouldIgnore('any.txt', 'user error'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('file.txt', 'baseline error'));
-        $this->assertFalse($ignoredErrors->shouldIgnore('file.txt', 'baseline error')); // Count 1 exceeded
+        $this->assertTrue($ignoredErrors->shouldIgnore('any.txt', ['message' => 'user error']));
+        $this->assertTrue($ignoredErrors->shouldIgnore('file.txt', ['message' => 'baseline error']));
+        $this->assertFalse($ignoredErrors->shouldIgnore('file.txt', ['message' => 'baseline error'])); // Count 1 exceeded
     }
 
     #[PHPUnit\Test]
@@ -47,11 +47,11 @@ class BaselineTest extends TestCase
         $ignoredErrors = new IgnoredErrors([], $baselineErrors);
 
         // First two matches should be ignored
-        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
-        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
+        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', ['message' => 'error message']));
+        $this->assertTrue($ignoredErrors->shouldIgnore('path/to/file.txt', ['message' => 'error message']));
 
         // Third match should NOT be ignored
-        $this->assertFalse($ignoredErrors->shouldIgnore('path/to/file.txt', 'error message'));
+        $this->assertFalse($ignoredErrors->shouldIgnore('path/to/file.txt', ['message' => 'error message']));
     }
 
     #[PHPUnit\Test]
