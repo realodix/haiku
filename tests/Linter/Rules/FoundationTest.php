@@ -83,13 +83,14 @@ class FoundationTest extends TestCase
             'example.com,example.org##a',
             'example.com##a',
 
-            'a.com,b.com.c.com##.bbanner',
-            'b.com,a.com##.bbanner',
+            'a.com,b.com,x.com##.bbanner',
+            'b.com,a.com,y.com##.bbanner',
         ];
 
         $this->analyse($lines, [
-            [2, 'Duplicate filter: identical to the filter rule on line 1'],
+            [2, 'Redundant filter: already covered on line 1'],
             [4, 'Redundant filter: domain a.com already covered on line 3'],
+            [4, 'Redundant filter: domain b.com already covered on line 3'],
         ]);
     }
 }

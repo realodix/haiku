@@ -48,7 +48,7 @@ class CosmeticCheckTest extends TestCase
             [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 1'],
             [4, 'Redundant filter: ...,example.site##.ads1 already covered by ##.ads1 on line 3'],
             [6, 'Redundant filter: domain x.com already covered on line 5'],
-            [7, 'Duplicate filter: identical to the filter rule on line 5'],
+            [7, 'Redundant filter: already covered on line 5'],
         ]);
 
         $lines = [
@@ -74,8 +74,8 @@ class CosmeticCheckTest extends TestCase
             '~example.org,example.com##[class^="banner3"]',
         ];
         $this->analyse($lines, [
-            [2, 'Duplicate filter: identical to the filter rule on line 1'],
-            [4, 'Duplicate filter: identical to the filter rule on line 3'],
+            [2, 'Redundant filter: example.com##.banner1 already covered by ~example.org##.banner1 on line 1'],
+            [4, 'Redundant filter: already covered on line 3'],
             [5, 'Redundant filter: ~example.org,example.com##[class^="banner3b"] is redundant due to more general selector on line 6'],
         ]);
 
@@ -195,7 +195,7 @@ class CosmeticCheckTest extends TestCase
         $this->analyse($lines, [
             [3, 'Duplicate filter: ##.ads .banner already defined on line 2'],
             [5, 'Redundant filter: example.org,example.site##.ads img already covered by ##.ads img on line 4'],
-            [7, 'Duplicate filter: identical to the filter rule on line 6'],
+            [7, 'Redundant filter: already covered on line 6'],
         ]);
     }
 }
