@@ -31,12 +31,6 @@ final class Schema
                     'option_format' => Expect::anyOf('native', 'long', 'short'),
                     'option_order' => Expect::anyOf('name', 'type', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
-                    // @deprecated since v1.13.17
-                    'no_legacy_remove_action' => Expect::bool()
-                        ->deprecated(
-                            'The "no_legacy_remove_action" flag is deprecated. '
-                            .'Use "convert_legacy_remove_action" instead.',
-                        ),
                 ])->otherItems(Expect::bool()),
             ]),
         ]);
