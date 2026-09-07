@@ -293,7 +293,10 @@ final class NetworkCheck implements Rule
             }
 
             // The special case of options that avoids redundancy
-            if ($entry['hasOptions'] && $this->hasOption($opts, ['badfilter', 'popup'])) {
+            if ($entry['hasOptions']
+                && $this->hasOption($opts, ['badfilter', 'popup'])
+                    || str_starts_with($entry['line'], '||') && $this->hasOption($opts, ['3p', 'third-party'])
+            ) {
                 return false;
             }
             // Exception options (e.g., $generichide) have distinct behaviors. That rule should not

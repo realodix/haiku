@@ -74,7 +74,7 @@ class ScopeConditionalTest extends TestCase
     public function test_2(): void
     {
         $lines = [
-            '||example.com^$third-party', // 1
+            '||example.com^$css', // 1
             'example.com##.ads', // 2
             'example.com##.banner', // 3
 
@@ -93,7 +93,7 @@ class ScopeConditionalTest extends TestCase
             '##.banner', // 14
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: ||example.com^$third-party already covered by ||example.com^ on line 5'],
+            [1, 'Redundant filter: ||example.com^$css already covered by ||example.com^ on line 5'],
             [2, 'Redundant filter: example.com##.ads already covered by ##.ads on line 6'],
             [3, 'Redundant filter: example.com##.banner already covered by ##.banner on line 7'],
             [10, 'Duplicate filter: ||example.com^ already defined on line 5'],

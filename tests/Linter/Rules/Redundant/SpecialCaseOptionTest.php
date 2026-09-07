@@ -35,6 +35,31 @@ class SpecialCaseOptionTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function respectThirdParty(): void
+    {
+        $lines = [
+            '||example.com^$third-party',
+            '||example.com^',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            '||example.com^$~third-party',
+            '||example.com^',
+            '||example.org^$third-party',
+            '||example.org^$third-party',
+
+            '/mbp/pre/*$third-party,script',
+            '/mbp/pre/*?sid=$script,third-party',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ||example.com^$~third-party already covered by ||example.com^ on line 2'],
+            [4, 'Duplicate filter: ||example.org^$third-party already defined on line 3'],
+            [6, 'Redundant filter: /mbp/pre/*?sid=$script,third-party already covered by /mbp/pre/* on line 5'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function respectCosmeticException(): void
     {
         $lines = [
