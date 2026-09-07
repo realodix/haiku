@@ -54,7 +54,7 @@ final class Util
     }
 
     /**
-     * @return list<string>
+     * @return array<int|string, mixed>
      */
     public static function getRedirectResources(bool $scriptlet = false): array
     {
