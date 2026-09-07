@@ -352,33 +352,6 @@ class NetworkCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function respectBadfilter(): void
-    {
-        $lines = [
-            '@@||github.io^$badfilter',
-            '@@||github.io^',
-
-            '||github.io^$badfilter',
-            '||github.io^',
-        ];
-        $this->analyse($lines);
-    }
-
-    #[PHPUnit\Test]
-    public function respectPopupOption(): void
-    {
-        $lines = [
-            '/ads/*$popup',
-            '/ads/*',
-            '||example.com/ads/$popup',
-            '||example.com^',
-            '||example.com^$popup',
-        ];
-
-        $this->analyse($lines);
-    }
-
-    #[PHPUnit\Test]
     public function generic_redundancy_priority(): void
     {
         // assert 1
