@@ -98,7 +98,6 @@ final class FixerConfig
             'no_legacy_ext_selectors' => 'convert_legacy_ext_selectors',
             'no_legacy_remove_action' => 'convert_legacy_remove_action',
             'normalize_domain_separators' => 'fix_domain_separators',
-            'reduce_wildcard_covered_domains' => 'remove_wildcard_covered_domains',
         ];
 
         foreach ($renames as $old => $new) {
