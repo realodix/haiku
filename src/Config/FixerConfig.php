@@ -97,7 +97,6 @@ final class FixerConfig
             // @deprecated since v1.13.17
             'no_legacy_ext_selectors' => 'convert_legacy_ext_selectors',
             'no_legacy_remove_action' => 'convert_legacy_remove_action',
-            'normalize_domain_separators' => 'fix_domain_separators',
         ];
 
         foreach ($renames as $old => $new) {
