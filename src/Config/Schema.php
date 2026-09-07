@@ -31,11 +31,6 @@ final class Schema
                     'option_format' => Expect::anyOf('native', 'long', 'short'),
                     'option_order' => Expect::anyOf('name', 'type', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
-                    'domain_order' => Expect::string() // @deprecated since v1.13.14
-                        ->deprecated('The "domain_order" flag is deprecated.')
-                        ->assert(fn(string $value): bool => in_array(
-                            $value, ['name', 'normal', 'negated_first'], true,
-                        )),
                     // @deprecated since v1.13.17
                     'no_legacy_ext_selectors' => Expect::bool()
                         ->deprecated(

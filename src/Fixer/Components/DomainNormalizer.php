@@ -211,32 +211,22 @@ final class DomainNormalizer
     /**
      * Generate a sorting key for a domain entry.
      *
-     * The returned array represents a comparison tuple used to enforce deterministic
-     * ordering according to the configured `domain_order` strategy.
-     *
      * @return list<int|string> Sorting tuple
      */
     private function domainSortKey(string $str): array
     {
-        $flag = $this->config->flags['domain_order']; // @deprecated since v1.13.14
         $domain = ltrim($str, '~');
         $isTld = preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true);
         $isNegated = str_starts_with($str, '~');
 
-        if ($flag === 'negated_first') {
-            if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true) && $this->modifier !== null) {
-                return [$isNegated ? 0 : 1, $domain];
-            }
-
-            return [
-                $isTld ? 0 : ($isNegated ? 1 : 2),
-                $domain,
-            ];
+        if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true) && $this->modifier !== null) {
+            return [$isNegated ? 0 : 1, $domain];
         }
 
-        // 'name'|'normal'
-        // 'normal' is @deprecated since v1.12.3
-        return [$domain];
+        return [
+            $isTld ? 0 : ($isNegated ? 1 : 2),
+            $domain,
+        ];
     }
 
     /**

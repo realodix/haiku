@@ -47,7 +47,6 @@ class FixBench
     {
         app(FixerConfig::class)->flags = [
             'fmode' => true,
-            'domain_order' => 'negated_first',
             'option_format' => 'long',
         ];
 
