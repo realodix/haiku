@@ -47,11 +47,6 @@ final class Schema
                             'The "normalize_domain_separators" flag is deprecated. '
                             .'Use "fix_domain_separators" instead.',
                         ),
-                    'reduce_subdomains' => Expect::bool()
-                        ->deprecated(
-                            'The "reduce_subdomains" flag is deprecated. '
-                            .'Use "remove_subdomains" instead.',
-                        ),
                     'reduce_wildcard_covered_domains' => Expect::bool()
                         ->deprecated(
                             'The "reduce_wildcard_covered_domains" flag is deprecated. '
