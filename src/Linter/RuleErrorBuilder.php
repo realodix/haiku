@@ -6,6 +6,7 @@ namespace Realodix\Haiku\Linter;
  * @phpstan-type _RuleError array{
  *  message: string,
  *  line: int,
+ *  covered_by_line?: int,
  *  tip?: string,
  *  ruleId?: string,
  *  link?: string
@@ -18,6 +19,8 @@ final class RuleErrorBuilder
     private string $message;
 
     private int $line;
+
+    private ?int $coverLine = null;
 
     private ?string $identifier = null;
 
@@ -38,6 +41,16 @@ final class RuleErrorBuilder
     public function line(int $line): self
     {
         $this->line = $line;
+
+        return $this;
+    }
+
+    /**
+     * Set the line number of the rule that covers the current rule.
+     */
+    public function coverLine(int $line): self
+    {
+        $this->coverLine = $line;
 
         return $this;
     }
@@ -70,6 +83,10 @@ final class RuleErrorBuilder
             'line' => $this->line,
         ];
 
+        if ($this->coverLine !== null) {
+            $error['covered_by_line'] = $this->coverLine;
+        }
+
         if ($this->identifier !== null) {
             $error['ruleId'] = $this->identifier;
         }
@@ -86,6 +103,7 @@ final class RuleErrorBuilder
 
         // Reset state for the next error
         unset($this->message);
+        $this->coverLine = null;
         $this->identifier = null;
         $this->tip = null;
         $this->link = null;

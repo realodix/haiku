@@ -12,6 +12,7 @@ use Symfony\Component\Yaml\Yaml;
  *  message?: string,
  *  path?: string,
  *  count?: int,
+ *  covered_by_line?: int,
  *  isBaseline?: bool,
  * }
  */
@@ -56,7 +57,7 @@ final class IgnoredErrors
             $msg = $pattern['message'] ?? null;
 
             if ($path !== null && $msg !== null) {
-                $exactKey = $path."\0".$msg;
+                $exactKey = $path."\0".$msg."\0".($pattern['covered_by_line'] ?? '');
 
                 $this->exactPatternIndex[$exactKey] = $index;
             }
@@ -89,28 +90,45 @@ final class IgnoredErrors
     public static function makeBaseline($errorReporter): array
     {
         $baselineErrors = [];
+
+        // Group reported errors by path, message, and covered_by_line when applicable.
         foreach ($errorReporter->getErrors() as $path => $issues) {
             $relativePath = Path::makeRelative($path, base_path());
 
             foreach ($issues as $issue) {
                 $message = $issue['message'];
+                $coverLine = $issue['covered_by_line'] ?? null;
+                $groupKey = $coverLine !== null
+                    ? $message."\0".$coverLine
+                    : $message;
 
-                if (!isset($baselineErrors[$relativePath][$message])) {
-                    $baselineErrors[$relativePath][$message] = 0;
+                if (!isset($baselineErrors[$relativePath][$groupKey])) {
+                    $baselineErrors[$relativePath][$groupKey] = [
+                        'message' => $message,
+                        'covered_by_line' => $coverLine,
+                        'count' => 0,
+                    ];
                 }
 
-                $baselineErrors[$relativePath][$message]++;
+                $baselineErrors[$relativePath][$groupKey]['count']++;
             }
         }
 
         $finalBaseline = [];
-        foreach ($baselineErrors as $path => $messages) {
-            foreach ($messages as $message => $count) {
-                $finalBaseline[] = [
-                    'message' => $message,
+        // Flatten the grouped baseline errors into the final baseline entries.
+        foreach ($baselineErrors as $path => $groups) {
+            foreach ($groups as $data) {
+                $entry = [
+                    'message' => $data['message'],
                     'path' => $path,
-                    'count' => $count,
+                    'count' => $data['count'],
                 ];
+
+                if ($data['covered_by_line'] !== null) {
+                    $entry['covered_by_line'] = $data['covered_by_line'];
+                }
+
+                $finalBaseline[] = $entry;
             }
         }
 
@@ -130,6 +148,10 @@ final class IgnoredErrors
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $errors['message']);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
 
+            if (isset($pattern['covered_by_line']) && $pattern['covered_by_line'] !== ($errors['covered_by_line'] ?? null)) {
+                continue;
+            }
+
             if ($msgMatch && $pathMatch) {
                 return $this->markPatternMatched($index, $pattern);
             }
@@ -146,7 +168,7 @@ final class IgnoredErrors
     public function shouldIgnoreExact(string $path, array $errors): bool
     {
         $path = Path::makeRelative($path, base_path());
-        $exactKey = $path."\0".$errors['message'];
+        $exactKey = $path."\0".$errors['message']."\0".($errors['covered_by_line'] ?? '');
 
         if (isset($this->exactPatternIndex[$exactKey])) {
             $index = $this->exactPatternIndex[$exactKey];
