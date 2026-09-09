@@ -11,8 +11,6 @@ use Symfony\Component\Yaml\Yaml;
 
 final class Config
 {
-    const DEFAULT_FILENAME = 'haiku.yml';
-
     public private(set) ?string $cacheDir;
 
     /** @var array<string, mixed> */
@@ -94,7 +92,7 @@ final class Config
      */
     private function load(Section $section, ?string $path): self
     {
-        $filepath = $this->resolvePath($path);
+        $filepath = $this->resolvePath($path) ?? 'noop';
 
         try {
             $config = Yaml::parseFile($filepath);
@@ -134,9 +132,25 @@ final class Config
      *
      * @param string|null $path Custom path to the configuration file
      */
-    private function resolvePath(?string $path): string
+    private function resolvePath(?string $path): ?string
     {
-        return base_path($path ?? self::DEFAULT_FILENAME);
+        if ($path !== null) {
+            return base_path($path);
+        }
+
+        $discoverableConfigNames = [
+            'haiku.yml',
+            'haiku.yml.dist',
+        ];
+
+        foreach ($discoverableConfigNames as $filename) {
+            $filepath = base_path($filename);
+            if (is_file($filepath)) {
+                return $filepath;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Console\Command;
 
-use Realodix\Haiku\Config\Config;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,15 +11,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /** @codeCoverageIgnore */
 #[AsCommand(
     name: 'init',
-    description: 'Create a new haiku.yml file',
+    description: 'Create a new Haiku configuration file',
 )]
 class InitCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $filename = Config::DEFAULT_FILENAME;
-
+        $filename = 'haiku.yml';
         $configFile = base_path($filename);
 
         if (file_exists($configFile)) {

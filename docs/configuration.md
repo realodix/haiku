@@ -7,6 +7,8 @@ This document provides comprehensive documentation for configuring Haiku through
 
 Haiku is configured through a YAML file named `haiku.yml` located in your project's root directory. This file controls the behavior of Haiku's `build`, `fix`, and `lint` commands through separate configuration sections.
 
+If you want to override settings locally, create and commit to VCS `haiku.yml.dist` but locally use `haiku.yml` which should be ignored (e.g. in `.gitignore`).
+
 This is how a possible example of a config file can look like:
 
 ```yml
