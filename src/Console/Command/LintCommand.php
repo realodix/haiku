@@ -154,6 +154,10 @@ class LintCommand extends Command
                 }
 
                 $io->writeln($this->meta("{$path}:{$issue['line']}", '✏️ '));
+                if (isset($issue['covered_by_line'])) {
+                    $io->writeln($this->meta("{$path}:{$issue['covered_by_line']}", '✏️ '));
+                }
+
                 $io->newLine();
 
                 $rendered++;
