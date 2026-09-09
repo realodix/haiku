@@ -5,7 +5,28 @@ This document provides comprehensive documentation for configuring Haiku through
 
 ## Configuration File Overview
 
-Haiku is configured through a single YAML file named `haiku.yml` located in your project's root directory. This file controls both the `build` and `fix` commands through separate configuration sections.
+Haiku is configured through a YAML file named `haiku.yml` located in your project's root directory. This file controls the behavior of Haiku's `build`, `fix`, and `lint` commands through separate configuration sections.
+
+This is how a possible example of a config file can look like:
+
+```yml
+cache_dir: .tmp
+
+linter:
+  paths:
+    - src
+
+fixer:
+  paths:
+    - src
+
+builder:
+  filter_lists:
+    - filename: example.txt
+      includes:
+        - local.txt
+        - https://example.org/list.txt
+```
 
 ### Creating the Configuration File
 Use the `init` command to generate a template configuration file:
