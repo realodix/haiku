@@ -1,11 +1,11 @@
 <?php
 
-namespace Realodix\Haiku\Tests\Linter\Rules\Redundant;
+namespace Realodix\Haiku\Test\Linter\Rules\Redundant;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Test\TestCase;
 
-final class CosmeticCanonicalSelectorTest extends TestCase
+class CosmeticCanonicalSelectorTest extends TestCase
 {
     #[PHPUnit\Test]
     public function exact_duplicate_with_reordered(): void
