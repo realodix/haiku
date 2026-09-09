@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Nette\Schema\Processor;
 use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 final class Config
@@ -93,8 +94,10 @@ final class Config
      */
     private function load(Section $section, ?string $path): self
     {
+        $filepath = $this->resolvePath($path);
+
         try {
-            $config = Yaml::parseFile($this->resolvePath($path));
+            $config = Yaml::parseFile($filepath);
             $this->validate($config, $section);
 
             $warnings = $this->schemaProcessor->getWarnings();
@@ -105,12 +108,16 @@ final class Config
             if ($warnings !== []) {
                 $this->output->writeln(PHP_EOL);
             }
-        } catch (\Symfony\Component\Yaml\Exception\ParseException) {
-            $config = [];
+        } catch (ParseException $e) {
+            if (is_file($filepath)) {
+                throw new ParseException('Invalid configuration file.', previous: $e);
+            }
 
             if ($section === Section::B) {
                 throw new InvalidConfigurationException('The configuration file does not exist.');
             }
+
+            $config = [];
         }
 
         $this->config = $config;
