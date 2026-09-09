@@ -66,7 +66,7 @@ final class Schema
                 'rules' => Expect::structure([
                     'no_extra_blank_lines' => Expect::anyOf(Expect::int(), false),
                     'no_short_rules' => Expect::anyOf(Expect::int(), false),
-                    'scriptlet_unknown' => Expect::anyOf(
+                    'no_unknown_scriptlet' => Expect::anyOf(
                         Expect::bool(),
                         Expect::structure([
                             'known' => Expect::listOf('string')->min(1),

@@ -15,9 +15,9 @@ use Symfony\Component\Filesystem\Path;
  *  no_dupe_rules: bool,
  *  no_extra_blank_lines: bool|int,
  *  no_short_rules: bool|int,
+ *  no_unknown_scriptlet: bool|array{known: list<string>},
  *  pp_if_closed: bool,
  *  pp_value: bool,
- *  scriptlet_unknown: bool|array{known: list<string>},
  * }
  * @phpstan-type _ConfigIgnoredError array{
  *  message?: string,
@@ -48,9 +48,9 @@ final class LinterConfig
         'no_dupe_rules' => true,
         'no_extra_blank_lines' => false,
         'no_short_rules' => false,
+        'no_unknown_scriptlet' => true,
         'pp_if_closed' => true,
         'pp_value' => true,
-        'scriptlet_unknown' => true,
     ] {
         /** @param array<string, mixed> $value */
         set(array $value) {
