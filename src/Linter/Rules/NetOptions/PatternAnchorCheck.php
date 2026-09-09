@@ -15,7 +15,7 @@ final class PatternAnchorCheck implements Rule
 
     public function check(array $content, $err): array
     {
-        if (!$this->config->rules['net_pattern_anchor']) {
+        if (!$this->config->rules['no_bad_domain_anchor']) {
             return [];
         }
 

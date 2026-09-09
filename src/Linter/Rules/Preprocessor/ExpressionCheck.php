@@ -95,6 +95,9 @@ final class ExpressionCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no_invalid_preprocessor_parentheses
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkParenthesisError($err, string $condition): bool
@@ -120,7 +123,7 @@ final class ExpressionCheck implements Rule
 
     /**
      * rNames:
-     * - no-unknown-preprocessor-directives
+     * - no_unknown_preprocessor_directive
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
@@ -153,6 +156,9 @@ final class ExpressionCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no_always_false_condition
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $required
      */
@@ -171,6 +177,9 @@ final class ExpressionCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no_always_false_condition
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $required
      * @param list<array{reqValue: list<string>, lineNum: int}> $stack

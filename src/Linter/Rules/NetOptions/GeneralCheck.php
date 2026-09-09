@@ -228,6 +228,10 @@ final class GeneralCheck implements Rule
      */
     private function checkOptionAliasRedundant($err, array $opts): void
     {
+        if (!$this->config->rules['no_dupe_options']) {
+            return;
+        }
+
         foreach (self::ALIASES as $alias => $canonical) {
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
                 $msg = sprintf(

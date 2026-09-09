@@ -154,7 +154,7 @@ class LintBench
     protected function analyse(array $lines): void
     {
         app(LinterConfig::class)->rules = [
-            'cosm_id_selector_start' => true,
+            'no_invalid_id_selector' => true,
             'no_extra_blank_lines' => true,
             'no_short_rules' => 4,
         ];

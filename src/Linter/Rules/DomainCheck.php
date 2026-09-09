@@ -59,6 +59,9 @@ final class DomainCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no_invalid_domain
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function validateDomains($err, string $domainStr, string $separator): void
@@ -136,9 +139,6 @@ final class DomainCheck implements Rule
     /**
      * Check if the domain name is bad.
      *
-     * rNames:
-     * - no-invalid-domains
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkBadDomainName($err, string $domain, string $separator): void
@@ -178,7 +178,7 @@ final class DomainCheck implements Rule
         // =================================================================
         // Lowercase check
         // =================================================================
-        if ($this->config->rules['domain_case'] && strtolower($domain) !== $domain) {
+        if ($this->config->rules['no_uppercase_domain'] && strtolower($domain) !== $domain) {
             $err->message(sprintf('Domain %s must be lowercase.', $domain))
                 ->build();
         }
@@ -287,6 +287,9 @@ final class DomainCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no_domain_conflict
+     *
      * Tracks contradictory domains.
      *
      * If the domain is negated (~domain), it is checked against the list of inclusions.

@@ -41,6 +41,9 @@ final class ScriptletCheck implements Rule
     }
 
     /**
+     * rNames:
+     * - no_deprecated_scriptlet
+     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkDeprecated($err, string $value): bool
