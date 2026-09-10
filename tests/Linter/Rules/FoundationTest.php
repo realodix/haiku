@@ -17,6 +17,8 @@ class FoundationTest extends TestCase
             '||giphy.com^$replace=/"htlAds\\":\[\\".{1\,5}\\".*?\]/"htlAds\\":\[\]/,document',
             '$script,domain=example.com,jsonprune=\$..[direct\,"rtbAuctionInfo"\, "blockId"\, "linkTail"\, "seatbid"]',
             '@@||apis.quantcast.mgr.consensu.org/CookieAccess$domain=blitz.gg,app=Blitz.exe',
+            // https://github.com/uBlockOrigin/uAssets/blob/fd6184b1a7/filters/filters-2025.txt#L2442
+            '/^(https:\/\/fastpic\.org\/view\/.+?\.html\?)([^r].*)$/$doc,uritransform=//$1r=1&$2/',
         ];
 
         $this->analyse($lines);
