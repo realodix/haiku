@@ -40,7 +40,7 @@ final class DomainCoverage
      */
     public static function findCovering(string $domain, array $candidateDomains): ?string
     {
-        if (str_starts_with($domain, '~')
+        if (str_starts_with($domain, '~') || str_ends_with($domain, '>>')
             // reduce the candidates
             || str_ends_with($domain, '.*')
             || filter_var($domain, FILTER_VALIDATE_IP) !== false

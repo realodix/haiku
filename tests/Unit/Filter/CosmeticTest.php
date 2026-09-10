@@ -191,6 +191,26 @@ class CosmeticTest extends TestCase
             '~y.com##.ad',
         ];
         $this->assertSame($expected, $this->fix($input));
+
+        // ancestor contexts
+        $input = [
+            'a.com##.ad',
+            '~a.com##.ad',
+            'a.com>>##.ad',
+            '~a.com>>##.ad',
+
+            'a.com>>##.adRight',
+            'a.com,b.com##.adRight',
+        ];
+        $expected = [
+            'a.com##.ad',
+            '~a.com##.ad',
+            'a.com>>##.ad',
+            '~a.com>>##.ad',
+
+            'a.com,a.com>>,b.com##.adRight',
+        ];
+        $this->assertSame($expected, $this->fix($input));
     }
 
     #[PHPUnit\Test]

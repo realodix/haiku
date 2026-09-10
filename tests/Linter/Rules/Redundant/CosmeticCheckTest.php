@@ -110,6 +110,21 @@ class CosmeticCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function redundancy_with_ancestor_context_domains(): void
+    {
+        $lines = [
+            'a.*##.ads',
+            'a.*>>,~google.com##.ads',
+
+            'b.com##.ads',
+            'b.com>>##.ads',
+
+            '~a.b.com,~b.com##div',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function ignore_comments_and_directives(): void
     {
         $lines = [
