@@ -27,12 +27,19 @@ class TooShortLineCheckTest extends TestCase
 
             'abcd',   // OK (4 >= 4)
             '!a',    // Comment, OK
+            '*$script,3p,denyallow=fastly.net|fastlylb.net|jquery.com|hwcdn.net|hcaptcha.com|recaptcha.net|cloudflare.com|cloudflare.net|google.com|googleapis.com|gstatic.com,domain=13x4.com',
         ];
-
         $this->analyse($lines, [
             [1, 'The rule is too short (under 4 characters).'],
             [2, 'The rule is too short (under 4 characters).'],
             [3, 'The rule is too short (under 4 characters).'],
         ]);
+
+        $lines = [
+            '$doc,domain=example.com',
+            '*$script,3p,denyallow=google.com|googleapis.com|gstatic.com,domain=13x4.com',
+            '@@*$ghide,domain=timesnownews.com',
+        ];
+        $this->analyse($lines);
     }
 }

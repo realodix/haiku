@@ -34,6 +34,10 @@ final class TooShortLineCheck implements Rule
 
             if (preg_match(Regex::NET_OPTION, $line, $m)) {
                 $line = $m[1];
+
+                if ($line === '' || $line === '*' || $line === '@@*') {
+                    continue;
+                }
             }
 
             if (strlen($line) < $mode) {
