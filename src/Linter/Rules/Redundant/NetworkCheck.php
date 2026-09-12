@@ -238,6 +238,11 @@ final class NetworkCheck implements Rule
         $opts = $entry['options'];
         $type = $entry['type'];
 
+        // dynamic rules
+        if (str_contains($entry['line'], '*') && str_ends_with($entry['line'], 'noop')) {
+            return false;
+        }
+
         /** @var _NetRule|null */
         $best = null;
 

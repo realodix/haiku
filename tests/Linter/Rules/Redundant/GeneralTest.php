@@ -376,4 +376,16 @@ class GeneralTest extends TestCase
         ];
         $this->analyse($lines);
     }
+
+    #[PHPUnit\Test]
+    public function dynamic_rules(): void
+    {
+        $lines = [
+            'behind-the-scene * * noop',
+            'behind-the-scene * image noop',
+            'x.com twitter.com * noop',
+            '* twitter.com * noop',
+        ];
+        $this->analyse($lines);
+    }
 }
