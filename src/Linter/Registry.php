@@ -168,7 +168,7 @@ final class Registry
         ],
         'hd-main.js',
         'nitropay_ads.js' => ['scriptlet' => true],
-        'nobab2.js' => ['scriptlet' => true],
+        'nobab2.js' => ['alias' => ['prevent-bab2' /* AG */], 'scriptlet' => true],
         'noeval.js' => ['scriptlet' => true],
         'noeval-silent.js' => ['alias' => ['silent-noeval.js'], 'scriptlet' => true],
         'nofab.js' => [
