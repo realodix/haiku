@@ -153,6 +153,29 @@ class GeneralTest extends TestCase
         ]);
 
         $lines = [
+            'a.example.com,wikipedia.com###ads1a',
+            'example.com###ads1a',
+            'example.com###ads1b',
+            'a.example.com,wikipedia.com###ads1b',
+
+            'a.example.com,wikipedia.com##.ads2a',
+            'example.com##[class*="ads"]',
+            'b.example.com,wikipedia.com##.ads2b',
+
+            'example.*,wikipedia.com###ads2a',
+            'example.com###ads2a',
+            'example.com###ads2b',
+            'example.*,wikipedia.com###ads2b',
+        ];
+        $this->analyse($lines, [
+            [4, 'Redundant filter: domain a.example.com already covered by example.com on line 3'],
+            [5, 'Redundant filter: domain a.example.com in a.example.com##.ads2a already covered by example.com on line 6'],
+            [7, 'Redundant filter: domain b.example.com in b.example.com##.ads2b already covered by example.com on line 6'],
+            [9, 'Redundant filter: already covered on line 8'],
+            [10, 'Redundant filter: already covered on line 11'],
+        ]);
+
+        $lines = [
             '||example.com^$domain=example.com',
             '||example.com^$domain=ads.example.com|example.*',
             'example.com###ads1',

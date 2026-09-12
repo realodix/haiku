@@ -251,7 +251,7 @@ final class CosmeticCheck implements Rule
             // The candidate must cover every domain of the current rule.
             $coversAllDomains = true;
             foreach ($domains as $domain => $_) {
-                if (!$this->isCovered($entry, $candidate, $domain, $this->ghideExceptions)) {
+                if ($this->isCovered($entry, $candidate, $domain, $this->ghideExceptions) === null) {
                     $coversAllDomains = false;
                     break;
                 }
@@ -346,6 +346,7 @@ final class CosmeticCheck implements Rule
             }
 
             $bestParent = null;
+            $bestCovering = '';
 
             foreach ($candidates as $candidateIndex) {
                 if ($entry['lineNum'] === $candidateIndex) {
@@ -354,36 +355,58 @@ final class CosmeticCheck implements Rule
 
                 $candidate = $this->collection[$candidateIndex];
 
-                if ($this->isCovered($entry, $candidate, $domain, $this->ghideExceptions)) {
-                    if ($this->isBetter($candidate, $entry)) {
-                        if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
-                            $bestParent = $candidate;
-                        }
+                // Determine the concrete domain that covers this domain, or null
+                // when no coverage exists. An empty string means coverage by a
+                // global / almost-global rule without a concrete covering domain.
+                $covering = $this->isCovered($entry, $candidate, $domain, $this->ghideExceptions);
+
+                if ($covering === null) {
+                    continue;
+                }
+
+                if ($this->isBetter($candidate, $entry)) {
+                    if ($bestParent === null || $this->isBetter($candidate, $bestParent)) {
+                        $bestParent = $candidate;
+                        $bestCovering = $covering;
                     }
                 }
             }
 
             if ($bestParent) {
-                $coverageMap[$bestParent['lineNum']][] = $domain;
+                $coverageMap[$bestParent['lineNum']][] = [
+                    'domain' => $domain,
+                    'covering' => $bestCovering,
+                ];
                 $parentMap[$bestParent['lineNum']] = $bestParent;
             }
         }
 
-        foreach ($coverageMap as $parentLine => $coveredDomains) {
+        foreach ($coverageMap as $parentLine => $coveredEntries) {
             $parent = $parentMap[$parentLine];
-            foreach ($coveredDomains as $domain) {
-                $message = '';
+
+            foreach ($coveredEntries as $item) {
+                $domain = $item['domain'];
+                $covering = $item['covering'];
+                $showCovering = $covering !== '' && $covering !== $domain;
+
                 if ($entry['selector'] === $parent['selector']) {
-                    $message = sprintf(
-                        'Redundant filter: domain %s already covered',
-                        $domain,
-                    );
+                    $message = $showCovering
+                        ? sprintf(
+                            'Redundant filter: domain %s already covered by %s',
+                            $domain, $covering,
+                        )
+                        : sprintf('Redundant filter: domain %s already covered', $domain);
                 } else {
-                    $message = sprintf(
-                        'Redundant filter: domain %s in %s already covered',
-                        $domain,
-                        $domain.$entry['separator'].$entry['selector'],
-                    );
+                    $target = $domain.$entry['separator'].$entry['selector'];
+                    $message = $showCovering
+                        ? sprintf(
+                            'Redundant filter: domain %s in %s already covered by %s',
+                            $domain, $target, $covering,
+                        )
+                        : sprintf(
+                            'Redundant filter: domain %s in %s already covered',
+                            $domain, $target,
+                        );
                 }
 
                 $err->message($message)
@@ -545,8 +568,11 @@ final class CosmeticCheck implements Rule
      * @param _CosmeticRule $candidate The candidate rule that might cover it.
      * @param string $domain The domain context being evaluated.
      * @param array<string, bool> $ghideExceptions Domains where generic hiding is disabled.
+     * @return string|null `null` if not covered; `''` if covered without a
+     *                     concrete domain (global / almost-global); otherwise the
+     *                     concrete covering domain.
      */
-    private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): bool
+    private function isCovered(array $rule, array $candidate, string $domain, array $ghideExceptions): ?string
     {
         // =================================================================
         // Domain matching
@@ -556,12 +582,17 @@ final class CosmeticCheck implements Rule
             // unless they have the exact same domain set.
             if ($candidate['hasMixedDomains']) {
                 if ($candidate['domains'] !== $rule['domains']) {
-                    return false;
+                    return null;
                 }
+
+                $coveringDomain = $domain;
             } else {
                 // Determine if the domain context is covered by the candidate.
-                $isExplicitMatch = isset($candidate['domains'][$domain])
-                    || DomainCoverage::findCovering($domain, $candidate['domains']) !== null;
+                if (isset($candidate['domains'][$domain])) {
+                    $coveringDomain = $domain;
+                } else {
+                    $coveringDomain = DomainCoverage::findCovering($domain, $candidate['domains']);
+                }
 
                 // Almost-global rules (only exclusions) implicitly cover any
                 // non-negated domain that is not explicitly excluded.
@@ -570,13 +601,21 @@ final class CosmeticCheck implements Rule
                     && $domain[0] !== '~'
                     && !isset($candidate['domains']['~'.$domain]);
 
-                if (!$isExplicitMatch && !$isAlmostGlobalMatch) {
-                    return false;
+                if ($coveringDomain === null && !$isAlmostGlobalMatch) {
+                    return null;
+                }
+
+                // Covered by almost-global only: no concrete domain to report.
+                if ($coveringDomain === null) {
+                    $coveringDomain = '';
                 }
             }
         } elseif ($domain !== '' && isset($ghideExceptions[$domain])) {
             // Global rule $candidate does NOT cover domain if generic hiding is disabled for it.
-            return false;
+            return null;
+        } else {
+            // Global rule with no domain restriction.
+            $coveringDomain = '';
         }
 
         // =================================================================
@@ -585,17 +624,21 @@ final class CosmeticCheck implements Rule
 
         // Both rules are compound selectors
         if ($rule['compoundData'] !== null && $candidate['compoundData'] !== null) {
-            return $this->isCompoundCoveredBy($rule['compoundData'], $candidate['compoundData']);
+            return $this->isCompoundCoveredBy($rule['compoundData'], $candidate['compoundData'])
+                ? $coveringDomain
+                : null;
         }
 
         // Both rules are attribute selectors
         if ($rule['attrData'] !== null && $candidate['attrData'] !== null) {
-            return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData']);
+            return $this->isAttrCoveredBy($rule['attrData'], $candidate['attrData'])
+                ? $coveringDomain
+                : null;
         }
 
         // For unparsed or complex selectors, coverage is only possible through
         // identical selectors.
-        return $rule['selector'] === $candidate['selector'];
+        return $rule['selector'] === $candidate['selector'] ? $coveringDomain : null;
     }
 
     /**
