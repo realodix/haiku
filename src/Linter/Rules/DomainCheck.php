@@ -60,7 +60,7 @@ final class DomainCheck implements Rule
 
     /**
      * rNames:
-     * - no_invalid_domain
+     * - no_invalid_domains
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
@@ -178,7 +178,7 @@ final class DomainCheck implements Rule
         // =================================================================
         // Lowercase check
         // =================================================================
-        if ($this->config->rules['no_uppercase_domain'] && strtolower($domain) !== $domain) {
+        if ($this->config->rules['no_uppercase_domains'] && strtolower($domain) !== $domain) {
             $err->message(sprintf('Domain %s must be lowercase.', $domain))
                 ->build();
         }
@@ -288,7 +288,7 @@ final class DomainCheck implements Rule
 
     /**
      * rNames:
-     * - no_domain_conflict
+     * - no_domain_conflicts
      *
      * Tracks contradictory domains.
      *

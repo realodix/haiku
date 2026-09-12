@@ -123,7 +123,7 @@ final class ExpressionCheck implements Rule
 
     /**
      * rNames:
-     * - no_unknown_preprocessor_directive
+     * - no_unknown_preprocessor_directives
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */

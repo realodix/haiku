@@ -18,7 +18,7 @@ class CosmeticCheckTest extends TestCase
         parent::setUp();
 
         app(LinterConfig::class)->rules = [
-            'no_invalid_id_selector' => true,
+            'no_invalid_id_selectors' => true,
         ];
     }
 

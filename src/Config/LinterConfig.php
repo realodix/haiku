@@ -7,15 +7,15 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * @phpstan-type _LinterRules array{
- *  no_bad_domain_anchor: bool,
+ *  no_bad_domain_anchors: bool,
  *  no_dupe_domains: bool,
  *  no_dupe_options: bool,
  *  no_dupe_rules: bool,
  *  no_extra_blank_lines: bool|int,
- *  no_invalid_id_selector: bool,
+ *  no_invalid_id_selectors: bool,
  *  no_short_rules: bool|int,
- *  no_unknown_scriptlet: bool|array{known: list<string>},
- *  no_uppercase_domain: bool,
+ *  no_unknown_scriptlets: bool|array{known: list<string>},
+ *  no_uppercase_domains: bool,
  *  pp_if_closed: bool,
  *  pp_value: bool,
  * }
@@ -40,15 +40,15 @@ final class LinterConfig
 
     /** @var _LinterRules */
     public array $rules = [
-        'no_bad_domain_anchor' => true,
+        'no_bad_domain_anchors' => true,
         'no_dupe_domains' => true,
         'no_dupe_options' => true,
         'no_dupe_rules' => true,
         'no_extra_blank_lines' => false,
-        'no_invalid_id_selector' => false,
+        'no_invalid_id_selectors' => false,
         'no_short_rules' => false,
-        'no_unknown_scriptlet' => true,
-        'no_uppercase_domain' => true,
+        'no_unknown_scriptlets' => true,
+        'no_uppercase_domains' => true,
         'pp_if_closed' => true,
         'pp_value' => true,
     ] {

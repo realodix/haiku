@@ -42,7 +42,7 @@ final class ScriptletCheck implements Rule
 
     /**
      * rNames:
-     * - no_deprecated_scriptlet
+     * - no_deprecated_scriptlets
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
@@ -63,7 +63,7 @@ final class ScriptletCheck implements Rule
      */
     private function checkUnknownName($err, string $value): void
     {
-        if ($this->config->rules['no_unknown_scriptlet'] === false) {
+        if ($this->config->rules['no_unknown_scriptlets'] === false) {
             return;
         }
 
@@ -85,7 +85,7 @@ final class ScriptletCheck implements Rule
      */
     private function getScriptletNames(): array
     {
-        $config = $this->config->rules['no_unknown_scriptlet'];
+        $config = $this->config->rules['no_unknown_scriptlets'];
         $resources = array_map(
             fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
             Util::getRedirectResources(scriptlet: true),

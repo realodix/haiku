@@ -44,7 +44,7 @@ final class CosmeticCheck implements Rule
      */
     private function checkIdSelectorStartsWithDigit($err, array $node): void
     {
-        if (!$this->config->rules['no_invalid_id_selector']
+        if (!$this->config->rules['no_invalid_id_selectors']
             || !($node['separator'] === '##' || $node['separator'] === '#@#')
         ) {
             return;
@@ -73,7 +73,7 @@ final class CosmeticCheck implements Rule
 
     /**
      * rNames:
-     * - no_invalid_abp_extended_css_selector
+     * - no_invalid_abp_extended_css_selectors
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, string> $node
