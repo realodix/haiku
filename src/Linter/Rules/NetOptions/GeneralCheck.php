@@ -58,7 +58,6 @@ final class GeneralCheck implements Rule
             $this->checkDeprecatedOptions($err, $opts);
             $this->checkExceptionOptions($err, $opts, $line);
             $this->checkValueOptionalExceptionOnly($err, $opts, $line);
-            $this->checkInterOptionDomainContradiction($err, $opts);
             $this->checkDenyallowValue($err, $opts);
             $this->checkDenyallowAndToConflict($err, $opts);
             $this->checkDenyallowRequiresDomain($err, $opts);
@@ -349,61 +348,6 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no-inter-option-domain-contradiction
-     * - no-cross-option-domain-conflict
-     * - no-domain-conflict-between-options
-     *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param array<string, list<string|null>> $opts
-     */
-    private function checkInterOptionDomainContradiction($err, array $opts): void
-    {
-        $domain = $this->parseDomainList($opts['domain'] ?? null);
-        $from = $this->parseDomainList($opts['from'] ?? null);
-        $base = array_unique([...$domain, ...$from]);
-        $contradictor = isset($opts['domain']) ? '$domain' : '$from';
-
-        if ($base === []) {
-            return;
-        }
-
-        // $denyallow
-        if (isset($opts['denyallow']) && !(isset($opts['3p']) || isset($opts['third-party']))) {
-            $deny = $this->parseDomainList($opts['denyallow']);
-
-            $overlap = array_intersect($base, $deny);
-            if ($overlap !== []) {
-                $err->message(sprintf(
-                    "Option \$denyallow contradicts {$contradictor} for: %s",
-                    implode(', ', $overlap),
-                ))->build();
-            }
-        }
-
-        // $to
-        if (isset($opts['to'])) {
-            $toDomains = $this->parseDomainList($opts['to']);
-
-            $toExclude = [];
-            foreach ($toDomains as $d) {
-                if (str_starts_with($d, '~')) {
-                    $toExclude[] = substr($d, 1);
-                }
-            }
-
-            $conflicts = array_intersect($base, $toExclude);
-
-            if ($conflicts !== []) {
-                $err->message(sprintf(
-                    "Option \$to contradicts {$contradictor} for: %s",
-                    implode(', ', $conflicts),
-                ))->build();
-            }
-        }
-    }
-
-    /**
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
@@ -490,22 +434,5 @@ final class GeneralCheck implements Rule
         }
 
         return true;
-    }
-
-    /**
-     * @param list<string|null>|null $values
-     * @return array<string>
-     */
-    private function parseDomainList(?array $values): array
-    {
-        if ($values === null) {
-            return [];
-        }
-
-        $parts = array_map(fn($v) => explode('|', (string) $v), array_filter($values));
-        $domains = array_merge([], ...$parts);
-        $domains = array_filter(array_map('trim', $domains), fn($d) => $d !== '');
-
-        return array_unique($domains);
     }
 }

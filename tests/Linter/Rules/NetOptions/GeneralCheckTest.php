@@ -113,28 +113,6 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function checkInterOptionDomainContradiction(): void
-    {
-        $lines = [
-            '*$domain=a.com|b.com,denyallow=b.com',
-            '*$from=a.com,to=~a.com|b.com',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Option $denyallow contradicts $domain for: b.com'],
-            [2, 'Option $to contradicts $from for: a.com'],
-        ]);
-
-        $lines = [
-            '*$domain=a.com|b.com,denyallow=c.com',
-            '*$from=a.com,to=a.com|b.com',
-            '*$script,3p,denyallow=example.com,domain=example.com',
-        ];
-
-        $this->analyse($lines);
-    }
-
-    #[PHPUnit\Test]
     public function checkOptionConflict(): void
     {
         $lines = [
