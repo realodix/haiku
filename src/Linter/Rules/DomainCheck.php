@@ -227,10 +227,13 @@ final class DomainCheck implements Rule
         if (str_contains($domain, '.')
             && !(preg_match('/\.[\d]{1,3}+$/', $domain) || str_ends_with($domain, '.'))
         ) {
-            $tld = strtolower(pathinfo($domain, PATHINFO_EXTENSION));
+            $domainInfo = pathinfo($domain);
+            $tld = $domainInfo['extension'];
 
             if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
+                $hint = Util::getSuggestion(array_keys(Tld::VALUES), $tld);
                 $err->message(sprintf('Bad domain: "%s" has an invalid TLD', $domain))
+                    ->tip(sprintf('Did you mean "%s"?', $domainInfo['filename'].'.'.$hint))
                     ->build();
             }
         }
