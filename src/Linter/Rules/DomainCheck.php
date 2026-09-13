@@ -95,7 +95,6 @@ final class DomainCheck implements Rule
 
             $this->checkBadDomainName($err, $domain, $separator);
             $this->checkAncestorContexts($err, $domain, $separator);
-
             $this->trackDuplicate($domain, $state);
             $this->trackContradiction($domain, $state);
         }
