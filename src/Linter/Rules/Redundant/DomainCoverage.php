@@ -36,29 +36,33 @@ final class DomainCoverage
      * - example.* covers ads.example.com
      * - example.com covers ads.example.com
      *
+     * Coverage is only evaluated between domains with the same marker combination.
+     * `example.com`, `~example.com`, and `example.com>>` are three distinct entities
+     * that never cover each other.
+     *
      * @param array<string, bool> $candidateDomains
      */
     public static function findCovering(string $domain, array $candidateDomains): ?string
     {
-        if (str_starts_with($domain, '~') || str_ends_with($domain, '>>')
-            // reduce the candidates
-            || str_ends_with($domain, '.*')
+        if (str_contains($domain, '.*')
             || filter_var($domain, FILTER_VALIDATE_IP) !== false
         ) {
             return null;
         }
 
+        [$baseDomain, $prefix, $suffix] = self::splitDomainMarkers($domain);
         $covering = null;
         $coveringLength = PHP_INT_MAX;
 
-        // 1. Check wildcard matches from parent segments.
-        $parent = $domain;
+        // 1. Wildcard parents
+        $parent = $baseDomain;
         while (($dotPos = strrpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
-            $wildcardDomain = $base.'.*';
-            if (isset($candidateDomains[$wildcardDomain]) && strlen($wildcardDomain) < $coveringLength) {
-                $covering = $wildcardDomain;
-                $coveringLength = strlen($wildcardDomain);
+            $key = $prefix.$base.'.*'.$suffix;
+
+            if (isset($candidateDomains[$key]) && strlen($key) < $coveringLength) {
+                $covering = $key;
+                $coveringLength = strlen($key);
             }
 
             $firstDot = strpos($parent, '.');
@@ -69,14 +73,15 @@ final class DomainCoverage
             $parent = substr($parent, $firstDot + 1);
         }
 
-        // 2. Check exact parent domains.
-        $parent = $domain;
+        // 2. Exact parents: com, example.com, etc.
+        $parent = $baseDomain;
         while (($dotPos = strpos($parent, '.')) !== false) {
             $parent = substr($parent, $dotPos + 1);
+            $key = $prefix.$parent.$suffix;
 
-            if (isset($candidateDomains[$parent]) && strlen($parent) < $coveringLength) {
-                $covering = $parent;
-                $coveringLength = strlen($parent);
+            if (isset($candidateDomains[$key]) && strlen($key) < $coveringLength) {
+                $covering = $key;
+                $coveringLength = strlen($key);
             }
         }
 
@@ -115,5 +120,27 @@ final class DomainCoverage
         }
 
         return $genericOnly ? $hasGeneric : true;
+    }
+
+    /**
+     * Split a domain string into its marker namespace and base hostname.
+     *
+     * @return array{0: string, 1: string, 2: string} [base, prefix, suffix]
+     */
+    private static function splitDomainMarkers(string $domain): array
+    {
+        $prefix = '';
+        if (str_starts_with($domain, '~')) {
+            $prefix = '~';
+            $domain = substr($domain, 1);
+        }
+
+        $suffix = '';
+        if (str_ends_with($domain, '>>')) {
+            $suffix = '>>';
+            $domain = substr($domain, 0, -2);
+        }
+
+        return [$domain, $prefix, $suffix];
     }
 }

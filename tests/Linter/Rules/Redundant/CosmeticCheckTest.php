@@ -90,6 +90,30 @@ class CosmeticCheckTest extends TestCase
         ]);
 
         $lines = [
+            '~x.b.com##.ads',
+            '~b.com##.ads',
+
+            '~a.b.com,~b.com##div',
+            '~a.b.com>>,~b.com>>##div',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ~x.b.com##.ads already covered by ~b.com##.ads on line 2'],
+            [3, 'Redundant domain: ~a.b.com is covered by ~b.com'],
+            [4, 'Redundant domain: ~a.b.com>> is covered by ~b.com>>'],
+        ]);
+
+        $lines = [
+            'a.*##.ads',
+            '~a.*,~google.com##.ads',
+
+            'b.com##.ads',
+            '~b.com##.ads',
+        ];
+        $this->analyse($lines, [
+            [3, 'Redundant filter: already covered on line 2'],
+        ]);
+
+        $lines = [
             // Case 1: Almost-global filter should NOT cover global filter
             '~y.com##[class*="ad" i]',
             '##[class^="ads2"]',
@@ -113,13 +137,24 @@ class CosmeticCheckTest extends TestCase
     public function redundancy_with_ancestor_context_domains(): void
     {
         $lines = [
+            'x.b.com>>##.ads',
+            'b.com>>##.ads',
+
+            '~a.b.com,~b.com##div',
+            '~a.b.com>>,~b.com>>##div',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: x.b.com>>##.ads already covered by b.com>>##.ads on line 2'],
+            [3, 'Redundant domain: ~a.b.com is covered by ~b.com'],
+            [4, 'Redundant domain: ~a.b.com>> is covered by ~b.com>>'],
+        ]);
+
+        $lines = [
             'a.*##.ads',
             'a.*>>,~google.com##.ads',
 
             'b.com##.ads',
             'b.com>>##.ads',
-
-            '~a.b.com,~b.com##div',
         ];
         $this->analyse($lines);
     }
