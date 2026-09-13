@@ -143,6 +143,11 @@ final class DomainCheck implements Rule
      */
     private function checkBadDomainName($err, string $domain, string $separator): void
     {
+        if ($this->config->rules['no_uppercase_domains'] && strtolower($domain) !== $domain) {
+            $err->message(sprintf('Domain %s must be lowercase.', $domain))
+                ->build();
+        }
+
         $whitelist = [
             'chrome-extension-scheme', 'moz-extension-scheme', 'addons.about-scheme',
             'localhost', 'local', 'dotblocking.dummy', 'parked.domain',
@@ -150,6 +155,8 @@ final class DomainCheck implements Rule
         if (in_array(ltrim($domain, '~'), $whitelist)) {
             return;
         }
+
+        $domain = strtolower($domain);
 
         // =================================================================
         // Single character check
@@ -173,14 +180,6 @@ final class DomainCheck implements Rule
             ))->build();
 
             return;
-        }
-
-        // =================================================================
-        // Lowercase check
-        // =================================================================
-        if ($this->config->rules['no_uppercase_domains'] && strtolower($domain) !== $domain) {
-            $err->message(sprintf('Domain %s must be lowercase.', $domain))
-                ->build();
         }
 
         // =================================================================
