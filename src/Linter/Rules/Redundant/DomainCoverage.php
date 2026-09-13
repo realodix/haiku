@@ -51,32 +51,18 @@ final class DomainCoverage
         }
 
         [$baseDomain, $prefix, $suffix] = self::splitDomainMarkers($domain);
-
-        // Restrict candidates to the same marker namespace.
-        $candidates = [];
-        foreach ($candidateDomains as $cand => $_) {
-            [$candBase, $candPrefix, $candSuffix] = self::splitDomainMarkers($cand);
-            if ($candPrefix !== $prefix || $candSuffix !== $suffix) {
-                continue;
-            }
-            $candidates[$candBase] = true;
-        }
-
-        if ($candidates === []) {
-            return null;
-        }
-
         $covering = null;
         $coveringLength = PHP_INT_MAX;
 
-        // 1. Check wildcard matches from parent segments.
+        // 1. Wildcard parents
         $parent = $baseDomain;
         while (($dotPos = strrpos($parent, '.')) !== false) {
             $base = substr($parent, 0, $dotPos);
-            $wildcardDomain = $base.'.*';
-            if (isset($candidates[$wildcardDomain]) && strlen($wildcardDomain) < $coveringLength) {
-                $covering = $wildcardDomain;
-                $coveringLength = strlen($wildcardDomain);
+            $key = $prefix.$base.'.*'.$suffix;
+
+            if (isset($candidateDomains[$key]) && strlen($key) < $coveringLength) {
+                $covering = $key;
+                $coveringLength = strlen($key);
             }
 
             $firstDot = strpos($parent, '.');
@@ -87,18 +73,19 @@ final class DomainCoverage
             $parent = substr($parent, $firstDot + 1);
         }
 
-        // 2. Check exact parent domains.
+        // 2. Exact parents: com, example.com, etc.
         $parent = $baseDomain;
         while (($dotPos = strpos($parent, '.')) !== false) {
             $parent = substr($parent, $dotPos + 1);
+            $key = $prefix.$parent.$suffix;
 
-            if (isset($candidates[$parent]) && strlen($parent) < $coveringLength) {
-                $covering = $parent;
-                $coveringLength = strlen($parent);
+            if (isset($candidateDomains[$key]) && strlen($key) < $coveringLength) {
+                $covering = $key;
+                $coveringLength = strlen($key);
             }
         }
 
-        return $covering === null ? null : $prefix.$covering.$suffix;
+        return $covering;
     }
 
     /**
