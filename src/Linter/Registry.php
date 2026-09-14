@@ -102,6 +102,8 @@ final class Registry
 
     /**
      * https://github.com/gorhill/uBlock/blob/1.74.0/src/js/redirect-resources.js
+     *
+     * @var array<int|string, string|array{alias?: list<string>, scriptlet?: bool}>
      */
     const REDIRECT_RESOURCE = [
         'none',
