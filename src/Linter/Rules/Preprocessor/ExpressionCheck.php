@@ -145,12 +145,14 @@ final class ExpressionCheck implements Rule
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $hint = Util::getSuggestion($knownPreprocessorValues, $value);
+                $err->message(sprintf('Unknown value "%s" in "!#if" condition.', $value));
 
-                $err->message(sprintf('Unknown value "%s" in "!#if" condition.', $value))
-                    ->when($hint, function () use ($err, $hint) {
-                        $err->tip(sprintf('Did you mean "%s"?', $hint));
-                    })->build();
+                $hint = Util::getSuggestion($knownPreprocessorValues, $value);
+                if ($hint !== null) {
+                    $err->tip(sprintf('Did you mean "%s"?', $hint));
+                }
+
+                $err->build();
             }
         }
     }

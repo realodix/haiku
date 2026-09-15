@@ -33,7 +33,7 @@ final class Helper
             if (!array_key_exists($name, $baseConfig)) {
                 $hint = Util::getSuggestion(array_merge(array_keys($baseConfig), ['fmode']), $name);
                 throw new InvalidConfigurationException(sprintf(
-                    'Unknown %s: "%s"'.($hint ? ", did you mean '%s'?" : '.'),
+                    'Unknown %s: "%s"'.($hint !== null ? ", did you mean '%s'?" : '.'),
                     $type, $name, $hint,
                 ));
             }

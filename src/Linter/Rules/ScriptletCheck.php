@@ -69,12 +69,14 @@ final class ScriptletCheck implements Rule
 
         $scriptlets = $this->getScriptletNames();
         if (!in_array($value, $scriptlets, true)) {
-            $hint = Util::getSuggestion($scriptlets, $value);
+            $err->message(sprintf('Unknown scriptlet: %s', $value));
 
-            $err->message(sprintf('Unknown scriptlet: %s', $value))
-                ->when($hint, function () use ($err, $hint) {
-                    $err->tip(sprintf('Did you mean "%s"?', $hint));
-                })->build();
+            $hint = Util::getSuggestion($scriptlets, $value);
+            if ($hint !== null) {
+                $err->tip(sprintf('Did you mean "%s"?', $hint));
+            }
+
+            $err->build();
         }
     }
 
