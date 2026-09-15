@@ -10,9 +10,6 @@ use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @phpstan-import-type _FilterList from \Realodix\Haiku\Config\BuilderConfig
- */
 final class Builder
 {
     public function __construct(
