@@ -17,7 +17,7 @@ final class IfClosedCheck implements Rule
             return [];
         }
 
-        /** @var list<array{line: int, type: string, hasElse: bool}> */
+        /** @var list<array{lineNum: int, type: string, hasElse: bool}> */
         $stack = [];
 
         foreach ($content as $index => $line) {
