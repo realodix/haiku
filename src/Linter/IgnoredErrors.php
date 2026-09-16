@@ -87,7 +87,12 @@ final class IgnoredErrors
 
     /**
      * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
-     * @return list<_IgnoredError>
+     * @return list<array{
+     *  message: string,
+     *  path: string,
+     *  count: int,
+     *  covered_by_line?: int,
+     * }>
      */
     public static function makeBaseline($errorReporter): array
     {
