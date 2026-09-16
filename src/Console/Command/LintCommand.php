@@ -87,7 +87,7 @@ class LintCommand extends Command
             $this->generateBaseline($io, $errorReporter);
             $this->renderPerformanceMetrics($io, $startTime);
 
-            return Command::SUCCESS;
+            return $errorReporter->count() === 0 ? Command::FAILURE : Command::SUCCESS;
         }
 
         $this->renderErrors($io, $errorReporter);
@@ -212,13 +212,19 @@ class LintCommand extends Command
     {
         $baselineFile = base_path(IgnoredErrors::BASELINE_FILE);
         $baseline = IgnoredErrors::makeBaseline($errorReporter);
+        $errorsCount = count($baseline);
+
+        if ($errorsCount === 0) {
+            $io->error('No errors were found during the analysis. Baseline could not be generated.');
+
+            return;
+        }
 
         file_put_contents(
             $baselineFile,
             Yaml::dump(['ignoreErrors' => $baseline], 4, 2),
         );
 
-        $errorsCount = count($baseline);
         $io->success(sprintf(
             'Baseline generated with %d %s.',
             $errorsCount,
