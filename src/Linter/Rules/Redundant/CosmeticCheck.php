@@ -108,7 +108,7 @@ final class CosmeticCheck implements Rule
             if (!$isMixed && $domains !== []) {
                 // An "almost global" rule contains only exclusions (negated domains,
                 // prefixed with ~).
-                $firstDomain = (string) array_key_first($domains);
+                $firstDomain = array_key_first($domains);
                 $isAlmostGlobal = $firstDomain !== '' && $firstDomain[0] === '~';
             }
 
