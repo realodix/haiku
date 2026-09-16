@@ -140,12 +140,12 @@ final class CosmeticCheck implements Rule
                 if (in_array($op, ['^=', '$=', '*='], true)) {
                     // Partial bucket (P)
                     // Example: div[class*="ad"]
-                    $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $op, $val);
+                    $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $val, $op);
                     $this->interactionMap[$partialKey][] = $lineNum;
                 } else {
                     // Exact bucket (E): groups exact-operator rules (=, ~=).
                     // Example: .ads and [class="ads"]
-                    $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $op, $val);
+                    $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $val, $op);
                     $this->interactionMap[$exactKey][] = $lineNum;
                 }
             }
@@ -443,7 +443,7 @@ final class CosmeticCheck implements Rule
             $attr = $entry['attrData']['attr'];
 
             // 1. Exact candidates
-            $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $val);
+            $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $val);
             if (isset($interactionMap[$exactKey])) {
                 array_push($candidates, ...$interactionMap[$exactKey]);
             }
@@ -455,7 +455,7 @@ final class CosmeticCheck implements Rule
                     continue;
                 }
 
-                $wordKey = $this->buildAttrKey('E', $separator, $tag, $attr, val: $word);
+                $wordKey = $this->buildAttrKey('E', $separator, $tag, $attr, $word);
                 if (isset($interactionMap[$wordKey])) {
                     array_push($candidates, ...$interactionMap[$wordKey]);
                 }
@@ -472,7 +472,7 @@ final class CosmeticCheck implements Rule
             };
 
             foreach ($targetOps as $tOp) {
-                $pKey = $this->buildAttrKey('P', $separator, $tag, $attr, $tOp, $val);
+                $pKey = $this->buildAttrKey('P', $separator, $tag, $attr, $val, $tOp);
                 if (isset($interactionMap[$pKey])) {
                     array_push($candidates, ...$interactionMap[$pKey]);
                 }
@@ -482,7 +482,7 @@ final class CosmeticCheck implements Rule
             // cover tag-specific rules.
             if ($tag !== '') {
                 // Global Exact
-                $geKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $val);
+                $geKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, $val);
                 if (isset($interactionMap[$geKey])) {
                     array_push($candidates, ...$interactionMap[$geKey]);
                 }
@@ -493,7 +493,7 @@ final class CosmeticCheck implements Rule
                         continue;
                     }
 
-                    $globalWordKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, val: $word);
+                    $globalWordKey = $this->buildAttrKey('G|E', $separator, $tag, $attr, $word);
                     if (isset($interactionMap[$globalWordKey])) {
                         array_push($candidates, ...$interactionMap[$globalWordKey]);
                     }
@@ -501,7 +501,7 @@ final class CosmeticCheck implements Rule
 
                 // Global Partial
                 foreach ($targetOps as $tOp) {
-                    $gpKey = $this->buildAttrKey('G|P', $separator, $tag, $attr, $tOp, $val);
+                    $gpKey = $this->buildAttrKey('G|P', $separator, $tag, $attr, $val, $tOp);
                     if (isset($interactionMap[$gpKey])) {
                         array_push($candidates, ...$interactionMap[$gpKey]);
                     }
@@ -929,12 +929,12 @@ final class CosmeticCheck implements Rule
      * @param string $separator The cosmetic separator (##, #@#, etc.).
      * @param string $tag The tag qualifier (empty for global).
      * @param string $attr The attribute name.
+     * @param string $val The attribute value.
      * @param string|null $op The operator (required for partial keys).
-     * @param string|null $val The attribute value.
      */
     private function buildAttrKey(
         string $type, string $separator,
-        string $tag, string $attr, ?string $op = null, ?string $val = null,
+        string $tag, string $attr, string $val, ?string $op = null,
     ): string {
         // Global
         if (str_starts_with($type, 'G|')) {
