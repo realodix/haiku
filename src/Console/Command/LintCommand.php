@@ -212,9 +212,10 @@ class LintCommand extends Command
     {
         $baselineFile = base_path(IgnoredErrors::BASELINE_FILE);
         $baseline = IgnoredErrors::makeBaseline($errorReporter);
-        $errorsCount = count($baseline);
+        $issuesCount = array_sum(array_column($baseline, 'count'));
+        $entriesCount = count($baseline);
 
-        if ($errorsCount === 0) {
+        if ($issuesCount === 0) {
             $io->error('No errors were found during the analysis. Baseline could not be generated.');
 
             return;
@@ -225,10 +226,22 @@ class LintCommand extends Command
             Yaml::dump(['ignoreErrors' => $baseline], 4, 2),
         );
 
+        if ($issuesCount === $entriesCount) {
+            $io->success(sprintf(
+                'Baseline generated with %d %s.',
+                $issuesCount,
+                $issuesCount === 1 ? 'error' : 'errors',
+            ));
+
+            return;
+        }
+
         $io->success(sprintf(
-            'Baseline generated with %d %s.',
-            $errorsCount,
-            $errorsCount === 1 ? 'error' : 'errors',
+            'Baseline generated with %d %s in %d baseline %s.',
+            $issuesCount,
+            $issuesCount === 1 ? 'error' : 'errors',
+            $entriesCount,
+            $entriesCount === 1 ? 'entry' : 'entries',
         ));
     }
 
