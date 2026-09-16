@@ -96,10 +96,10 @@ Creates a backup of each file before applying fixes. Default is `false`.
 #### `flags`
 Flags control how the fixer processes and transforms rules during the fixing pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
 
-Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./fixer-feature.md#-filter-option-format)).
+Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./fixer_transformations.md#-filter-option-format)).
 
 - **`fmode`**: Bulk toggle for all boolean flags. Default is `false`.
-- See [docs/fixer-feature.md](./fixer-feature.md) for a complete list of available flags.
+- See [docs/fixer_transformations.md](./fixer_transformations.md) for a complete list of available flags.
 
 
 ## Linter Configuration

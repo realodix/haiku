@@ -103,7 +103,7 @@ a.com,~b.com,c.com,~d.com##.ads
 
 Sort network options using configured order.
 
-**Config**: `fixer.flags.option_order`, default: `type`
+`fixer.flags.option_order`, default: `type`
 
 **Possible values**:
 - `name`: Sort options alphabetically by name.
@@ -147,9 +147,11 @@ example.com,example.org##.ads
 
 ### # Combine Overlapping Options
 
-`fixer.flags.combine_option_sets`
-
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
+
+`fixer.flags.combine_option_sets`, default: `false`
+
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -166,9 +168,11 @@ When multiple network filters share the same pattern but differ only in their op
 
 ##  AdGuard Non-basic Rules Modifiers
 
-`fixer.flags.adg_non_basic_rule_modifier`
-
 Sort domains and modifiers in AdGuard non-basic rules modifiers.
+
+`fixer.flags.adg_non_basic_rule_modifier`, default: `false`
+
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -185,7 +189,7 @@ Sort domains and modifiers in AdGuard non-basic rules modifiers.
 
 Removes empty lines based on the specified configuration.
 
-**Config**: `fixer.flags.remove_empty_lines`, default: `keep_before_comment`
+`fixer.flags.remove_empty_lines`, default: `keep_before_comment`
 
 **Possible values**:
 - `true`: Remove empty lines.
@@ -274,7 +278,9 @@ Reduces domain lists by eliminating entries that are semantically covered by mor
 
 #### Wildcard TLD Coverage
 
-`fixer.flags.remove_wildcard_covered_domains`
+`fixer.flags.remove_wildcard_covered_domains`, default: `false`
+
+**Possible values**: `true`, `false`
 
 Eliminates explicit domains that are already covered by wildcard TLD domains. When a wildcard domain like `example.*` is present, specific domains like `example.com` are redundant and removed. Negated domains are preserved.
 
@@ -288,7 +294,9 @@ example.com,~example.net,example.*##.ads
 
 #### Subdomain Coverage
 
-`fixer.flags.remove_subdomains`
+`fixer.flags.remove_subdomains`, default: `false`
+
+**Possible values**: `true`, `false`
 
 Removes subdomain entries that are covered by their parent domain. When a base domain like `example.com` is present, subdomains like `api.example.com` are redundant. Negated subdomains are preserved.
 
@@ -330,11 +338,13 @@ example.com,example.org##.ads
 
 ### # Wrong Domain Separator
 
-`fixer.flags.fix_domain_separators`
-
 Corrects incorrect separator usage:
 - `|` is used for network rule domain lists
 - `,` is used for cosmetic rule domain lists
+
+`fixer.flags.fix_domain_separators`, default: `false`
+
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -388,9 +398,9 @@ Option names must be in lowercase.
 
 ### # Remove Unnecessary Wildcards
 
-`fixer.flags.remove_unnecessary_wildcard`
+`fixer.flags.remove_unnecessary_wildcard`, default: `false`
 
-Removes unnecessary wildcards (`*`).
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -407,7 +417,7 @@ Removes unnecessary wildcards (`*`).
 
 Normalizes network filter option names into a consistent format.
 
-**Config**: `fixer.flags.option_format`
+`fixer.flags.option_format`, default: unset
 
 **Possible values**:
 - `long`: Converts all options to their descriptive (long) form.
@@ -430,11 +440,13 @@ Normalizes network filter option names into a consistent format.
 
 ### # Migrate Deprecated Filter Option
 
-`fixer.flags.migrate_deprecated_options`
-
 Converts deprecated filter options to their modern equivalents. This helps maintain filter lists as adblock specifications evolve.
 
-Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
+Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`.
+
+`fixer.flags.migrate_deprecated_options`, default: `false`
+
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -446,9 +458,11 @@ Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`
 
 ### # Convert Legacy Remove Action
 
-`fixer.flags.convert_legacy_remove_action`
-
 Converts legacy property-based `remove` actions (used by ABP/AdGuard) to uBlock Origin syntax.
+
+`fixer.flags.convert_legacy_remove_action`, default: `false`
+
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -460,9 +474,11 @@ example.com##.banner:remove()
 
 ### # Convert ABP extended selectors
 
-`fixer.flags.convert_legacy_ext_selectors`
+Converts Adblock Plus extended selector syntax to native CSS selector.
 
-Converts Adblock Plus extended selector syntax to uBlock Origin syntax.
+`fixer.flags.convert_legacy_ext_selectors`, default: `false`
+
+**Possible values**: `true`, `false`
 
 ```adblock
 !## BEFORE
@@ -476,7 +492,7 @@ example.com##div:has(> span:has-text(Advertisment))
 
 Converts `id` and `class` attribute selectors into their equivalent CSS basic selector forms.
 
-**Config**: `fixer.flags.attr_to_basic_selector`
+`fixer.flags.attr_to_basic_selector`, default: unset
 
 **Possible values**:
 - `strict`: Only applies transformations that are fully semantically equivalent.

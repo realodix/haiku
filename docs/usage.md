@@ -4,7 +4,7 @@ This document describes how to use Haiku from the command line, including availa
 
 ## Commands
 
-Haiku provides two main commands:
+Haiku provides three main commands:
 
 - `fix` — Sorting, combining, and optimizing adblock filter lists.
 - `lint` — Analyzing adblock filter lists for potential issues.
