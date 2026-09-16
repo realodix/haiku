@@ -11,8 +11,8 @@ use Symfony\Component\Yaml\Yaml;
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,
- *  count?: int,
  *  covered_by_line?: int,
+ *  count?: int, // from baseline, not user config
  *  isBaseline?: bool,
  * }
  */
@@ -239,15 +239,12 @@ final class IgnoredErrors
      * Marks a pattern as used and checks its 'count' limit.
      *
      * @param int $index Index of the pattern in the ignorePatterns array
-     * @param _IgnoredError|null $pattern
+     * @param _IgnoredError $pattern
      * @return bool True if the pattern should be applied (i.e., limit not exceeded)
      */
-    private function markPatternMatched(int $index, $pattern = null): bool
+    private function markPatternMatched(int $index, array $pattern): bool
     {
-        if (is_array($pattern)
-            && isset($pattern['count'])
-            && $this->patternMatchCount[$index] >= $pattern['count']
-        ) {
+        if (isset($pattern['count']) && $this->patternMatchCount[$index] >= $pattern['count']) {
             return false;
         }
 
