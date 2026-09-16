@@ -6,6 +6,7 @@ use Realodix\Haiku\Support\File;
 
 /**
  * @phpstan-type _FixerFlags array{
+ *  fmode?: bool,
  *  adg_non_basic_rule_modifier: bool,
  *  attr_to_basic_selector: null|'strict'|'loose',
  *  combine_option_sets: bool,
@@ -51,7 +52,7 @@ final class FixerConfig
         'remove_unnecessary_wildcard' => false,
         'remove_wildcard_covered_domains' => false,
     ] {
-        /** @param array<string, mixed> $value */
+        /** @param array<array-key, mixed> $value */
         set(array $value) {
             $value = $this->deprecatedFlags($value);
             $this->flags = Helper::resolveOverrides($this->flags, $value);

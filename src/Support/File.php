@@ -12,7 +12,7 @@ final class File
      * Read file content.
      *
      * @param string $filePath Path to file
-     * @return list<string>|null
+     * @return array<int, string>|null
      */
     public static function read(string $filePath): ?array
     {

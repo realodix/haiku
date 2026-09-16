@@ -10,7 +10,7 @@ if (!function_exists('app')) {
      *
      * @template TClass of object
      *
-     * @param string|class-string<TClass> $abstract
+     * @param string|class-string<TClass>|null $abstract
      * @param list<mixed> $parameters
      * @return ($abstract is class-string<TClass> ? TClass : mixed)
      */

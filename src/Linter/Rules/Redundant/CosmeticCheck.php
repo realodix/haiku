@@ -947,6 +947,7 @@ final class CosmeticCheck implements Rule
         }
 
         // Partial
+        $op = $op ?? '';
         $type = 'A|P|'.$op;
         $limit = self::ATTR_PARTIAL_KEY_LEN;
         // For URLs, extend the truncation limit to include the protocol and

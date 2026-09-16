@@ -330,7 +330,7 @@ final class DomainCheck implements Rule
      * or contradictory domains found.
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param array<string, mixed> $state The state array to modify.
+     * @param array<string, array<int, string>> $state The state array to modify.
      */
     private function reportStatefulErrors($err, array $state): void
     {

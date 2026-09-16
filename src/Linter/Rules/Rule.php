@@ -8,7 +8,7 @@ namespace Realodix\Haiku\Linter\Rules;
 interface Rule
 {
     /**
-     * @param list<string> $content Line content
+     * @param array<int, string> $content Line content
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @return list<_RuleError> $errors
      */

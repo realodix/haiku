@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_dupe_domains: bool,
  *  no_dupe_options: bool,
  *  no_dupe_rules: bool,
- *  no_extra_blank_lines: bool|int,
+ *  no_extra_blank_lines: false|int,
  *  no_invalid_id_selectors: bool,
  *  no_short_rules: bool|int,
  *  no_unknown_scriptlets: bool|array{known: list<string>},
@@ -21,9 +21,9 @@ use Symfony\Component\Filesystem\Path;
  * }
  * @phpstan-type _ConfigIgnoredError array{
  *  message?: string,
- *  messages?: list<string>,
+ *  messages?: list<string>|string,
  *  path?: string,
- *  paths?: list<string>,
+ *  paths?: list<string>|string,
  * }|string
  */
 final class LinterConfig
@@ -52,7 +52,7 @@ final class LinterConfig
         'pp_if_closed' => true,
         'pp_value' => true,
     ] {
-        /** @param array<string, mixed> $value */
+        /** @param array<array-key, mixed> $value */
         set(array $value) {
             $this->rules = Helper::resolveOverrides($this->rules, $value, 'rule');
         }

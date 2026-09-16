@@ -214,6 +214,10 @@ final class ExpressionCheck implements Rule
                     fn($frame) => in_array($other, $frame['reqValue'], true),
                 );
 
+                if ($parentFrame === null) {
+                    continue;
+                }
+
                 $err->message(sprintf(
                     '"%s" will always evaluate to "false" with "%s" from the parent "!#if"',
                     $value, $other,

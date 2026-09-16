@@ -42,7 +42,7 @@ final class DomainNormalizer
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeSubdomainCoveredDomains($domains);
         $domains = array_unique($domains);
-        $domains = Arr::sortBy($domains, fn($value) => $this->domainSortKey($value));
+        $domains = Arr::sortBy($domains, fn(string $value) => $this->domainSortKey($value));
 
         return implode($separator, $domains);
     }

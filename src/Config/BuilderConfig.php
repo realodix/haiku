@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Path;
  * @phpstan-type _FilterListInput list<array{
  *  filename: string,
  *  header?: string,
- *  includes?: array<int, string>,
+ *  includes: array<int, string>,
  *  source?: array<int, string>,
  *  remove_duplicates?: bool,
  * }>

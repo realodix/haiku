@@ -60,7 +60,7 @@ final class AdgModifierForElement
                     $value = $domainString;
                 } else {
                     $value = explode('|', $domainString);
-                    $value = Arr::uniqueSortBy($value, fn($d) => ltrim($d, '~'));
+                    $value = Arr::uniqueSortBy($value, fn(string $d) => ltrim($d, '~'));
                     $value = implode('|', $value);
                 }
 

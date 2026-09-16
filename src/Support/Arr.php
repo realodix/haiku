@@ -10,7 +10,7 @@ final class Arr
      * @param array<int, string> $values
      * @return array<int, string>
      */
-    public static function sortBy(array $values, ?callable $callback, ?int $flags = null): array
+    public static function sortBy(array $values, callable $callback, ?int $flags = null): array
     {
         $results = [];
         foreach ($values as $key => $value) {
@@ -31,7 +31,7 @@ final class Arr
      * @param array<int, string> $value
      * @return list<string>
      */
-    public static function uniqueSortBy(array $value, ?callable $callback, ?int $flags = null): array
+    public static function uniqueSortBy(array $value, callable $callback, ?int $flags = null): array
     {
         $v = array_filter($value, static fn($s) => $s !== '');
         $v = array_unique($v);

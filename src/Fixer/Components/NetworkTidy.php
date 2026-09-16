@@ -114,7 +114,7 @@ final class NetworkTidy
             return $optionList;
         }
 
-        return Arr::sortBy($optionList, fn($v) => $this->optionOrder($v));
+        return Arr::sortBy($optionList, fn(string $v) => $this->optionOrder($v));
     }
 
     /**

@@ -20,7 +20,7 @@ final class Helper
     {
         // 'fmode' acts as a bulk toggle for all boolean values
         if (array_key_exists('fmode', $override)) {
-            $value = (bool) $override['fmode'];
+            $value = $override['fmode'];
             foreach ($baseConfig as $name => $defaultValue) {
                 if (is_bool($defaultValue)) {
                     $baseConfig[$name] = $value;

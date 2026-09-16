@@ -117,13 +117,13 @@ final class Fixer
         }
 
         // Cosmetic pipeline
-        $cosmetic = Arr::uniqueSortBy($cosmetic, fn($value) => $this->cosmeticSortKey($value));
+        $cosmetic = Arr::uniqueSortBy($cosmetic, fn(string $value) => $this->cosmeticSortKey($value));
         $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
         // Network pipeline
         $network = $this->optionCombiner->applyFix($network);
         $network = Arr::uniqueSortBy(
             $network,
-            fn($value) => str_starts_with($value, '@@') ? '}'.$value : $value,
+            fn(string $value) => str_starts_with($value, '@@') ? '}'.$value : $value,
             SORT_STRING | SORT_FLAG_CASE,
         );
         $network = $this->combiner->applyFix($network, Regex::NET_OPTION_DOMAIN, '|');

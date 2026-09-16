@@ -11,7 +11,7 @@ final class ConditionalScope
      * - Lines outside valid blocks: empty string.
      * - Lines inside valid blocks: hash of the condition stack (joined by '|').
      *
-     * @param list<string> $lines Array of lines (0-indexed).
+     * @param array<int, string> $lines Array of lines (0-indexed).
      * @return array<int, string|null> Mapping line index => condition key or null for control lines.
      */
     public function process(array $lines): array
