@@ -107,7 +107,7 @@ final class UnknownCheck implements Rule
             if (!$inSingleQuote && !$inDoubleQuote && $c === '/') {
                 if (!$inRegex) {
                     $inRegex = true;
-                } elseif ($inRegex && $this->isRegexEnd($optionString, $i)) {
+                } elseif ($this->isRegexEnd($optionString, $i)) {
                     $inRegex = false;
                 }
 

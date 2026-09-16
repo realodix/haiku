@@ -110,7 +110,7 @@ final class NetOptionTransformer
             } else {
                 $name = $shortMap[$name] ?? $name;
             }
-        } elseif ($format === 'native') {
+        } else {
             // Special semantics
             if ($name === '1p' || $name === 'first-party') {
                 if ($negated) {
