@@ -54,6 +54,7 @@ final class Util
     }
 
     /**
+     * @param bool $scriptlet True to just return scriptlet names
      * @return list<string>
      */
     public static function getRedirectResources(bool $scriptlet = false): array
