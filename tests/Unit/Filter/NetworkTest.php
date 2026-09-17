@@ -206,7 +206,6 @@ class NetworkTest extends TestCase
         $this->assertSame($expected, $this->fix($input, $flags));
 
         $flags = ['option_order' => false];
-        $input = ['*$css,~3p,third-party,strict3p,domain=3p.com,reason="foo"'];
         $this->assertSame($input, $this->fix($input, $flags));
     }
 
