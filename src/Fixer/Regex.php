@@ -9,7 +9,7 @@ final class Regex
      *
      * @example ||example.com^$script,domain=example.org
      *
-     * @link https://regex101.com/r/t2MFGs/2
+     * @link https://regex101.com/r/eU3RsK
      */
     // const NET_OPTION = '/^(.*)\$(~?[\w\-]+(?:=[^,\s]+)?(?:,~?[\w\-]+(?:=[^,\s]+)?)*)$/';
     // const NET_OPTION = '/^(.*)\$(~?[\w\-]+(?:=[^\s]+)?(?:,~?[\w\-]+(?:=[^\s]+)?)*)$/';
