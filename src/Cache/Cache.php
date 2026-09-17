@@ -117,7 +117,7 @@ final class Cache
         $validKeys = array_flip($validKeys);
         $toRemove = [];
 
-        foreach ($this->repository()->all() as $key => $entry) {
+        foreach ($this->repository()->all() as $key => $_) {
             if (!isset($validKeys[$key])) {
                 $toRemove[] = $key;
 

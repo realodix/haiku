@@ -123,7 +123,7 @@ final class Runner
 
         try {
             $this->fs->copy($filePath, $backupPath, true);
-        } catch (\RuntimeException $e) {
+        } catch (\RuntimeException) {
             $this->logger->error("Failed to create backup for: {$filePath}");
         }
     }

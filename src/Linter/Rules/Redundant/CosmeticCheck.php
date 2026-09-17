@@ -268,7 +268,6 @@ final class CosmeticCheck implements Rule
         }
 
         if ($bestParent) {
-            $message = '';
             if ($entry['selector'] === $bestParent['selector']) {
                 $entryLine = $entry['line'];
                 if (count($entry['domains']) > 2) {

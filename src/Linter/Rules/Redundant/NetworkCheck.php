@@ -721,11 +721,6 @@ final class NetworkCheck implements Rule
             return true;
         }
 
-        $candidateDomains = [];
-        foreach ($rule['domains'] as $rd) {
-            $candidateDomains[$rd['name']] = true;
-        }
-
         if (
             // A rule that specifies any domain restrictions (inclusions or exclusions)
             // cannot match the global context. An empty string represents the global domain,
