@@ -53,8 +53,10 @@ abstract class TestCase extends BaseTestCase
     {
         app(FixerConfig::class)->flags = array_merge([
             'all' => true,
+            'attr_to_basic_selector' => null,
             'convert_abp_ext_selectors' => false,
             'convert_legacy_remove_action' => false,
+            'option_format' => null,
         ], $flags);
     }
 

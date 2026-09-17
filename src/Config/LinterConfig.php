@@ -85,7 +85,7 @@ final class LinterConfig
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
-            $this->rules = Helper::resolveOptions($this->rules, $value, 'rule');
+            $this->rules = Helper::resolveOptions($this->rules, $value, type: 'rule');
         }
     }
 

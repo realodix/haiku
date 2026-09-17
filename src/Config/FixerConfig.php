@@ -53,7 +53,14 @@ final class FixerConfig
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
-            $this->flags = Helper::resolveOptions($this->flags, $value);
+            $this->flags = Helper::resolveOptions(
+                $this->flags,
+                $value,
+                [
+                    'attr_to_basic_selector' => 'loose',
+                    'option_format' => 'native',
+                ],
+            );
         }
     }
 
