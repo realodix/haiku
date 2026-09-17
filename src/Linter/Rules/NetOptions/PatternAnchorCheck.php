@@ -37,6 +37,8 @@ final class PatternAnchorCheck implements Rule
             if (preg_match(Regex::NET_OPTION, $line, $m)) {
                 $line = $m[1];
 
+                // A boundary trick to prevent the leading pipe from being treated
+                // as a trailing pipe.
                 if (preg_match('/^\|+/', $line)) {
                     $line = $line.'__boundary__';
                 }
