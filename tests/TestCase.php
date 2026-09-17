@@ -43,10 +43,6 @@ abstract class TestCase extends BaseTestCase
 
         app()->instance(FixerConfig::class, new FixerConfig);
         app()->instance(LinterConfig::class, new LinterConfig);
-
-        app(LinterConfig::class)->rules = [
-            'no_short_rules' => false,
-        ];
     }
 
     protected function applyFlags(array $flags = [])
