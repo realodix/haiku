@@ -52,7 +52,7 @@ abstract class TestCase extends BaseTestCase
     protected function applyFlags(array $flags = [])
     {
         app(FixerConfig::class)->flags = array_merge([
-            'fmode' => true,
+            'all' => true,
             'convert_abp_ext_selectors' => false,
             'convert_legacy_remove_action' => false,
         ], $flags);

@@ -16,27 +16,36 @@ final class Helper
      * @param string $type Type of configuration for error messages
      * @return T
      */
-    public static function resolveOverrides(array $baseConfig, array $override, string $type = 'flag'): array
+    public static function resolveOptions(array $baseConfig, array $override, string $type = 'flag'): array
     {
-        // 'fmode' acts as a bulk toggle for all boolean values
+        // Acts as a bulk toggle for all boolean values
         if (array_key_exists('fmode', $override)) {
-            $value = $override['fmode'];
+            $override['all'] = $override['fmode'];
+            unset($override['fmode']);
+        }
+
+        if (array_key_exists('all', $override)) {
+            $value = $override['all'];
             foreach ($baseConfig as $name => $defaultValue) {
                 if (is_bool($defaultValue)) {
                     $baseConfig[$name] = $value;
                 }
             }
-            unset($override['fmode']);
+
+            unset($override['all']);
         }
+
         // Apply specific overrides
         foreach ($override as $name => $value) {
             if (!array_key_exists($name, $baseConfig)) {
-                $hint = Util::getSuggestion(array_merge(array_keys($baseConfig), ['fmode']), $name);
+                $hint = Util::getSuggestion(array_merge(array_keys($baseConfig), ['all']), $name);
+
                 throw new InvalidConfigurationException(sprintf(
                     'Unknown %s: "%s"'.($hint !== null ? ", did you mean '%s'?" : '.'),
                     $type, $name, $hint,
                 ));
             }
+
             $baseConfig[$name] = $value;
         }
 

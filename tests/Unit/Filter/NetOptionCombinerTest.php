@@ -16,7 +16,7 @@ final class NetOptionCombinerTest extends TestCase
         parent::setUp();
         $this->optionCombiner = app(NetOptionCombiner::class);
         $config = app(FixerConfig::class);
-        $config->flags = ['fmode' => true];
+        $config->flags = ['all' => true];
     }
 
     #[PHPUnit\Test]

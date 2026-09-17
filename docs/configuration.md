@@ -98,7 +98,7 @@ Flags control how the fixer processes and transforms rules during the fixing pip
 
 Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./fixer_transformations.md#-filter-option-format)).
 
-- **`fmode`**: Bulk toggle for all boolean flags. Default is `false`.
+- **`all`**: Bulk toggle for all boolean flags. Default is `false`.
 - See [docs/fixer_transformations.md](./fixer_transformations.md) for a complete list of available flags.
 
 

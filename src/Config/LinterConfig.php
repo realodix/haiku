@@ -7,6 +7,7 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * @phpstan-type _LinterRules array{
+ *  all?: bool,
  *  no_bad_domain_anchors: bool,
  *  no_dupe_domains: bool,
  *  no_dupe_options: bool,
@@ -54,7 +55,7 @@ final class LinterConfig
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
-            $this->rules = Helper::resolveOverrides($this->rules, $value, 'rule');
+            $this->rules = Helper::resolveOptions($this->rules, $value, 'rule');
         }
     }
 

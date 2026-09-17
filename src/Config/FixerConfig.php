@@ -6,6 +6,7 @@ use Realodix\Haiku\Support\File;
 
 /**
  * @phpstan-type _FixerFlags array{
+ *  all?: bool,
  *  fmode?: bool,
  *  adg_non_basic_rule_modifier: bool,
  *  attr_to_basic_selector: null|'strict'|'loose',
@@ -54,8 +55,7 @@ final class FixerConfig
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
-            $value = $this->deprecatedFlags($value);
-            $this->flags = Helper::resolveOverrides($this->flags, $value);
+            $this->flags = Helper::resolveOptions($this->flags, $value);
         }
     }
 
@@ -81,29 +81,5 @@ final class FixerConfig
         $this->flags = $config['flags'] ?? [];
 
         return $this;
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * Convert deprecated flag names to their new names
-     *
-     * @param array<string, mixed> $override
-     * @return array<string, mixed>
-     */
-    private function deprecatedFlags(array $override): array
-    {
-        $renames = [
-            // @deprecated since v1.11.0
-            'xmode' => 'fmode',
-        ];
-
-        foreach ($renames as $old => $new) {
-            if (array_key_exists($old, $override)) {
-                $override[$new] = $override[$old];
-                unset($override[$old]);
-            }
-        }
-
-        return $override;
     }
 }

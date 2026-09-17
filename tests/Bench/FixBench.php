@@ -46,7 +46,7 @@ class FixBench
     public function benchMaximumFix(): void
     {
         app(FixerConfig::class)->flags = [
-            'fmode' => true,
+            'all' => true,
             'option_format' => 'long',
         ];
 
