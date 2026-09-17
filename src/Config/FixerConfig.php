@@ -40,7 +40,7 @@ final class FixerConfig
     public array $flags = [
         'adg_non_basic_rule_modifier' => false,
         'attr_to_basic_selector' => null,
-        'combine_option_sets' => false,
+        'combine_option_sets' => true,
         'convert_abp_ext_selectors' => false,
         'convert_legacy_remove_action' => false,
         'fix_domain_separators' => false,

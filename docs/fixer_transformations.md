@@ -149,7 +149,7 @@ example.com,example.org##.ads
 
 When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
 
-`fixer.flags.combine_option_sets`, default: `false`
+`fixer.flags.combine_option_sets`, default: `true`
 
 **Possible values**: `true`, `false`
 
