@@ -18,7 +18,8 @@ final class RedirectValueCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/(?<=[$,])redirect(?:-rule)?\s*=\s*([\w\-\.\:]+)?(?=,|$)/', $line, $m)) {
+            // https://regex101.com/r/QZptvL/1
+            if (preg_match('/(?<=[$,])redirect(?:-rule)?\s*=\s*([\w\-\.\:]+)(?=,|$)/', $line, $m)) {
                 $value = preg_replace('/:(?:-)?\d+$/', '', $m[1]);
 
                 if ($this->checkDeprecated($err, $value)) {

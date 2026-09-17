@@ -86,7 +86,9 @@ final class CosmeticCheck implements Rule
             return;
         }
 
-        preg_match('/-abp-(?:has|contains|properties)/', $node['selector'], $content);
+        if (preg_match('/-abp-(?:has|contains|properties)/', $node['selector'], $content) !== 1) {
+            return;
+        }
 
         $err->message(sprintf(
             'Invalid filter: %s requires #?# separator syntax.',

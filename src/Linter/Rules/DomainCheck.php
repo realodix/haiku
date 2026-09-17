@@ -262,7 +262,7 @@ final class DomainCheck implements Rule
 
         preg_match('/([^>]+)([>]+)/', $domain, $m);
 
-        if (strlen($m[2]) !== 2) {
+        if (isset($m[2]) && strlen($m[2]) !== 2) {
             $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
                 ->build();
