@@ -476,7 +476,7 @@ example.com##.banner:remove()
 
 Converts Adblock Plus extended selector syntax to native CSS selector.
 
-`fixer.flags.convert_legacy_ext_selectors`, default: `false`
+`fixer.flags.convert_abp_ext_selectors`, default: `false`
 
 **Possible values**: `true`, `false`
 

@@ -126,7 +126,7 @@ final class ElementTidy
      */
     private function convertAbpExtendedSelectors(string $selector, string $separator): array
     {
-        if (!$this->config->flags['convert_legacy_ext_selectors']
+        if (!$this->config->flags['convert_abp_ext_selectors']
             || !str_contains($selector, ':-abp-')
         ) {
             return [$selector, $separator];

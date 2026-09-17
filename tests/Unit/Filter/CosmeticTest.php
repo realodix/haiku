@@ -354,7 +354,7 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function convertAbpExtendedSelectors(): void
     {
-        $flags = ['convert_legacy_ext_selectors' => true];
+        $flags = ['convert_abp_ext_selectors' => true];
         $input = [
             'example.com#?#div:-abp-has(> span:-abp-contains(Advertisment))',
             '!', 'example.com#@?#div:-abp-has(> span:-abp-contains(Advertisment))',
