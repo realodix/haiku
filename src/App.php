@@ -25,7 +25,11 @@ class App
             }
 
             $cRefShort = substr($cRef, 0, 7);
-            $version = str_replace('-dev', "-dev ({$cRefShort})", $version);
+            $version = preg_replace(
+                '/\.\d+-dev$/',
+                '.x-dev ('.$cRefShort.')',
+                $version,
+            );
         }
 
         return $version;
