@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Test\TestCase;
 
 class NetPatternCheckTest extends TestCase
