@@ -83,7 +83,7 @@ final class ScriptletCheck implements Rule
     /**
      * Retrieves a list of unique scriptlet names.
      *
-     * @return list<string> A list of unique scriptlet names
+     * @return array<int, string> A list of unique scriptlet names
      */
     private function getScriptletNames(): array
     {

@@ -164,7 +164,7 @@ final class ExpressionCheck implements Rule
      * - no_always_false_condition
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param list<string> $required
+     * @param array<int, string> $required
      */
     private function checkExclusive($err, array $required): void
     {
@@ -185,8 +185,8 @@ final class ExpressionCheck implements Rule
      * - no_always_false_condition
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param list<string> $required
-     * @param list<array{reqValue: list<string>, lineNum: int}> $stack
+     * @param array<int, string> $required
+     * @param list<array{reqValue: array<int, string>, lineNum: int}> $stack
      */
     private function checkNestedExclusive($err, array $required, array $stack): void
     {
@@ -232,7 +232,7 @@ final class ExpressionCheck implements Rule
     /**
      * Get value that MUST be true for the condition to be true.
      *
-     * @return list<string>
+     * @return array<int, string>
      */
     private function getRequiredValue(string $condition): array
     {
