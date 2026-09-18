@@ -108,6 +108,9 @@ final class ParallelRunner
         // 4. Spawn persistent worker processes
         $poolSize = min(new CpuCoreCounter()->getCount(), $fileCount);
         $address = $server->getAddress();
+        if ($address === null) {
+            throw new \RuntimeException('Failed to get socket server address');
+        }
         for ($i = 0; $i < $poolSize; $i++) {
             $this->spawnPersistentWorker($address, $cmdOpt);
         }
