@@ -46,7 +46,7 @@ abstract class TestCase extends BaseTestCase
 
         app(LinterConfig::class)->rules = [
             'all' => true,
-            'no_short_rules' => false,
+            'no_short_rules' => 2,
         ];
     }
 

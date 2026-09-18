@@ -28,7 +28,7 @@ final class TooShortLineCheck implements Rule
 
         foreach ($content as $index => $line) {
             $line = trim($line);
-            if (Util::isCommentOrEmpty($line)) {
+            if (Util::isCommentOrEmpty($line) || preg_match(Regex::COSMETIC_RULE, $line)) {
                 continue;
             }
 

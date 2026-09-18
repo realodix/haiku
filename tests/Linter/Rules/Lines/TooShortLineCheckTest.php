@@ -39,6 +39,10 @@ class TooShortLineCheckTest extends TestCase
             '$doc,domain=example.com',
             '*$script,3p,denyallow=google.com|googleapis.com|gstatic.com,domain=13x4.com',
             '@@*$ghide,domain=timesnownews.com',
+
+            '[$domain=/example.net/]##.ad-branding',
+            '$$advertisement-module',
+            'example.com$$div:contains("Sponsored by")',
         ];
         $this->analyse($lines);
     }
