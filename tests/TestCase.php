@@ -43,6 +43,10 @@ abstract class TestCase extends BaseTestCase
 
         app()->instance(FixerConfig::class, new FixerConfig);
         app()->instance(LinterConfig::class, new LinterConfig);
+
+        app(LinterConfig::class)->rules = [
+            'no_spaces_in_net_pattern' => true,
+        ];
     }
 
     protected function applyFlags(array $flags = [])
