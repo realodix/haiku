@@ -45,7 +45,8 @@ abstract class TestCase extends BaseTestCase
         app()->instance(LinterConfig::class, new LinterConfig);
 
         app(LinterConfig::class)->rules = [
-            'no_spaces_in_net_pattern' => true,
+            'all' => true,
+            'no_short_rules' => false,
         ];
     }
 

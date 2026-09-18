@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Linter\Rules\CosmeticCheck;
 use Realodix\Haiku\Test\TestCase;
 
@@ -12,15 +11,6 @@ class CosmeticCheckTest extends TestCase
     private const RULE = [
         CosmeticCheck::class,
     ];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        app(LinterConfig::class)->rules = [
-            'no_invalid_id_selectors' => true,
-        ];
-    }
 
     #[PHPUnit\Test]
     public function id_selector_invalid(): void
