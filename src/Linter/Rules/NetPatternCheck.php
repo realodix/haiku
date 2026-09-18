@@ -29,9 +29,41 @@ final class NetPatternCheck implements Rule
             }
 
             $this->checkSpaceInPattern($err, $line);
+            $this->checkBadDomainAnchors($err, $line);
         }
 
         return $err->toArray();
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkBadDomainAnchors($err, string $line): void
+    {
+        if (!$this->config->rules['no_bad_domain_anchors']) {
+            return;
+        }
+
+        // Left anchor
+        $reLeftPattern = '(@@)?(\|+)';
+        preg_match("/^{$reLeftPattern}/", $line, $m);
+        $leadingPipes = isset($m[2]) ? strlen($m[2]) : 0;
+        if ($leadingPipes > 2) {
+            $err->message('Too many "|" at the beginning (max 2 allowed).')
+                ->build();
+        }
+        if (preg_match("/^{$reLeftPattern}$/", $line, $m)) {
+            return;
+        }
+
+        // Right anchor
+        preg_match('/\|+$/', $line, $m);
+        $trailingPipes = isset($m[0]) ? strlen($m[0]) : 0;
+
+        if ($trailingPipes > 1) {
+            $err->message('Too many "|" at the end (only 1 allowed).')
+                ->build();
+        }
     }
 
     /**

@@ -9,6 +9,55 @@ use Realodix\Haiku\Test\TestCase;
 class NetPatternCheckTest extends TestCase
 {
     #[PHPUnit\Test]
+    public function domainAnchor_valid(): void
+    {
+        $lines = [
+            '|https://example.com',
+            '||example.com',
+            '@@||pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
+            '@@||example.com/js/pop.js|',
+            '@@/js/ads.js|$script',
+        ];
+
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function domainAnchor_notValid(): void
+    {
+        $lines = [
+            '|||https://example.com',
+            '@@|||example.com/js/pop.js||',
+            '@@/js/ads.js||$script',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Too many "|" at the beginning (max 2 allowed).'],
+            [2, 'Too many "|" at the beginning (max 2 allowed).'],
+            [2, 'Too many "|" at the end (only 1 allowed).'],
+            [3, 'Too many "|" at the end (only 1 allowed).'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function domainAnchor_specialCase(): void
+    {
+        $lines = [
+            // https://github.com/easylist/ruadlist/blob/f19edb909a/advblock/whitelist.txt#L291
+            '@@||$domain=example.com', // valid
+            '@@|||$domain=example.com',
+
+            '||$domain=example.com', // valid
+            '|||$domain=example.com',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Too many "|" at the beginning (max 2 allowed).'],
+            [4, 'Too many "|" at the beginning (max 2 allowed).'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function checkSpaceInPattern(): void
     {
         $lines = [
