@@ -76,7 +76,9 @@ final class ExpressionCheck implements Rule
                     // required to be true (it's actually false). We reset the required
                     // value for this stack frame to avoid false-positive exclusivity
                     // errors for nested directives.
-                    $stack[count($stack) - 1]['reqValue'] = [];
+                    $frame = array_pop($stack);
+                    $frame['reqValue'] = [];
+                    $stack[] = $frame;
                 }
 
                 continue;
