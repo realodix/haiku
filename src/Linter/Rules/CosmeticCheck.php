@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Support\Util;
@@ -52,7 +53,7 @@ final class CosmeticCheck implements Rule
             }
 
             // https://regex101.com/r/JPArmy
-            $selector = preg_replace(
+            $selector = Preg::replace(
                 '/
                     \[[^\]]+\]                  # attribute [...]
                     |:has-text\s*\([^:]+\)      # :<func>(...)
@@ -81,7 +82,7 @@ final class CosmeticCheck implements Rule
             return;
         }
 
-        $cleanSelector = preg_replace(
+        $cleanSelector = Preg::replace(
             '/
                 \[[^\]]+\]                  # attribute [...]
                 |:(style)\s*\(.+\)          # :style(...)
@@ -113,7 +114,7 @@ final class CosmeticCheck implements Rule
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Pseudo-classes
-        $selector = preg_replace(
+        $selector = Preg::replace(
             '/
                 :.+\(                                   # has(), is(), etc
                 |:(any|first|focus|in|last|only|user)-

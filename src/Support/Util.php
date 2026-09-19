@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Support;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Linter\Registry;
 
 final class Util
@@ -61,7 +62,7 @@ final class Util
         $knownOpts = array_merge(Registry::OPTIONS, Registry::AG_OPTIONS, [',']);
         $pattern = '/,(?=(?:\s|~)?('.implode('|', $knownOpts).')\b|$)/i';
 
-        return preg_split($pattern, $opt);
+        return Preg::split($pattern, $opt);
     }
 
     /**

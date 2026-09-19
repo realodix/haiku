@@ -2,6 +2,8 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
+use Composer\Pcre\Preg;
+
 /**
  * Combines adjacent filter rules that are identical except for their domain list.
  */
@@ -74,7 +76,7 @@ final class Combiner
             return [
                 'full_match' => $m[0],
                 'domain' => $m[1] ?? '',
-                'pattern' => preg_replace($domainPattern, '', $filter),
+                'pattern' => Preg::replace($domainPattern, '', $filter),
             ];
         }
 

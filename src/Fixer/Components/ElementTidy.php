@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Fixer\Components;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Support\Util;
 
@@ -68,10 +69,11 @@ final class ElementTidy
             return $selector;
         }
 
-        $selector = preg_replace_callback(
+        $selector = Preg::replaceCallback(
             // https://regex101.com/r/lg5nfI/
             '/\[(class|id)(=|~=)"([\x{0021}\x{0023}-\x{007E}]+)"\]/',
             function ($m) use ($mode) {
+                /** @var list<non-empty-string> $m */
                 [$full, $attr, $op, $value] = $m;
 
                 if (// Never convert [id~="..."]
@@ -109,7 +111,7 @@ final class ElementTidy
             return $selector;
         }
 
-        return preg_replace(
+        return Preg::replace(
             // https://regex101.com/r/XGKbVr
             '/\s*\{\s*remove\s*:\s*true[; ]*\}$/',
             ':remove()',

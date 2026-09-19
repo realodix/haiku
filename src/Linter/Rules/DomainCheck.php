@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Registry;
@@ -77,7 +78,7 @@ final class DomainCheck implements Rule
             return;
         }
 
-        $domainStr = $separator === '|' ? preg_replace('/,[_]+$/', '', $domainStr) : $domainStr; // remove noop option
+        $domainStr = $separator === '|' ? Preg::replace('/,[_]+$/', '', $domainStr) : $domainStr; // remove noop option
         $domains = explode($separator, $domainStr);
 
         if (count($domains) > 1 && count(array_filter($domains, fn($d) => trim($d) !== '')) === 0) {

@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules\Redundant;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -778,7 +779,7 @@ final class CosmeticCheck implements Rule
         // Covers $rule only if $rule is "=" AND $candidate's value is an exact
         // word inside $rule's value.
         if ($candidate['operator'] === '~=' && $rule['operator'] === '=') {
-            $words = preg_split('/\s+/', $valR);
+            $words = Preg::split('/\s+/', $valR);
 
             return in_array($valC, $words, true);
         }
@@ -1040,7 +1041,7 @@ final class CosmeticCheck implements Rule
 
             // Remove all matched class tokens from the selector so we can
             // verify that nothing meaningful remains.
-            $selector = preg_replace('/\.(?:(?![.])[^.]|\\\\.)+/', '', $selector);
+            $selector = Preg::replace('/\.(?:(?![.])[^.]|\\\\.)+/', '', $selector);
         }
 
         // After extracting all recognized components, any remaining non-empty

@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -25,7 +26,7 @@ final class RedirectValueCheck implements Rule
 
             // https://regex101.com/r/QZptvL/
             if (preg_match('/(?<=[$,])(?:redirect(?:-rule)?|rewrite)=([\w\-\.\:]+)(?=,|$)/', $line, $m)) {
-                $value = preg_replace('/:(?:-)?\d+$/', '', $m[1]);
+                $value = Preg::replace('/:(?:-)?\d+$/', '', $m[1]);
 
                 $this->checkUnknown($err, $value);
                 $this->checkDeprecated($err, $value);

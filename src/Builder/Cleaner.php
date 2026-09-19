@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Builder;
 
+use Composer\Pcre\Preg;
 use Realodix\Haiku\Support\Util;
 
 final class Cleaner
@@ -43,7 +44,7 @@ final class Cleaner
     private static function removeMetadataAgent(string $content): string
     {
         // https://regex101.com/r/eZnxif
-        return preg_replace(
+        return Preg::replace(
             '/^\[(adblock|adguard|ub(?:lock|o))([a-z0-9\.\s]+)?\]$/i',
             '',
             $content,
@@ -64,6 +65,6 @@ final class Cleaner
         }
 
         // https://regex101.com/r/VSOcD6/2
-        return preg_replace('/^!(?!#\s?(?:include\s|if|endif|else|safari_cb_affinity)|\+).*/m', '', $content);
+        return Preg::replace('/^!(?!#\s?(?:include\s|if|endif|else|safari_cb_affinity)|\+).*/m', '', $content);
     }
 }
