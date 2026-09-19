@@ -83,7 +83,9 @@ final class NetOptionTransformer
         }
 
         // Split into name and value (e.g. $domain=example.com)
-        [$rawName, $value] = explode('=', $option, 2) + [1 => null];
+        $parts = explode('=', $option, 2);
+        $rawName = $parts[0];
+        $value = $parts[1] ?? null;
         // Handle negation once
         $negated = str_starts_with($rawName, '~');
         $name = $negated ? substr($rawName, 1) : $rawName;
@@ -148,7 +150,9 @@ final class NetOptionTransformer
         }
 
         // Split into name and value (for $queryprune)
-        [$rawName, $value] = explode('=', $option, 2) + [1 => null];
+        $parts = explode('=', $option, 2);
+        $rawName = $parts[0];
+        $value = $parts[1] ?? null;
         // Handle negation once
         $negated = str_starts_with($rawName, '~');
         $name = $negated ? substr($rawName, 1) : $rawName;
