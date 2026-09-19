@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Cache;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Enums\Section;
 use Symfony\Component\Filesystem\Filesystem;
@@ -98,13 +97,14 @@ final class Cache
     public function isValid(string $key, string $value): bool
     {
         $entry = $this->repository()->get($key);
-        $timestamp = Arr::get($entry, 'timestamp', time());
+        $diffInDays = Carbon::createFromTimestamp($entry['timestamp'] ?? time())
+            ->diffInDays();
 
-        if (Carbon::createFromTimestamp($timestamp)->diffInDays() > rand(5, 7)) {
+        if ($diffInDays > rand(5, 7)) {
             return false;
         }
 
-        return Arr::get($entry, 'reference') === $value;
+        return $value === ($entry['reference'] ?? null);
     }
 
     /**
