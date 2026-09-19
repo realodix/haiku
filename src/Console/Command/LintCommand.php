@@ -105,6 +105,7 @@ class LintCommand extends Command
         $globalErrors = $errorReporter->getGlobalErrors();
 
         if (empty($errors) && empty($globalErrors)) {
+            $this->renderBaselineFilteredCount($io, $errorReporter);
             $io->success('No errors found!');
 
             return;
@@ -176,6 +177,8 @@ class LintCommand extends Command
             $this->renderGlobalErrors($io, $globalErrors);
         }
 
+        $this->renderBaselineFilteredCount($io, $errorReporter);
+
         $io->error(sprintf(
             'Found %d %s',
             $errorReporter->count(),
@@ -202,6 +205,21 @@ class LintCommand extends Command
         $io->writeln(' -- ----------------------------------------------------------------------------------------------------');
         foreach ($globalErrors as $error) {
             $io->writeln(sprintf('     %s', $error));
+        }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
+     */
+    private function renderBaselineFilteredCount(SymfonyStyle $io, $errorReporter): void
+    {
+        $baselineFiltered = $errorReporter->getBaselineFilteredCount();
+        if ($baselineFiltered > 0) {
+            $io->writeln(sprintf(
+                '<info>INFO</info> Filtered out %d %s based on the baseline file.',
+                $baselineFiltered,
+                $baselineFiltered === 1 ? 'error' : 'errors',
+            ));
         }
     }
 

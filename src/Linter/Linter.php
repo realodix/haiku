@@ -57,6 +57,10 @@ final class Linter
 
         $ignoredErrors->reportUnmatched($this->errorReporter);
 
+        $this->errorReporter->setBaselineFilteredCount(
+            $ignoredErrors->countBaselineMatches(),
+        );
+
         return $this->errorReporter;
     }
 

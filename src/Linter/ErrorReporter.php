@@ -13,6 +13,8 @@ final class ErrorReporter
     /** @var list<string> */
     private array $globalErrors = [];
 
+    private int $baselineFilteredCount = 0;
+
     /**
      * @param string $path File path
      * @param _RuleError $error
@@ -46,5 +48,15 @@ final class ErrorReporter
     public function count(): int
     {
         return array_sum(array_map('count', $this->errors)) + count($this->globalErrors);
+    }
+
+    public function setBaselineFilteredCount(int $count): void
+    {
+        $this->baselineFilteredCount = $count;
+    }
+
+    public function getBaselineFilteredCount(): int
+    {
+        return $this->baselineFilteredCount;
     }
 }
