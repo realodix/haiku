@@ -210,6 +210,9 @@ final class GeneralCheck implements Rule
             $name = substr($opt, 1);
             if ($hasValue) {
                 $name = strstr($name, '=', true);
+                if ($name === false) {
+                    continue;
+                }
             }
 
             if ($this->isNegatableOption($name, $hasValue)) {
