@@ -23,7 +23,6 @@ use Realodix\Haiku\Support\Util;
  *  hasMatchCase: bool,
  *  hasMixedDomains: bool,
  *  isAlmostGlobal: bool,
- *  regex: string,
  *  conditionKey: string,
  * }
  */
