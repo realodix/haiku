@@ -67,6 +67,7 @@ final class Registry
         'prevent-bab', 'nobab', 'bab-defuser',
         'prevent-canvas',
         'prevent-clipboard-write',
+        'prevent-dialog',
         'prevent-fetch', 'no-fetch-if',
         'prevent-innerHTML',
         'prevent-navigation',
