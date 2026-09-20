@@ -206,14 +206,14 @@ final class DomainCheck implements Rule
         // =================================================================
         // TLD problems
         // =================================================================
-        if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain)) {
+        if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain) && !str_starts_with($domain, 'xn--')) {
             $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->build();
         }
 
         $domain = rtrim($dIdnaAscii, '>'); // clean up the ancestor context
 
-        if (ctype_alpha($domain)) {
+        if (ctype_alpha($domain) || (str_starts_with($domain, 'xn--') && !str_contains($domain, '.'))) {
             if (!isset(Tld::VALUES[$domain])) {
                 $msg = strlen($domain) <= 4 ?
                     sprintf('Bad domain: "%s" is an invalid TLD', $domain)

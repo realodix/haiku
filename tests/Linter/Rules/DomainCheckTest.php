@@ -154,6 +154,14 @@ class DomainCheckTest extends TestCase
         ]);
 
         $lines = [
+            'xn--vcst06ab2a,xn--wgv71a,xn--mgbb7fyab##div',
+            'xn--foo##div',
+        ];
+        $this->analyse($lines, [
+            [2, 'Bad domain: "xn--foo"'],
+        ]);
+
+        $lines = [
             'localhost##.ad',
             'local##.ad',
             'me##.ad',
