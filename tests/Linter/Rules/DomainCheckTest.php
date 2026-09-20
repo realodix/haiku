@@ -161,7 +161,7 @@ class DomainCheckTest extends TestCase
             '*$domain=0.0.0.0',
             '*$domain=/abc\.bar/',
         ];
-        $this->analyse($lines, []);
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
