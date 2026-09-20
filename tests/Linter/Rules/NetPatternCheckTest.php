@@ -3,10 +3,50 @@
 namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Test\TestCase;
 
 class NetPatternCheckTest extends TestCase
 {
+    #[PHPUnit\Test]
+    public function too_short_line(): void
+    {
+        app(LinterConfig::class)->rules = ['no_short_rules' => 5];
+        $lines = [
+            'bar',    // Too short (3 < 5)
+            'foo$css,3p', // Stripped to 'foo', too short
+            '   xyz ', // Stripped to 'xyz', too short
+
+            'abcde',   // OK (5 >= 5)
+            '!a',    // Comment, OK
+            '*$script,3p,denyallow=fastly.net|fastlylb.net|jquery.com|hwcdn.net|hcaptcha.com|recaptcha.net|cloudflare.com|cloudflare.net|google.com|googleapis.com|gstatic.com,domain=13x4.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'The rule is too short (under 5 characters).'],
+            [2, 'The rule is too short (under 5 characters).'],
+            [3, 'The rule is too short (under 5 characters).'],
+        ]);
+
+        app(LinterConfig::class)->rules = ['no_short_rules' => true];
+        $this->analyse(['foo'], [
+            [1, 'The rule is too short (under 4 characters).'],
+        ]);
+
+        $lines = [
+            '$doc,domain=example.com',
+            '*$script,3p,denyallow=google.com|googleapis.com|gstatic.com,domain=13x4.com',
+            '@@*$ghide,domain=timesnownews.com',
+
+            '[$domain=/example.net/]##.ad-branding',
+            '$$advertisement-module',
+            'example.com$$div:contains("Sponsored by")',
+        ];
+        $this->analyse($lines);
+
+        app(LinterConfig::class)->rules = ['no_short_rules' => false];
+        $this->analyse(['foo']);
+    }
+
     #[PHPUnit\Test]
     public function domainAnchor_valid(): void
     {

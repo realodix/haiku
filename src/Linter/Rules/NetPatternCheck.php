@@ -24,15 +24,42 @@ final class NetPatternCheck implements Rule
                 continue;
             }
 
+            $hasOptions = false;
             if (preg_match(Regex::NET_OPTION, $line, $m)) {
+                $hasOptions = true;
                 $line = $m[1];
             }
 
+            $this->checkTooShortPattern($err, $line, $hasOptions);
             $this->checkSpaceInPattern($err, $line);
             $this->checkBadDomainAnchors($err, $line);
         }
 
         return $err->toArray();
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkTooShortPattern($err, string $line, bool $hasOptions): void
+    {
+        $mode = $this->config->rules['no_short_rules'];
+
+        // Default line length
+        if ($mode === true) {
+            $mode = 4;
+        }
+
+        if ($mode === false
+            || $hasOptions && ($line === '' || $line === '*' || $line === '@@*')
+        ) {
+            return;
+        }
+
+        if (strlen($line) < $mode) {
+            $err->message("The rule is too short (under {$mode} characters).")
+                ->build();
+        }
     }
 
     /**
