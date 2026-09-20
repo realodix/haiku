@@ -265,7 +265,7 @@ final class Registry
         'adguard_ext_opera',
         'adguard_ext_safari',
         // https://github.com/gorhill/uBlock/commit/fb09b0947d
-        // 'cap_user_stylesheet',
+        'cap_user_stylesheet',
     ];
 
     /**
