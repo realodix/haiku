@@ -25,7 +25,12 @@ Compile multiple filter sources (local files and/or remote URLs) into a single, 
 
 ### # Three steps to first run
 
-1. **Install**. Install the package via [Composer](https://getcomposer.org/) — `composer require realodix/haiku`.
+1. **Install**. Install the package via [Composer](https://getcomposer.org/)
+
+    ```sh
+    composer require realodix/haiku
+    ```
+
 2. **Initialize**. Run `vendor/bin/haiku init` in your project root. The command writes a `haiku.yml` configuration file.
 2. **Run**. Use `vendor/bin/haiku lint`, `vendor/bin/haiku fix`, or `vendor/bin/haiku build`. Wire it into pre-commit, CI, or your editor.
 
