@@ -1,9 +1,8 @@
 <?php
 
-namespace Realodix\Haiku\Linter\Rules\Lines;
+namespace Realodix\Haiku\Linter\Rules;
 
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Linter\Rules\Rule;
 
 final class ExcessiveEmptyLinesCheck implements Rule
 {

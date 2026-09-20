@@ -1,10 +1,10 @@
 <?php
 
-namespace Realodix\Haiku\Test\Linter\Rules\Lines;
+namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Linter\Rules\Lines\ExcessiveEmptyLinesCheck;
+use Realodix\Haiku\Linter\Rules\ExcessiveEmptyLinesCheck;
 use Realodix\Haiku\Test\TestCase;
 
 class ExcessiveEmptyLinesCheckTest extends TestCase
