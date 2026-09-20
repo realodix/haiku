@@ -20,6 +20,7 @@ final class NetPatternCheck implements Rule
 
             if (preg_match(Regex::IS_COSMETIC_RULE, $line)
                 || Util::isCommentOrEmpty($line)
+                || Util::isMetaLine($line)
             ) {
                 continue;
             }
@@ -98,7 +99,10 @@ final class NetPatternCheck implements Rule
         }
 
         if (!str_contains($line, ' ')
-            || str_contains($line, ' * ') // uBo dynamic filtering rules
+            || (str_starts_with($line, '/') && str_ends_with($line, '/'))
+            // uBo dynamic filtering rules
+            || str_contains($line, ' * ')
+            || preg_match('/^^[a-z]+-[a-z-]+:\s/', $line)
             || preg_match('/^(0|127)\./', $line) // host
             || str_contains($line, ' CNAME ')
             // bind / unbound / SmartDNS

@@ -110,10 +110,15 @@ class NetPatternCheckTest extends TestCase
         ]);
 
         $lines = [
+            '[Adblock Plus 2.0]',
+            '[uBlock Origin]',
+            'no-large-media: behind-the-scene false',
+            'behind-the-scene * * noop',
             '||example.com^$csp=script-src \'none\'',
             '$csp=child-src \'none\'; frame-src \'self\' *',
             '||example.com^$replace=/foo bar/baz/',
             '*$header=response:set-cookie:x=c; path=/; max-age=21600',
+            '/reg ex/$script,third-party,match-case',
         ];
         $this->analyse($lines);
 
