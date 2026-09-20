@@ -214,7 +214,7 @@ class LintCommand extends Command
      */
     private function renderBaselineFilteredCount(SymfonyStyle $io, $errorReporter): void
     {
-        $baselineFiltered = $errorReporter->getBaselineFilteredCount();
+        $baselineFiltered = $errorReporter->baselineMatches;
         if ($baselineFiltered > 0) {
             $io->writeln(sprintf(
                 '<info>INFO</info> Filtered out %d %s based on the baseline file.',
