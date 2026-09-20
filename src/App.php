@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku;
 
-use Composer\InstalledVersions;
+use Composer\InstalledVersions as Composer;
 use Illuminate\Container\Container;
 
 /**
@@ -11,28 +11,25 @@ use Illuminate\Container\Container;
 class App
 {
     const NAME = 'Haiku';
-    const VERSION = '1.13.22-dev';
+    const VERSION = '1.13.x';
 
     public static function version(): string
     {
         $version = 'v'.self::VERSION;
+        $cVer = Composer::getPrettyVersion('realodix/haiku');
+        $cRef = Composer::getReference('realodix/haiku');
 
-        if (str_ends_with($version, '-dev')) {
-            $cRef = InstalledVersions::getReference('realodix/haiku');
-
-            if ($cRef === null) {
-                return $version;
-            }
-
-            $cRefShort = substr($cRef, 0, 7);
-            $version = preg_replace(
-                '/\.\d+-dev$/',
-                '.x-dev ('.$cRefShort.')',
-                $version,
-            );
+        if ($cVer === null || $cRef === null) {
+            return $version;
         }
 
-        return $version;
+        if (str_starts_with($cVer, 'dev-')) {
+            $cRefShort = substr($cRef, 0, 7);
+
+            return str_replace('.x', ".x ({$cRefShort})", $version);
+        }
+
+        return $cVer;
     }
 
     /**
