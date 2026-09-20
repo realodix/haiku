@@ -104,7 +104,7 @@ class LintCommand extends Command
         $errors = $errorReporter->getErrors();
         $globalErrors = $errorReporter->getGlobalErrors();
 
-        if (empty($errors) && empty($globalErrors)) {
+        if ($errorReporter->count() === 0) {
             $this->renderBaselineFilteredCount($io, $errorReporter);
             $io->success('No errors found!');
 
