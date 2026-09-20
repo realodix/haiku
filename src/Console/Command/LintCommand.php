@@ -175,6 +175,7 @@ class LintCommand extends Command
 
         if (!empty($globalErrors)) {
             $this->renderGlobalErrors($io, $globalErrors);
+            $io->newLine();
         }
 
         $this->renderBaselineFilteredCount($io, $errorReporter);
