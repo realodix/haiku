@@ -14,7 +14,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_dupe_rules: bool,
  *  no_extra_blank_lines: false|int,
  *  no_invalid_id_selectors: bool,
- *  no_short_rules: bool|int,
+ *  no_short_rules: false|int,
  *  no_spaces_in_net_pattern: bool,
  *  no_unknown_scriptlets: bool|array{known: list<string>},
  *  no_uppercase_domains: bool,

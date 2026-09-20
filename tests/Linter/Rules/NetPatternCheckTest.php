@@ -27,11 +27,6 @@ class NetPatternCheckTest extends TestCase
             [3, 'The rule is too short (under 5 characters).'],
         ]);
 
-        app(LinterConfig::class)->rules = ['no_short_rules' => true];
-        $this->analyse(['foo'], [
-            [1, 'The rule is too short (under 4 characters).'],
-        ]);
-
         $lines = [
             '$doc,domain=example.com',
             '*$script,3p,denyallow=google.com|googleapis.com|gstatic.com,domain=13x4.com',
