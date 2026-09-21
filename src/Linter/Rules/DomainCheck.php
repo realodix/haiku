@@ -63,6 +63,7 @@ final class DomainCheck implements Rule
      * - no_invalid_domains
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param ','|'|' $separator Domain separator (`,` or `|`)
      */
     private function validateDomains($err, string $domainStr, string $separator): void
     {

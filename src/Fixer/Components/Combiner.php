@@ -16,7 +16,7 @@ final class Combiner
      *
      * @param array<int, string> $filters List of filter rules
      * @param string $domainPattern The regex pattern to extract the domain part
-     * @param string $separator Domain separator (`,` or `|`)
+     * @param ','|'|' $separator Domain separator (`,` or `|`)
      * @return array<int, string> Combined filter rules
      */
     public function applyFix(array $filters, string $domainPattern, string $separator): array
@@ -86,7 +86,7 @@ final class Combiner
      *
      * @param array{full_match: string, domain: string, pattern: string} $currentLine The analysis of the current filter rule
      * @param array{full_match: string, domain: string, pattern: string} $nextLine The analysis of the next filter rule
-     * @param string $separator Domain separator (`,` or `|`)
+     * @param ','|'|' $separator Domain separator (`,` or `|`)
      * @return bool True if the rules can be safely combined
      */
     private function canCombine(array $currentLine, array $nextLine, string $separator): bool
@@ -128,7 +128,7 @@ final class Combiner
      * It simply indicates that at least one positive (non-negated) domain exists.
      *
      * @param string $domainList Domain list string
-     * @param string $separator Domain separator (`,` or `|`)
+     * @param ','|'|' $separator Domain separator (`,` or `|`)
      * @return 'maybeMixed'|'negated'
      */
     private function domainSetType(string $domainList, string $separator): string

@@ -17,6 +17,9 @@ final class DomainNormalizer
         private FixerConfig $config,
     ) {}
 
+    /**
+     * @param ','|'|' $separator Domain separator (`,` or `|`)
+     */
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
         // Regex domain, don't touch

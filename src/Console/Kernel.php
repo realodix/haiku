@@ -25,7 +25,7 @@ class Kernel
     /**
      * List of available commands
      *
-     * @var array<class-string>
+     * @var array<class-string<\Symfony\Component\Console\Command\Command>>
      */
     protected array $commands = [
         \Realodix\Haiku\Console\Command\InitCommand::class,
