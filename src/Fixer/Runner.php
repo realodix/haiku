@@ -9,12 +9,10 @@ use Realodix\Haiku\Support\File;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @phpstan-type _FixResult array{
- *  status: string,
- *  path: string,
- *  hash?: string,
- *  message?: string,
- * }
+ * @phpstan-type _FixResultProcessed array{status: 'processed', path: string, hash: string}
+ * @phpstan-type _FixResultSkipped array{status: 'skipped', path: string}
+ * @phpstan-type _FixResultError array{status: 'error', path: string, message?: string}
+ * @phpstan-type _FixResult _FixResultProcessed|_FixResultSkipped|_FixResultError
  */
 final class Runner
 {
