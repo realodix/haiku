@@ -41,11 +41,11 @@ YAML);
 
         $globalErrors = $errorReporter->getGlobalErrors();
         $this->assertContains(
-            'Ignored error pattern foo was not matched in reported errors.',
+            'Ignored error pattern <fg=yellow>foo</> was not matched in reported errors.',
             $globalErrors,
         );
         $this->assertContains(
-            'Ignored error pattern bar in path tests/Integration/tmp/ignored.txt was not matched in reported errors.',
+            'Ignored error pattern <fg=yellow>bar</> in path tests/Integration/tmp/ignored.txt was not matched in reported errors.',
             $globalErrors,
         );
         $this->assertContains(
@@ -94,7 +94,7 @@ YAML);
         $globalErrors = $errorReporter->getGlobalErrors();
 
         $this->assertContains(
-            'Ignored error pattern foo-string was not matched in reported errors.',
+            'Ignored error pattern <fg=yellow>foo-string</> was not matched in reported errors.',
             $globalErrors,
         );
 

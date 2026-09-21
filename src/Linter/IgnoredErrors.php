@@ -203,7 +203,7 @@ final class IgnoredErrors
             $locDesc = '';
 
             if (isset($pattern['message'])) {
-                $patternDesc = $pattern['message'];
+                $patternDesc = "<fg=yellow>{$pattern['message']}</>";
             }
             if (isset($pattern['path'])) {
                 $locDesc = (isset($pattern['message']) ? ' ' : '').'in path '.$pattern['path'];
