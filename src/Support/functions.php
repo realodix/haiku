@@ -30,6 +30,10 @@ if (!function_exists('base_path')) {
      */
     function base_path(string $path = ''): string
     {
+        if (Path::isAbsolute($path)) {
+            return Path::normalize($path);
+        }
+
         // symfony/polyfill-php85
         $basePath = dirname(array_first(array_filter(
             array_keys(ClassLoader::getRegisteredLoaders()),

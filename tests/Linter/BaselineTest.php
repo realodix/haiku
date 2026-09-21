@@ -147,7 +147,7 @@ YAML);
         $cache = app(Cache::class);
         $cachedData1 = $cache->get(Path::canonicalize($dummyFile1));
         $this->assertNotNull($cachedData1);
-        $this->assertNotEmpty($cachedData1['errors'] ?? []);
+        $this->assertSame(1, count($cachedData1['errors']));
 
         // 2. Introduce a new error in dummyFile2
         $this->fs->dumpFile($dummyFile2, 'example.org,##.ads');
@@ -158,7 +158,7 @@ YAML);
         }
 
         try {
-            $this->runLintCommand([
+            $run1 = $this->runLintCommand([
                 '--config' => $configFile,
                 '--cache' => $this->cacheFile,
                 '--generate-baseline' => true,
@@ -180,6 +180,8 @@ YAML);
             $cachedData2 = $cache->get(Path::canonicalize($dummyFile2));
             $this->assertNotNull($cachedData2);
             $this->assertNotEmpty($cachedData2['errors'] ?? []);
+
+            $this->assertStringContainsString('Baseline generated with 2 errors', $run1->getDisplay());
         } finally {
             if (file_exists($baselineFile)) {
                 unlink($baselineFile);
@@ -233,6 +235,7 @@ YAML);
 
             $output = $tester2->getDisplay();
             $this->assertStringContainsString('No errors found!', $output);
+            $this->assertStringContainsString('Filtered out 2 errors', $output);
             $this->assertSame(0, $tester2->getStatusCode());
         } finally {
             if (file_exists($baselineFile)) {
