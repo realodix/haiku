@@ -80,8 +80,6 @@ class LintCommand extends Command
         if ($input->getOption('generate-baseline')) {
             if (!empty($errorReporter->getGlobalErrors())) {
                 $this->renderGlobalErrors($io, $errorReporter->getGlobalErrors());
-
-                return Command::FAILURE;
             }
 
             $this->generateBaseline($io, $errorReporter);
