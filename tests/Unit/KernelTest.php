@@ -2,28 +2,24 @@
 
 namespace Realodix\Haiku\Test\Unit;
 
-use Realodix\Haiku\App;
-use Realodix\Haiku\Console\Command\FixCommand;
+use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Console\Kernel;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Console\Application;
 
 class KernelTest extends TestCase
 {
-    public function testBootstrap()
+    #[PHPUnit\TestWith([\Realodix\Haiku\Cache\Cache::class])]
+    #[PHPUnit\TestWith([\Realodix\Haiku\Config\Config::class])]
+    #[PHPUnit\TestWith([\Realodix\Haiku\Config\FixerConfig::class])]
+    #[PHPUnit\TestWith([\Realodix\Haiku\Config\LinterConfig::class])]
+    public function testregisterServices($class)
     {
-        $providerMock = \Mockery::mock(App::class);
-        $providerMock->expects('register');
-
         $kernel = new Kernel;
         $container = $this->getPrivateProperty($kernel, 'app');
-        $container->instance(App::class, $providerMock);
-        $kernel->bootstrap();
 
-        // App class binds FixCommand to the container.
-        // We can check if the container can resolve it.
-        $command = $this->getPrivateProperty($kernel, 'app')->make(FixCommand::class);
-        $this->assertInstanceOf(FixCommand::class, $command);
+        $this->assertTrue($container->bound($class));
+        $this->assertSame($container->make($class), $container->make($class));
     }
 
     public function testRegisterCommands()

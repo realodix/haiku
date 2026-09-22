@@ -46,7 +46,7 @@ class Kernel
      */
     public function handle(): int
     {
-        $this->bootstrap();
+        $this->registerServices();
         $output = new ConsoleOutput;
         $this->app->instance(OutputInterface::class, $output);
 
@@ -57,13 +57,16 @@ class Kernel
     }
 
     /**
-     * Run service provider
+     * Register any application services.
      */
-    public function bootstrap(): void
+    public function registerServices(): void
     {
-        foreach ($this->providers as $provider) {
-            $this->app->make($provider)->register($this->app);
-        }
+        $this->app->singleton(\Realodix\Haiku\Config\Config::class);
+        $this->app->singleton(\Realodix\Haiku\Config\FixerConfig::class);
+        $this->app->singleton(\Realodix\Haiku\Config\LinterConfig::class);
+
+        // parallel processing
+        $this->app->singleton(\Realodix\Haiku\Cache\Cache::class);
     }
 
     /**

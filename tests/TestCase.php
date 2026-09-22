@@ -30,7 +30,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        new \Realodix\Haiku\Console\Kernel()->bootstrap();
+        new \Realodix\Haiku\Console\Kernel()->registerServices();
 
         $this->fs = new Filesystem;
 

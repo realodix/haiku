@@ -3,7 +3,6 @@
 namespace Realodix\Haiku;
 
 use Composer\InstalledVersions as Composer;
-use Illuminate\Container\Container;
 
 /**
  * @codeCoverageIgnore
@@ -30,18 +29,5 @@ class App
         }
 
         return $cVer;
-    }
-
-    /**
-     * Register any application services.
-     */
-    public function register(Container $app): void
-    {
-        $app->singleton(\Realodix\Haiku\Config\Config::class);
-        $app->singleton(\Realodix\Haiku\Config\FixerConfig::class);
-        $app->singleton(\Realodix\Haiku\Config\LinterConfig::class);
-
-        // parallel processing
-        $app->singleton(\Realodix\Haiku\Cache\Cache::class);
     }
 }
