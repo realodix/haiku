@@ -22,16 +22,20 @@ class KernelTest extends TestCase
         $this->assertSame($container->make($class), $container->make($class));
     }
 
-    public function testRegisterCommands()
+    #[PHPUnit\TestWith(['init'])]
+    #[PHPUnit\TestWith(['build'])]
+    #[PHPUnit\TestWith(['fix'])]
+    #[PHPUnit\TestWith(['lint'])]
+    #[PHPUnit\TestWith(['worker'])]
+    public function testRegisterCommands($name)
     {
         $kernel = new Kernel;
-        $commands = $this->getPrivateProperty($kernel, 'commands');
+        $app = new Application;
+        $this->callPrivateMethod($kernel, 'registerCommands', [$app]);
 
-        $applicationMock = \Mockery::mock(Application::class);
-        $applicationMock->expects('addCommand')
-            ->times(count($commands))
-            ->with(\Mockery::type(\Symfony\Component\Console\Command\Command::class));
-
-        $this->callPrivateMethod($kernel, 'registerCommands', [$applicationMock]);
+        $this->assertInstanceOf(
+            \Symfony\Component\Console\Command\Command::class,
+            $app->get($name),
+        );
     }
 }

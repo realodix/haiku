@@ -22,19 +22,6 @@ class Kernel
         App::class,
     ];
 
-    /**
-     * List of available commands
-     *
-     * @var array<class-string<\Symfony\Component\Console\Command\Command>>
-     */
-    protected array $commands = [
-        \Realodix\Haiku\Console\Command\InitCommand::class,
-        \Realodix\Haiku\Console\Command\BuildCommand::class,
-        \Realodix\Haiku\Console\Command\FixCommand::class,
-        \Realodix\Haiku\Console\Command\LintCommand::class,
-        \Realodix\Haiku\Console\Command\WorkerCommand::class,
-    ];
-
     public function __construct()
     {
         $this->app = Container::getInstance();
@@ -74,7 +61,13 @@ class Kernel
      */
     protected function registerCommands(Application $console): void
     {
-        foreach ($this->commands as $command) {
+        foreach ([
+            \Realodix\Haiku\Console\Command\InitCommand::class,
+            \Realodix\Haiku\Console\Command\BuildCommand::class,
+            \Realodix\Haiku\Console\Command\FixCommand::class,
+            \Realodix\Haiku\Console\Command\LintCommand::class,
+            \Realodix\Haiku\Console\Command\WorkerCommand::class,
+        ] as $command) {
             $console->addCommand($this->app->make($command));
         }
     }
