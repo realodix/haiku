@@ -63,10 +63,12 @@ final class Util
 
         foreach (Registry::REDIRECT_RESOURCE as $key => $value) {
             if (is_int($key)) {
+                /** @var string $value */
                 $name = $value;
                 $config = [];
             } else {
                 $name = $key;
+                /** @var array{alias?: list<string>, scriptlet?: bool} $value */
                 $config = $value;
             }
 

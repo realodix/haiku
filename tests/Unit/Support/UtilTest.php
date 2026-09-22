@@ -68,4 +68,18 @@ class UtilTest extends TestCase
     {
         $this->assertSame($expected, Util::cssEscape($input));
     }
+
+    #[PHPUnit\Test]
+    public function getRedirectResources()
+    {
+        $this->assertIsList(Util::getRedirectResources());
+
+        $this->assertContains('none', Util::getRedirectResources());
+        $this->assertContains('1x1.gif', Util::getRedirectResources());
+        $this->assertContains('1x1-transparent.gif', Util::getRedirectResources());
+        $this->assertContains('fingerprint3.js', Util::getRedirectResources());
+
+        $this->assertNotContains('none', Util::getRedirectResources(true));
+        $this->assertContains('fingerprint3.js', Util::getRedirectResources(true));
+    }
 }
