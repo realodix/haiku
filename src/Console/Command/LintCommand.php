@@ -210,21 +210,6 @@ class LintCommand extends Command
     /**
      * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
      */
-    private function renderBaselineFilteredCount(SymfonyStyle $io, $errorReporter): void
-    {
-        $baselineFiltered = $errorReporter->baselineMatches;
-        if ($baselineFiltered > 0) {
-            $io->writeln(sprintf(
-                '<info>INFO</info> Filtered out %d %s based on the baseline file.',
-                $baselineFiltered,
-                $baselineFiltered === 1 ? 'error' : 'errors',
-            ));
-        }
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
-     */
     private function generateBaseline(SymfonyStyle $io, $errorReporter): void
     {
         $baselineFile = base_path(IgnoredErrors::BASELINE_FILE);
@@ -260,6 +245,21 @@ class LintCommand extends Command
             $entriesCount,
             $entriesCount === 1 ? 'entry' : 'entries',
         ));
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
+     */
+    private function renderBaselineFilteredCount(SymfonyStyle $io, $errorReporter): void
+    {
+        $baselineFiltered = $errorReporter->baselineMatches;
+        if ($baselineFiltered > 0) {
+            $io->writeln(sprintf(
+                '<info>INFO</info> Filtered out %d %s based on the baseline file.',
+                $baselineFiltered,
+                $baselineFiltered === 1 ? 'error' : 'errors',
+            ));
+        }
     }
 
     private function meta(string $content, ?string $icon = null): string
