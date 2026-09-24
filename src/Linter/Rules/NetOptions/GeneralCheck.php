@@ -47,44 +47,44 @@ final class GeneralCheck implements Rule
 
             $rawOpts = Util::splitOptions($m[2]);
 
+            $this->checkOptionsCase($err, $rawOpts);
             $this->checkDuplicateOptions($err, $rawOpts);
             $this->checkOptionConflict($err, $rawOpts);
-            $this->checkOptionsCase($err, $rawOpts);
             $this->checkInvalidNegation($err, $rawOpts);
 
             $opts = $this->parseOptions($rawOpts);
 
             $this->checkOptionAliasRedundant($err, $opts);
-            $this->checkDeprecatedOptions($err, $opts);
             $this->checkExceptionOptions($err, $opts, $line);
             $this->checkValueOptionalExceptionOnly($err, $opts, $line);
             $this->checkDenyallowValue($err, $opts);
             $this->checkDenyallowAndToConflict($err, $opts);
             $this->checkDenyallowRequiresDomain($err, $opts);
+
+            $this->checkDeprecatedOptions($err, $opts);
         }
 
         return $err->toArray();
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $opts
-     * @return array<string, list<string|null>>
      */
-    private function parseOptions(array $opts): array
+    private function checkOptionsCase($err, array $opts): void
     {
-        $map = [];
-
         foreach ($opts as $opt) {
             $opt = trim($opt);
 
             $parts = explode('=', $opt, 2);
-            $name = strtolower(trim($parts[0]));
-            $value = $parts[1] ?? null;
+            $rawName = trim($parts[0]);
+            $name = strtolower($rawName);
 
-            $map[$name][] = $value;
+            if ($rawName !== $name) {
+                $err->message(sprintf('Option "%s" must be lowercase.', $rawName))
+                    ->build();
+            }
         }
-
-        return $map;
     }
 
     /**
@@ -116,26 +116,6 @@ final class GeneralCheck implements Rule
         foreach (array_unique($duplicates) as $dup) {
             $err->message(sprintf('Duplicate option: $%s', $dup))
                 ->build();
-        }
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param list<string> $opts
-     */
-    private function checkOptionsCase($err, array $opts): void
-    {
-        foreach ($opts as $opt) {
-            $opt = trim($opt);
-
-            $parts = explode('=', $opt, 2);
-            $rawName = trim($parts[0]);
-            $name = strtolower($rawName);
-
-            if ($rawName !== $name) {
-                $err->message(sprintf('Option "%s" must be lowercase.', $rawName))
-                    ->build();
-            }
         }
     }
 
@@ -190,6 +170,27 @@ final class GeneralCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param array<string, list<string|null>> $opts
+     */
+    private function checkOptionAliasRedundant($err, array $opts): void
+    {
+        if (!$this->config->rules['no_dupe_options']) {
+            return;
+        }
+
+        foreach (self::ALIASES as $alias => $canonical) {
+            if (isset($opts[$alias]) && isset($opts[$canonical])) {
+                $msg = sprintf(
+                    'Duplicate option: $%s and $%s are aliases of each other.',
+                    $alias, $canonical,
+                );
+                $err->message($msg)->build();
+            }
+        }
+    }
+
+    /**
      * rNames:
      * - no-invalid-negated-option
      * - no-invalid-option-negation
@@ -221,54 +222,6 @@ final class GeneralCheck implements Rule
 
             $err->message(sprintf('$%s cannot be negated.', $name))
                 ->build();
-        }
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param array<string, list<string|null>> $opts
-     */
-    private function checkOptionAliasRedundant($err, array $opts): void
-    {
-        if (!$this->config->rules['no_dupe_options']) {
-            return;
-        }
-
-        foreach (self::ALIASES as $alias => $canonical) {
-            if (isset($opts[$alias]) && isset($opts[$canonical])) {
-                $msg = sprintf(
-                    'Duplicate option: $%s and $%s are aliases of each other.',
-                    $alias, $canonical,
-                );
-                $err->message($msg)->build();
-            }
-        }
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param array<string, list<string|null>> $opts
-     */
-    private function checkDeprecatedOptions($err, array $opts): void
-    {
-        $depOpts = [
-            'empty' => null, 'mp4' => null, 'webrtc' => null,
-            'object-subrequest' => 'object',
-            'queryprune' => 'removeparam',
-        ];
-
-        foreach ($depOpts as $opt => $replacement) {
-            if (!array_key_exists($opt, $opts)) {
-                continue;
-            }
-
-            $err->message(sprintf('Deprecated filter option: $%s', $opt));
-
-            if ($replacement !== null) {
-                $err->tip(sprintf('Use "%s" instead.', $replacement));
-            }
-
-            $err->build();
         }
     }
 
@@ -413,6 +366,54 @@ final class GeneralCheck implements Rule
             $err->message('Invalid filter: $denyallow requires $domain.')
                 ->build();
         }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param array<string, list<string|null>> $opts
+     */
+    private function checkDeprecatedOptions($err, array $opts): void
+    {
+        $depOpts = [
+            'empty' => null, 'mp4' => null, 'webrtc' => null,
+            'object-subrequest' => 'object',
+            'queryprune' => 'removeparam',
+        ];
+
+        foreach ($depOpts as $opt => $replacement) {
+            if (!array_key_exists($opt, $opts)) {
+                continue;
+            }
+
+            $err->message(sprintf('Deprecated filter option: $%s', $opt));
+
+            if ($replacement !== null) {
+                $err->tip(sprintf('Use "%s" instead.', $replacement));
+            }
+
+            $err->build();
+        }
+    }
+
+    /**
+     * @param list<string> $opts
+     * @return array<string, list<string|null>>
+     */
+    private function parseOptions(array $opts): array
+    {
+        $map = [];
+
+        foreach ($opts as $opt) {
+            $opt = trim($opt);
+
+            $parts = explode('=', $opt, 2);
+            $name = strtolower(trim($parts[0]));
+            $value = $parts[1] ?? null;
+
+            $map[$name][] = $value;
+        }
+
+        return $map;
     }
 
     private function isNegatableOption(string $name, bool $hasValue): bool

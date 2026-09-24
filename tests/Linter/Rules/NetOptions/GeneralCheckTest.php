@@ -9,6 +9,19 @@ use Realodix\Haiku\Test\TestCase;
 class GeneralCheckTest extends TestCase
 {
     #[PHPUnit\Test]
+    public function case(): void
+    {
+        $lines = [
+            '*$3p,SCRIPT,Css',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Option "Css" must be lowercase.'],
+            [1, 'Option "SCRIPT" must be lowercase.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function duplicate(): void
     {
         $lines = [
@@ -26,94 +39,7 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function uppercase(): void
-    {
-        $lines = [
-            '*$3p,SCRIPT,Css',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Option "Css" must be lowercase.'],
-            [1, 'Option "SCRIPT" must be lowercase.'],
-        ]);
-    }
-
-    #[PHPUnit\Test]
-    public function alias_redundant(): void
-    {
-        $lines = [
-            '*$script,domain=example.com,from=example.com',
-            '*$css,script,stylesheet',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Duplicate option: $from and $domain are aliases of each other.'],
-            [2, 'Duplicate option: $css and $stylesheet are aliases of each other.'],
-        ]);
-    }
-
-    #[PHPUnit\Test]
-    public function denyallow_and_to_conflict(): void
-    {
-        $lines = [
-            '*$script,denyallow=x.com,domain=y.com,to=z.org',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Redundant usage of $denyallow with $to.'],
-        ]);
-    }
-
-    #[PHPUnit\Test]
-    public function opt_denyallow_requires_domain(): void
-    {
-        $lines = [
-            '*$3p,script,denyallow=x.com|y.com,domain=a.com|b.com',
-            '*$3p,script,denyallow=x.com',
-        ];
-
-        $this->analyse($lines, [
-            [2, 'Invalid filter: $denyallow requires $domain.'],
-        ], [GeneralCheck::class]);
-    }
-
-    #[PHPUnit\Test]
-    public function checkDenyallowValue(): void
-    {
-        $lines = [
-            '*$script,denyallow=x.com|~y.com|z.com,domain=a.com',
-            '*$script,denyallow=x.com|y.*|z.com,domain=a.com',
-            '*$script,denyallow=~foo.*,domain=a.com',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Domains in the $denyallow value cannot be negated: "~y.com"'],
-            [2, 'Domains in the $denyallow value cannot have a wildcard TLD: "y.*"'],
-            [3, 'Domains in the $denyallow value cannot be negated: "~foo.*"'],
-            [3, 'Domains in the $denyallow value cannot have a wildcard TLD: "~foo.*"'],
-        ], [GeneralCheck::class]);
-    }
-
-    #[PHPUnit\Test]
-    public function checkDeprecatedOptions(): void
-    {
-        $lines = [
-            '||example.org^$empty',
-            '||example.com/videos/$mp4',
-            '||example.com^$queryprune=foo',
-            '*$queryprune=utm_source',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Deprecated filter option: $empty'],
-            [2, 'Deprecated filter option: $mp4'],
-            [3, 'Deprecated filter option: $queryprune'],
-            [4, 'Deprecated filter option: $queryprune'],
-        ]);
-    }
-
-    #[PHPUnit\Test]
-    public function checkOptionConflict(): void
+    public function duplicateWithItsNegation(): void
     {
         $lines = [
             '*$script,~script',
@@ -129,7 +55,21 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function checkInvalidNegation(): void
+    public function duplicateWithItsAlias(): void
+    {
+        $lines = [
+            '*$script,domain=example.com,from=example.com',
+            '*$css,script,stylesheet',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Duplicate option: $from and $domain are aliases of each other.'],
+            [2, 'Duplicate option: $css and $stylesheet are aliases of each other.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function invalidNegation(): void
     {
         $lines = [
             '*$~strict1p',
@@ -145,7 +85,7 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function checkExceptionOnlyOptions(): void
+    public function exceptionOnly(): void
     {
         $lines = [
             '@@*$important',
@@ -182,7 +122,7 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function checkValueOptionalExceptionOnly(): void
+    public function value_exceptionOnly(): void
     {
         $lines = [
             '*$csp',
@@ -219,5 +159,65 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function denyallow_value(): void
+    {
+        $lines = [
+            '*$script,denyallow=x.com|~y.com|z.com,domain=a.com',
+            '*$script,denyallow=x.com|y.*|z.com,domain=a.com',
+            '*$script,denyallow=~foo.*,domain=a.com',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Domains in the $denyallow value cannot be negated: "~y.com"'],
+            [2, 'Domains in the $denyallow value cannot have a wildcard TLD: "y.*"'],
+            [3, 'Domains in the $denyallow value cannot be negated: "~foo.*"'],
+            [3, 'Domains in the $denyallow value cannot have a wildcard TLD: "~foo.*"'],
+        ], [GeneralCheck::class]);
+    }
+
+    #[PHPUnit\Test]
+    public function denyallow_and_to(): void
+    {
+        $lines = [
+            '*$script,denyallow=x.com,domain=y.com,to=z.org',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Redundant usage of $denyallow with $to.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
+    public function denyallow_requires_domain(): void
+    {
+        $lines = [
+            '*$3p,script,denyallow=x.com|y.com,domain=a.com|b.com',
+            '*$3p,script,denyallow=x.com',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Invalid filter: $denyallow requires $domain.'],
+        ], [GeneralCheck::class]);
+    }
+
+    #[PHPUnit\Test]
+    public function deprecatedOptions(): void
+    {
+        $lines = [
+            '||example.org^$empty',
+            '||example.com/videos/$mp4',
+            '||example.com^$queryprune=foo',
+            '*$queryprune=utm_source',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Deprecated filter option: $empty'],
+            [2, 'Deprecated filter option: $mp4'],
+            [3, 'Deprecated filter option: $queryprune'],
+            [4, 'Deprecated filter option: $queryprune'],
+        ]);
     }
 }
