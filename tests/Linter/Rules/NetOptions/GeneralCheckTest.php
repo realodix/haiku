@@ -186,7 +186,7 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Redundant usage of $denyallow with $to.'],
+            [1, '$denyallow cannot be used together with $to.'],
         ]);
     }
 

@@ -347,7 +347,7 @@ final class GeneralCheck implements Rule
     private function checkDenyallowAndToConflict($err, array $opts): void
     {
         if (isset($opts['denyallow']) && isset($opts['to'])) {
-            $err->message('Redundant usage of $denyallow with $to.')
+            $err->message('$denyallow cannot be used together with $to.')
                 ->tip('It can be expressed with inverted $to: $denyallow=a.com is equivalent to $to=~a.com.')
                 ->build();
         }
