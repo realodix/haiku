@@ -122,7 +122,7 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function value_exceptionOnly(): void
+    public function withoutValue_exceptionOnly(): void
     {
         $lines = [
             '*$csp',

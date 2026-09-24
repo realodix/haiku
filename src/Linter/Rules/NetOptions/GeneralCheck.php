@@ -47,16 +47,16 @@ final class GeneralCheck implements Rule
 
             $rawOpts = Util::splitOptions($m[2]);
 
-            $this->checkOptionsCase($err, $rawOpts);
-            $this->checkDuplicateOptions($err, $rawOpts);
-            $this->checkOptionConflict($err, $rawOpts);
+            $this->checkCase($err, $rawOpts);
+            $this->checkDuplicate($err, $rawOpts);
+            $this->checkDuplicateWithNegation($err, $rawOpts);
             $this->checkInvalidNegation($err, $rawOpts);
 
             $opts = $this->parseOptions($rawOpts);
 
-            $this->checkOptionAliasRedundant($err, $opts);
-            $this->checkExceptionOptions($err, $opts, $line);
-            $this->checkValueOptionalExceptionOnly($err, $opts, $line);
+            $this->checkDuplicateWithAlias($err, $opts);
+            $this->checkInvalidException($err, $opts, $line);
+            $this->checkWithoutValueExceptionOnly($err, $opts, $line);
             $this->checkDenyallowValue($err, $opts);
             $this->checkDenyallowAndToConflict($err, $opts);
             $this->checkDenyallowRequiresDomain($err, $opts);
@@ -71,7 +71,7 @@ final class GeneralCheck implements Rule
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $opts
      */
-    private function checkOptionsCase($err, array $opts): void
+    private function checkCase($err, array $opts): void
     {
         foreach ($opts as $opt) {
             $opt = trim($opt);
@@ -91,7 +91,7 @@ final class GeneralCheck implements Rule
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $opts
      */
-    private function checkDuplicateOptions($err, array $opts): void
+    private function checkDuplicate($err, array $opts): void
     {
         if (!$this->config->rules['no_dupe_options']) {
             return;
@@ -126,7 +126,7 @@ final class GeneralCheck implements Rule
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $rawOpts
      */
-    private function checkOptionConflict($err, array $rawOpts): void
+    private function checkDuplicateWithNegation($err, array $rawOpts): void
     {
         $positive = [];
         $negative = [];
@@ -173,7 +173,7 @@ final class GeneralCheck implements Rule
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkOptionAliasRedundant($err, array $opts): void
+    private function checkDuplicateWithAlias($err, array $opts): void
     {
         if (!$this->config->rules['no_dupe_options']) {
             return;
@@ -233,7 +233,7 @@ final class GeneralCheck implements Rule
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkExceptionOptions($err, array $opts, string $lineContent): void
+    private function checkInvalidException($err, array $opts, string $lineContent): void
     {
         $isException = str_starts_with($lineContent, '@@');
 
@@ -271,7 +271,7 @@ final class GeneralCheck implements Rule
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
-    private function checkValueOptionalExceptionOnly($err, array $opts, string $lineContent): void
+    private function checkWithoutValueExceptionOnly($err, array $opts, string $lineContent): void
     {
         $isException = str_starts_with($lineContent, '@@');
         $reqExcIfNoValue = [
