@@ -40,6 +40,33 @@ class CosmeticCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function checkColonEscape(): void
+    {
+        $lines = [
+            'example.com##.min-\[1100px\]:col-span-8:foo-bar',
+            // https://github.com/ABPindo/indonesianadblockrules/blob/90e59175b3/src/advert/specific_hide.txt#L742
+            'example.com##.dark\\\:bg-gray-700',
+            // https://github.com/ABPindo/indonesianadblockrules/blob/90e59175b3/src/adult/adult_specific_hide.txt#L200
+            'example.com####.dark:bg-gray-700',
+        ];
+        $this->analyse($lines, [
+            [1, 'Invalid filter: Colon ":col-span-8" must be escaped with a backslash.'],
+            [1, 'Invalid filter: Colon ":foo-bar" must be escaped with a backslash.'],
+            [2, 'Invalid filter: Colon "\\\:bg-gray-700" has too many backslashes.'],
+            [3, 'Invalid filter: Colon ":bg-gray-700" must be escaped with a backslash.'],
+        ]);
+
+        $lines = [
+            'example.com##.dark\:bg-gray-700',
+            'fautsy.com##ins[class][style^="display:inline-block;width:"]',
+            'fastpic.org,~new.fastpic.org##a#imglink[href*="/fullview/"] {display:inline-block;overflow:hidden;}',
+            'xbitlabs.com##.flex.items-center.justify-center:has(> span:first-child + div[data-fuse]:last-child)',
+            'idaprikol.ru###App > div:has(> div:empty + div a[href^="https://idp.onelink.me/"])',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function abp_ext_valid(): void
     {
         $lines = [
