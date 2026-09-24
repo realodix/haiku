@@ -32,7 +32,6 @@ final class NetPatternCheck implements Rule
             }
 
             $this->checkTooShortPattern($err, $line, $hasOptions);
-            $this->checkSpaceInPattern($err, $line);
             $this->checkBadDomainAnchors($err, $line);
         }
 
@@ -87,33 +86,5 @@ final class NetPatternCheck implements Rule
             $err->message('Too many "|" at the end (only 1 allowed).')
                 ->build();
         }
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     */
-    private function checkSpaceInPattern($err, string $line): void
-    {
-        if (!$this->config->rules['no_spaces_in_net_pattern']) {
-            return;
-        }
-
-        if (!str_contains($line, ' ')
-            || (str_starts_with($line, '/') && str_ends_with($line, '/'))
-            // uBo dynamic filtering rules
-            || str_contains($line, ' * ')
-            || preg_match('/^^[a-z]+-[a-z-]+:\s/', $line)
-            || preg_match('/^(0|127)\./', $line) // host
-            || str_contains($line, ' CNAME ')
-            // bind / unbound / SmartDNS
-            || preg_match('/^[a-z\-\s\:]+("|\/)/', $line)
-            // ublacklist
-            || preg_match('/^[$!]?[a-z]+\s?[*$^]?=~?\s?["\/]/', $line)
-        ) {
-            return;
-        }
-
-        $err->message('Net pattern should not contain spaces.')
-            ->build();
     }
 }
