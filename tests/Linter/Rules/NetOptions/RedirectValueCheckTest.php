@@ -41,12 +41,14 @@ class RedirectValueCheckTest extends TestCase
             '||example.com/*.js$1p,script,redirect=invalid',
             '||example.com/*.js$1p,script,redirect=noopjs:invalid-priority',
             '||example.com/*.js$1p,script,redirect-rule=invalid',
+            '||example.com/*.js$1p,script,rewrite=invalid',
         ];
 
         $this->analyse($lines, [
             [1, 'Unknown redirect resource value: "invalid"'],
             [2, 'Unknown redirect resource value: "noopjs:invalid-priority"'],
             [3, 'Unknown redirect resource value: "invalid"'],
+            [4, 'Unknown redirect resource value: "invalid"'],
         ]);
     }
 }
