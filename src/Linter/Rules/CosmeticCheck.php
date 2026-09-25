@@ -85,7 +85,7 @@ final class CosmeticCheck implements Rule
         // https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Pseudo-classes
         $selector = preg_replace(
             '/
-                :.+\(                                         # has(), is(), etc
+                :.+\(                                   # has(), is(), etc
                 |:(any|first|focus|in|last|only|user)-
                 |\[[^\]]+\]
                 |{.+}
