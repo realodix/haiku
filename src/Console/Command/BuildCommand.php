@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Console\Command;
 
 use Realodix\Haiku\App;
 use Realodix\Haiku\Builder\Builder;
+use Realodix\Haiku\Config\Helper;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
@@ -43,6 +44,7 @@ class BuildCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
         $io->writeln(sprintf('%s <info>%s</info> by <comment>Realodix</comment>', App::NAME, App::version()));
+        $this->loadedConfigInfo($io, $iConfig);
         $io->newLine();
 
         // ---- Execute ----
@@ -67,5 +69,15 @@ class BuildCommand extends Command
         ));
 
         return Command::SUCCESS;
+    }
+
+    private function loadedConfigInfo(SymfonyStyle $io, ?string $iConfig): void
+    {
+        $conf = Helper::resolveConfigPath($iConfig);
+        if ($conf === null) {
+            return;
+        }
+
+        $io->writeln("Loaded config from \"{$conf}\"");
     }
 }

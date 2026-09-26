@@ -92,7 +92,7 @@ final class Config
      */
     private function load(Section $section, ?string $path): self
     {
-        $filepath = $this->resolvePath($path) ?? 'noop';
+        $filepath = Helper::resolveConfigPath($path) ?? 'noop';
 
         try {
             $config = Yaml::parseFile($filepath);
@@ -122,35 +122,6 @@ final class Config
         $this->cacheDir = $config['cache_dir'] ?? null;
 
         return $this;
-    }
-
-    /**
-     * Returns the absolute path to a configuration file.
-     *
-     * If no configuration file is specified, it defaults to the path of the
-     * `haiku.yml` file.
-     *
-     * @param string|null $path Custom path to the configuration file
-     */
-    private function resolvePath(?string $path): ?string
-    {
-        if ($path !== null) {
-            return base_path($path);
-        }
-
-        $discoverableConfigNames = [
-            'haiku.yml',
-            'haiku.yml.dist',
-        ];
-
-        foreach ($discoverableConfigNames as $filename) {
-            $filepath = base_path($filename);
-            if (is_file($filepath)) {
-                return $filepath;
-            }
-        }
-
-        return null;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Console\Command;
 
 use Realodix\Haiku\App;
+use Realodix\Haiku\Config\Helper;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Linter\IgnoredErrors;
@@ -49,6 +50,7 @@ class LintCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
         $io->writeln(sprintf('%s <info>%s</info> by <comment>Realodix</comment>', App::NAME, App::version()));
+        $this->loadedConfigInfo($io, $iConfig);
         $io->newLine();
 
         /** @var \Symfony\Component\Console\Helper\ProgressBar|null */
@@ -92,6 +94,16 @@ class LintCommand extends Command
         $this->renderPerformanceMetrics($io, $startTime);
 
         return $errorReporter->count() > 0 ? Command::FAILURE : Command::SUCCESS;
+    }
+
+    private function loadedConfigInfo(SymfonyStyle $io, ?string $iConfig): void
+    {
+        $conf = Helper::resolveConfigPath($iConfig);
+        if ($conf === null) {
+            return;
+        }
+
+        $io->writeln("Loaded config from \"{$conf}\"");
     }
 
     /**
