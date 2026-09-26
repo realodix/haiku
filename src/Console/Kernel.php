@@ -12,15 +12,6 @@ class Kernel
 {
     protected Container $app;
 
-    /**
-     * List of service providers used by the application
-     *
-     * @var array<class-string>
-     */
-    protected array $providers = [
-        App::class,
-    ];
-
     public function __construct()
     {
         $this->app = Container::getInstance();
