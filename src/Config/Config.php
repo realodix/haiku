@@ -162,6 +162,14 @@ final class Config
      */
     private function validate($config, $section): void
     {
+        if (!isset($config['cache_dir'])
+            && !isset($config['builder'])
+            && !isset($config['fixer'])
+            && !isset($config['linter'])
+        ) {
+            throw new InvalidConfigurationException('Invalid configuration file.');
+        }
+
         if ($section === Section::B) {
             $config = Arr::only($config, ['cache_dir', 'builder']);
             $schema = Schema::builder();
