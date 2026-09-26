@@ -49,7 +49,7 @@ class Kernel
     /**
      * Register all commands to the console
      */
-    protected function registerCommands(Application $console): void
+    private function registerCommands(Application $console): void
     {
         foreach ([
             \Realodix\Haiku\Console\Command\InitCommand::class,
