@@ -36,7 +36,7 @@ final class RedirectValueCheck implements Rule
     private function checkDeprecated($err, string $value): void
     {
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
-            $err->message(sprintf('Deprecated redirect resource value: "%s"', $value))
+            $err->message(sprintf('Deprecated: The redirect resource %s is deprecated.', $value))
                 ->build();
         }
     }

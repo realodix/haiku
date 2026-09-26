@@ -46,7 +46,7 @@ final class ScriptletCheck implements Rule
     private function checkDeprecated($err, string $value): void
     {
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
-            $err->message(sprintf('Deprecated scriptlet: %s', $value))
+            $err->message(sprintf('Deprecated: Scriptlet %s is deprecated.', $value))
                 ->build();
         }
     }

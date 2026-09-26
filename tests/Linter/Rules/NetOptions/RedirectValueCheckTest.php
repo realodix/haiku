@@ -30,7 +30,7 @@ class RedirectValueCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Deprecated redirect resource value: "ligatus_angular-tag.js"'],
+            [1, 'Deprecated: The redirect resource ligatus_angular-tag.js is deprecated.'],
         ]);
     }
 

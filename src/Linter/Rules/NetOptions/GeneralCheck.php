@@ -385,7 +385,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $err->message(sprintf('Deprecated filter option: $%s', $opt));
+            $err->message(sprintf('Deprecated: The filter option $%s is deprecated.', $opt));
 
             if ($replacement !== null) {
                 $err->tip(sprintf('Use "%s" instead.', $replacement));

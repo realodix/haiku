@@ -77,8 +77,8 @@ class ScriptletCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Deprecated scriptlet: csp'],
-            [2, 'Deprecated scriptlet: csp'],
+            [1, 'Deprecated: Scriptlet csp is deprecated.'],
+            [2, 'Deprecated: Scriptlet csp is deprecated.'],
         ]);
     }
 }
