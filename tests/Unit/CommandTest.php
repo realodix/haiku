@@ -9,6 +9,19 @@ use Realodix\Haiku\Test\TestCase;
 class CommandTest extends TestCase
 {
     #[PHPUnit\Test]
+    public function builder_needs_config(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessageIs('The configuration file does not exist.');
+
+        $application = new \Symfony\Component\Console\Application;
+        $application->addCommand(app(\Realodix\Haiku\Console\Command\BuildCommand::class));
+        $command = $application->find('build');
+        $commandTester = new \Symfony\Component\Console\Tester\CommandTester($command);
+        $commandTester->execute([]);
+    }
+
+    #[PHPUnit\Test]
     public function builder_custom_config_not_found(): void
     {
         $this->expectException(InvalidConfigurationException::class);
