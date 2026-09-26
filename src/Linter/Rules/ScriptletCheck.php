@@ -29,11 +29,8 @@ final class ScriptletCheck implements Rule
                     continue;
                 }
 
-                if ($this->checkDeprecated($err, $actualName)) {
-                    continue;
-                }
-
                 $this->checkUnknownName($err, $actualName);
+                $this->checkDeprecated($err, $actualName);
             }
         }
 
@@ -46,16 +43,12 @@ final class ScriptletCheck implements Rule
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkDeprecated($err, string $value): bool
+    private function checkDeprecated($err, string $value): void
     {
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
             $err->message(sprintf('Deprecated scriptlet: %s', $value))
                 ->build();
-
-            return true;
         }
-
-        return false;
     }
 
     /**
@@ -96,6 +89,7 @@ final class ScriptletCheck implements Rule
         return array_unique([
             ...$resources,
             ...Registry::SCRIPTLETS,
+            ...Registry::DEPRECATED_SCRIPTLETS,
             ...$config['known'] ?? [],
         ]);
     }

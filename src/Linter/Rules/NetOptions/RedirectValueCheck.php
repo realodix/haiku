@@ -22,11 +22,8 @@ final class RedirectValueCheck implements Rule
             if (preg_match('/(?<=[$,])(?:redirect(?:-rule)?|rewrite)=([\w\-\.\:]+)(?=,|$)/', $line, $m)) {
                 $value = preg_replace('/:(?:-)?\d+$/', '', $m[1]);
 
-                if ($this->checkDeprecated($err, $value)) {
-                    continue;
-                }
-
                 $this->checkUnknown($err, $value);
+                $this->checkDeprecated($err, $value);
             }
         }
 
@@ -36,16 +33,12 @@ final class RedirectValueCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkDeprecated($err, string $value): bool
+    private function checkDeprecated($err, string $value): void
     {
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
             $err->message(sprintf('Deprecated redirect resource value: "%s"', $value))
                 ->build();
-
-            return true;
         }
-
-        return false;
     }
 
     /**
@@ -56,6 +49,7 @@ final class RedirectValueCheck implements Rule
         $knownResources = array_merge(
             Util::getRedirectResources(),
             Registry::AG_REDIRECT_RESOURCES,
+            Registry::DEPRECATED_REDIRECT_RESOURCES,
         );
 
         if (!in_array($value, $knownResources, true)) {
