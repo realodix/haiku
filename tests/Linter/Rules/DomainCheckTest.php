@@ -124,6 +124,35 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function bad_domain_contains_whitespaces(): void
+    {
+        $lines = [
+            '/single$domain= example.com ',
+            '/foo$domain=example.com | example.org',
+            '/bar$domain=example.com| example.org',
+            '/baz$domain=example.com |example.org',
+            'example.com , example.org##foo',
+            'example.com, example.org##bar',
+            'example.com ,example.org##baz',
+
+            '*$domain=exampl e.',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Bad domain: " example.com" contains unnecessary whitespace.'],
+            [2, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [2, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [3, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [4, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [5, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [5, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [6, 'Bad domain: " example.org" contains unnecessary whitespace.'],
+            [7, 'Bad domain: "example.com " contains unnecessary whitespace.'],
+            [8, 'Bad domain: "exampl e." contains unnecessary whitespace.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function bad_tld_or_domain(): void
     {
         $lines = [
@@ -203,35 +232,6 @@ class DomainCheckTest extends TestCase
             '||example.com^$domain=~fc2.jp.ip|~sprueche-zitate.net.ip',
         ];
         $this->analyse($lines);
-    }
-
-    #[PHPUnit\Test]
-    public function bad_domain_contains_whitespaces(): void
-    {
-        $lines = [
-            '/single$domain= example.com ',
-            '/foo$domain=example.com | example.org',
-            '/bar$domain=example.com| example.org',
-            '/baz$domain=example.com |example.org',
-            'example.com , example.org##foo',
-            'example.com, example.org##bar',
-            'example.com ,example.org##baz',
-
-            '*$domain=exampl e.',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Bad domain: " example.com" contains unnecessary whitespace.'],
-            [2, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [2, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [3, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [4, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [5, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [5, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [6, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [7, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [8, 'Bad domain: "exampl e." contains unnecessary whitespace.'],
-        ]);
     }
 
     #[PHPUnit\Test]
