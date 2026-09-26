@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Console\Command;
 
 use Realodix\Haiku\App;
 use Realodix\Haiku\Builder\Builder;
+use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -35,6 +36,11 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $iConfig = $input->getOption('config');
+        if ($iConfig && !file_exists($iConfig)) {
+            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
+        }
+
         $io = new SymfonyStyle($input, $output);
         $io->writeln(sprintf('%s <info>%s</info> by <comment>Realodix</comment>', App::NAME, App::version()));
         $io->newLine();

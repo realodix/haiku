@@ -12,7 +12,7 @@ class CommandTest extends TestCase
     public function builder_custom_config_not_found(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessageIs('The configuration file does not exist.');
+        $this->expectExceptionMessageIs('Cannot read config file "notfound.yml".');
 
         $this->runBuildCommand(['--config' => 'notfound.yml']);
     }
