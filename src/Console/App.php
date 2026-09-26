@@ -39,7 +39,7 @@ class App
     {
         $io->writeln(sprintf(
             '%s <info>%s</info> by <comment>Realodix</comment>',
-            self::NAME, self::version())
+            self::NAME, self::version()),
         );
 
         $conf = Helper::resolveConfigPath($iConfig);
