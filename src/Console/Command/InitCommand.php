@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Console\Command;
 
+use Realodix\Haiku\Console\App;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,6 +19,7 @@ class InitCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        App::about($io);
         $filename = 'haiku.yml';
         $configFile = base_path($filename);
 
