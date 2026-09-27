@@ -175,7 +175,7 @@ final class DomainCheck implements Rule
         // =================================================================
         if (preg_match('/\s/', $domain)) {
             $err->message(sprintf(
-                'Bad domain: "%s" contains unnecessary whitespace.',
+                'Bad domain: "%s" must not contain whitespace.',
                 $domain,
             ))->build();
 

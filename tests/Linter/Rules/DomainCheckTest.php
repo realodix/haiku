@@ -81,7 +81,7 @@ class DomainCheckTest extends TestCase
             [2, 'Bad domain: "a"'],
             [2, 'Bad domain: "c"'],
             [3, 'Bad domain: "example."'],
-            [4, 'Bad domain: "e xample.com" contains unnecessary whitespace.'],
+            [4, 'Bad domain: "e xample.com" must not contain whitespace.'],
         ]);
 
         $lines = [
@@ -139,16 +139,16 @@ class DomainCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Bad domain: " example.com" contains unnecessary whitespace.'],
-            [2, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [2, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [3, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [4, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [5, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [5, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [6, 'Bad domain: " example.org" contains unnecessary whitespace.'],
-            [7, 'Bad domain: "example.com " contains unnecessary whitespace.'],
-            [8, 'Bad domain: "exampl e." contains unnecessary whitespace.'],
+            [1, 'Bad domain: " example.com" must not contain whitespace.'],
+            [2, 'Bad domain: "example.com " must not contain whitespace.'],
+            [2, 'Bad domain: " example.org" must not contain whitespace.'],
+            [3, 'Bad domain: " example.org" must not contain whitespace.'],
+            [4, 'Bad domain: "example.com " must not contain whitespace.'],
+            [5, 'Bad domain: "example.com " must not contain whitespace.'],
+            [5, 'Bad domain: " example.org" must not contain whitespace.'],
+            [6, 'Bad domain: " example.org" must not contain whitespace.'],
+            [7, 'Bad domain: "example.com " must not contain whitespace.'],
+            [8, 'Bad domain: "exampl e." must not contain whitespace.'],
         ]);
     }
 
