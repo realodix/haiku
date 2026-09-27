@@ -204,6 +204,14 @@ final class DomainCheck implements Rule
             return;
         }
 
+        $domain = rtrim($dIdnaAscii, '>'); // clean up the ancestor context
+
+        // missplaced wildcard
+        if (str_contains($domain, '*') && !str_ends_with($domain, '*')) {
+            $err->message(sprintf('Bad domain: "%s"', $domain))
+                ->build();
+        }
+
         // =================================================================
         // TLD problems
         // =================================================================
@@ -211,8 +219,6 @@ final class DomainCheck implements Rule
             $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->build();
         }
-
-        $domain = rtrim($dIdnaAscii, '>'); // clean up the ancestor context
 
         if (ctype_alpha($domain) || (str_starts_with($domain, 'xn--') && !str_contains($domain, '.'))) {
             if (!isset(Tld::VALUES[$domain])) {
