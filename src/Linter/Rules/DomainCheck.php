@@ -356,9 +356,11 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
-        foreach (array_unique($state['contradictions']) as $cntr) {
-            $err->message(sprintf('Contradictory domain %s detected.', $cntr))
-                ->build();
+        foreach (array_unique($state['contradictions']) as $domain) {
+            $err->message(sprintf(
+                'Contradictory domains: "%s" and "~%s".',
+                $domain, $domain,
+            ))->build();
         }
     }
 

@@ -311,14 +311,14 @@ class DomainCheckTest extends TestCase
     {
         $lines = [
             'example.com,example.org,~example.com##.ads',
-            '~example.com,example.org,example.com##.ads',
+            '~example.org,example.com,example.org##.ads',
             '*$domain=example.com|example.org|~example.com',
         ];
 
         $this->analyse($lines, [
-            [1, 'Contradictory domain example.com detected.'],
-            [2, 'Contradictory domain example.com detected.'],
-            [3, 'Contradictory domain example.com detected.'],
+            [1, 'Contradictory domains: "example.com" and "~example.com".'],
+            [2, 'Contradictory domains: "example.org" and "~example.org".'],
+            [3, 'Contradictory domains: "example.com" and "~example.com".'],
         ], self::RULE);
     }
 
