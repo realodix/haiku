@@ -153,14 +153,16 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function bad_domain_contains_asterisk(): void
+    public function bad_domain_contains_misplaced_asterisks(): void
     {
         // https://github.com/easylist-thailand/easylist-thailand/blob/128c029fd9/categories/annoyance.txt#L2
         $lines = [
             '*$domain=matichon*.com',
+            '*$domain=example.*.us',
         ];
         $this->analyse($lines, [
             [1, 'Bad domain: "matichon*.com"'],
+            [2, 'Bad domain: "example.*.us"'],
         ]);
     }
 
