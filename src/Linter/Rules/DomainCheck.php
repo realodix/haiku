@@ -14,7 +14,7 @@ use Realodix\Haiku\Support\Util;
  *  duplicates: list<string>,
  *  inclusions: array<string, bool>,
  *  exclusions: array<string, bool>,
- *  contradictions: array<int, list<string>|string>
+ *  conflicts: array<int, list<string>>,
  * }
  */
 final class DomainCheck implements Rule
@@ -96,7 +96,7 @@ final class DomainCheck implements Rule
             'duplicates' => [],
             'inclusions' => [],
             'exclusions' => [],
-            'contradictions' => [],
+            'conflicts' => [],
         ];
 
         foreach ($domains as $index => $domain) {
@@ -107,7 +107,7 @@ final class DomainCheck implements Rule
             $this->checkBadDomainName($err, $domain, $separator);
             $this->checkAncestorContexts($err, $domain, $separator);
             $this->trackDuplicate($domain, $state);
-            $this->trackContradiction($domain, $state);
+            $this->trackDomainConflict($domain, $state);
         }
 
         $this->reportStatefulErrors($err, $state);
@@ -312,32 +312,40 @@ final class DomainCheck implements Rule
      * rNames:
      * - no_domain_conflicts
      *
-     * Tracks contradictory domains.
+     * Tracks domain conflicts.
      *
      * If the domain is negated (~domain), it is checked against the list of inclusions.
      * If the domain is not negated, it is checked against the list of exclusions.
-     * If a contradictory domain is found, it is added to the list of contradictions.
+     * If an included domain is covered by an excluded domain, a conflict is recorded.
      * Otherwise, the domain is marked as either included or excluded.
      *
      * @param string $domain The domain to track.
      * @param _DomainState $state The state array to modify.
      */
-    private function trackContradiction(string $domain, array &$state): void
+    private function trackDomainConflict(string $domain, array &$state): void
     {
         $isNegated = str_starts_with($domain, '~');
         $domain = ltrim($domain, '~');
 
         if ($isNegated) {
-            if (isset($state['inclusions'][$domain])) {
-                $state['contradictions'][] = $domain;
+            foreach ($state['inclusions'] as $includedDomain => $_) {
+                if ($this->domainCovers($domain, $includedDomain)) {
+                    $state['conflicts'][] = [$includedDomain, '~'.$domain];
+                }
             }
+
             $state['exclusions'][$domain] = true;
-        } else {
-            if (isset($state['exclusions'][$domain])) {
-                $state['contradictions'][] = $domain;
-            }
-            $state['inclusions'][$domain] = true;
+
+            return;
         }
+
+        foreach ($state['exclusions'] as $excludedDomain => $_) {
+            if ($this->domainCovers($excludedDomain, $domain)) {
+                $state['conflicts'][] = [$domain, '~'.$excludedDomain];
+            }
+        }
+
+        $state['inclusions'][$domain] = true;
     }
 
     /**
@@ -356,10 +364,27 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
-        foreach (array_unique($state['contradictions']) as $cntr) {
-            $err->message(sprintf('Contradictory domain %s detected.', $cntr))
-                ->build();
+        foreach ($state['conflicts'] as [$includedDomain, $excludedDomain]) {
+            $err->message(sprintf(
+                'Domain conflict: "%s" and "%s"',
+                $includedDomain, $excludedDomain,
+            ))->build();
         }
+    }
+
+    private function domainCovers(string $covering, string $target): bool
+    {
+        if ($covering === $target) {
+            return true;
+        }
+
+        if (str_ends_with($covering, '.*')) {
+            $prefix = substr($covering, 0, -2);
+
+            return str_starts_with($target, $prefix.'.');
+        }
+
+        return false;
     }
 
     private function containsRegexDomain(string $domainStr): bool
