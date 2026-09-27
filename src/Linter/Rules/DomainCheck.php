@@ -8,6 +8,15 @@ use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Tld;
 use Realodix\Haiku\Support\Util;
 
+/**
+ * @phpstan-type _DomainState array{
+ *  seen: array<string, bool>,
+ *  duplicates: list<string>,
+ *  inclusions: array<string, bool>,
+ *  exclusions: array<string, bool>,
+ *  contradictions: array<int, list<string>|string>
+ * }
+ */
 final class DomainCheck implements Rule
 {
     public function __construct(
@@ -81,6 +90,7 @@ final class DomainCheck implements Rule
             return;
         }
 
+        /** @var _DomainState */
         $state = [
             'seen' => [],
             'duplicates' => [],
@@ -283,7 +293,7 @@ final class DomainCheck implements Rule
      * Otherwise, it is marked as seen.
      *
      * @param string $domain The domain to track.
-     * @param array<string, mixed> $state The state array to modify.
+     * @param _DomainState $state The state array to modify.
      */
     private function trackDuplicate(string $domain, array &$state): void
     {
@@ -310,7 +320,7 @@ final class DomainCheck implements Rule
      * Otherwise, the domain is marked as either included or excluded.
      *
      * @param string $domain The domain to track.
-     * @param array<string, mixed> $state The state array to modify.
+     * @param _DomainState $state The state array to modify.
      */
     private function trackContradiction(string $domain, array &$state): void
     {
@@ -337,7 +347,7 @@ final class DomainCheck implements Rule
      * or contradictory domains found.
      *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     * @param array<string, array<int, string>> $state The state array to modify.
+     * @param _DomainState $state The state array to modify.
      */
     private function reportStatefulErrors($err, array $state): void
     {
