@@ -330,10 +330,7 @@ final class DomainCheck implements Rule
         if ($isNegated) {
             foreach ($state['inclusions'] as $includedDomain => $_) {
                 if ($this->domainCovers($domain, $includedDomain)) {
-                    $state['conflicts'][] = [
-                        $includedDomain,
-                        '~'.$domain,
-                    ];
+                    $state['conflicts'][] = [$includedDomain, '~'.$domain];
                 }
             }
 
@@ -344,10 +341,7 @@ final class DomainCheck implements Rule
 
         foreach ($state['exclusions'] as $excludedDomain => $_) {
             if ($this->domainCovers($excludedDomain, $domain)) {
-                $state['conflicts'][] = [
-                    $domain,
-                    '~'.$excludedDomain,
-                ];
+                $state['conflicts'][] = [$domain, '~'.$excludedDomain];
             }
         }
 
