@@ -206,6 +206,7 @@ final class DomainCheck implements Rule
 
         $domain = rtrim($dIdnaAscii, '>'); // clean up the ancestor context
 
+        // missplaced wildcard
         if (str_contains($domain, '*') && !str_ends_with($domain, '*')) {
             $err->message(sprintf('Bad domain: "%s"', $domain))
                 ->build();
