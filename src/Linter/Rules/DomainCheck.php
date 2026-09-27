@@ -367,8 +367,7 @@ final class DomainCheck implements Rule
         foreach ($state['conflicts'] as [$includedDomain, $excludedDomain]) {
             $err->message(sprintf(
                 'Domain conflict: "%s" and "%s"',
-                $includedDomain,
-                $excludedDomain,
+                $includedDomain, $excludedDomain,
             ))->build();
         }
     }
