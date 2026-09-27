@@ -87,17 +87,15 @@ final class CosmeticCheck implements Rule
             '/
                 :.+\(                                   # has(), is(), etc
                 |:(any|first|focus|in|last|only|user)-
-                |\[[^\]]+\]
+                |"[^"]+"
                 |{.+}
             /x',
             '_',
             $node['selector'],
         );
 
-        // Attribute selectors are replaced with "_" above, so "_" may appear immediately
-        // before an escaped colon and must be treated as a valid preceding character.
         if (preg_match_all(
-            '/(?<=[a-z\d\)_])(?<escape>[\\\]+)?:(?<name>[a-z]+-(?:[a-z\d\-]+))/',
+            '/(?<=[a-z\d\)\]])(?<escape>[\\\]+)?:(?<name>[a-z]+-(?:[a-z\d\-]+))/',
             $selector,
             $matches,
         ) === 0) {

@@ -58,10 +58,9 @@ class CosmeticCheckTest extends TestCase
 
         $lines = [
             'example.com##.dark\:bg-gray-700',
-            'fautsy.com##ins[class][style^="display:inline-block;width:"]',
-            'fastpic.org,~new.fastpic.org##a#imglink[href*="/fullview/"] {display:inline-block;overflow:hidden;}',
+            'hk01.com##div[class^="lg\:min-h-[250px] hidden lg:flex lg:items-center"]',
             'xbitlabs.com##.flex.items-center.justify-center:has(> span:first-child + div[data-fuse]:last-child)',
-            'idaprikol.ru###App > div:has(> div:empty + div a[href^="https://idp.onelink.me/"])',
+            'fastpic.org,~new.fastpic.org##a#imglink[href*="/fullview/"] {display:inline-block;overflow:hidden;}',
         ];
         $this->analyse($lines);
     }
