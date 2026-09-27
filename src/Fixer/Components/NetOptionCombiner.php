@@ -219,10 +219,7 @@ final class NetOptionCombiner
      *
      * This method assumes all safety checks have already been performed.
      *
-     * @param array<string, array{
-     *  pattern: string,
-     *  options: array<string, bool>
-     * }> $groups
+     * @param array<string, array{pattern: string, options: array<string, bool>}> $groups
      * @return array<int, string>
      */
     private function rebuild(array $groups): array
