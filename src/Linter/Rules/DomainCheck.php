@@ -14,7 +14,7 @@ use Realodix\Haiku\Support\Util;
  *  duplicates: list<string>,
  *  inclusions: array<string, bool>,
  *  exclusions: array<string, bool>,
- *  contradictions: array<int, list<string>|string>
+ *  contradictions: array<int, list<string>>,
  * }
  */
 final class DomainCheck implements Rule
@@ -328,16 +328,30 @@ final class DomainCheck implements Rule
         $domain = ltrim($domain, '~');
 
         if ($isNegated) {
-            if (isset($state['inclusions'][$domain])) {
-                $state['contradictions'][] = $domain;
+            foreach (array_keys($state['inclusions']) as $includedDomain) {
+                if ($this->domainCovers($domain, $includedDomain)) {
+                    $state['contradictions'][] = [
+                        $includedDomain,
+                        '~'.$domain,
+                    ];
+                }
             }
+
             $state['exclusions'][$domain] = true;
-        } else {
-            if (isset($state['exclusions'][$domain])) {
-                $state['contradictions'][] = $domain;
-            }
-            $state['inclusions'][$domain] = true;
+
+            return;
         }
+
+        foreach (array_keys($state['exclusions']) as $excludedDomain) {
+            if ($this->domainCovers($excludedDomain, $domain)) {
+                $state['contradictions'][] = [
+                    $domain,
+                    '~'.$excludedDomain,
+                ];
+            }
+        }
+
+        $state['inclusions'][$domain] = true;
     }
 
     /**
@@ -356,12 +370,28 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
-        foreach (array_unique($state['contradictions']) as $domain) {
+        foreach ($state['contradictions'] as [$includedDomain, $excludedDomain]) {
             $err->message(sprintf(
-                'Contradictory domains: "%s" and "~%s".',
-                $domain, $domain,
+                'Domain conflict: "%s" and "%s"',
+                $includedDomain,
+                $excludedDomain,
             ))->build();
         }
+    }
+
+    private function domainCovers(string $covering, string $target): bool
+    {
+        if ($covering === $target) {
+            return true;
+        }
+
+        if (str_ends_with($covering, '.*')) {
+            $prefix = substr($covering, 0, -2);
+
+            return str_starts_with($target, $prefix.'.');
+        }
+
+        return false;
     }
 
     private function containsRegexDomain(string $domainStr): bool

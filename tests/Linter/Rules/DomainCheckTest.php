@@ -307,19 +307,36 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function contradictory_domain(): void
+    public function domain_conflict(): void
     {
         $lines = [
-            'example.com,example.org,~example.com##.ads',
-            '~example.org,example.com,example.org##.ads',
+            'example.com,example.org,~example.com##.ads1',
+            '~example.org,example.com,example.org##.ads2',
             '*$domain=example.com|example.org|~example.com',
         ];
-
         $this->analyse($lines, [
-            [1, 'Contradictory domains: "example.com" and "~example.com".'],
-            [2, 'Contradictory domains: "example.org" and "~example.org".'],
-            [3, 'Contradictory domains: "example.com" and "~example.com".'],
-        ], self::RULE);
+            [1, 'Domain conflict: "example.com" and "~example.com"'],
+            [2, 'Domain conflict: "example.org" and "~example.org"'],
+            [3, 'Domain conflict: "example.com" and "~example.com"'],
+        ]);
+
+        $lines = [
+            'github.com,~github.*##.foo',
+            '~github.*,github.com##.bar',
+            '*$domain=github.com|~github.*',
+        ];
+        $this->analyse($lines, [
+            [1, 'Domain conflict: "github.com" and "~github.*"'],
+            [2, 'Domain conflict: "github.com" and "~github.*"'],
+            [3, 'Domain conflict: "github.com" and "~github.*"'],
+        ]);
+
+        $lines = [
+            'github.*,~github.org##.foo',
+            '~github.org,github.*##.bar',
+            '*$domain=github.*|~github.org',
+        ];
+        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
