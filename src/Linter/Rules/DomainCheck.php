@@ -223,7 +223,7 @@ final class DomainCheck implements Rule
         if (ctype_alpha($domain) || (str_starts_with($domain, 'xn--') && !str_contains($domain, '.'))) {
             if (!isset(Tld::VALUES[$domain])) {
                 $msg = strlen($domain) <= 4 ?
-                    sprintf('Bad domain: "%s" is an invalid TLD', $domain)
+                    sprintf('Bad domain: "%s" is an invalid TLD.', $domain)
                     : sprintf('Bad domain: "%s"', $domain);
 
                 $err->message($msg)->build();
@@ -237,7 +237,7 @@ final class DomainCheck implements Rule
             $tld = $domainInfo['extension'];
 
             if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
-                $err->message(sprintf('Bad domain: "%s" has an invalid TLD', $domain));
+                $err->message(sprintf('Bad domain: "%s" has an invalid TLD.', $domain));
 
                 $hint = Util::getSuggestion(array_keys(Tld::VALUES), $tld);
                 if ($hint !== null) {

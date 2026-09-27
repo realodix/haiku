@@ -174,7 +174,7 @@ class DomainCheckTest extends TestCase
             'example##.ad',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain: "exa" is an invalid TLD'],
+            [1, 'Bad domain: "exa" is an invalid TLD.'],
             [2, 'Bad domain: "example"'],
         ]);
 
@@ -192,8 +192,8 @@ class DomainCheckTest extends TestCase
             'example.or##.ad',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain: "example.coms" has an invalid TLD'],
-            [2, 'Bad domain: "example.or" has an invalid TLD'],
+            [1, 'Bad domain: "example.coms" has an invalid TLD.'],
+            [2, 'Bad domain: "example.or" has an invalid TLD.'],
         ]);
 
         $lines = [
