@@ -161,8 +161,8 @@ class DomainCheckTest extends TestCase
             '*$domain=example.*.us',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain: "matichon*.com"'],
-            [2, 'Bad domain: "example.*.us"'],
+            [1, 'Bad domain: "matichon*.com" has a wildcard in an invalid position.'],
+            [2, 'Bad domain: "example.*.us" has a wildcard in an invalid position.'],
         ]);
     }
 

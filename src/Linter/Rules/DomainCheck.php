@@ -208,7 +208,7 @@ final class DomainCheck implements Rule
 
         // missplaced wildcard
         if (str_contains($domain, '*') && !str_ends_with($domain, '*')) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
+            $err->message(sprintf('Bad domain: "%s" has a wildcard in an invalid position.', $domain))
                 ->build();
         }
 
