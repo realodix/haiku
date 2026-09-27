@@ -153,7 +153,7 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function bad_domain_contains_misplaced_asterisks(): void
+    public function bad_domain_misplaced_wildcard(): void
     {
         // https://github.com/easylist-thailand/easylist-thailand/blob/128c029fd9/categories/annoyance.txt#L2
         $lines = [
