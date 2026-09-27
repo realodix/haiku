@@ -14,7 +14,7 @@ use Realodix\Haiku\Support\Util;
  *  duplicates: list<string>,
  *  inclusions: array<string, bool>,
  *  exclusions: array<string, bool>,
- *  contradictions: array<int, list<string>>,
+ *  conflicts: array<int, list<string>>,
  * }
  */
 final class DomainCheck implements Rule
@@ -96,7 +96,7 @@ final class DomainCheck implements Rule
             'duplicates' => [],
             'inclusions' => [],
             'exclusions' => [],
-            'contradictions' => [],
+            'conflicts' => [],
         ];
 
         foreach ($domains as $index => $domain) {
@@ -107,7 +107,7 @@ final class DomainCheck implements Rule
             $this->checkBadDomainName($err, $domain, $separator);
             $this->checkAncestorContexts($err, $domain, $separator);
             $this->trackDuplicate($domain, $state);
-            $this->trackContradiction($domain, $state);
+            $this->trackDomainConflict($domain, $state);
         }
 
         $this->reportStatefulErrors($err, $state);
@@ -312,25 +312,25 @@ final class DomainCheck implements Rule
      * rNames:
      * - no_domain_conflicts
      *
-     * Tracks contradictory domains.
+     * Tracks domain conflicts.
      *
      * If the domain is negated (~domain), it is checked against the list of inclusions.
      * If the domain is not negated, it is checked against the list of exclusions.
-     * If a contradictory domain is found, it is added to the list of contradictions.
+     * If an included domain is covered by an excluded domain, a conflict is recorded.
      * Otherwise, the domain is marked as either included or excluded.
      *
      * @param string $domain The domain to track.
      * @param _DomainState $state The state array to modify.
      */
-    private function trackContradiction(string $domain, array &$state): void
+    private function trackDomainConflict(string $domain, array &$state): void
     {
         $isNegated = str_starts_with($domain, '~');
         $domain = ltrim($domain, '~');
 
         if ($isNegated) {
-            foreach (array_keys($state['inclusions']) as $includedDomain) {
+            foreach ($state['inclusions'] as $includedDomain => $_) {
                 if ($this->domainCovers($domain, $includedDomain)) {
-                    $state['contradictions'][] = [
+                    $state['conflicts'][] = [
                         $includedDomain,
                         '~'.$domain,
                     ];
@@ -342,9 +342,9 @@ final class DomainCheck implements Rule
             return;
         }
 
-        foreach (array_keys($state['exclusions']) as $excludedDomain) {
+        foreach ($state['exclusions'] as $excludedDomain => $_) {
             if ($this->domainCovers($excludedDomain, $domain)) {
-                $state['contradictions'][] = [
+                $state['conflicts'][] = [
                     $domain,
                     '~'.$excludedDomain,
                 ];
@@ -370,7 +370,7 @@ final class DomainCheck implements Rule
                 ->build();
         }
 
-        foreach ($state['contradictions'] as [$includedDomain, $excludedDomain]) {
+        foreach ($state['conflicts'] as [$includedDomain, $excludedDomain]) {
             $err->message(sprintf(
                 'Domain conflict: "%s" and "%s"',
                 $includedDomain,
