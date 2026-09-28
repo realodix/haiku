@@ -245,5 +245,13 @@ class GeneralCheckTest extends TestCase
             '||cdn.jwplayer.com/*/playlists/*?page_domain=www.techwalla.com',
         ];
         $this->analyse($lines);
+
+        $lines = [
+            // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/advert/specific_block.txt#L152
+            '||bk21.net/*.gif$image$domain=juragan.film',
+        ];
+        $this->analyse($lines, [
+            [1, 'Possibly multiple "$" separators in filter options.'],
+        ]);
     }
 }

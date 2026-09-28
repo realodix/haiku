@@ -38,12 +38,16 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/(?<=[\^,])domain=(?=[a-z0-9])/', $line, $matches, PREG_OFFSET_CAPTURE)) {
+            if (preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $matches, PREG_OFFSET_CAPTURE)) {
                 $position = $matches[0][1];
                 $before = substr($line, 0, $position);
+                $optionPosition = strpos($before, '$');
 
-                if (strpos($before, '$') === false) {
+                if ($optionPosition === false) {
                     $err->message('Possibly missing "$" at the start of filter options.')
+                        ->build();
+                } elseif (strpos($before, '$', $optionPosition + 1) !== false) {
+                    $err->message('Possibly multiple "$" separators in filter options.')
                         ->build();
                 }
             }
