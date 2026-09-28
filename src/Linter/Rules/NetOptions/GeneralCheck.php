@@ -34,12 +34,21 @@ final class GeneralCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line)) {
+            if (Util::isCommentOrEmpty($line) || preg_match(Regex::IS_COSMETIC_RULE, $line)) {
                 continue;
             }
 
+            if (preg_match('/(?<=[\^,])domain=(?=[a-z0-9])/', $line, $matches, PREG_OFFSET_CAPTURE)) {
+                $position = $matches[0][1];
+                $before = substr($line, 0, $position);
+
+                if (strpos($before, '$') === false) {
+                    $err->message('Possibly missing "$" at the start of filter options.')
+                        ->build();
+                }
+            }
+
             if (!preg_match(Regex::NET_OPTION, $line, $m)
-                || preg_match(Regex::IS_COSMETIC_RULE, $line)
                 || str_contains($line, 'replace=')
             ) {
                 continue;

@@ -220,4 +220,30 @@ class GeneralCheckTest extends TestCase
             [4, 'Deprecated: The filter option $queryprune is deprecated.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function possibly_invalid(): void
+    {
+        $lines = [
+            '||example.com^domain=x.com',
+            // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/adult/adult_specific_block.txt
+            '||example.com^,domain=x.com',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/136526da7c/ChineseFilter/sections/antiadblock.txt#L146
+            '@@||googleads.g.doubleclick.net/favicon.ico,domain=music.wandhi.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Possibly missing "$" at the start of filter options.'],
+            [2, 'Possibly missing "$" at the start of filter options.'],
+            [3, 'Possibly missing "$" at the start of filter options.'],
+        ]);
+
+        $lines = [
+            '/munin/a/tr/browserjs?domain=',
+            '/counter/?domain=$image,~third-party',
+            '@@||adservice.google.com/adsid/integrator.js?domain=www.cbs.com$domain=cbs.com',
+            '||adservice.google.*/adsid/integrator.js?domain=dl.ccbluex.net$redirect=nooptext,important,domain=dl.ccbluex.net',
+            '||cdn.jwplayer.com/*/playlists/*?page_domain=www.techwalla.com',
+        ];
+        $this->analyse($lines);
+    }
 }
