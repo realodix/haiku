@@ -222,7 +222,7 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function possibly_invalid(): void
+    public function possibly_invalid_options_marker(): void
     {
         $lines = [
             '||example.com^domain=x.com',
@@ -247,11 +247,14 @@ class GeneralCheckTest extends TestCase
         $this->analyse($lines);
 
         $lines = [
+            // https://github.com/easylist/easylist/blob/cd27c0c2b0/easylist_cookie/easylist_cookie_allowlist.txt#L95
+            '@@||consent.truste.com/notice$domain=$domain=fortune.com',
             // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/advert/specific_block.txt#L152
             '||bk21.net/*.gif$image$domain=juragan.film',
         ];
         $this->analyse($lines, [
             [1, 'Possibly multiple "$" separators in filter options.'],
+            [2, 'Possibly multiple "$" separators in filter options.'],
         ]);
 
         $lines = [
