@@ -38,20 +38,6 @@ final class ScriptletCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_deprecated_scriptlets
-     *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     */
-    private function checkDeprecated($err, string $value): void
-    {
-        if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
-            $err->message(sprintf('Deprecated: Scriptlet %s is deprecated.', $value))
-                ->build();
-        }
-    }
-
-    /**
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkUnknownName($err, string $value): void
@@ -70,6 +56,20 @@ final class ScriptletCheck implements Rule
             }
 
             $err->build();
+        }
+    }
+
+    /**
+     * rNames:
+     * - no_deprecated_scriptlets
+     *
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkDeprecated($err, string $value): void
+    {
+        if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
+            $err->message(sprintf('Deprecated: Scriptlet %s is deprecated.', $value))
+                ->build();
         }
     }
 

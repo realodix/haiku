@@ -33,17 +33,6 @@ final class RedirectValueCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkDeprecated($err, string $value): void
-    {
-        if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
-            $err->message(sprintf('Deprecated: The redirect resource %s is deprecated.', $value))
-                ->build();
-        }
-    }
-
-    /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
-     */
     private function checkUnknown($err, string $value): void
     {
         $knownResources = array_merge(
@@ -61,6 +50,17 @@ final class RedirectValueCheck implements Rule
             }
 
             $err->build();
+        }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkDeprecated($err, string $value): void
+    {
+        if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
+            $err->message(sprintf('Deprecated: The redirect resource %s is deprecated.', $value))
+                ->build();
         }
     }
 }
