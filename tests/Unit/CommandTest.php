@@ -5,9 +5,28 @@ namespace Realodix\Haiku\Test\Unit;
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Test\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 class CommandTest extends TestCase
 {
+    #[PHPUnit\Before]
+    protected function setUpHaikuConfig(): void
+    {
+        if (file_exists(base_path('haiku.yml'))) {
+            $fs = new Filesystem;
+            $fs->rename(base_path('haiku.yml'), base_path('haiku.yml.tmp'));
+        }
+    }
+
+    #[PHPUnit\After]
+    protected function tearDownHaikuConfig(): void
+    {
+        if (file_exists(base_path('haiku.yml.tmp'))) {
+            $fs = new Filesystem;
+            $fs->rename(base_path('haiku.yml.tmp'), base_path('haiku.yml'));
+        }
+    }
+
     #[PHPUnit\Test]
     public function builder_needs_config(): void
     {
