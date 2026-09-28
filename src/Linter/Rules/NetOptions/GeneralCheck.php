@@ -34,7 +34,10 @@ final class GeneralCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line) || preg_match(Regex::IS_COSMETIC_RULE, $line)) {
+            if (Util::isCommentOrEmpty($line)
+                || preg_match(Regex::IS_COSMETIC_RULE, $line)
+                || str_contains($line, 'replace=')
+            ) {
                 continue;
             }
 
@@ -46,15 +49,29 @@ final class GeneralCheck implements Rule
                 if ($optionPosition === false) {
                     $err->message('Possibly missing "$" at the start of filter options.')
                         ->build();
-                } elseif (strpos($before, '$', $optionPosition + 1) !== false) {
-                    $err->message('Possibly multiple "$" separators in filter options.')
-                        ->build();
+                } else {
+                    for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
+                        if ($before[$i] === '/') {
+                            break;
+                        }
+
+                        if ($before[$i] === '\\') {
+                            $i++;
+
+                            continue;
+                        }
+
+                        if ($before[$i] === '$') {
+                            $err->message('Possibly multiple "$" separators in filter options.')
+                                ->build();
+
+                            break;
+                        }
+                    }
                 }
             }
 
-            if (!preg_match(Regex::NET_OPTION, $line, $m)
-                || str_contains($line, 'replace=')
-            ) {
+            if (!preg_match(Regex::NET_OPTION, $line, $m)) {
                 continue;
             }
 

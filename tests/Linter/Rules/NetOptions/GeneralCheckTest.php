@@ -253,5 +253,13 @@ class GeneralCheckTest extends TestCase
         $this->analyse($lines, [
             [1, 'Possibly multiple "$" separators in filter options.'],
         ]);
+
+        $lines = [
+            '/api.sportplus.watch\/v\d\.\d+\/\w+$/$xmlhttprequest,domain=sportplus.tv',
+            '/\/\d+\.js$/$domain=7themes.su',
+            '/GetVodPlaybackResources?$jsonprune=\$.vodPlaybackUrls.result.playbackUrls.cuepoints,xmlhttprequest,domain=amazon.com',
+            '@@||alkalimetricsink-pa.clients6.google.com/$rpc/google.internal.alkali.applications.metricsink.v1.MetricService/RecordMetrics$domain=matrix.itasoftware.com,stealth=referrer',
+        ];
+        $this->analyse($lines);
     }
 }
