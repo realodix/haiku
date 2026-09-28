@@ -38,8 +38,8 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $matches, PREG_OFFSET_CAPTURE)) {
-                $position = $matches[0][1];
+            if (preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $m, PREG_OFFSET_CAPTURE)) {
+                $position = $m[0][1];
                 $before = substr($line, 0, $position);
                 $optionPosition = strpos($before, '$');
 
