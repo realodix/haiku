@@ -2,12 +2,17 @@
 
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
+use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\Util;
 
 final class RedirectValueCheck implements Rule
 {
+    public function __construct(
+        private LinterConfig $config,
+    ) {}
+
     public function check(array $content, $err): array
     {
         foreach ($content as $index => $line) {
@@ -58,6 +63,10 @@ final class RedirectValueCheck implements Rule
      */
     private function checkDeprecated($err, string $value): void
     {
+        if (!$this->config->rules['no_deprecated_redirect_resources']) {
+            return;
+        }
+
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
             $err->message(sprintf('Deprecated: The redirect resource %s is deprecated.', $value))
                 ->build();

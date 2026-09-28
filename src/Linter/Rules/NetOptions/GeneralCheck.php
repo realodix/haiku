@@ -374,6 +374,10 @@ final class GeneralCheck implements Rule
      */
     private function checkDeprecatedOptions($err, array $opts): void
     {
+        if (!$this->config->rules['no_deprecated_options']) {
+            return;
+        }
+
         $depOpts = [
             'empty' => null, 'mp4' => null, 'webrtc' => null,
             'object-subrequest' => 'object',

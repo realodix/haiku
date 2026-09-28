@@ -60,13 +60,14 @@ final class ScriptletCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_deprecated_scriptlets
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkDeprecated($err, string $value): void
     {
+        if (!$this->config->rules['no_deprecated_scriptlets']) {
+            return;
+        }
+
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
             $err->message(sprintf('Deprecated: Scriptlet %s is deprecated.', $value))
                 ->build();

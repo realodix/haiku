@@ -9,6 +9,9 @@ use Symfony\Component\Filesystem\Path;
  * @phpstan-type _LinterRules array{
  *  all?: bool,
  *  no_bad_domain_anchors: bool,
+ *  no_deprecated_options: bool,
+ *  no_deprecated_redirect_resources: bool,
+ *  no_deprecated_scriptlets: bool,
  *  no_dupe_domains: bool,
  *  no_dupe_options: bool,
  *  no_dupe_rules: bool,
@@ -43,6 +46,9 @@ final class LinterConfig
     /** @var _LinterRules */
     public array $rules = [
         'no_bad_domain_anchors' => true,
+        'no_deprecated_options' => false,
+        'no_deprecated_redirect_resources' => false,
+        'no_deprecated_scriptlets' => false,
         'no_dupe_domains' => true,
         'no_dupe_options' => true,
         'no_dupe_rules' => true,
