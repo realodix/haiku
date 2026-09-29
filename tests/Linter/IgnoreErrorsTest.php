@@ -21,7 +21,7 @@ linter:
   paths:
     - tests/Integration/tmp/ignored.txt
   rules:
-    no_extra_blank_lines: false
+    extra_blank_lines: false
   ignoreErrors:
     - messages:
       - '#^Unexpected empty domain#'
@@ -77,7 +77,7 @@ linter:
     - tests/Integration/tmp/ignored2_a.txt
     - tests/Integration/tmp/ignored2_b.txt
   rules:
-    no_extra_blank_lines: false
+    extra_blank_lines: false
   ignoreErrors:
     - '#^Unexpected empty domain#'
     - path: '#_b#'
@@ -114,7 +114,7 @@ linter:
   paths:
     - tests/Integration/tmp/ignored3.txt
   rules:
-    no_extra_blank_lines: false
+    extra_blank_lines: false
   ignoreErrors:
     - path: 'tests\Integration\tmp\ignored3.txt'
 YAML);
@@ -143,7 +143,7 @@ linter:
   paths:
     - tests/Integration/tmp/ignored4.txt
   rules:
-    no_extra_blank_lines: false
+    extra_blank_lines: false
   ignoreErrors:
     - paths:
         - 'tests\Integration\tmp\ignored4.txt'

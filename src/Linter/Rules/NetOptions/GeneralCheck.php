@@ -120,14 +120,15 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no-option-conflict
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $rawOpts
      */
     private function checkDuplicateWithNegation($err, array $rawOpts): void
     {
+        if (!$this->config->rules['no_dupe_options']) {
+            return;
+        }
+
         $positive = [];
         $negative = [];
 
@@ -191,15 +192,15 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no-invalid-negated-option
-     * - no-invalid-option-negation
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param list<string> $rawOpts
      */
     private function checkInvalidNegation($err, array $rawOpts): void
     {
+        if (!$this->config->rules['no_unsupported_option_negation']) {
+            return;
+        }
+
         foreach ($rawOpts as $opt) {
             $opt = trim($opt);
 
@@ -226,15 +227,15 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no-invalid-exception-options
-     * - no-invalid-exception-rules
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkInvalidException($err, array $opts, string $lineContent): void
     {
+        if (!$this->config->rules['no_invalid_option_context']) {
+            return;
+        }
+
         $isException = str_starts_with($lineContent, '@@');
 
         // 1. Must NOT be used in exception rules

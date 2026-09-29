@@ -157,7 +157,7 @@ linter:
 <!-- #### `rules`
 A set of options used to configure the linter.
 
-- `no_extra_blank_lines`
+- `extra_blank_lines`
 
   Disallows excessive consecutive blank lines.
 
@@ -179,7 +179,7 @@ A set of options used to configure the linter.
   - `false`: rule is disabled.
   - `int`: minimum rule length.
 
-- `no_unknown_scriptlets`
+- `no_invalid_scriptlets`
 
   Checks for unknown scriptlet names to help catch typos.
 
@@ -195,7 +195,7 @@ A set of options used to configure the linter.
   ```yml
   linter:
     rules:
-      no_unknown_scriptlets:
+      no_invalid_scriptlets:
         known:
           - my-custom-scriptlet
   ``` -->

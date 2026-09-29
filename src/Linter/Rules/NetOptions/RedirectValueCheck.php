@@ -40,6 +40,10 @@ final class RedirectValueCheck implements Rule
      */
     private function checkUnknown($err, string $value): void
     {
+        if (!$this->config->rules['no_invalid_redirect_resources']) {
+            return;
+        }
+
         $knownResources = array_merge(
             Util::getRedirectResources(),
             Registry::AG_REDIRECT_RESOURCES,

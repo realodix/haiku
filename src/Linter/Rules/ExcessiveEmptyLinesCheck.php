@@ -12,7 +12,7 @@ final class ExcessiveEmptyLinesCheck implements Rule
 
     public function check(array $content, $err): array
     {
-        $mode = $this->config->rules['no_extra_blank_lines'];
+        $mode = $this->config->rules['extra_blank_lines'];
 
         if ($mode === false) {
             return [];

@@ -124,14 +124,15 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_invalid_abp_extended_css_selectors
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<string, string> $node
      */
     private function checkAbpExtendedCssSelectors($err, array $node): void
     {
+        if (!$this->config->rules['no_invalid_abp_extended_css_selectors']) {
+            return;
+        }
+
         if (!str_contains($node['selector'], ':-abp-')
             || ($node['separator'] === '#?#' || $node['separator'] === '#@?#')
         ) {

@@ -42,7 +42,7 @@ final class ScriptletCheck implements Rule
      */
     private function checkUnknownName($err, string $value): void
     {
-        if ($this->config->rules['no_unknown_scriptlets'] === false) {
+        if ($this->config->rules['no_invalid_scriptlets'] === false) {
             return;
         }
 
@@ -81,7 +81,7 @@ final class ScriptletCheck implements Rule
      */
     private function getScriptletNames(): array
     {
-        $config = $this->config->rules['no_unknown_scriptlets'];
+        $config = $this->config->rules['no_invalid_scriptlets'];
         $resources = array_map(
             fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
             Util::getRedirectResources(scriptlet: true),

@@ -64,9 +64,9 @@ final class Schema
                 'paths' => Expect::listOf('string'),
                 'excludes' => Expect::listOf('string'),
                 'rules' => Expect::structure([
-                    'no_extra_blank_lines' => Expect::anyOf(Expect::int()->min(1), false),
+                    'extra_blank_lines' => Expect::anyOf(Expect::int()->min(1), false),
                     'no_short_rules' => Expect::anyOf(Expect::int()->min(1), false),
-                    'no_unknown_scriptlets' => Expect::anyOf(
+                    'no_invalid_scriptlets' => Expect::anyOf(
                         Expect::bool(),
                         Expect::structure([
                             'known' => Expect::listOf('string')->min(1),

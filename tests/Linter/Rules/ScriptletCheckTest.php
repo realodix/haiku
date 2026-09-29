@@ -47,7 +47,7 @@ class ScriptletCheckTest extends TestCase
         ]);
 
         app(LinterConfig::class)->rules = [
-            'no_unknown_scriptlets' => ['known' => ['foo']],
+            'no_invalid_scriptlets' => ['known' => ['foo']],
         ];
         $lines = [
             'example.org##+js(foo)',

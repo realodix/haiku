@@ -22,10 +22,6 @@ final class ExpressionCheck implements Rule
 
     public function check(array $content, $err): array
     {
-        if (!$this->config->rules['pp_value']) {
-            return [];
-        }
-
         // Stack to track required value from parent "!#if" conditions.
         // This is used to detect conflicts in nested directives.
         /** @var list<array{lineNum: int, reqValue: list<string>}> */
@@ -97,9 +93,6 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_invalid_preprocessor_parentheses
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkParenthesisError($err, string $condition): bool
@@ -124,13 +117,14 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_unknown_preprocessor_directives
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
     private function checkUnknownValue($err, string $condition): void
     {
+        if (!$this->config->rules['no_invalid_if_directive_values']) {
+            return;
+        }
+
         // Remove outer parentheses if they exist and are balanced
         if (str_starts_with($condition, '(') && str_ends_with($condition, ')')) {
             $condition = substr($condition, 1, -1);
@@ -160,14 +154,15 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_always_false_condition
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<int, string> $required
      */
     private function checkExclusive($err, array $required): void
     {
+        if (!$this->config->rules['no_always_false_condition']) {
+            return;
+        }
+
         foreach (self::EXCLUSIVE_GROUPS as $group) {
             $intersect = array_intersect($required, $group);
             if (count($intersect) > 1) {
@@ -181,15 +176,16 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * rNames:
-     * - no_always_false_condition
-     *
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      * @param array<int, string> $required
      * @param list<array{reqValue: array<int, string>, lineNum: int}> $stack
      */
     private function checkNestedExclusive($err, array $required, array $stack): void
     {
+        if (!$this->config->rules['no_always_false_condition']) {
+            return;
+        }
+
         // 1. Flatten all required values from the parent stack frames into a single lookup list.
         $parentRequired = array_merge(...array_column($stack, 'reqValue'));
 

@@ -18,7 +18,7 @@ class ExcessiveEmptyLinesCheckTest extends TestCase
         parent::setUp();
 
         app(LinterConfig::class)->rules = [
-            'no_extra_blank_lines' => 2,
+            'extra_blank_lines' => 2,
         ];
     }
 

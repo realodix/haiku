@@ -13,7 +13,7 @@ final class IfClosedCheck implements Rule
 
     public function check(array $content, $err): array
     {
-        if (!$this->config->rules['pp_if_closed']) {
+        if (!$this->config->rules['if_directive_balance']) {
             return [];
         }
 
