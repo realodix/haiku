@@ -88,7 +88,6 @@ final class Registry
         'prevent-xhr', 'no-xhr-if',
         'proxy-apply-config',
         'remove-attr', 'ra',
-        'remove-cache-storage-item',
         'remove-class', 'rc',
         'remove-cookie', 'cookie-remover',
         'remove-node-text', 'rmnt',
