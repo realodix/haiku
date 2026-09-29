@@ -83,8 +83,6 @@ linter:
   excludes:
     - some/dir/SomeFile.php
     - other/dir
-  rules:
-    no_dupe_domains: false
   ignoreErrors:
     - messages:
       - 'foo'

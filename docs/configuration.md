@@ -112,8 +112,6 @@ linter:
     - src
   excludes:
     - vendor
-  rules:
-    no_extra_blank_lines: 5
   ignoreErrors:
     - messages:
       - 'Deprecated filter option: "empty"'
@@ -156,7 +154,7 @@ linter:
       message: 'Error message 2'
 ```
 
-#### `rules`
+<!-- #### `rules`
 A set of options used to configure the linter.
 
 - `no_extra_blank_lines`
@@ -200,7 +198,7 @@ A set of options used to configure the linter.
       no_unknown_scriptlets:
         known:
           - my-custom-scriptlet
-  ```
+  ``` -->
 
 
 ## Builder Configuration
