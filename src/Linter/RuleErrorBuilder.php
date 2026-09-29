@@ -8,7 +8,7 @@ namespace Realodix\Haiku\Linter;
  *  line: int,
  *  covered_by_line?: int,
  *  tip?: string,
- *  ruleId?: string,
+ *  identifier?: string,
  *  link?: string
  * }
  */
@@ -88,7 +88,7 @@ final class RuleErrorBuilder
         }
 
         if ($this->identifier !== null) {
-            $error['ruleId'] = $this->identifier;
+            $error['identifier'] = $this->identifier;
         }
 
         if ($this->tip !== null) {
