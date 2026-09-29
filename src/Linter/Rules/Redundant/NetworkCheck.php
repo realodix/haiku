@@ -297,11 +297,27 @@ final class NetworkCheck implements Rule
             }
 
             // The special case of options that avoids redundancy
-            if ($entry['hasOptions']
-                && $this->hasOption($opts, ['badfilter', 'popup'])
+            if ($entry['hasOptions']) {
+                $opts = array_map(
+                    static function (string $opt): string {
+                        if (str_starts_with($opt, 'redirect=')) {
+                            $opt = 'redirect';
+                        }
+
+                        if (str_starts_with($opt, 'redirect-rule=')) {
+                            $opt = 'redirect-rule';
+                        }
+
+                        return $opt;
+                    },
+                    $opts,
+                );
+
+                if ($this->hasOption($opts, ['badfilter', 'popup', 'redirect', 'redirect-rule'])
                     || str_starts_with($entry['line'], '||') && $this->hasOption($opts, ['3p', 'third-party'])
-            ) {
-                return false;
+                ) {
+                    return false;
+                }
             }
             // Exception options (e.g., $generichide) have distinct behaviors. That rule should not
             // be considered redundant by rules that do not have an options.

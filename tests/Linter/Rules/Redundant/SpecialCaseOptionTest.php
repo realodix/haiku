@@ -60,6 +60,22 @@ class SpecialCaseOptionTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function respectRedirect(): void
+    {
+        $lines = [
+            '||example.com^',
+            '||example.com/*.js$1p,script,redirect=noopjs:100',
+
+            '||googlesyndication.com/pagead/',
+            '||googlesyndication.com/pagead/js/adsbygoogle.js$script,redirect-rule=noop.js,domain=nekopoi.*',
+
+            '||jads.co^',
+            '||jads.co/js/jads.js$redirect-rule=noop.js,domain=pemersatu.top',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function respectCosmeticException(): void
     {
         $lines = [
