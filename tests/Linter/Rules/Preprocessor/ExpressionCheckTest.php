@@ -89,8 +89,8 @@ class ExpressionCheckTest extends TestCase
             '!#endif',
         ];
         $this->analyse($lines, [
-            [1, '"adguard" and "ext_ublock" will always evaluate to false.'],
-            [3, '"env_firefox" and "env_chromium" will always evaluate to false.'],
+            [1, '"adguard" and "ext_ublock" will always evaluate to "false".'],
+            [3, '"env_firefox" and "env_chromium" will always evaluate to "false".'],
         ]);
 
         $lines = [

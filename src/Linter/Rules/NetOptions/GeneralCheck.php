@@ -81,7 +81,7 @@ final class GeneralCheck implements Rule
             $name = strtolower($rawName);
 
             if ($rawName !== $name) {
-                $err->message(sprintf('Option "%s" must be lowercase.', $rawName))
+                $err->message("Option \"{$rawName}\" must be lowercase.")
                     ->build();
             }
         }
@@ -114,7 +114,7 @@ final class GeneralCheck implements Rule
         }
 
         foreach (array_unique($duplicates) as $dup) {
-            $err->message(sprintf('Duplicate option: $%s', $dup))
+            $err->message("Duplicate option: \${$dup}")
                 ->build();
         }
     }
@@ -165,7 +165,7 @@ final class GeneralCheck implements Rule
         }
 
         foreach (array_unique($conflicts) as $conflict) {
-            $err->message(sprintf('$%s conflicts with its negation.', $conflict))
+            $err->message("\${$conflict} conflicts with its negation.")
                 ->build();
         }
     }
@@ -221,7 +221,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $err->message(sprintf('$%s cannot be negated.', $name))
+            $err->message("\${$name} cannot be negated.")
                 ->build();
         }
     }
@@ -242,7 +242,7 @@ final class GeneralCheck implements Rule
         $blockOnly = ['important', 'empty', 'mp4'];
         $foundInvalid = array_find($blockOnly, fn($opt) => $isException && array_key_exists($opt, $opts));
         if ($foundInvalid) {
-            $err->message(sprintf('Invalid filter: $%s is not allowed in exception rules.', $foundInvalid))
+            $err->message("Invalid filter: \${$foundInvalid} is not allowed in exception rules.")
                 ->build();
         }
 
@@ -254,10 +254,8 @@ final class GeneralCheck implements Rule
 
         foreach ($exceptionOnly as $opt) {
             if (array_key_exists($opt, $opts) && !$isException) {
-                $err->message(sprintf(
-                    'Invalid filter: $%s is only allowed in exception rules.',
-                    $opt,
-                ))->build();
+                $err->message("Invalid filter: \${$opt} is only allowed in exception rules.")
+                    ->build();
             }
         }
     }
@@ -295,10 +293,8 @@ final class GeneralCheck implements Rule
 
                 // If no value -> must be used in an exception rule
                 if (!$isException) {
-                    $err->message(sprintf(
-                        'Invalid filter: $%s without value is only allowed in exception rules.',
-                        $opt,
-                    ))->build();
+                    $err->message("Invalid filter: \${$opt} without value is only allowed in exception rules.")
+                        ->build();
                 }
             }
         }
@@ -390,7 +386,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $err->message(sprintf('Deprecated: The filter option $%s is deprecated.', $opt));
+            $err->message("Deprecated: The filter option \${$opt} is deprecated.");
 
             if ($replacement !== null) {
                 $err->tip(sprintf('Use "%s" instead.', $replacement));

@@ -48,7 +48,7 @@ final class ScriptletCheck implements Rule
 
         $scriptlets = $this->getScriptletNames();
         if (!in_array($value, $scriptlets, true)) {
-            $err->message(sprintf('Unknown scriptlet: %s', $value));
+            $err->message("Unknown scriptlet: {$value}");
 
             $hint = Util::getSuggestion($scriptlets, $value);
             if ($hint !== null) {
@@ -69,7 +69,7 @@ final class ScriptletCheck implements Rule
         }
 
         if (in_array($value, Registry::DEPRECATED_SCRIPTLETS, true)) {
-            $err->message(sprintf('Deprecated: Scriptlet %s is deprecated.', $value))
+            $err->message("Deprecated: Scriptlet {$value} is deprecated.")
                 ->build();
         }
     }

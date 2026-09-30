@@ -283,10 +283,10 @@ class DomainCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Domain Example.com must be lowercase.'],
-            [1, 'Domain X.COM must be lowercase.'],
-            [2, 'Domain Example.com must be lowercase.'],
-            [2, 'Domain ~X.COM must be lowercase.'],
+            [1, 'Domain "Example.com" must be lowercase.'],
+            [1, 'Domain "X.COM" must be lowercase.'],
+            [2, 'Domain "Example.com" must be lowercase.'],
+            [2, 'Domain "~X.COM" must be lowercase.'],
         ]);
     }
 

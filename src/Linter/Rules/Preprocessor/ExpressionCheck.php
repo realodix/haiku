@@ -141,7 +141,7 @@ final class ExpressionCheck implements Rule
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $err->message(sprintf('Unknown value "%s" in "!#if" condition.', $value));
+                $err->message("Unknown value \"{$value}\" in \"!#if\" condition.");
 
                 $hint = Util::getSuggestion($knownPreprocessorValues, $value);
                 if ($hint !== null) {
@@ -167,10 +167,9 @@ final class ExpressionCheck implements Rule
             $intersect = array_intersect($required, $group);
             if (count($intersect) > 1) {
                 $intersect = array_values($intersect);
-                $err->message(sprintf(
-                    '"%s" and "%s" will always evaluate to false.',
-                    $intersect[0], $intersect[1],
-                ))->build();
+
+                $err->message("\"{$intersect[0]}\" and \"{$intersect[1]}\" will always evaluate to \"false\".")
+                    ->build();
             }
         }
     }

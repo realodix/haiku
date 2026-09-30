@@ -51,7 +51,7 @@ final class RedirectValueCheck implements Rule
         );
 
         if (!in_array($value, $knownResources, true)) {
-            $err->message(sprintf('Unknown redirect resource value: "%s"', $value));
+            $err->message("Unknown redirect resource value: {$value}");
 
             $hint = Util::getSuggestion($knownResources, Registry::NORMALIZED_UNKNOWN[$value] ?? $value);
             if ($hint !== null) {
@@ -72,7 +72,7 @@ final class RedirectValueCheck implements Rule
         }
 
         if (in_array($value, Registry::DEPRECATED_REDIRECT_RESOURCES, true)) {
-            $err->message(sprintf('Deprecated: The redirect resource %s is deprecated.', $value))
+            $err->message("Deprecated: The redirect resource {$value} is deprecated.")
                 ->build();
         }
     }

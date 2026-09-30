@@ -63,7 +63,7 @@ final class IfClosedCheck implements Rule
 
         foreach (array_reverse($stack) as $unclosed) {
             $directive = $unclosed['type'] === 'if' ? '!#if' : '!#else';
-            $err->message(sprintf('The "%s" statement is not closed by "!#endif".', $directive))
+            $err->message("The \"{$directive}\" statement is not closed by \"!#endif\".")
                 ->line($unclosed['lineNum'])
                 ->build();
         }

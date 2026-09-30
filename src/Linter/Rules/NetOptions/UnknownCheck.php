@@ -39,7 +39,7 @@ final class UnknownCheck implements Rule
                 }
 
                 if (!in_array($actualName, $knownOptions, true)) {
-                    $err->message(sprintf('Unknown filter option: "%s"', $actualName));
+                    $err->message("Unknown filter option: \"{$actualName}\"");
 
                     $hint = Util::getSuggestion($knownOptions, Registry::NORMALIZED_UNKNOWN[$actualName] ?? $actualName);
                     if ($hint !== null) {

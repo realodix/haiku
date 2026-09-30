@@ -108,17 +108,13 @@ final class CosmeticCheck implements Rule
             $match = $escape.':'.$name;
 
             if ($escape === '') {
-                $err->message(sprintf(
-                    'Invalid filter: Colon "%s" must be escaped with a backslash.',
-                    $match,
-                ))->build();
+                $err->message("Invalid filter: Colon \"{$match}\" must be escaped with a backslash.")
+                    ->build();
             }
 
             if (strlen($escape) > 1) {
-                $err->message(sprintf(
-                    'Invalid filter: Colon "%s" has too many backslashes.',
-                    $match,
-                ))->build();
+                $err->message("Invalid filter: Colon \"{$match}\" has too many backslashes.")
+                    ->build();
             }
         }
     }
@@ -143,9 +139,7 @@ final class CosmeticCheck implements Rule
             return;
         }
 
-        $err->message(sprintf(
-            'Invalid filter: %s requires #?# separator syntax.',
-            $content[0],
-        ))->build();
+        $err->message("Invalid filter: {$content[0]} requires #?# separator syntax.")
+            ->build();
     }
 }

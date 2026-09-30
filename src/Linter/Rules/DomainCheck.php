@@ -137,7 +137,7 @@ final class DomainCheck implements Rule
             $context = sprintf('before "%s"', $next);
         }
 
-        $err->message(sprintf('Unexpected empty domain %s', $context))
+        $err->message("Unexpected empty domain {$context}")
             ->build();
 
         return true;
@@ -151,7 +151,7 @@ final class DomainCheck implements Rule
     private function checkBadDomainName($err, string $domain, string $separator): void
     {
         if ($this->config->rules['no_uppercase_domains'] && strtolower($domain) !== $domain) {
-            $err->message(sprintf('Domain %s must be lowercase.', $domain))
+            $err->message("Domain \"{$domain}\" must be lowercase.")
                 ->build();
         }
 
@@ -175,7 +175,7 @@ final class DomainCheck implements Rule
         if (strlen($domain) === 1
             && (($domain == '*' && $separator === '|') || $domain !== '*')
         ) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
+            $err->message("Bad domain: \"{$domain}\"")
                 ->build();
 
             return;
@@ -185,10 +185,8 @@ final class DomainCheck implements Rule
         // Whitespace check
         // =================================================================
         if (preg_match('/\s/', $domain)) {
-            $err->message(sprintf(
-                'Bad domain: "%s" must not contain whitespace.',
-                $domain,
-            ))->build();
+            $err->message("Bad domain: \"{$domain}\" must not contain whitespace.")
+                ->build();
 
             return;
         }
@@ -198,7 +196,7 @@ final class DomainCheck implements Rule
         // =================================================================
         $dIdnaAscii = idn_to_ascii($domain);
         if ($dIdnaAscii === false) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
+            $err->message("Bad domain: \"{$domain}\"")
                 ->build();
 
             return;
@@ -208,7 +206,7 @@ final class DomainCheck implements Rule
             || str_starts_with($domain, '.')
             || str_contains($domain, '/')
         ) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
+            $err->message("Bad domain: \"{$domain}\"")
                 ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
                 ->build();
 
@@ -219,7 +217,7 @@ final class DomainCheck implements Rule
 
         // missplaced wildcard
         if (str_contains($domain, '*') && !str_ends_with($domain, '*')) {
-            $err->message(sprintf('Bad domain: "%s" has a wildcard in an invalid position.', $domain))
+            $err->message("Bad domain: \"{$domain}\" has a wildcard in an invalid position.")
                 ->build();
         }
 
@@ -227,15 +225,15 @@ final class DomainCheck implements Rule
         // TLD problems
         // =================================================================
         if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain) && !str_starts_with($domain, 'xn--')) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
+            $err->message("Bad domain: \"{$domain}\"")
                 ->build();
         }
 
         if (ctype_alpha($domain) || (str_starts_with($domain, 'xn--') && !str_contains($domain, '.'))) {
             if (!isset(Tld::VALUES[$domain])) {
                 $msg = strlen($domain) <= 4 ?
-                    sprintf('Bad domain: "%s" is an invalid TLD.', $domain)
-                    : sprintf('Bad domain: "%s"', $domain);
+                    "Bad domain: \"{$domain}\" is an invalid TLD."
+                    : "Bad domain: \"{$domain}\"";
 
                 $err->message($msg)->build();
             }
@@ -248,7 +246,7 @@ final class DomainCheck implements Rule
             $tld = $domainInfo['extension'];
 
             if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
-                $err->message(sprintf('Bad domain: "%s" has an invalid TLD.', $domain));
+                $err->message("Bad domain: \"{$domain}\" has an invalid TLD.");
 
                 $hint = Util::getSuggestion(array_keys(Tld::VALUES), $tld);
                 if ($hint !== null) {
@@ -270,10 +268,8 @@ final class DomainCheck implements Rule
         }
 
         if ($separator === '|') {
-            $err->message(sprintf(
-                'Bad domain: "%s". The network filter does not support ancestor context.',
-                $domain,
-            ))->build();
+            $err->message("Bad domain: \"{$domain}\". The network filter does not support ancestor context.")
+                ->build();
 
             return;
         }
@@ -281,7 +277,7 @@ final class DomainCheck implements Rule
         preg_match('/([^>]+)([>]+)/', $domain, $m);
 
         if (isset($m[2]) && strlen($m[2]) !== 2) {
-            $err->message(sprintf('Bad domain: "%s"', $domain))
+            $err->message("Bad domain: \"{$domain}\"")
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
                 ->build();
         }
@@ -362,15 +358,13 @@ final class DomainCheck implements Rule
     private function reportStatefulErrors($err, array $state): void
     {
         foreach (array_unique($state['duplicates']) as $dup) {
-            $err->message(sprintf('Duplicate domain: %s', $dup))
+            $err->message("Duplicate domain: {$dup}")
                 ->build();
         }
 
         foreach ($state['conflicts'] as [$includedDomain, $excludedDomain]) {
-            $err->message(sprintf(
-                'Domain conflict: "%s" and "%s"',
-                $includedDomain, $excludedDomain,
-            ))->build();
+            $err->message("Domain conflict: \"{$includedDomain}\" and \"{$excludedDomain}\"")
+                ->build();
         }
     }
 

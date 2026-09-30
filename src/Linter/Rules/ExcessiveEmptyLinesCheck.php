@@ -45,11 +45,9 @@ final class ExcessiveEmptyLinesCheck implements Rule
     private function reportIfExcessive($err, int $lineNum, int $count, int $maxCount): void
     {
         if ($count > $maxCount) {
-            $err->message(sprintf(
-                'Too many consecutive empty lines (%d), maximum allowed is %d.',
-                $count,
-                $maxCount,
-            ))->line($lineNum)->build();
+            $err->message("Too many consecutive empty lines ({$count}), maximum allowed is {$maxCount}.")
+                ->line($lineNum)
+                ->build();
         }
     }
 }

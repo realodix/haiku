@@ -212,7 +212,7 @@ final class NetworkCheck implements Rule
         $line = $entry['line'];
         $exactKey = ($entry['hasMatchCase'] ? $line : strtolower($line)).'|'.$entry['conditionKey'];
         if (isset($this->seen['exact'][$exactKey])) {
-            $err->message(sprintf('Duplicate filter: %s already defined', $line))
+            $err->message("Duplicate filter: {$line} already defined")
                 ->line($entry['lineNum'])
                 ->coverLine($this->seen['exact'][$exactKey])
                 ->build();
@@ -331,7 +331,7 @@ final class NetworkCheck implements Rule
                 && $best['hasOptions'] === $entry['hasOptions']
                 && $pattern === $best['pattern']
             ) {
-                $err->message(sprintf('Duplicate filter: %s already defined', $entry['line']))
+                $err->message("Duplicate filter: {$entry['line']} already defined")
                     ->line($entry['lineNum'])
                     ->coverLine($best['lineNum'])
                     ->build();
@@ -443,7 +443,7 @@ final class NetworkCheck implements Rule
 
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
-                $err->message(sprintf('Redundant filter: domain %s already covered', $rd['domain']))
+                $err->message("Redundant filter: domain {$rd['domain']} already covered")
                     ->line($entry['lineNum'])
                     ->coverLine($rd['atLineNum'])
                     ->build();
