@@ -89,16 +89,10 @@ class GeneralCheckTest extends TestCase
     {
         $lines = [
             '@@*$important',
-            '@@*$empty',
-            '@@*$mp4',
         ];
 
         $this->analyse($lines, [
             [1, 'Invalid filter: $important is not allowed in exception rules.'],
-            [2, 'Deprecated: The filter option $empty is deprecated.'],
-            [2, 'Invalid filter: $empty is not allowed in exception rules.'],
-            [3, 'Deprecated: The filter option $mp4 is deprecated.'],
-            [3, 'Invalid filter: $mp4 is not allowed in exception rules.'],
         ]);
 
         $lines = [

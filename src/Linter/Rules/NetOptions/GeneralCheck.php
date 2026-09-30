@@ -239,8 +239,7 @@ final class GeneralCheck implements Rule
         $isException = str_starts_with($lineContent, '@@');
 
         // 1. Must NOT be used in exception rules
-        $blockOnly = ['important', 'empty', 'mp4'];
-        $foundInvalid = array_find($blockOnly, fn($opt) => $isException && array_key_exists($opt, $opts));
+        $foundInvalid = array_find(['important'], fn($opt) => $isException && array_key_exists($opt, $opts));
         if ($foundInvalid) {
             $err->message("Invalid filter: \${$foundInvalid} is not allowed in exception rules.")
                 ->build();
