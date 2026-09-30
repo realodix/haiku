@@ -34,14 +34,16 @@ final class GeneralCheck implements Rule
             $err->line($index + 1);
             $line = trim($line);
 
-            if (Util::isCommentOrEmpty($line)) {
-                continue;
-            }
-
-            if (!preg_match(Regex::NET_OPTION, $line, $m)
+            if (Util::isCommentOrEmpty($line)
                 || preg_match(Regex::IS_COSMETIC_RULE, $line)
                 || str_contains($line, 'replace=')
             ) {
+                continue;
+            }
+
+            $this->checkInvalidOptionMarker($err, $line);
+
+            if (!preg_match(Regex::NET_OPTION, $line, $m)) {
                 continue;
             }
 
@@ -65,6 +67,44 @@ final class GeneralCheck implements Rule
         }
 
         return $err->toArray();
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     */
+    private function checkInvalidOptionMarker($err, string $line): void
+    {
+        if (!preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $m, PREG_OFFSET_CAPTURE)) {
+            return;
+        }
+
+        $position = $m[0][1];
+        $before = substr($line, 0, $position);
+        $optionPosition = strpos($before, '$');
+
+        if ($optionPosition === false) {
+            $err->message('Possibly missing "$" at the start of the filter option.')
+                ->build();
+        } else {
+            for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
+                if ($before[$i] === '/') {
+                    break;
+                }
+
+                if ($before[$i] === '\\') {
+                    $i++;
+
+                    continue;
+                }
+
+                if ($before[$i] === '$') {
+                    $err->message('Possibly multiple "$" at the end of the filter.')
+                        ->build();
+
+                    break;
+                }
+            }
+        }
     }
 
     /**
