@@ -29,12 +29,12 @@ class CosmeticCanonicalSelectorTest extends TestCase
     {
         $lines = [
             'example.com##.ad.banner',
-            'example.com##.ad',
-            'example.com##div.ad.banner.popup',
+            '##.ad',
+            'x.com,y.com,z.com##div.ad.banner.popup',
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: example.com##.ad.banner is redundant due to more general selector on line 2'],
-            [3, 'Redundant filter: example.com##div.ad.banner.popup is redundant due to more general selector on line 2'],
+            [3, 'Redundant filter: ...,z.com##div.ad.banner.popup is redundant due to more general selector on line 2'],
         ]);
 
         $lines = [

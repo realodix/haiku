@@ -267,13 +267,13 @@ final class CosmeticCheck implements Rule
         }
 
         if ($bestParent) {
-            if ($entry['selector'] === $bestParent['selector']) {
-                $entryLine = $entry['line'];
-                if (count($entry['domains']) > 2) {
-                    $entryLine = '...,'.array_key_last($entry['domains'])
-                        .$entry['separator'].$entry['selector'];
-                }
+            $entryLine = $entry['line'];
+            if (count($entry['domains']) > 2) {
+                $entryLine = '...,'.array_key_last($entry['domains'])
+                    .$entry['separator'].$entry['selector'];
+            }
 
+            if ($entry['selector'] === $bestParent['selector']) {
                 if (count($bestParent['domains']) === count($entry['domains'])
                     && count($bestParent['domains']) > 1
                 ) {
@@ -292,10 +292,7 @@ final class CosmeticCheck implements Rule
                     $message = 'Redundant filter: already covered';
                 }
             } else {
-                $message = sprintf(
-                    'Redundant filter: %s is redundant due to more general selector',
-                    $entry['line'],
-                );
+                $message = "Redundant filter: {$entryLine} is redundant due to more general selector";
             }
 
             $err->message($message)
