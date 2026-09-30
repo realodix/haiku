@@ -216,7 +216,7 @@ final class IgnoredErrors
             }
             if (isset($pattern['identifier'])) {
                 $patternDesc .= (isset($pattern['message']) ? ' ' : '')
-                    .'with identifier '.$pattern['identifier'];
+                    ."with identifier \"{$pattern['identifier']}\"";
             }
 
             $reporter->addGlobalError(sprintf(
