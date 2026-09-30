@@ -232,9 +232,9 @@ class GeneralCheckTest extends TestCase
             '@@||googleads.g.doubleclick.net/favicon.ico,domain=music.wandhi.com',
         ];
         $this->analyse($lines, [
-            [1, 'Possibly missing "$" at the start of filter options.'],
-            [2, 'Possibly missing "$" at the start of filter options.'],
-            [3, 'Possibly missing "$" at the start of filter options.'],
+            [1, 'Possibly missing "$" at the start of filter option.'],
+            [2, 'Possibly missing "$" at the start of filter option.'],
+            [3, 'Possibly missing "$" at the start of filter option.'],
         ]);
 
         $lines = [
@@ -253,8 +253,8 @@ class GeneralCheckTest extends TestCase
             '||bk21.net/*.gif$image$domain=juragan.film',
         ];
         $this->analyse($lines, [
-            [1, 'Possibly multiple "$" separator in filter option.'],
-            [2, 'Possibly multiple "$" separator in filter option.'],
+            [1, 'Possibly multiple "$" at the end of the filter.'],
+            [2, 'Possibly multiple "$" at the end of the filter.'],
         ]);
 
         $lines = [

@@ -83,7 +83,7 @@ final class GeneralCheck implements Rule
         $optionPosition = strpos($before, '$');
 
         if ($optionPosition === false) {
-            $err->message('Possibly missing "$" at the start of filter options.')
+            $err->message('Possibly missing "$" at the start of filter option.')
                 ->build();
         } else {
             for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
@@ -98,7 +98,7 @@ final class GeneralCheck implements Rule
                 }
 
                 if ($before[$i] === '$') {
-                    $err->message('Possibly multiple "$" separator in filter option.')
+                    $err->message('Possibly multiple "$" at the end of the filter.')
                         ->build();
 
                     break;
