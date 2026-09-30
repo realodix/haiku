@@ -41,7 +41,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $this->checkOptionsMarker($err, $line);
+            $this->checkInvalidOptionMarker($err, $line);
 
             if (!preg_match(Regex::NET_OPTION, $line, $m)) {
                 continue;
@@ -72,7 +72,7 @@ final class GeneralCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
      */
-    private function checkOptionsMarker($err, string $line): void
+    private function checkInvalidOptionMarker($err, string $line): void
     {
         if (!preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $m, PREG_OFFSET_CAPTURE)) {
             return;
@@ -98,7 +98,7 @@ final class GeneralCheck implements Rule
                 }
 
                 if ($before[$i] === '$') {
-                    $err->message('Possibly multiple "$" separators in filter options.')
+                    $err->message('Possibly multiple "$" separator in filter option.')
                         ->build();
 
                     break;

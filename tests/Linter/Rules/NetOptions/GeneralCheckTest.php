@@ -253,8 +253,8 @@ class GeneralCheckTest extends TestCase
             '||bk21.net/*.gif$image$domain=juragan.film',
         ];
         $this->analyse($lines, [
-            [1, 'Possibly multiple "$" separators in filter options.'],
-            [2, 'Possibly multiple "$" separators in filter options.'],
+            [1, 'Possibly multiple "$" separator in filter option.'],
+            [2, 'Possibly multiple "$" separator in filter option.'],
         ]);
 
         $lines = [
