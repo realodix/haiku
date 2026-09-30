@@ -123,7 +123,7 @@ class CosmeticCanonicalSelectorTest extends TestCase
             'exampple.com#$#.pub_300x250.pub_300x250m.pub_728x90.text-ad.textAd.text_ad.text_ads.text-ads.text-ad-links { display: block !important; }',
         ];
         $this->analyse($lines, [
-            [2, 'Redundant filter: exampple.com#$#.pub_300x250.pub_300x250m.pub_728x9... is redundant due to more general selector on line 1'],
+            [2, 'Redundant filter: exampple.com#$#.pub_300x250.pub_300x250m.pub_728x90.text-ad.textAd.text_ad.text_ads.text-ads.text-ad-links { display: block !important; } is redundant due to more general selector on line 1'],
         ]);
     }
 
@@ -158,7 +158,7 @@ class CosmeticCanonicalSelectorTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Redundant filter: ##.w-full.relative.z-0.flex.flex-1.flex-col.items-... is redundant due to more general selector on line 2'],
+            [1, 'Redundant filter: ##.w-full.relative.z-0.flex.flex-1.flex-col.items-stretch.max-w-\[320px\].min-h-\[100px\] is redundant due to more general selector on line 2'],
             [3, 'Redundant filter: ##.lg\:min-h-\[132px\].flex.relative is redundant due to more general selector on line 4'],
             [6, 'Duplicate filter: ##.baz.foo\.bar already defined on line 5'],
         ]);

@@ -2,7 +2,6 @@
 
 namespace Realodix\Haiku\Linter\Rules\Redundant;
 
-use Illuminate\Support\Str;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -295,7 +294,7 @@ final class CosmeticCheck implements Rule
             } else {
                 $message = sprintf(
                     'Redundant filter: %s is redundant due to more general selector',
-                    Str::limit($entry['line'], 50),
+                    $entry['line'],
                 );
             }
 
