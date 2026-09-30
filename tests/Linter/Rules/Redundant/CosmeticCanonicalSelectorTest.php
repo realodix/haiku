@@ -108,6 +108,26 @@ class CosmeticCanonicalSelectorTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function pseudo_class_bails_out_but_escaped_colon_still_parses(): void
+    {
+        // The `#adv-caption-mr2` inside :has() must NOT be extracted as the ID
+        // of the outer rule, otherwise it would be falsely covered by line 1.
+        $lines = [
+            '###adv-caption-mr2',
+            'detik.com##.mr2:has(> #adv-caption-mr2)',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            '#$#.pub_728x90.text-ad.textAd.text_ad.text_ads.text-ads.text-ad-links { display: block !important; }',
+            'exampple.com#$#.pub_300x250.pub_300x250m.pub_728x90.text-ad.textAd.text_ad.text_ads.text-ads.text-ad-links { display: block !important; }',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: exampple.com#$#.pub_300x250.pub_300x250m.pub_728x9... is redundant due to more general selector on line 1'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function descendant_selectors_coverage(): void
     {
         $lines = [

@@ -986,6 +986,13 @@ final class CosmeticCheck implements Rule
      */
     private function parseCompoundSelector(string $selector): ?array
     {
+        // Don't parse selectors containing functional pseudo-classes.
+        // Examples: :has(...)
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Pseudo-classes#functional_pseudo-classes
+        if (preg_match('/:[a-z]+\(/', $selector)) {
+            return null;
+        }
+
         $tag = '';
         $id = '';
         $classes = [];
