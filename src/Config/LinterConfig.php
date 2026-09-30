@@ -35,6 +35,8 @@ use Symfony\Component\Filesystem\Path;
  *  messages?: list<string>|string,
  *  path?: string,
  *  paths?: list<string>|string,
+ *  identifier?: string,
+ *  identifiers?: list<string>,
  * }|string
  */
 final class LinterConfig

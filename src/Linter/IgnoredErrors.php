@@ -11,6 +11,7 @@ use Symfony\Component\Yaml\Yaml;
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,
+ *  identifier?: string,
  *  covered_by_line?: int,
  *  count?: int, // from baseline, not user config
  *  isBaseline?: bool,
@@ -59,7 +60,7 @@ final class IgnoredErrors
             $msg = $pattern['message'] ?? null;
 
             if ($path !== null && $msg !== null) {
-                $exactKey = $path.$msg.($pattern['covered_by_line'] ?? '');
+                $exactKey = $path.$msg.($pattern['identifier'] ?? '').($pattern['covered_by_line'] ?? '');
 
                 $this->exactPatternIndex[$exactKey] = $index;
             }
@@ -154,12 +155,14 @@ final class IgnoredErrors
         foreach ($this->ignorePatterns as $index => $pattern) {
             $msgMatch = !isset($pattern['message']) || $this->isMatch($pattern['message'], $errors['message']);
             $pathMatch = !isset($pattern['path']) || $this->isMatch($pattern['path'], $path);
+            $identifierMatch = !isset($pattern['identifier'])
+                || $this->isMatch($pattern['identifier'], $errors['identifier'] ?? '');
 
             if (isset($pattern['covered_by_line']) && $pattern['covered_by_line'] !== ($errors['covered_by_line'] ?? null)) {
                 continue;
             }
 
-            if ($msgMatch && $pathMatch) {
+            if ($msgMatch && $pathMatch && $identifierMatch) {
                 return $this->markPatternMatched($index, $pattern);
             }
         }
@@ -175,7 +178,10 @@ final class IgnoredErrors
     public function shouldIgnoreExact(string $path, array $errors): bool
     {
         $path = Path::makeRelative($path, base_path());
-        $exactKey = $path.$errors['message'].($errors['covered_by_line'] ?? '');
+        $exactKey = $path
+            .$errors['message']
+            .($errors['identifier'] ?? '')
+            .($errors['covered_by_line'] ?? '');
 
         if (isset($this->exactPatternIndex[$exactKey])) {
             $index = $this->exactPatternIndex[$exactKey];
@@ -207,6 +213,10 @@ final class IgnoredErrors
             }
             if (isset($pattern['path'])) {
                 $locDesc = (isset($pattern['message']) ? ' ' : '').'in path '.$pattern['path'];
+            }
+            if (isset($pattern['identifier'])) {
+                $patternDesc .= (isset($pattern['message']) ? ' ' : '')
+                    ."with identifier \"{$pattern['identifier']}\"";
             }
 
             $reporter->addGlobalError(sprintf(
@@ -312,6 +322,14 @@ final class IgnoredErrors
                 $dimensions['path'] = $paths;
             }
 
+            $identifiers = array_merge(
+                isset($pattern['identifier']) ? [$pattern['identifier']] : [],
+                (array) ($pattern['identifiers'] ?? []),
+            );
+            if (!empty($identifiers)) {
+                $dimensions['identifier'] = $identifiers;
+            }
+
             // Skip if the pattern contains no relevant dimension data
             if (empty($dimensions)) {
                 continue;
@@ -322,6 +340,7 @@ final class IgnoredErrors
             unset(
                 $base['message'], $base['messages'],
                 $base['path'], $base['paths'],
+                $base['identifier'], $base['identifiers'],
             );
 
             // 3. Expand (cartesian product)

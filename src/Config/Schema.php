@@ -81,6 +81,8 @@ final class Schema
                             'messages' => Expect::listOf('string'),
                             'path' => Expect::string(),
                             'paths' => Expect::listOf('string'),
+                            'identifier' => Expect::string(),
+                            'identifiers' => Expect::listOf('string'),
                         ])->castTo('array'),
                     ),
                 ),
