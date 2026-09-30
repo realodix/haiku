@@ -322,10 +322,12 @@ final class CosmeticCheck implements Rule
         $internallyCoveredDomains = [];
         foreach (DomainCoverage::findCovered($domains) as $domain => $coveringDomain) {
             $internallyCoveredDomains[] = $domain;
-            $coveringDomain .= !str_contains($coveringDomain, '.') ? ' TLD' : '';
 
-            $err->message(sprintf('Redundant domain: %s is covered by %s', $domain, $coveringDomain))
-                ->line($entry['lineNum'])
+            $err->message(sprintf(
+                'Redundant domain: %s is covered by %s',
+                $domain,
+                !str_contains($coveringDomain, '.') ? "\"{$coveringDomain}\" TLD" : $coveringDomain,
+            ))->line($entry['lineNum'])
                 ->build();
         }
 

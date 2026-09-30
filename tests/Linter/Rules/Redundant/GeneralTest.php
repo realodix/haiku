@@ -41,10 +41,10 @@ class GeneralTest extends TestCase
             'ads.example.com,com,example.com###ads3',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant domain: example.com is covered by com TLD'],
-            [2, 'Redundant domain: ads.example.com is covered by com TLD'],
-            [3, 'Redundant domain: ads.example.com is covered by com TLD'],
-            [3, 'Redundant domain: example.com is covered by com TLD'],
+            [1, 'Redundant domain: example.com is covered by "com" TLD'],
+            [2, 'Redundant domain: ads.example.com is covered by "com" TLD'],
+            [3, 'Redundant domain: ads.example.com is covered by "com" TLD'],
+            [3, 'Redundant domain: example.com is covered by "com" TLD'],
         ]);
 
         $lines = [
@@ -53,10 +53,10 @@ class GeneralTest extends TestCase
             '/ads2-$domain=ads.example.com|com|example.com',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant domain: example.com is covered by com TLD'],
-            [2, 'Redundant domain: ads.example.com is covered by com TLD'],
-            [3, 'Redundant domain: ads.example.com is covered by com TLD'],
-            [3, 'Redundant domain: example.com is covered by com TLD'],
+            [1, 'Redundant domain: example.com is covered by "com" TLD'],
+            [2, 'Redundant domain: ads.example.com is covered by "com" TLD'],
+            [3, 'Redundant domain: ads.example.com is covered by "com" TLD'],
+            [3, 'Redundant domain: example.com is covered by "com" TLD'],
         ]);
     }
 
