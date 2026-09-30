@@ -58,6 +58,26 @@ class CosmeticCanonicalSelectorTest extends TestCase
         ]);
 
         $lines = [
+            '##.lg\:min-h-\[132px\].flex.relative',
+            '##.relative.lg\:min-h-\[132px\]',
+
+            '##.flex.relative',
+            '##.lg\:min-h-\[132px\].flex.relative',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ##.lg\:min-h-\[132px\].flex.relative is redundant due to more general selector on line 2'],
+            [4, 'Duplicate filter: ##.lg\:min-h-\[132px\].flex.relative already defined on line 1'],
+        ]);
+
+        $lines = [
+            '##.flex.relative',
+            '##.lg\:min-h-\[132px\].flex.relative',
+        ];
+        $this->analyse($lines, [
+            [2, 'Redundant filter: ##.lg\:min-h-\[132px\].flex.relative is redundant due to more general selector on line 1'],
+        ]);
+
+        $lines = [
             'example.com##div.Ad',
             'example.com##.ad',
             '##div.a.b',
