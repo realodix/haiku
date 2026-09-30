@@ -14,7 +14,7 @@ final class ExcessiveEmptyLinesCheck implements Rule
     {
         $mode = $this->config->rules['extra_blank_lines'];
 
-        if ($mode === false) {
+        if (is_bool($mode)) {
             return [];
         }
 

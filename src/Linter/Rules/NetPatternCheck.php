@@ -45,7 +45,7 @@ final class NetPatternCheck implements Rule
     {
         $mode = $this->config->rules['no_short_rules'];
 
-        if ($mode === false
+        if (is_bool($mode)
             || $hasOptions && ($line === '' || $line === '*' || $line === '@@*')
         ) {
             return;
