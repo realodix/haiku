@@ -108,7 +108,7 @@ class CosmeticCanonicalSelectorTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function pseudo_class_bails_out_but_escaped_colon_still_parses(): void
+    public function subset_coverage_dont_extract_on_functional_pseudo_classes(): void
     {
         // The `#adv-caption-mr2` inside :has() must NOT be extracted as the ID
         // of the outer rule, otherwise it would be falsely covered by line 1.
