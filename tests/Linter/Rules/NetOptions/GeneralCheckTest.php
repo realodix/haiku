@@ -232,9 +232,9 @@ class GeneralCheckTest extends TestCase
             '@@||googleads.g.doubleclick.net/favicon.ico,domain=music.wandhi.com',
         ];
         $this->analyse($lines, [
-            [1, 'Possibly missing "$" at the start of filter option.'],
-            [2, 'Possibly missing "$" at the start of filter option.'],
-            [3, 'Possibly missing "$" at the start of filter option.'],
+            [1, 'Possibly missing "$" at the start of the filter option.'],
+            [2, 'Possibly missing "$" at the start of the filter option.'],
+            [3, 'Possibly missing "$" at the start of the filter option.'],
         ]);
 
         $lines = [

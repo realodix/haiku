@@ -83,7 +83,7 @@ final class GeneralCheck implements Rule
         $optionPosition = strpos($before, '$');
 
         if ($optionPosition === false) {
-            $err->message('Possibly missing "$" at the start of filter option.')
+            $err->message('Possibly missing "$" at the start of the filter option.')
                 ->build();
         } else {
             for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
