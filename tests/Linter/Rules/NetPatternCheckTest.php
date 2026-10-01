@@ -11,7 +11,7 @@ class NetPatternCheckTest extends TestCase
     #[PHPUnit\Test]
     public function too_short_line(): void
     {
-        app(LinterConfig::class)->rules = ['no_short_rules' => 5];
+        app(LinterConfig::class)->rules = ['no_short_rules' => ['minLen' => 5]];
         $lines = [
             'bar',    // Too short (3 < 5)
             'foo$css,3p', // Stripped to 'foo', too short

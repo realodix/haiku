@@ -155,7 +155,7 @@ class LintBench
     {
         app(LinterConfig::class)->rules = [
             'all' => true,
-            'no_short_rules' => 4,
+            'no_short_rules' => ['minLen' => 4],
         ];
 
         $rules = Helper::loadLinterRules();

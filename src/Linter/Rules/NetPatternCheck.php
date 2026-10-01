@@ -43,16 +43,15 @@ final class NetPatternCheck implements Rule
      */
     private function checkTooShortPattern($err, string $line, bool $hasOptions): void
     {
-        $mode = $this->config->rules['no_short_rules'];
-
-        if (is_bool($mode)
+        $config = $this->config->rules['no_short_rules'];
+        if ($config === false
             || $hasOptions && ($line === '' || $line === '*' || $line === '@@*')
         ) {
             return;
         }
 
-        if (strlen($line) < $mode) {
-            $err->message("The rule is too short (under {$mode} characters).")
+        if (strlen($line) < $config['minLen']) {
+            $err->message("The rule is too short (under {$config['minLen']} characters).")
                 ->build();
         }
     }
