@@ -50,6 +50,7 @@ final class NetPatternCheck implements Rule
 
         if (strlen($line) < $config['minLen']) {
             $err->message("The rule is too short (under {$config['minLen']} characters).")
+                ->identifier('netPattern.tooShort')
                 ->build();
         }
     }
@@ -67,6 +68,7 @@ final class NetPatternCheck implements Rule
         if (preg_match('/^(@@)?(\|+)/', $line, $m)) {
             if (strlen($m[2]) > 2) {
                 $err->message('Too many "|" at the beginning (max 2 allowed).')
+                    ->identifier('netPattern.tooManyLeftAnchors')
                     ->build();
             }
 
@@ -78,6 +80,7 @@ final class NetPatternCheck implements Rule
         // Right anchor
         if ((strlen($line) - strlen(rtrim($line, '|'))) > 1) {
             $err->message('Too many "|" at the end (only 1 allowed).')
+                ->identifier('netPattern.tooManyRightAnchors')
                 ->build();
         }
     }
