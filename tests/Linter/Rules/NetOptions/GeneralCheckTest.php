@@ -180,7 +180,7 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, '$denyallow cannot be used together with $to.'],
+            [1, 'Invalid filter: $denyallow cannot be used together with $to.'],
         ]);
     }
 
