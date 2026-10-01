@@ -40,7 +40,7 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, string> $node
      */
     private function checkIdSelectorStartsWithDigit($err, array $node): void
@@ -73,7 +73,7 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, string> $node
      */
     private function checkColonEscape($err, array $node): void
@@ -120,7 +120,7 @@ final class CosmeticCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, string> $node
      */
     private function checkAbpExtendedCssSelectors($err, array $node): void

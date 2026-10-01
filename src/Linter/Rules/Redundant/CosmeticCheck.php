@@ -200,7 +200,7 @@ final class CosmeticCheck implements Rule
     /**
      * Checks whether the given rule is an exact duplicate of a previously seen rule.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _CosmeticRule $entry
      */
     private function checkExactDuplicate($err, array $entry): bool
@@ -229,7 +229,7 @@ final class CosmeticCheck implements Rule
     /**
      * Checks whether the entire rule is made redundant by a global rule.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _CosmeticRule $entry
      */
     private function checkGlobalRedundancy($err, array $entry): bool
@@ -311,7 +311,7 @@ final class CosmeticCheck implements Rule
      *
      * Example: `example.com,example.org##.ads` and `example.com##.ads`
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _CosmeticRule $entry
      */
     private function checkDomainRedundancy($err, array $entry): void

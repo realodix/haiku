@@ -68,7 +68,7 @@ final class DomainCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param ','|'|' $separator Domain separator (`,` or `|`)
      */
     private function validateDomains($err, string $domainStr, string $separator): void
@@ -113,7 +113,7 @@ final class DomainCheck implements Rule
     /**
      * Check if the given domain is empty.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param list<string> $domains
      */
     private function checkEmptyDomain($err, array $domains, int $index): bool
@@ -146,7 +146,7 @@ final class DomainCheck implements Rule
     /**
      * Check if the domain name is bad.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkBadDomainName($err, string $domain, string $separator): void
     {
@@ -259,7 +259,7 @@ final class DomainCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkAncestorContexts($err, string $domain, string $separator): void
     {
@@ -352,7 +352,7 @@ final class DomainCheck implements Rule
      * This function will iterate through the state array and report any duplicate
      * or contradictory domains found.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _DomainState $state The state array to modify.
      */
     private function reportStatefulErrors($err, array $state): void

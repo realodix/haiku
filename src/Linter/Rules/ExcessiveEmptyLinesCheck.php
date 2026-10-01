@@ -40,7 +40,7 @@ final class ExcessiveEmptyLinesCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function reportIfExcessive($err, int $lineNum, int $count, int $maxCount): void
     {

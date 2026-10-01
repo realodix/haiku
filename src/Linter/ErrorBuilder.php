@@ -12,7 +12,7 @@ namespace Realodix\Haiku\Linter;
  *  link?: string
  * }
  */
-final class RuleErrorBuilder
+final class ErrorBuilder
 {
     use \Illuminate\Support\Traits\Conditionable;
 

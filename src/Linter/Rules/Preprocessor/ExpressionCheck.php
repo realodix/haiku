@@ -93,7 +93,7 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkParenthesisError($err, string $condition): bool
     {
@@ -117,7 +117,7 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkUnknownValue($err, string $condition): void
     {
@@ -154,7 +154,7 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<int, string> $required
      */
     private function checkExclusive($err, array $required): void
@@ -175,7 +175,7 @@ final class ExpressionCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<int, string> $required
      * @param list<array{reqValue: array<int, string>, lineNum: int}> $stack
      */

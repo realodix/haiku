@@ -7,7 +7,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * @phpstan-import-type _ConfigIgnoredError from \Realodix\Haiku\Config\LinterConfig
- * @phpstan-import-type _RuleError from RuleErrorBuilder
+ * @phpstan-import-type _RuleError from ErrorBuilder
  * @phpstan-type _IgnoredError array{
  *  message?: string,
  *  path?: string,

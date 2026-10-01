@@ -38,7 +38,7 @@ final class ScriptletCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkUnknownName($err, string $value): void
     {
@@ -60,7 +60,7 @@ final class ScriptletCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkDeprecated($err, string $value): void
     {

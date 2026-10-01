@@ -70,7 +70,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkInvalidOptionMarker($err, string $line): void
     {
@@ -108,7 +108,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param list<string> $opts
      */
     private function checkCase($err, array $opts): void
@@ -128,7 +128,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param list<string> $opts
      */
     private function checkDuplicate($err, array $opts): void
@@ -160,7 +160,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param list<string> $rawOpts
      */
     private function checkDuplicateWithNegation($err, array $rawOpts): void
@@ -211,7 +211,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkDuplicateWithAlias($err, array $opts): void
@@ -232,7 +232,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param list<string> $rawOpts
      */
     private function checkInvalidNegation($err, array $rawOpts): void
@@ -267,7 +267,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkInvalidException($err, array $opts, string $lineContent): void
@@ -306,7 +306,7 @@ final class GeneralCheck implements Rule
      * - With value -> allowed anywhere.
      * - Without value -> only allowed in exception rules.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkWithoutValueExceptionOnly($err, array $opts, string $lineContent): void
@@ -340,7 +340,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkDenyallowValue($err, array $opts): void
@@ -377,7 +377,7 @@ final class GeneralCheck implements Rule
     /**
      * Checks $denyallow used together with $to
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkDenyallowAndToConflict($err, array $opts): void
@@ -390,7 +390,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkDenyallowRequiresDomain($err, array $opts): void
@@ -405,7 +405,7 @@ final class GeneralCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
      */
     private function checkDeprecatedOptions($err, array $opts): void

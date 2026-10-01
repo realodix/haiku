@@ -39,7 +39,7 @@ final class NetPatternCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkTooShortPattern($err, string $line, bool $hasOptions): void
     {
@@ -57,7 +57,7 @@ final class NetPatternCheck implements Rule
     }
 
     /**
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
     private function checkBadDomainAnchors($err, string $line, bool $hasOptions): void
     {

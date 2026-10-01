@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Linter;
 
 /**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
+ * @phpstan-import-type _RuleError from ErrorBuilder
  */
 final class ErrorReporter
 {

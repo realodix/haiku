@@ -204,7 +204,7 @@ final class NetworkCheck implements Rule
     /**
      * Checks whether the given rule is an exact duplicate of a previously seen rule.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _NetRule $entry
      */
     private function checkExactDuplicate($err, array $entry): bool
@@ -228,7 +228,7 @@ final class NetworkCheck implements Rule
     /**
      * Checks whether the entire rule is made redundant by a global rule.
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _NetRule $entry
      */
     private function checkGlobalRedundancy($err, array $entry): bool
@@ -369,7 +369,7 @@ final class NetworkCheck implements Rule
      *
      * Example: `*$domain=example.com|example.org` and `*$domain=example.com`
      *
-     * @param \Realodix\Haiku\Linter\RuleErrorBuilder $err
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param _NetRule $entry
      */
     private function checkDomainRedundancy($err, array $entry): void

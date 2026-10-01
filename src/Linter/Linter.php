@@ -9,7 +9,7 @@ use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\File;
 
 /**
- * @phpstan-import-type _RuleError from RuleErrorBuilder
+ * @phpstan-import-type _RuleError from ErrorBuilder
  */
 final class Linter
 {
@@ -103,7 +103,7 @@ final class Linter
         // Cache miss: run analysis
         $rawErrors = [];
         foreach ($this->rules as $rule) {
-            foreach ($rule->check($content, new RuleErrorBuilder) as $error) {
+            foreach ($rule->check($content, new ErrorBuilder) as $error) {
                 $rawErrors[] = $error;
 
                 if ($ignoredErrors->shouldIgnore($path, $error)) {
