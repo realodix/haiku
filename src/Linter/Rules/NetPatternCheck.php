@@ -44,9 +44,7 @@ final class NetPatternCheck implements Rule
     private function checkTooShortPattern($err, string $line, bool $hasOptions): void
     {
         $config = $this->config->rules['no_short_rules'];
-        if ($config === false
-            || $hasOptions && ($line === '' || $line === '*' || $line === '@@*')
-        ) {
+        if (!$config || $hasOptions && ($line === '' || $line === '*' || $line === '@@*')) {
             return;
         }
 

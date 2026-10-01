@@ -26,7 +26,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_invalid_option_context: bool,
  *  no_invalid_redirect_resources: bool,
  *  no_invalid_scriptlets: bool|array{known: list<string>},
- *  no_short_rules: false|array{minLen: int},
+ *  no_short_rules: null|false|array{minLen: int},
  *  no_unsupported_option_negation: bool,
  *  no_uppercase_domains: bool,
  * }
@@ -71,7 +71,7 @@ final class LinterConfig
         'no_invalid_option_context' => true,
         'no_invalid_redirect_resources' => true,
         'no_invalid_scriptlets' => true,
-        'no_short_rules' => false,
+        'no_short_rules' => null,
         'no_unsupported_option_negation' => true,
         'no_uppercase_domains' => true,
     ] {
