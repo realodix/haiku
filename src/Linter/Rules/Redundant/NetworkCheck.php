@@ -252,6 +252,7 @@ final class NetworkCheck implements Rule
                 $bucketsToCheck[] = $this->globalIndex['by_token'][$type][$token];
             }
         }
+
         if (!empty($this->globalIndex['no_token'][$type])) {
             $bucketsToCheck[] = $this->globalIndex['no_token'][$type];
         }
@@ -319,6 +320,7 @@ final class NetworkCheck implements Rule
                     return false;
                 }
             }
+
             // Exception options (e.g., $generichide) have distinct behaviors. That rule should not
             // be considered redundant by rules that do not have an options.
             $exceptionOpts = ['ghide', 'generichide', 'shide', 'specifichide', 'ehide', 'elemhide'];
