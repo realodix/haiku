@@ -73,7 +73,7 @@ final class NetworkCheck implements Rule
         $conditionKeys = $this->scope->process($content);
 
         // =====================================================================
-        // Pass 1: Parsing and collect state
+        // Pass 1: Parsing
         // =====================================================================
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -93,19 +93,8 @@ final class NetworkCheck implements Rule
             $optStr = $hasOpts ? $m[2] : '';
             $opts = $hasOpts ? Util::splitOptions($optStr) : [];
             $hasMatchCase = $this->hasOption($opts, 'match-case');
-
             $pattern = $hasOpts ? $m[1] : $line;
-            if (!$hasMatchCase) {
-                $pattern = strtolower($pattern);
-            }
-
             $domains = $this->parseDomains($opts);
-            $optionsKey = $this->buildOptionKey($opts, $hasMatchCase);
-            $hasMixedDomains = $this->isMixedDomains($domains);
-            $isAlmostGlobal = false;
-            if (!$hasMixedDomains && $domains !== []) {
-                $isAlmostGlobal = str_starts_with($domains[0]['name'], '~');
-            }
 
             $entry = [
                 'lineNum' => $lineNum,
@@ -113,42 +102,25 @@ final class NetworkCheck implements Rule
                 'type' => $type,
                 'pattern' => $pattern,
                 'options' => $opts,
-                'optionsKey' => $optionsKey,
+                'optionsKey' => $this->buildOptionKey($opts, $hasMatchCase),
                 'domains' => $domains,
                 'hasOptions' => $hasOpts,
                 'hasDomains' => !empty($domains),
                 'hasMatchCase' => $hasMatchCase,
-                'hasMixedDomains' => $hasMixedDomains,
-                'isAlmostGlobal' => $isAlmostGlobal,
+                'hasMixedDomains' => $this->isMixedDomains($domains),
+                'isAlmostGlobal' => !$this->isMixedDomains($domains)
+                    && $domains !== []
+                    && str_starts_with($domains[0]['name'], '~'),
                 'conditionKey' => $conditionKey,
             ];
+
             $collection[$lineNum] = $entry;
-
-            if ($hasOpts) {
-                $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey][$conditionKey];
-                foreach ($domains as $d) {
-                    $entityKey = $d['type'].':'.$d['name'];
-                    if (!isset($seenMap[$entityKey])) {
-                        $seenMap[$entityKey] = $lineNum;
-                    }
-                }
-            }
-
-            // A rule is considered "specific" only if it contains only an inclusion list and has no negated domain.
-            $isSpecific = ($domains !== [] && !str_starts_with($domains[0]['name'], '~')) && !$hasMixedDomains;
-            if (!$isSpecific) {
-                $uniqueKey = $pattern.'::'.$optionsKey.'::'.implode(',', array_column($domains, 'name')).'::'.$conditionKey;
-                if (!isset($this->globalIndex['stored'][$type][$uniqueKey])) {
-                    $this->globalIndex['stored'][$type][$uniqueKey] = true;
-                    $token = $this->getPrimaryToken($pattern);
-                    if ($token !== null) {
-                        $this->globalIndex['by_token'][$type][$token][] = $entry;
-                    } else {
-                        $this->globalIndex['no_token'][$type][] = $entry;
-                    }
-                }
-            }
         }
+
+        // =====================================================================
+        // Build indexes
+        // =====================================================================
+        $this->buildIndexes($collection);
 
         // =====================================================================
         // Pass 2: Redundancy Analysis
@@ -170,6 +142,70 @@ final class NetworkCheck implements Rule
         $this->reset();
 
         return $err->toArray();
+    }
+
+    /**
+     * Builds indexes used by the redundancy checks.
+     *
+     * @param list<_NetRule> $collection
+     */
+    private function buildIndexes(array $collection): void
+    {
+        foreach ($collection as $entry) {
+            $type = $entry['type'];
+            $pattern = $this->normalizePattern($entry['pattern'], $entry['hasMatchCase']);
+            $optionsKey = $entry['optionsKey'];
+            $conditionKey = $entry['conditionKey'];
+
+            if ($entry['hasOptions']) {
+                $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey][$conditionKey];
+                foreach ($entry['domains'] as $d) {
+                    $entityKey = $d['type'].':'.$d['name'];
+                    if (!isset($seenMap[$entityKey])) {
+                        $seenMap[$entityKey] = $entry['lineNum'];
+                    }
+                }
+            }
+
+            // A rule is considered "specific" only if it contains only an
+            // inclusion list and has no negated domain.
+            $isSpecific = $entry['domains'] !== []
+                && !str_starts_with($entry['domains'][0]['name'], '~')
+                && !$entry['hasMixedDomains'];
+
+            if ($isSpecific) {
+                continue;
+            }
+
+            $uniqueKey = $pattern
+                .'::'.$optionsKey
+                .'::'.implode(',', array_column($entry['domains'], 'name'))
+                .'::'.$conditionKey;
+
+            if (isset($this->globalIndex['stored'][$type][$uniqueKey])) {
+                continue;
+            }
+
+            $this->globalIndex['stored'][$type][$uniqueKey] = true;
+
+            $token = $this->getPrimaryToken($pattern);
+            if ($token !== null) {
+                $this->globalIndex['by_token'][$type][$token][] = $entry;
+            } else {
+                $this->globalIndex['no_token'][$type][] = $entry;
+            }
+        }
+    }
+
+    /**
+     * Normalizes a pattern for case-insensitive comparisons.
+     *
+     * @param string $pattern The pattern of the rule.
+     * @param bool $hasMatchCase Whether the rule has the $match-case option.
+     */
+    private function normalizePattern(string $pattern, bool $hasMatchCase): string
+    {
+        return $hasMatchCase ? $pattern : strtolower($pattern);
     }
 
     /**
@@ -331,7 +367,8 @@ final class NetworkCheck implements Rule
             // If patterns and options are identical, it's a direct duplicate
             if (!$entry['hasDomains']
                 && $best['hasOptions'] === $entry['hasOptions']
-                && $pattern === $best['pattern']
+                && $this->normalizePattern($pattern, $entry['hasMatchCase'])
+                    === $this->normalizePattern($best['pattern'], $best['hasMatchCase'])
             ) {
                 $err->message("Duplicate filter: {$entry['line']} already defined")
                     ->line($entry['lineNum'])
@@ -401,8 +438,9 @@ final class NetworkCheck implements Rule
         // Phase 2: External coverage — check whether any domain is covered by
         // a different rule with an identical or more general selector.
         $type = $entry['type'];
+        $pattern = $this->normalizePattern($entry['pattern'], $entry['hasMatchCase']);
         $optionsKey = $entry['optionsKey'];
-        $seenMap = &$this->seen['pattern_options'][$type][$entry['pattern']][$optionsKey][$entry['conditionKey']];
+        $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey][$entry['conditionKey']];
 
         // The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
         // Check if individual domains are redundant against previous domain-specific rules.
