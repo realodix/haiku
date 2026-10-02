@@ -64,7 +64,7 @@ final class CosmeticCheck implements Rule
         $conditionKeys = $this->scope->process($content);
 
         // =====================================================================
-        // Pass 1: Parsing and Collection
+        // Pass 1: Parsing
         // =====================================================================
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
@@ -126,43 +126,12 @@ final class CosmeticCheck implements Rule
                 'conditionKey' => $conditionKey,
             ];
             $this->collection[$lineNum] = $entry;
-
-            // Group rules into interaction buckets:
-            // 'A' (Attribute Selector), 'S' (Standard Selector), 'U' (Unparsed/Complex Selector)
-            // 'E' (Exact Match), 'P' (Partial Match)
-            if ($attrData) {
-                $val = strtolower($attrData['value']);
-                $op = $attrData['operator'];
-                $tag = $attrData['tag'];
-                $attr = $attrData['attr'];
-
-                if (in_array($op, ['^=', '$=', '*='], true)) {
-                    // Partial bucket (P)
-                    // Example: div[class*="ad"]
-                    $partialKey = $this->buildAttrKey('P', $separator, $tag, $attr, $val, $op);
-                    $this->interactionMap[$partialKey][] = $lineNum;
-                } else {
-                    // Exact bucket (E): groups exact-operator rules (=, ~=).
-                    // Example: .ads and [class="ads"]
-                    $exactKey = $this->buildAttrKey('E', $separator, $tag, $attr, $val, $op);
-                    $this->interactionMap[$exactKey][] = $lineNum;
-                }
-            }
-
-            // S: Groups rules with standard selectors by their canonical form
-            if ($compoundData !== null) {
-                $this->interactionMap['S|'.$entry['separator'].$entry['canonicalSelector']][] = $lineNum;
-
-                foreach ($this->getCompoundComponents($compoundData) as $component) {
-                    $this->interactionMap['C|'.$entry['separator'].$component][] = $lineNum;
-                }
-            }
-
-            // U: Groups rules with unparsed selectors by their raw form
-            if ($attrData === null) {
-                $this->interactionMap['U|'.$entry['separator'].$entry['selector']][] = $lineNum;
-            }
         }
+
+        // =====================================================================
+        // Build indexes
+        // =====================================================================
+        $this->buildIndexes();
 
         // =====================================================================
         // Pass 2: Redundancy Analysis
@@ -184,6 +153,51 @@ final class CosmeticCheck implements Rule
         $this->reset();
 
         return $err->toArray();
+    }
+
+    /**
+     * Builds indexes used to find potential redundant rules.
+     */
+    private function buildIndexes(): void
+    {
+        foreach ($this->collection as $entry) {
+            $attrData = $entry['attrData'];
+
+            // Group rules into interaction buckets:
+            // 'A' (Attribute Selector), 'S' (Standard Selector), 'U' (Unparsed/Complex Selector)
+            // 'E' (Exact Match), 'P' (Partial Match)
+            if ($attrData) {
+                $val = strtolower($attrData['value']);
+                $op = $attrData['operator'];
+                $tag = $attrData['tag'];
+                $attr = $attrData['attr'];
+
+                if (in_array($op, ['^=', '$=', '*='], true)) {
+                    // Partial bucket (P)
+                    // Example: div[class*="ad"]
+                    $partialKey = $this->buildAttrKey('P', $entry['separator'], $tag, $attr, $val, $op);
+                    $this->interactionMap[$partialKey][] = $entry['lineNum'];
+                } else {
+                    // Exact bucket (E): groups exact-operator rules (=, ~=).
+                    // Example: .ads and [class="ads"]
+                    $exactKey = $this->buildAttrKey('E', $entry['separator'], $tag, $attr, $val, $op);
+                    $this->interactionMap[$exactKey][] = $entry['lineNum'];
+                }
+            }
+
+            // S: Groups rules with standard selectors by their canonical form
+            if ($entry['compoundData'] !== null) {
+                $this->interactionMap['S|'.$entry['separator'].$entry['canonicalSelector']][] = $entry['lineNum'];
+                foreach ($this->getCompoundComponents($entry['compoundData']) as $component) {
+                    $this->interactionMap['C|'.$entry['separator'].$component][] = $entry['lineNum'];
+                }
+            }
+
+            // U: Groups rules with unparsed selectors by their raw form
+            if ($attrData === null) {
+                $this->interactionMap['U|'.$entry['separator'].$entry['selector']][] = $entry['lineNum'];
+            }
+        }
     }
 
     /**
