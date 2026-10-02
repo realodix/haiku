@@ -315,7 +315,7 @@ final class NetworkCheck implements Rule
                 );
 
                 if ($this->hasOption($opts, ['badfilter', 'popup', 'redirect', 'redirect-rule'])
-                    || str_starts_with($entry['line'], '||') && $this->hasOption($opts, ['3p', 'third-party'])
+                    || (str_starts_with($entry['line'], '||') && $this->hasOption($opts, ['3p', 'third-party']))
                 ) {
                     return false;
                 }
