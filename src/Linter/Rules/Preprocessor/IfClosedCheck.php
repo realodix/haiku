@@ -33,14 +33,14 @@ final class IfClosedCheck implements Rule
 
             if (str_starts_with($line, '!#else')) {
                 if (empty($stack)) {
-                    $err->message('Found "!#else" without matching "!#if".')
+                    $err->message('Unexpected !#else without matching !#if.')
                         ->build();
 
                     $stack[] = ['lineNum' => $lineNum, 'type' => 'else', 'hasElse' => true];
                 } else {
                     $topIndex = count($stack) - 1;
                     if ($stack[$topIndex]['hasElse']) {
-                        $err->message('Found multiple "!#else" for the same "!#if".')
+                        $err->message('Multiple !#else directives for the same !#if.')
                             ->build();
                     }
                     $stack[$topIndex]['hasElse'] = true;
@@ -51,7 +51,7 @@ final class IfClosedCheck implements Rule
 
             if (str_starts_with($line, '!#endif')) {
                 if (empty($stack)) {
-                    $err->message('Found "!#endif" without matching "!#if".')
+                    $err->message('Unexpected !#endif without matching !#if.')
                         ->build();
                 } else {
                     array_pop($stack);
@@ -63,7 +63,7 @@ final class IfClosedCheck implements Rule
 
         foreach (array_reverse($stack) as $unclosed) {
             $directive = $unclosed['type'] === 'if' ? '!#if' : '!#else';
-            $err->message("The \"{$directive}\" statement is not closed by \"!#endif\".")
+            $err->message("Unclosed {$directive} directive.")
                 ->line($unclosed['lineNum'])
                 ->build();
         }

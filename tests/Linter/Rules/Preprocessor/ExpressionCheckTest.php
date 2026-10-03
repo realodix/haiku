@@ -51,9 +51,9 @@ class ExpressionCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'The "!#if" statement must have a condition.'],
-            [3, 'The "!#if" statement must have a condition.'],
-            [5, 'The "!#if" statement must have a condition.'],
+            [1, '!#if directive requires a condition.'],
+            [3, '!#if directive requires a condition.'],
+            [5, '!#if directive requires a condition.'],
         ]);
     }
 
@@ -72,9 +72,9 @@ class ExpressionCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown value "unknown_value" in "!#if" condition.'],
-            [3, 'Unknown value "unknown" in "!#if" condition.'],
-            [5, 'Unknown value "something_else" in "!#if" condition.'],
+            [1, 'Unsupported !#if constant "unknown_value".'],
+            [3, 'Unsupported !#if constant "unknown".'],
+            [5, 'Unsupported !#if constant "something_else".'],
         ]);
     }
 
@@ -101,7 +101,7 @@ class ExpressionCheckTest extends TestCase
             '!#endif',
         ];
         $this->analyse($lines, [
-            [2, '"env_chromium" will always evaluate to "false" with "env_firefox" from the parent "!#if" on line 1'],
+            [2, '"env_chromium" will always evaluate to "false" with "env_firefox" from the parent !#if on line 1'],
         ]);
     }
 
@@ -133,7 +133,7 @@ class ExpressionCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [3, 'The "!#else" statement must not have a condition.'],
+            [3, '!#else directive must not have a condition.'],
         ]);
     }
 

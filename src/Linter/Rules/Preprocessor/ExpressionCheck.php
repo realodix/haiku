@@ -36,7 +36,7 @@ final class ExpressionCheck implements Rule
                 $condition = trim($m[1] ?? '');
 
                 if ($condition === '') {
-                    $err->message('The "!#if" statement must have a condition.')
+                    $err->message('!#if directive requires a condition.')
                         ->build();
 
                     $stack[] = ['lineNum' => $lineNum, 'reqValue' => []];
@@ -63,7 +63,7 @@ final class ExpressionCheck implements Rule
                 $condition = trim($m[1] ?? '');
 
                 if ($condition !== '') {
-                    $err->message('The "!#else" statement must not have a condition.')
+                    $err->message('!#else directive must not have a condition.')
                         ->build();
                 }
 
@@ -134,14 +134,14 @@ final class ExpressionCheck implements Rule
         preg_match_all('/[a-zA-Z_][a-zA-Z0-9_]*/', $condition, $valueMatches);
 
         if (empty($valueMatches[0])) {
-            $err->message('The "!#if" statement must have a condition.')
+            $err->message('!#if directive requires a condition.')
                 ->build();
         }
 
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $err->message("Unknown value \"{$value}\" in \"!#if\" condition.");
+                $err->message("Unsupported !#if constant \"{$value}\".");
 
                 $hint = Util::getSuggestion($knownPreprocessorValues, $value);
                 if ($hint !== null) {
@@ -216,7 +216,7 @@ final class ExpressionCheck implements Rule
                 }
 
                 $err->message(sprintf(
-                    '"%s" will always evaluate to "false" with "%s" from the parent "!#if"',
+                    '"%s" will always evaluate to "false" with "%s" from the parent !#if',
                     $value, $other,
                 ))->coverLine($parentFrame['lineNum'])
                     ->build();

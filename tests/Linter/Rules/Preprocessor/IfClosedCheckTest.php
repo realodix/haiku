@@ -26,7 +26,6 @@ class IfClosedCheckTest extends TestCase
             'bar',
             '!#endif',
         ];
-
         $this->analyse($lines, onlyRules: self::RULE);
 
         // both if-s are closed properly
@@ -40,7 +39,6 @@ class IfClosedCheckTest extends TestCase
             '!#endif',
             'rule',
         ];
-
         $this->analyse($lines, onlyRules: self::RULE);
 
         // 'include' directive inside 'if' block
@@ -50,7 +48,6 @@ class IfClosedCheckTest extends TestCase
             '!#include https://raw.example.com/file1.txt',
             '!#endif',
         ];
-
         $this->analyse($lines);
     }
 
@@ -61,9 +58,8 @@ class IfClosedCheckTest extends TestCase
             '!#if ext_ubol',
             'foo',
         ];
-
         $this->analyse($lines, [
-            [1, 'The "!#if" statement is not closed by "!#endif".'],
+            [1, 'Unclosed !#if directive.'],
         ]);
 
         $lines = [
@@ -75,9 +71,8 @@ class IfClosedCheckTest extends TestCase
             'rule',
             'rule',
         ];
-
         $this->analyse($lines, [
-            [2, 'The "!#if" statement is not closed by "!#endif".'],
+            [2, 'Unclosed !#if directive.'],
         ], self::RULE);
     }
 
@@ -90,9 +85,8 @@ class IfClosedCheckTest extends TestCase
             '!#else',
             'bar',
         ];
-
         $this->analyse($lines, [
-            [1, 'The "!#if" statement is not closed by "!#endif".'],
+            [1, 'Unclosed !#if directive.'],
         ]);
 
         $lines = [
@@ -105,9 +99,8 @@ class IfClosedCheckTest extends TestCase
             '!#else',
             'rule3',
         ];
-
         $this->analyse($lines, [
-            [5, 'The "!#if" statement is not closed by "!#endif".'],
+            [5, 'Unclosed !#if directive.'],
         ], self::RULE);
     }
 
@@ -118,9 +111,8 @@ class IfClosedCheckTest extends TestCase
             'foo',
             '!#endif',
         ];
-
         $this->analyse($lines, [
-            [2, 'Found "!#endif" without matching "!#if".'],
+            [2, 'Unexpected !#endif without matching !#if.'],
         ]);
 
         $lines = [
@@ -132,9 +124,8 @@ class IfClosedCheckTest extends TestCase
             'rule',
             'rule',
         ];
-
         $this->analyse($lines, [
-            [5, 'Found "!#endif" without matching "!#if".'],
+            [5, 'Unexpected !#endif without matching !#if.'],
         ], self::RULE);
     }
 
@@ -149,10 +140,9 @@ class IfClosedCheckTest extends TestCase
             '!#else',
             'rule2',
         ];
-
         $this->analyse($lines, [
-            [2, 'Found "!#else" without matching "!#if".'],
-            [2, 'The "!#else" statement is not closed by "!#endif".'],
+            [2, 'Unexpected !#else without matching !#if.'],
+            [2, 'Unclosed !#else directive.'],
         ]);
 
         $lines = [
@@ -161,9 +151,8 @@ class IfClosedCheckTest extends TestCase
             'bar',
             '!#endif',
         ];
-
         $this->analyse($lines, [
-            [2, 'Found "!#else" without matching "!#if".'],
+            [2, 'Unexpected !#else without matching !#if.'],
         ]);
 
         $lines = [
@@ -174,9 +163,8 @@ class IfClosedCheckTest extends TestCase
             'rule2',
             '!#endif',
         ];
-
         $this->analyse($lines, [
-            [4, 'Found "!#else" without matching "!#if".'],
+            [4, 'Unexpected !#else without matching !#if.'],
         ]);
     }
 
@@ -192,9 +180,8 @@ class IfClosedCheckTest extends TestCase
             'baz',
             '!#endif',
         ];
-
         $this->analyse($lines, [
-            [5, 'Found multiple "!#else" for the same "!#if".'],
+            [5, 'Multiple !#else directives for the same !#if.'],
         ]);
     }
 
@@ -221,7 +208,7 @@ class IfClosedCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'The "!#if" statement is not closed by "!#endif".'],
+            [1, 'Unclosed !#if directive.'],
         ]);
     }
 }
