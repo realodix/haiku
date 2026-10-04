@@ -331,7 +331,7 @@ class NetworkCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [2, 'Duplicate filter: /ADS/* already defined on line 1'],
-            [4, 'Redundant filter: ||somesite.com/ads1/ already covered by /ads1/* on line 3'],
+            [4, 'Redundant filter: ||somesite.com/ads1/ already covered by /ADS1/* on line 3'],
         ]);
 
         $lines = [
