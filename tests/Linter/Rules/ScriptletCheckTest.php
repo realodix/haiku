@@ -39,11 +39,11 @@ class ScriptletCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown scriptlet: bar'],
-            [2, 'Unknown scriptlet: bar'],
-            [3, 'Unknown scriptlet: bar'],
-            [4, 'Unknown scriptlet: nowolf'],
-            [5, 'Unknown scriptlet: nowolf'],
+            [1, 'Invalid scriptlet: bar'],
+            [2, 'Invalid scriptlet: bar'],
+            [3, 'Invalid scriptlet: bar'],
+            [4, 'Invalid scriptlet: nowolf'],
+            [5, 'Invalid scriptlet: nowolf'],
         ]);
 
         app(LinterConfig::class)->rules = [

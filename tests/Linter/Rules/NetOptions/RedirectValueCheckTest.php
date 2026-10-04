@@ -45,10 +45,10 @@ class RedirectValueCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unknown redirect resource value: invalid'],
-            [2, 'Unknown redirect resource value: noopjs:invalid-priority'],
-            [3, 'Unknown redirect resource value: invalid'],
-            [4, 'Unknown redirect resource value: invalid'],
+            [1, 'Invalid redirect resource: invalid'],
+            [2, 'Invalid redirect resource: noopjs:invalid-priority'],
+            [3, 'Invalid redirect resource: invalid'],
+            [4, 'Invalid redirect resource: invalid'],
         ]);
     }
 }

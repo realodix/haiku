@@ -72,9 +72,9 @@ class ExpressionCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Unsupported !#if constant "unknown_value".'],
-            [3, 'Unsupported !#if constant "unknown".'],
-            [5, 'Unsupported !#if constant "something_else".'],
+            [1, 'Invalid !#if constant "unknown_value".'],
+            [3, 'Invalid !#if constant "unknown".'],
+            [5, 'Invalid !#if constant "something_else".'],
         ]);
     }
 

@@ -141,7 +141,7 @@ final class ExpressionCheck implements Rule
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $err->message("Unsupported !#if constant \"{$value}\".");
+                $err->message("Invalid !#if constant \"{$value}\".");
 
                 $hint = Util::getSuggestion($knownPreprocessorValues, $value);
                 if ($hint !== null) {
