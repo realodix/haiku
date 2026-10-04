@@ -5,9 +5,8 @@ namespace Realodix\Haiku\Support;
 final class Tld
 {
     /**
-     * https://github.com/arubacao/tld-checker/blob/master/src/RootZoneDatabase.php
-     * Version 2026072500, Last Updated Sat Jul 25 07:07:01 2026 UTC
-     * d767afd
+     * Version 2026100400, Last Updated Sun Oct  4 07:07:01 2026 UTC
+     * https://github.com/arubacao/tld-checker/blob/master/src/RootZoneDatabase.php (b1c250f)
      */
     const VALUES = [
         'aaa' => true,
@@ -630,7 +629,6 @@ final class Tld
         'jpmorgan' => true,
         'jprs' => true,
         'juegos' => true,
-        'juniper' => true,
         'kaufen' => true,
         'kddi' => true,
         'ke' => true,
