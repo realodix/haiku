@@ -218,7 +218,7 @@ final class CosmeticCheck implements Rule
 
         if (isset($this->exactSeen[$key])) {
             $msg = $domainStr === ''
-                ? sprintf('Duplicate filter: %s already defined', $entry['line'])
+                ? "Duplicate filter: {$entry['line']} already defined"
                 : 'Duplicate filter: identical to the filter rule';
 
             $err->message($msg)
