@@ -32,7 +32,10 @@ final class NetworkCheck implements Rule
      *
      * @var array{
      *  exact: array<string, int>,
-     *  pattern_options: array<string, array<string, array<string, array<string, array<string, int>>>>>
+     *  pattern_options: array<
+     *    string,               // contextKey
+     *    array<string, int>    // entityKey, lineNum
+     *  >,
      * }
      */
     private array $seen;
@@ -149,7 +152,8 @@ final class NetworkCheck implements Rule
             $pattern = strtolower($entry['pattern']);
 
             if ($entry['hasOptions']) {
-                $seenMap = &$this->seen['pattern_options'][$type][$pattern][$entry['optionsKey']][$entry['conditionKey']];
+                $contextKey = $entry['type'].'::'.$pattern.'::'.$entry['optionsKey'].'::'.$entry['conditionKey'];
+                $seenMap = &$this->seen['pattern_options'][$contextKey];
                 foreach ($entry['domains'] as $d) {
                     $entityKey = $d['type'].':'.$d['name'];
                     if (!isset($seenMap[$entityKey])) {
@@ -417,10 +421,8 @@ final class NetworkCheck implements Rule
 
         // Phase 2: External coverage — check whether any domain is covered by
         // a different rule with an identical or more general selector.
-        $type = $entry['type'];
-        $pattern = strtolower($entry['pattern']);
-        $optionsKey = $entry['optionsKey'];
-        $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey][$entry['conditionKey']];
+        $contextKey = $entry['type'].'::'.strtolower($entry['pattern']).'::'.$entry['optionsKey'].'::'.$entry['conditionKey'];
+        $seenMap = &$this->seen['pattern_options'][$contextKey];
 
         // The rule is DOMAIN-SPECIFIC and not covered by a GLOBAL rule.
         // Check if individual domains are redundant against previous domain-specific rules.
