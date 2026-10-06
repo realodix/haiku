@@ -322,7 +322,6 @@ class NetworkCheckTest extends TestCase
     #[PHPUnit\Test]
     public function case(): void
     {
-        // case insensitive
         $lines = [
             '/ads/*',
             '/ADS/*',
@@ -335,6 +334,45 @@ class NetworkCheckTest extends TestCase
         ]);
 
         $lines = [
+            '/foo-$image,script',
+            '/FOO-$script,image',
+        ];
+
+        $this->analyse($lines, [
+            [2, 'Duplicate filter: /FOO-$script,image already defined on line 1'],
+        ]);
+
+        $lines = [
+            '/banner-$image,domain=x.com|y.com,css',
+            '/Banner-$image,css',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: /banner-$image,domain=x.com|y.com,css already covered by global filter on line 2'],
+        ]);
+
+        $lines = [
+            '/ads$domain=~example.org', // L1: Almost Global (covers all except example.org)
+            '/Ads',                     // L2: Global (covers all)
+            '/ads$domain=example.com',  // L3: Local (covers only example.com)
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Redundant filter: /ads$domain=~example.org already covered by /Ads on line 2'],
+            [3, 'Redundant filter: /ads$domain=example.com already covered by /Ads on line 2'],
+        ]);
+
+        $lines = [
+            '/foo-$to=a.com|b.com|~c.com',
+            '/Foo-$to=a.com',
+            '/FOO-$to=~c.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: /foo-$to=a.com|b.com|~c.com already covered by global filter on line 3'],
+            [2, 'Redundant filter: /Foo-$to=a.com already covered by global filter on line 3'],
+            [3, 'Redundant filter: domain ~c.com already covered on line 1'],
+        ]);
+
+        $lines = [
             '||example.org^$script',
             '||example.org^$SCRIPT',
         ];
@@ -342,13 +380,6 @@ class NetworkCheckTest extends TestCase
             [2, 'Option "SCRIPT" must be lowercase.'],
             [2, 'Duplicate filter: ||example.org^$SCRIPT already defined on line 1'],
         ]);
-
-        // case sensitive
-        $lines = [
-            '?url=http/$doc,to=com|io|net,match-case,urlskip=?url',
-            '?URL=http/$doc,to=com|io|net,match-case,urlskip=?URL',
-        ];
-        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]

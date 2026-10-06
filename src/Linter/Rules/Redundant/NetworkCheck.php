@@ -120,6 +120,10 @@ final class NetworkCheck implements Rule
         // Pass 2: Redundancy Analysis
         // =====================================================================
         foreach ($collection as $entry) {
+            if ($this->hasOption($entry['options'], ['match-case'])) {
+                continue;
+            }
+
             if ($this->checkExactDuplicate($err, $entry)) {
                 continue;
             }
@@ -145,7 +149,7 @@ final class NetworkCheck implements Rule
     {
         foreach ($collection as $entry) {
             $type = $entry['type'];
-            $pattern = $this->normalizePattern($entry['pattern'], $entry['options']);
+            $pattern = strtolower($entry['pattern']);
 
             if ($entry['hasOptions']) {
                 $seenMap = &$this->seen['pattern_options'][$type][$pattern][$entry['optionsKey']][$entry['conditionKey']];
@@ -225,9 +229,7 @@ final class NetworkCheck implements Rule
     private function checkExactDuplicate($err, array $entry): bool
     {
         $line = $entry['line'];
-        $exactKey = ($this->hasOption($entry['options'], 'match-case')
-            ? $line
-            : strtolower($line)).'|'.$entry['conditionKey'];
+        $exactKey = strtolower($line).'|'.$entry['conditionKey'];
 
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message("Duplicate filter: {$line} already defined")
@@ -349,8 +351,7 @@ final class NetworkCheck implements Rule
             // If patterns and options are identical, it's a direct duplicate
             if (!$entry['hasDomains']
                 && $best['hasOptions'] === $entry['hasOptions']
-                && $this->normalizePattern($pattern, $entry['options'])
-                    === $this->normalizePattern($best['pattern'], $best['options'])
+                && strtolower($entry['pattern']) === strtolower($best['pattern'])
             ) {
                 $err->message("Duplicate filter: {$entry['line']} already defined")
                     ->line($entry['lineNum'])
@@ -420,7 +421,7 @@ final class NetworkCheck implements Rule
         // Phase 2: External coverage — check whether any domain is covered by
         // a different rule with an identical or more general selector.
         $type = $entry['type'];
-        $pattern = $this->normalizePattern($entry['pattern'], $entry['options']);
+        $pattern = strtolower($entry['pattern']);
         $optionsKey = $entry['optionsKey'];
         $seenMap = &$this->seen['pattern_options'][$type][$pattern][$optionsKey][$entry['conditionKey']];
 
@@ -509,19 +510,6 @@ final class NetworkCheck implements Rule
     }
 
     /**
-     * Normalizes a pattern for case-insensitive comparisons.
-     *
-     * @param string $pattern The pattern of the rule.
-     * @param list<string> $options
-     */
-    private function normalizePattern(string $pattern, array $options): string
-    {
-        return $this->hasOption($options, 'match-case')
-            ? $pattern
-            : strtolower($pattern);
-    }
-
-    /**
      * @param list<string> $options
      * @param string|list<string> $target
      */
@@ -599,15 +587,13 @@ final class NetworkCheck implements Rule
      */
     private function buildOptionKey(array $opts): string
     {
-        $hasMatchCase = $this->hasOption($opts, 'match-case');
-
         // Extracts non-domain behavioral options (e.g. image, script).
         $nonDomainOpts = [];
         $reDomainOpt = '/^('.implode('|', Registry::DOMAIN_OPTIONS).')=/i';
         foreach ($opts as $opt) {
             $opt = trim($opt);
             if (!preg_match($reDomainOpt, $opt)) {
-                $nonDomainOpts[] = $hasMatchCase ? $opt : strtolower($opt);
+                $nonDomainOpts[] = strtolower($opt);
             }
         }
 
