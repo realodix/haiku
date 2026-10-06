@@ -27,9 +27,6 @@ use Realodix\Haiku\Support\Util;
  */
 final class NetworkCheck implements Rule
 {
-    private const TYPE_BLACKLIST = 'blacklist';
-    private const TYPE_WHITELIST = 'whitelist';
-
     /**
      * Exact duplicates
      *
@@ -87,7 +84,7 @@ final class NetworkCheck implements Rule
                 continue;
             }
 
-            $type = str_starts_with($line, '@@') ? self::TYPE_WHITELIST : self::TYPE_BLACKLIST;
+            $type = str_starts_with($line, '@@') ? 'T_EXCEPTION' : 'T_BLOCK';
             $hasOpts = (bool) preg_match(Regex::NET_OPTION, $line, $m);
             $optStr = $hasOpts ? $m[2] : '';
             $opts = $hasOpts ? Util::splitOptions($optStr) : [];
