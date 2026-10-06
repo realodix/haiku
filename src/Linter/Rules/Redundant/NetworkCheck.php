@@ -31,8 +31,8 @@ final class NetworkCheck implements Rule
      * Exact duplicates
      *
      * @var array{
-     *   exact: array<string, int>,
-     *   pattern_options: array<string, array<string, array<string, array<string, array<string, int>>>>>
+     *  exact: array<string, int>,
+     *  pattern_options: array<string, array<string, array<string, array<string, array<string, int>>>>>
      * }
      */
     private array $seen;
@@ -41,9 +41,9 @@ final class NetworkCheck implements Rule
      * Global redundancy checking
      *
      * @var array{
-     *   by_token: array<string, array<string, list<_NetRule>>>,
-     *   no_token: array<string, list<_NetRule>>,
-     *   stored: array<string, array<string, bool>>,
+     *  by_token: array<string, array<string, list<_NetRule>>>,
+     *  no_token: array<string, list<_NetRule>>,
+     *  stored: array<string, array<string, bool>>,
      * }
      */
     private array $globalIndex;
