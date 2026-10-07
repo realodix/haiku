@@ -83,7 +83,7 @@ final class GeneralCheck implements Rule
         $optionPosition = strpos($before, '$');
 
         if ($optionPosition === false) {
-            $err->message('Possibly missing "$" at the start of the filter option.')
+            $err->message('Possibly missing "$" before the filter option.')
                 ->build();
         } else {
             for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
@@ -98,7 +98,7 @@ final class GeneralCheck implements Rule
                 }
 
                 if ($before[$i] === '$') {
-                    $err->message('Possibly multiple "$" at the end of the filter.')
+                    $err->message('Possibly multiple "$" before the filter option.')
                         ->build();
 
                     break;
@@ -222,10 +222,8 @@ final class GeneralCheck implements Rule
 
         foreach (self::ALIASES as $alias => $canonical) {
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
-                $err->message(sprintf(
-                    'Duplicate option: $%s and $%s are aliases of each other.',
-                    $alias, $canonical,
-                ))->build();
+                $err->message("Duplicate option: \${$alias} and \${$canonical} are aliases of each other.")
+                    ->build();
             }
         }
     }
@@ -331,7 +329,7 @@ final class GeneralCheck implements Rule
 
                 // If no value -> must be used in an exception rule
                 if (!$isException) {
-                    $err->message("Invalid filter: \${$opt} without value is only allowed in exception rules.")
+                    $err->message("Invalid filter: \${$opt} without a value is only allowed as an exception rule.")
                         ->build();
                 }
             }
@@ -357,17 +355,13 @@ final class GeneralCheck implements Rule
                 $domain = trim($domain);
 
                 if (str_starts_with($domain, '~')) {
-                    $err->message(sprintf(
-                        'Domains in the $denyallow value cannot be negated: "%s"',
-                        $domain,
-                    ))->build();
+                    $err->message("Domains in the \$denyallow value cannot be negated: \"{$domain}\"")
+                        ->build();
                 }
 
                 if (str_ends_with($domain, '.*')) {
-                    $err->message(sprintf(
-                        'Domains in the $denyallow value cannot have a wildcard TLD: "%s"',
-                        $domain,
-                    ))->build();
+                    $err->message("Domains in the \$denyallow value cannot have a wildcard TLD: \"{$domain}\"")
+                        ->build();
                 }
             }
         }

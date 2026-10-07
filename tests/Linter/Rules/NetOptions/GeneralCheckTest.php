@@ -130,14 +130,14 @@ class GeneralCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Invalid filter: $csp without value is only allowed in exception rules.'],
-            [2, 'Invalid filter: $permissions without value is only allowed in exception rules.'],
-            [3, 'Invalid filter: $redirect without value is only allowed in exception rules.'],
-            [4, 'Invalid filter: $redirect-rule without value is only allowed in exception rules.'],
-            [5, 'Invalid filter: $uritransform without value is only allowed in exception rules.'],
-            [6, 'Invalid filter: $replace without value is only allowed in exception rules.'],
-            [7, 'Invalid filter: $urlskip without value is only allowed in exception rules.'],
-            [8, 'Invalid filter: $removeheader without value is only allowed in exception rules.'],
+            [1, 'Invalid filter: $csp without a value is only allowed as an exception rule.'],
+            [2, 'Invalid filter: $permissions without a value is only allowed as an exception rule.'],
+            [3, 'Invalid filter: $redirect without a value is only allowed as an exception rule.'],
+            [4, 'Invalid filter: $redirect-rule without a value is only allowed as an exception rule.'],
+            [5, 'Invalid filter: $uritransform without a value is only allowed as an exception rule.'],
+            [6, 'Invalid filter: $replace without a value is only allowed as an exception rule.'],
+            [7, 'Invalid filter: $urlskip without a value is only allowed as an exception rule.'],
+            [8, 'Invalid filter: $removeheader without a value is only allowed as an exception rule.'],
         ]);
 
         $lines = [
@@ -226,9 +226,9 @@ class GeneralCheckTest extends TestCase
             '@@||googleads.g.doubleclick.net/favicon.ico,domain=music.wandhi.com',
         ];
         $this->analyse($lines, [
-            [1, 'Possibly missing "$" at the start of the filter option.'],
-            [2, 'Possibly missing "$" at the start of the filter option.'],
-            [3, 'Possibly missing "$" at the start of the filter option.'],
+            [1, 'Possibly missing "$" before the filter option.'],
+            [2, 'Possibly missing "$" before the filter option.'],
+            [3, 'Possibly missing "$" before the filter option.'],
         ]);
 
         $lines = [
@@ -247,8 +247,8 @@ class GeneralCheckTest extends TestCase
             '||bk21.net/*.gif$image$domain=juragan.film',
         ];
         $this->analyse($lines, [
-            [1, 'Possibly multiple "$" at the end of the filter.'],
-            [2, 'Possibly multiple "$" at the end of the filter.'],
+            [1, 'Possibly multiple "$" before the filter option.'],
+            [2, 'Possibly multiple "$" before the filter option.'],
         ]);
 
         $lines = [
