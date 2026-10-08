@@ -72,7 +72,6 @@ class DomainCheckTest extends TestCase
         $lines = [
             'a,example.com,c##.ads',
             '*$domain=a|example.com|c',
-            'example.##.ad',
             'e xample.com##.ad',
         ];
         $this->analyse($lines, [
@@ -80,11 +79,11 @@ class DomainCheckTest extends TestCase
             [1, 'Bad domain: "c"'],
             [2, 'Bad domain: "a"'],
             [2, 'Bad domain: "c"'],
-            [3, 'Bad domain: "example."'],
-            [4, 'Bad domain: "e xample.com" must not contain whitespace.'],
+            [3, 'Bad domain: "e xample.com" must not contain whitespace.'],
         ]);
 
         $lines = [
+            'example.##.ad',
             '*$domain=example.',
             '*$domain=0.0.0.',
             '!',
@@ -95,9 +94,10 @@ class DomainCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Bad domain: "example."'],
-            [5, 'Bad domain: "/domain.com"'],
-            [6, 'Bad domain: ".domain.com"'],
-            [7, 'Bad domain: "domain.com/"'],
+            [2, 'Bad domain: "example."'],
+            [6, 'Bad domain: "/domain.com"'],
+            [7, 'Bad domain: ".domain.com"'],
+            [8, 'Bad domain: "domain.com/"'],
         ]);
 
         // idn_to_ascii() will return FALSE if it fails and passing a non-string argument to ctype_alpha() is deprecated.
