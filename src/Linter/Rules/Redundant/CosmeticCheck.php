@@ -287,15 +287,9 @@ final class CosmeticCheck implements Rule
                 ) {
                     $message = 'Duplicate filter: identical to the filter rule';
                 } elseif ($bestParent['domains'] === []) {
-                    $message = sprintf(
-                        'Redundant filter: %s already covered by %s',
-                        $entryLine, $bestParent['line'],
-                    );
+                    $message = "Redundant filter: {$entryLine} already covered by {$bestParent['line']}";
                 } elseif (count($bestParent['domains']) === 1) {
-                    $message = sprintf(
-                        'Redundant filter: %s already covered by %s',
-                        $entryLine, $bestParent['line'],
-                    );
+                    $message = "Redundant filter: {$entryLine} already covered by {$bestParent['line']}";
                 } else {
                     $message = 'Redundant filter: already covered';
                 }
