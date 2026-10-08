@@ -207,7 +207,6 @@ final class DomainCheck implements Rule
             || str_contains($domain, '/')
         ) {
             $err->message("Bad domain: \"{$domain}\"")
-                ->tip(sprintf('Did you mean "%s"?', $domain.'*'))
                 ->build();
 
             return;
