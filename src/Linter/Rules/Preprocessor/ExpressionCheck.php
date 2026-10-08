@@ -37,6 +37,7 @@ final class ExpressionCheck implements Rule
 
                 if ($condition === '') {
                     $err->message('!#if directive requires a condition.')
+                        ->identifier('if.empty')
                         ->build();
 
                     $stack[] = ['lineNum' => $lineNum, 'reqValue' => []];
@@ -64,6 +65,7 @@ final class ExpressionCheck implements Rule
 
                 if ($condition !== '') {
                     $err->message('!#else directive must not have a condition.')
+                        ->identifier('if.elseCondition')
                         ->build();
                 }
 
@@ -105,12 +107,14 @@ final class ExpressionCheck implements Rule
 
         if ($balance < 0) {
             $err->message('Extra closing parenthesis without an opening one.')
+                ->identifier('if.extraClosingParenthesis')
                 ->build();
 
             return true;
         }
 
         $err->message('Unclosed opening parenthesis.')
+            ->identifier('if.unclosedOpeningParenthesis')
             ->build();
 
         return true;
@@ -135,13 +139,15 @@ final class ExpressionCheck implements Rule
 
         if (empty($valueMatches[0])) {
             $err->message('!#if directive requires a condition.')
+                ->identifier('if.empty')
                 ->build();
         }
 
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $err->message("Invalid !#if constant \"{$value}\".");
+                $err->message("Invalid !#if constant \"{$value}\".")
+                    ->identifier('if.invalidValue');
 
                 $hint = Util::getSuggestion($knownPreprocessorValues, $value);
                 if ($hint !== null) {
@@ -169,6 +175,7 @@ final class ExpressionCheck implements Rule
                 $intersect = array_values($intersect);
 
                 $err->message("\"{$intersect[0]}\" and \"{$intersect[1]}\" will always evaluate to \"false\".")
+                    ->identifier('if.alwaysFalse')
                     ->build();
             }
         }
@@ -219,6 +226,7 @@ final class ExpressionCheck implements Rule
                     '"%s" will always evaluate to "false" with "%s" from the parent !#if',
                     $value, $other,
                 ))->coverLine($parentFrame['lineNum'])
+                    ->identifier('if.alwaysFalse')
                     ->build();
             }
         }

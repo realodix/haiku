@@ -46,6 +46,7 @@ final class ExcessiveEmptyLinesCheck implements Rule
     {
         if ($count > $maxCount) {
             $err->message("Too many consecutive empty lines ({$count}), maximum allowed is {$maxCount}.")
+                ->identifier('extraBlankLines')
                 ->line($lineNum)
                 ->build();
         }

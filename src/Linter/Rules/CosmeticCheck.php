@@ -64,6 +64,7 @@ final class CosmeticCheck implements Rule
         if (preg_match_all('/(?<!\\\)#[0-9][\w-]*/', $cleanSelector, $matches)) {
             foreach ($matches[0] as $m) {
                 $err->message("Invalid filter: ID selector {$m} cannot start with a number.")
+                    ->identifier('selector.idStartsWithNumber')
                     ->tip('Escape the first digit using its Unicode code point or use another character.')
                     ->link('https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/ident#escaping_characters')
                     ->build();
@@ -108,11 +109,13 @@ final class CosmeticCheck implements Rule
 
             if ($escape === '') {
                 $err->message("Invalid filter: Colon \"{$match}\" must be escaped with a backslash.")
+                    ->identifier('selector.colonNotEscaped')
                     ->build();
             }
 
             if (strlen($escape) > 1) {
                 $err->message("Invalid filter: Colon \"{$match}\" has too many backslashes.")
+                    ->identifier('selector.colonTooManyBackslash')
                     ->build();
             }
         }
@@ -139,6 +142,7 @@ final class CosmeticCheck implements Rule
         }
 
         $err->message("Invalid filter: {$content[0]} requires #?# separator syntax.")
+            ->identifier('cosmetic.abpExtInvalid')
             ->build();
     }
 }

@@ -234,6 +234,7 @@ final class NetworkCheck implements Rule
 
         if (isset($this->seen['exact'][$exactKey])) {
             $err->message("Duplicate filter: {$line} already defined")
+                ->identifier('net.duplicate')
                 ->line($entry['lineNum'])
                 ->coverLine($this->seen['exact'][$exactKey])
                 ->build();
@@ -355,6 +356,7 @@ final class NetworkCheck implements Rule
                 && strtolower($entry['pattern']) === strtolower($best['pattern'])
             ) {
                 $err->message("Duplicate filter: {$entry['line']} already defined")
+                    ->identifier('net.duplicate')
                     ->line($entry['lineNum'])
                     ->coverLine($best['lineNum'])
                     ->build();
@@ -367,7 +369,8 @@ final class NetworkCheck implements Rule
                 $err->message(sprintf(
                     'Redundant filter: %s already covered by global filter',
                     Str::limit($entry['line'], 80),
-                ))->line($entry['lineNum'])
+                ))->identifier('net.redundant')
+                    ->line($entry['lineNum'])
                     ->coverLine($best['lineNum'])
                     ->build();
 
@@ -377,7 +380,8 @@ final class NetworkCheck implements Rule
             $err->message(sprintf(
                 'Redundant filter: %s already covered by %s',
                 Str::limit($entry['line'], 80), $best['pattern'],
-            ))->line($entry['lineNum'])
+            ))->identifier('net.redundant')
+                ->line($entry['lineNum'])
                 ->coverLine($best['lineNum'])
                 ->build();
 
@@ -415,6 +419,7 @@ final class NetworkCheck implements Rule
                     $domain,
                     !str_contains($coveringDomain, '.') ? "\"{$coveringDomain}\" TLD" : $coveringDomain,
                 ))->line($entry['lineNum'])
+                    ->identifier('domain.redundant')
                     ->build();
             }
         }
@@ -468,6 +473,7 @@ final class NetworkCheck implements Rule
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
                 $err->message("Redundant filter: domain {$rd['domain']} already covered")
+                ->identifier('net.redundant')
                     ->line($entry['lineNum'])
                     ->coverLine($rd['atLineNum'])
                     ->build();

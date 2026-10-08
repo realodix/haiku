@@ -84,6 +84,7 @@ final class GeneralCheck implements Rule
 
         if ($optionPosition === false) {
             $err->message('Possibly missing "$" before the filter option.')
+                ->identifier('option.missingMarker')
                 ->build();
         } else {
             for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
@@ -99,6 +100,7 @@ final class GeneralCheck implements Rule
 
                 if ($before[$i] === '$') {
                     $err->message('Possibly multiple "$" before the filter option.')
+                        ->identifier('option.multipleMarkers')
                         ->build();
 
                     break;
@@ -122,6 +124,7 @@ final class GeneralCheck implements Rule
 
             if ($rawName !== $name) {
                 $err->message("Option \"{$rawName}\" must be lowercase.")
+                    ->identifier('option.case')
                     ->build();
             }
         }
@@ -155,6 +158,7 @@ final class GeneralCheck implements Rule
 
         foreach (array_unique($duplicates) as $dup) {
             $err->message("Duplicate option: \${$dup}")
+                ->identifier('option.duplicate')
                 ->build();
         }
     }
@@ -206,6 +210,7 @@ final class GeneralCheck implements Rule
 
         foreach (array_unique($conflicts) as $conflict) {
             $err->message("\${$conflict} conflicts with its negation.")
+                ->identifier('option.duplicate')
                 ->build();
         }
     }
@@ -223,6 +228,7 @@ final class GeneralCheck implements Rule
         foreach (self::ALIASES as $alias => $canonical) {
             if (isset($opts[$alias]) && isset($opts[$canonical])) {
                 $err->message("Duplicate option: \${$alias} and \${$canonical} are aliases of each other.")
+                    ->identifier('option.duplicate')
                     ->build();
             }
         }
@@ -259,6 +265,7 @@ final class GeneralCheck implements Rule
             }
 
             $err->message("\${$name} cannot be negated.")
+                ->identifier('option.negated')
                 ->build();
         }
     }
@@ -279,6 +286,7 @@ final class GeneralCheck implements Rule
         $foundInvalid = array_find(['important'], fn($opt) => $isException && array_key_exists($opt, $opts));
         if ($foundInvalid) {
             $err->message("Invalid filter: \${$foundInvalid} is not allowed in exception rules.")
+                ->identifier('option.invalidInException')
                 ->build();
         }
 
@@ -291,6 +299,7 @@ final class GeneralCheck implements Rule
         foreach ($exceptionOnly as $opt) {
             if (array_key_exists($opt, $opts) && !$isException) {
                 $err->message("Invalid filter: \${$opt} is only allowed in exception rules.")
+                    ->identifier('option.exceptionOnly')
                     ->build();
             }
         }
@@ -330,6 +339,7 @@ final class GeneralCheck implements Rule
                 // If no value -> must be used in an exception rule
                 if (!$isException) {
                     $err->message("Invalid filter: \${$opt} without a value is only allowed as an exception rule.")
+                        ->identifier('option.withoutValue')
                         ->build();
                 }
             }
@@ -356,11 +366,13 @@ final class GeneralCheck implements Rule
 
                 if (str_starts_with($domain, '~')) {
                     $err->message("Domains in the \$denyallow value cannot be negated: \"{$domain}\"")
+                        ->identifier('denyallow.negatedDomain')
                         ->build();
                 }
 
                 if (str_ends_with($domain, '.*')) {
                     $err->message("Domains in the \$denyallow value cannot have a wildcard TLD: \"{$domain}\"")
+                        ->identifier('denyallow.wildcard')
                         ->build();
                 }
             }
@@ -378,6 +390,7 @@ final class GeneralCheck implements Rule
         if (isset($opts['denyallow']) && isset($opts['to'])) {
             $err->message('Invalid filter: $denyallow cannot be used together with $to.')
                 ->tip('It can be expressed with inverted $to: $denyallow=a.com is equivalent to $to=~a.com.')
+                ->identifier('denyallow.usedWithTo')
                 ->build();
         }
     }
@@ -393,6 +406,7 @@ final class GeneralCheck implements Rule
             && !isset($opts['from'])
         ) {
             $err->message('Invalid filter: $denyallow requires $domain.')
+                ->identifier('denyallow.missingDomainOption')
                 ->build();
         }
     }
@@ -418,7 +432,8 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $err->message("Deprecated: The filter option \${$opt} is deprecated.");
+            $err->message("Deprecated: The filter option \${$opt} is deprecated.")
+                ->identifier('option.deprecated');
 
             if ($replacement !== null) {
                 $err->tip(sprintf('Use "%s" instead.', $replacement));

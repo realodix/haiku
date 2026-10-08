@@ -222,6 +222,7 @@ final class CosmeticCheck implements Rule
                 : 'Duplicate filter: identical to the filter rule';
 
             $err->message($msg)
+                ->identifier('cosmetic.duplicate')
                 ->line($entry['lineNum'])
                 ->coverLine($this->exactSeen[$key])
                 ->build();
@@ -286,18 +287,24 @@ final class CosmeticCheck implements Rule
                     && count($bestParent['domains']) > 1
                 ) {
                     $message = 'Duplicate filter: identical to the filter rule';
+                    $identifier = 'cosmetic.duplicate';
                 } elseif ($bestParent['domains'] === []) {
                     $message = "Redundant filter: {$entryLine} already covered by {$bestParent['line']}";
+                    $identifier = 'cosmetic.redundant';
                 } elseif (count($bestParent['domains']) === 1) {
                     $message = "Redundant filter: {$entryLine} already covered by {$bestParent['line']}";
+                    $identifier = 'cosmetic.redundant';
                 } else {
                     $message = 'Redundant filter: already covered';
+                    $identifier = 'cosmetic.redundant';
                 }
             } else {
                 $message = "Redundant filter: {$entryLine} is redundant due to more general selector";
+                $identifier = 'cosmetic.redundant';
             }
 
             $err->message($message)
+                ->identifier($identifier)
                 ->line($entry['lineNum'])
                 ->coverLine($bestParent['lineNum'])
                 ->build();
@@ -330,6 +337,7 @@ final class CosmeticCheck implements Rule
                 $domain,
                 !str_contains($coveringDomain, '.') ? "\"{$coveringDomain}\" TLD" : $coveringDomain,
             ))->line($entry['lineNum'])
+                ->identifier('domain.redundant')
                 ->build();
         }
 
@@ -409,6 +417,7 @@ final class CosmeticCheck implements Rule
                 }
 
                 $err->message($message)
+                    ->identifier('domain.duplicate')
                     ->line($entry['lineNum'])
                     ->coverLine($parent['lineNum'])
                     ->build();
