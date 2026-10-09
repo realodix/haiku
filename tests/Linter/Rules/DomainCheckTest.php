@@ -72,14 +72,21 @@ class DomainCheckTest extends TestCase
         $lines = [
             'a,example.com,c##.ads',
             '*$domain=a|example.com|c',
-            'e xample.com##.ad',
         ];
         $this->analyse($lines, [
             [1, 'Bad domain: "a"'],
             [1, 'Bad domain: "c"'],
             [2, 'Bad domain: "a"'],
             [2, 'Bad domain: "c"'],
-            [3, 'Bad domain: "e xample.com" must not contain whitespace.'],
+        ]);
+
+        $lines = [
+            '*$domain=example.com |example.org',
+            'example.com ,example.org##.ad',
+        ];
+        $this->analyse($lines, [
+            [1, 'Bad domain: "example.com " must not contain whitespace.'],
+            [2, 'Bad domain: "example.com " must not contain whitespace.'],
         ]);
 
         $lines = [
