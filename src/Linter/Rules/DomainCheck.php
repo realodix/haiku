@@ -260,7 +260,7 @@ final class DomainCheck implements Rule
                 $err->message("Bad domain: \"{$domain}\" has an invalid TLD.")
                     ->identifier('domain.invalid')
                     ->when($hint, function () use ($err, $hint, $domainInfo) {
-                        $err->tip(sprintf('Did you mean "%s"?', $domainInfo['filename'].'.'.$hint));
+                        return $err->tip(sprintf('Did you mean "%s"?', $domainInfo['filename'].'.'.$hint));
                     })->build();
             }
         }
