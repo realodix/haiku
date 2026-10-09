@@ -60,7 +60,7 @@ final class IgnoredErrors
             $msg = $pattern['message'] ?? null;
 
             if ($path !== null && $msg !== null) {
-                $exactKey = self::buildExactKey($path, $pattern);
+                $exactKey = self::buildExactKey($path, $msg, $pattern);
 
                 $this->exactPatternIndex[$exactKey] = $index;
             }
@@ -178,7 +178,7 @@ final class IgnoredErrors
     public function shouldIgnoreExact(string $path, array $errors): bool
     {
         $path = Path::makeRelative($path, base_path());
-        $exactKey = self::buildExactKey($path, $errors);
+        $exactKey = self::buildExactKey($path, $errors['message'], $errors);
 
         if (isset($this->exactPatternIndex[$exactKey])) {
             $index = $this->exactPatternIndex[$exactKey];
@@ -364,10 +364,10 @@ final class IgnoredErrors
     /**
      * @param _RuleError|_IgnoredError $errors
      */
-    private static function buildExactKey(string $path, array $errors): string
+    private static function buildExactKey(string $path, string $msg, array $errors): string
     {
         return $path
-            .$errors['message']
+            .$msg
             .($errors['identifier'] ?? '')
             .($errors['covered_by_line'] ?? '');
     }
