@@ -35,11 +35,15 @@ if (!function_exists('base_path')) {
         }
 
         // symfony/polyfill-php85
-        $basePath = dirname(array_first(array_filter(
+        $basePath = array_first(array_filter(
             array_keys(ClassLoader::getRegisteredLoaders()),
             fn($pharPath) => !str_starts_with($pharPath, 'phar://'),
-        )));
+        ));
 
-        return Path::join($basePath, $path);
+        if ($basePath === null) {
+            throw new \RuntimeException('Could not find the base path of the application');
+        }
+
+        return Path::join(dirname($basePath), $path);
     }
 }
