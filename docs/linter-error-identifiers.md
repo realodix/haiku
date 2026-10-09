@@ -55,7 +55,7 @@ selector.colonNotEscaped
 selector.colonTooManyBackslash
 
 
-scriptlet.invalidValue
+scriptlet.invalid
 scriptlet.deprecated
 
 
