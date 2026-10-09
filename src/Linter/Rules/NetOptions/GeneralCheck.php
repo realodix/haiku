@@ -389,8 +389,8 @@ final class GeneralCheck implements Rule
     {
         if (isset($opts['denyallow']) && isset($opts['to'])) {
             $err->message('Invalid filter: $denyallow cannot be used together with $to.')
-                ->tip('It can be expressed with inverted $to: $denyallow=a.com is equivalent to $to=~a.com.')
                 ->identifier('denyallow.usedWithTo')
+                ->tip('It can be expressed with inverted $to: $denyallow=a.com is equivalent to $to=~a.com.')
                 ->build();
         }
     }

@@ -473,7 +473,7 @@ final class NetworkCheck implements Rule
         if (!$isMixedContext && !empty($redundantDomains)) {
             foreach ($redundantDomains as $rd) {
                 $err->message("Redundant filter: domain {$rd['domain']} already covered")
-                ->identifier('net.redundant')
+                    ->identifier('net.redundant')
                     ->line($entry['lineNum'])
                     ->coverLine($rd['atLineNum'])
                     ->build();

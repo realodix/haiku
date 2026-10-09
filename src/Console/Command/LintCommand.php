@@ -140,12 +140,12 @@ class LintCommand extends Command
 
                 $io->writeln(sprintf('  :%-5d %s', $issue['line'], $msg));
 
-                if (isset($issue['tip'])) {
-                    $io->writeln($this->meta($issue['tip'], '💡'));
-                }
-
                 if (isset($issue['identifier'])) {
                     $io->writeln($this->meta("{$issue['identifier']}"));
+                }
+
+                if (isset($issue['tip'])) {
+                    $io->writeln($this->meta($issue['tip'], '💡'));
                 }
 
                 if (isset($issue['link'])) {
