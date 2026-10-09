@@ -48,15 +48,11 @@ final class ScriptletCheck implements Rule
 
         $scriptlets = $this->getScriptletNames();
         if (!in_array($value, $scriptlets, true)) {
-            $err->message("Invalid scriptlet: {$value}")
-                ->identifier('scriptlet.invalidValue');
-
             $hint = Util::getSuggestion($scriptlets, $value);
-            if ($hint !== null) {
-                $err->tip(sprintf('Did you mean "%s"?', $hint));
-            }
-
-            $err->build();
+            $err->message("Invalid scriptlet: {$value}")
+                ->identifier('scriptlet.invalidValue')
+                ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                ->build();
         }
     }
 

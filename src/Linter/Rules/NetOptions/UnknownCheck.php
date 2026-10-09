@@ -39,15 +39,11 @@ final class UnknownCheck implements Rule
                 }
 
                 if (!in_array($actualName, $knownOptions, true)) {
-                    $err->message("Unknown filter option: \"{$actualName}\"")
-                        ->identifier('option.invalid');
-
                     $hint = Util::getSuggestion($knownOptions, Registry::NORMALIZED_UNKNOWN[$actualName] ?? $actualName);
-                    if ($hint !== null) {
-                        $err->tip(sprintf('Did you mean "%s"?', $hint));
-                    }
-
-                    $err->build();
+                    $err->message("Unknown filter option: \"{$actualName}\"")
+                        ->identifier('option.invalid')
+                        ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                        ->build();
                 }
             }
         }

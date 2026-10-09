@@ -146,15 +146,11 @@ final class ExpressionCheck implements Rule
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
         foreach ($valueMatches[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
-                $err->message("Invalid !#if constant \"{$value}\".")
-                    ->identifier('if.invalidValue');
-
                 $hint = Util::getSuggestion($knownPreprocessorValues, $value);
-                if ($hint !== null) {
-                    $err->tip(sprintf('Did you mean "%s"?', $hint));
-                }
-
-                $err->build();
+                $err->message("Invalid !#if constant \"{$value}\".")
+                    ->identifier('if.invalidValue')
+                    ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                    ->build();
             }
         }
     }

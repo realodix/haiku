@@ -51,15 +51,11 @@ final class RedirectValueCheck implements Rule
         );
 
         if (!in_array($value, $knownResources, true)) {
-            $err->message("Invalid redirect resource: {$value}")
-                ->identifier('redirect.invalidValue');
-
             $hint = Util::getSuggestion($knownResources, Registry::NORMALIZED_UNKNOWN[$value] ?? $value);
-            if ($hint !== null) {
-                $err->tip(sprintf('Did you mean "%s"?', $hint));
-            }
-
-            $err->build();
+            $err->message("Invalid redirect resource: {$value}")
+                ->identifier('redirect.invalidValue')
+                ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                ->build();
         }
     }
 

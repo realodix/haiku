@@ -256,15 +256,12 @@ final class DomainCheck implements Rule
             $tld = $domainInfo['extension'];
 
             if (!isset(Tld::VALUES[$tld]) && $tld !== '*') {
-                $err->message("Bad domain: \"{$domain}\" has an invalid TLD.")
-                    ->identifier('domain.invalid');
-
                 $hint = Util::getSuggestion(array_keys(Tld::VALUES), $tld);
-                if ($hint !== null) {
-                    $err->tip(sprintf('Did you mean "%s"?', $domainInfo['filename'].'.'.$hint));
-                }
-
-                $err->build();
+                $err->message("Bad domain: \"{$domain}\" has an invalid TLD.")
+                    ->identifier('domain.invalid')
+                    ->when($hint, function () use ($err, $hint, $domainInfo) {
+                        $err->tip(sprintf('Did you mean "%s"?', $domainInfo['filename'].'.'.$hint));
+                    })->build();
             }
         }
     }
