@@ -31,7 +31,7 @@ class DomainCheckTest extends TestCase
         ], self::RULE);
 
         $lines = [
-            ',a.com,b.com,c.com,,d.com,e.com,f.com,,,g.com,h.com,i.com,##.ad-middle',
+            ',a.com,b.com,c.com,,d.com,e.com,f.com,  , ,g.com,h.com,i.com,##.ad-middle',
         ];
         $this->analyse($lines, [
             [1, 'Unexpected empty domain after "f.com"'],
