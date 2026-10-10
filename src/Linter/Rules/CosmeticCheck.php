@@ -42,6 +42,7 @@ final class CosmeticCheck implements Rule
 
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     * @param array<string, string> $node
      */
     private function checkSeparator($err, array $node): void
     {
