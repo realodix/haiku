@@ -13,6 +13,21 @@ class CosmeticCheckTest extends TestCase
     ];
 
     #[PHPUnit\Test]
+    public function badSeparator(): void
+    {
+        // https://github.com/ABPindo/indonesianadblockrules/blob/48909402ea/src/advert/specific_hide.txt#L325
+        $lines = [
+            'shinigami09.com###.ad-container',
+            'shinigami09.com####ad-container',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Bad separator.'],
+            [2, 'Bad separator.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function id_selector_invalid(): void
     {
         $lines = [
@@ -92,4 +107,6 @@ class CosmeticCheckTest extends TestCase
             [3, 'Invalid filter: -abp-properties requires #?# separator syntax.'],
         ]);
     }
+
+
 }
