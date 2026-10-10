@@ -31,12 +31,31 @@ final class CosmeticCheck implements Rule
                 'selector' => $m[5],  // .ads
             ];
 
+            $this->checkSeparator($err, $node);
             $this->checkIdSelectorStartsWithDigit($err, $node);
             $this->checkColonEscape($err, $node);
             $this->checkAbpExtendedCssSelectors($err, $node);
         }
 
         return $err->toArray();
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     * @param array<string, string> $node
+     */
+    private function checkSeparator($err, array $node): void
+    {
+        if (($node['separator'] === '##' || $node['separator'] !== '#@#')
+            && str_starts_with($node['selector'], '#')
+            && strlen($node['selector']) > 1
+        ) {
+            if (preg_match('/[.#]/', $node['selector'][1])) {
+                $err->message('Bad separator.')
+                    ->identifier('cosmetic.badSeparator')
+                    ->build();
+            }
+        }
     }
 
     /**
