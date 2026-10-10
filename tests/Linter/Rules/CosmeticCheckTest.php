@@ -47,7 +47,7 @@ class CosmeticCheckTest extends TestCase
             // https://github.com/ABPindo/indonesianadblockrules/blob/90e59175b3/src/advert/specific_hide.txt#L742
             'example.com##.dark\\\:bg-gray-700',
             // https://github.com/ABPindo/indonesianadblockrules/blob/90e59175b3/src/adult/adult_specific_hide.txt#L200
-            'example.com####.dark:bg-gray-700',
+            'example.com##.dark:bg-gray-700',
         ];
         $this->analyse($lines, [
             [1, 'Invalid filter: Colon ":col-span-8" must be escaped with a backslash.'],
