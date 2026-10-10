@@ -74,8 +74,7 @@ domain.malformed
 domain.misplacedWildcard
 
 
-option.missingMarker
-option.multipleMarkers
+net.badSeparator
 option.invalid
 option.case
 option.duplicate

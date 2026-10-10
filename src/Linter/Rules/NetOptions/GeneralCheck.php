@@ -41,7 +41,7 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $this->checkInvalidOptionMarker($err, $line);
+            $this->checkNetSeparator($err, $line);
 
             if (!preg_match(Regex::NET_OPTION, $line, $m)) {
                 continue;
@@ -72,7 +72,7 @@ final class GeneralCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkInvalidOptionMarker($err, string $line): void
+    private function checkNetSeparator($err, string $line): void
     {
         if (!preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $m, PREG_OFFSET_CAPTURE)) {
             return;
@@ -84,7 +84,7 @@ final class GeneralCheck implements Rule
 
         if ($optionPosition === false) {
             $err->message('Possibly missing "$" before the filter option.')
-                ->identifier('option.missingMarker')
+                ->identifier('net.badSeparator')
                 ->build();
         } else {
             for ($i = $optionPosition + 1, $length = strlen($before); $i < $length; $i++) {
@@ -100,7 +100,7 @@ final class GeneralCheck implements Rule
 
                 if ($before[$i] === '$') {
                     $err->message('Possibly multiple "$" before the filter option.')
-                        ->identifier('option.multipleMarkers')
+                        ->identifier('net.badSeparator')
                         ->build();
 
                     break;

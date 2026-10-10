@@ -9,6 +9,52 @@ use Realodix\Haiku\Test\TestCase;
 class GeneralCheckTest extends TestCase
 {
     #[PHPUnit\Test]
+    public function possibly_bad_net_separator(): void
+    {
+        $lines = [
+            '||example.com^domain=x.com',
+            // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/adult/adult_specific_block.txt
+            '||example.com^,domain=x.com',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/136526da7c/ChineseFilter/sections/antiadblock.txt#L146
+            '@@||googleads.g.doubleclick.net/favicon.ico,domain=music.wandhi.com',
+        ];
+        $this->analyse($lines, [
+            [1, 'Possibly missing "$" before the filter option.'],
+            [2, 'Possibly missing "$" before the filter option.'],
+            [3, 'Possibly missing "$" before the filter option.'],
+        ]);
+
+        $lines = [
+            '/munin/a/tr/browserjs?domain=',
+            '/counter/?domain=$image,~third-party',
+            '@@||adservice.google.com/adsid/integrator.js?domain=www.cbs.com$domain=cbs.com',
+            '||adservice.google.*/adsid/integrator.js?domain=dl.ccbluex.net$redirect=nooptext,important,domain=dl.ccbluex.net',
+            '||cdn.jwplayer.com/*/playlists/*?page_domain=www.techwalla.com',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            // https://github.com/easylist/easylist/blob/cd27c0c2b0/easylist_cookie/easylist_cookie_allowlist.txt#L95
+            '@@||consent.truste.com/notice$domain=$domain=fortune.com',
+            // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/advert/specific_block.txt#L152
+            '||bk21.net/*.gif$image$domain=juragan.film',
+        ];
+        $this->analyse($lines, [
+            [1, 'Possibly multiple "$" before the filter option.'],
+            [1, 'Bad domain: "$domain=fortune.com"'],
+            [2, 'Possibly multiple "$" before the filter option.'],
+        ]);
+
+        $lines = [
+            '/api.sportplus.watch\/v\d\.\d+\/\w+$/$xmlhttprequest,domain=sportplus.tv',
+            '/\/\d+\.js$/$domain=7themes.su',
+            '/GetVodPlaybackResources?$jsonprune=\$.vodPlaybackUrls.result.playbackUrls.cuepoints,xmlhttprequest,domain=amazon.com',
+            '@@||alkalimetricsink-pa.clients6.google.com/$rpc/google.internal.alkali.applications.metricsink.v1.MetricService/RecordMetrics$domain=matrix.itasoftware.com,stealth=referrer',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function case(): void
     {
         $lines = [
@@ -213,51 +259,5 @@ class GeneralCheckTest extends TestCase
             [3, 'Deprecated: The filter option $queryprune is deprecated.'],
             [4, 'Deprecated: The filter option $queryprune is deprecated.'],
         ]);
-    }
-
-    #[PHPUnit\Test]
-    public function possibly_invalid_options_marker(): void
-    {
-        $lines = [
-            '||example.com^domain=x.com',
-            // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/adult/adult_specific_block.txt
-            '||example.com^,domain=x.com',
-            // https://github.com/AdguardTeam/AdguardFilters/blob/136526da7c/ChineseFilter/sections/antiadblock.txt#L146
-            '@@||googleads.g.doubleclick.net/favicon.ico,domain=music.wandhi.com',
-        ];
-        $this->analyse($lines, [
-            [1, 'Possibly missing "$" before the filter option.'],
-            [2, 'Possibly missing "$" before the filter option.'],
-            [3, 'Possibly missing "$" before the filter option.'],
-        ]);
-
-        $lines = [
-            '/munin/a/tr/browserjs?domain=',
-            '/counter/?domain=$image,~third-party',
-            '@@||adservice.google.com/adsid/integrator.js?domain=www.cbs.com$domain=cbs.com',
-            '||adservice.google.*/adsid/integrator.js?domain=dl.ccbluex.net$redirect=nooptext,important,domain=dl.ccbluex.net',
-            '||cdn.jwplayer.com/*/playlists/*?page_domain=www.techwalla.com',
-        ];
-        $this->analyse($lines);
-
-        $lines = [
-            // https://github.com/easylist/easylist/blob/cd27c0c2b0/easylist_cookie/easylist_cookie_allowlist.txt#L95
-            '@@||consent.truste.com/notice$domain=$domain=fortune.com',
-            // https://github.com/ABPindo/indonesianadblockrules/blob/9460206d53/src/advert/specific_block.txt#L152
-            '||bk21.net/*.gif$image$domain=juragan.film',
-        ];
-        $this->analyse($lines, [
-            [1, 'Possibly multiple "$" before the filter option.'],
-            [1, 'Bad domain: "$domain=fortune.com"'],
-            [2, 'Possibly multiple "$" before the filter option.'],
-        ]);
-
-        $lines = [
-            '/api.sportplus.watch\/v\d\.\d+\/\w+$/$xmlhttprequest,domain=sportplus.tv',
-            '/\/\d+\.js$/$domain=7themes.su',
-            '/GetVodPlaybackResources?$jsonprune=\$.vodPlaybackUrls.result.playbackUrls.cuepoints,xmlhttprequest,domain=amazon.com',
-            '@@||alkalimetricsink-pa.clients6.google.com/$rpc/google.internal.alkali.applications.metricsink.v1.MetricService/RecordMetrics$domain=matrix.itasoftware.com,stealth=referrer',
-        ];
-        $this->analyse($lines);
     }
 }
