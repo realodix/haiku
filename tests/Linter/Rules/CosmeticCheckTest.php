@@ -107,6 +107,4 @@ class CosmeticCheckTest extends TestCase
             [3, 'Invalid filter: -abp-properties requires #?# separator syntax.'],
         ]);
     }
-
-
 }

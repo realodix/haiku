@@ -50,7 +50,7 @@ final class CosmeticCheck implements Rule
             && strlen($node['selector']) > 1
         ) {
             if (preg_match('/[.#]/', $node['selector'][1])) {
-                $err->message("Bad separator.")
+                $err->message('Bad separator.')
                     ->identifier('cosmetic.badSeparator')
                     ->build();
             }
