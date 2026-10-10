@@ -248,6 +248,7 @@ class GeneralCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Possibly multiple "$" before the filter option.'],
+            [1, 'Bad domain: "$domain=fortune.com"'],
             [2, 'Possibly multiple "$" before the filter option.'],
         ]);
 

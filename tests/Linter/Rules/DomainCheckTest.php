@@ -54,6 +54,22 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function lowercase_domain_only(): void
+    {
+        $lines = [
+            'Example.com,example.org,X.COM##.ads',
+            '*$domain=Example.com|example.org|~X.COM',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Domain "Example.com" must be lowercase.'],
+            [1, 'Domain "X.COM" must be lowercase.'],
+            [2, 'Domain "Example.com" must be lowercase.'],
+            [2, 'Domain "~X.COM" must be lowercase.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function bad_domain(): void
     {
         $lines = [
@@ -74,10 +90,10 @@ class DomainCheckTest extends TestCase
             '*$domain=a|example.com|c',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain: "a"'],
-            [1, 'Bad domain: "c"'],
-            [2, 'Bad domain: "a"'],
-            [2, 'Bad domain: "c"'],
+            [1, 'Bad domain: "a" is an invalid TLD.'],
+            [1, 'Bad domain: "c" is an invalid TLD.'],
+            [2, 'Bad domain: "a" is an invalid TLD.'],
+            [2, 'Bad domain: "c" is an invalid TLD.'],
         ]);
 
         $lines = [
@@ -102,19 +118,20 @@ class DomainCheckTest extends TestCase
         $this->analyse($lines, [
             [1, 'Bad domain: "example."'],
             [2, 'Bad domain: "example."'],
+            [3, 'Bad domain: "0.0.0."'],
             [6, 'Bad domain: "/domain.com"'],
             [7, 'Bad domain: ".domain.com"'],
             [8, 'Bad domain: "domain.com/"'],
         ]);
 
-        // idn_to_ascii() will return FALSE if it fails and passing a non-string argument to ctype_alpha() is deprecated.
-        // https://github.com/realodix/haiku/blob/7ee019c35e/src/Linter/Rules/DomainCheck.php#L197
+        // https://github.com/ABPindo/indonesianadblockrules/commit/48909402ea53e2de146df6766b9ceb6bfd70d04f
         $lines = [
-            // https://github.com/DandelionSprout/adfilt/blob/26ed32a07c/Alternate%20versions%20Anti-Malware%20List/AntiMalwareABP.txt#L24728
-            '||gitcoin-developers.$all,domain=~blatant_scammers_who_have_no_actual_relations_with_github_whatsoever.*',
+            '.gif$image,domain=shinigami\.asia',
+            'shinigami\.asia##.ad-container',
         ];
         $this->analyse($lines, [
-            [1, 'Bad domain: "~blatant_scammers_who_have_no_actual_relations_with_github_whatsoever.*"'],
+            [1, 'Bad domain: "shinigami\.asia"'],
+            [2, 'Bad domain: "shinigami\.asia"'],
         ]);
 
         $lines = [
@@ -126,6 +143,9 @@ class DomainCheckTest extends TestCase
             '@@||lastpass.com/ads.php$subdocument,domain=chrome-extension-scheme|moz-extension-scheme|addons.about-scheme',
             // https://github.com/uBlockOrigin/uAssets/blob/3bf1b42bd6/filters/filters-2024.txt#L3763
             '*$doc,ipaddress=199.59.243.227,to=~parked.domain',
+            // https://github.com/DandelionSprout/adfilt/blob/26ed32a07c/Alternate%20versions%20Anti-Malware%20List/AntiMalwareABP.txt#L24728
+            // "_" is valid character in uBo
+            '||gitcoin-developers.$all,domain=~blatant_scammers_who_have_no_actual_relations_with_github_whatsoever.*',
         ];
         $this->analyse($lines);
     }
@@ -278,22 +298,6 @@ class DomainCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Bad domain: "example.com>>". The network filter does not support ancestor context.'],
-        ]);
-    }
-
-    #[PHPUnit\Test]
-    public function lowercase_domain_only(): void
-    {
-        $lines = [
-            'Example.com,example.org,X.COM##.ads',
-            '*$domain=Example.com|example.org|~X.COM',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Domain "Example.com" must be lowercase.'],
-            [1, 'Domain "X.COM" must be lowercase.'],
-            [2, 'Domain "Example.com" must be lowercase.'],
-            [2, 'Domain "~X.COM" must be lowercase.'],
         ]);
     }
 

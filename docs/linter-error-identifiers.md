@@ -68,6 +68,7 @@ domain.conflict
 domain.case
 domain.empty
 domain.singleChar
+domain.badChar
 domain.whitespace
 domain.malformed
 domain.misplacedWildcard

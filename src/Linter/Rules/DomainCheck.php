@@ -102,13 +102,37 @@ final class DomainCheck implements Rule
                 continue;
             }
 
-            $this->checkBadDomainName($err, $domain, $separator);
-            $this->checkAncestorContexts($err, $domain, $separator);
+            $this->checkCase($err, $domain);
+
+            if ($this->checkAncestorContexts($err, $domain, $separator)) {
+                continue;
+            }
+
+            $domain = rtrim($domain, '>'); // clean up the ancestor context
+            $domain = strtolower($domain);
+
+            if ($this->checkBadDomainName($err, $domain, $separator)) {
+                continue;
+            }
+
+            $this->checkBadDomainTld($err, $domain);
             $this->trackDuplicate($domain, $state);
             $this->trackDomainConflict($domain, $state);
         }
 
         $this->reportStatefulErrors($err, $state);
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkCase($err, string $domain): void
+    {
+        if ($this->config->rules['no_uppercase_domains'] && strtolower($domain) !== $domain) {
+            $err->message("Domain \"{$domain}\" must be lowercase.")
+                ->identifier('domain.case')
+                ->build();
+        }
     }
 
     /**
@@ -150,15 +174,77 @@ final class DomainCheck implements Rule
      *
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkBadDomainName($err, string $domain, string $separator): void
+    private function checkBadDomainName($err, string $domain, string $separator): bool
     {
-        if ($this->config->rules['no_uppercase_domains'] && strtolower($domain) !== $domain) {
-            $err->message("Domain \"{$domain}\" must be lowercase.")
-                ->identifier('domain.case')
-                ->build();
+        if (!$this->config->rules['no_bad_domains']) {
+            return false;
         }
 
+        if ($domain === '*' && $separator === '|') {
+            $err->message("Bad domain: \"{$domain}\"")
+                ->identifier('domain.invalid')
+                ->build();
+
+            return true;
+        }
+
+        // =================================================================
+        // Bad characters
+        // =================================================================
+        $normDomain = ltrim($domain, '~');
+
+        if (preg_match('/\s/', $domain)) {
+            $err->message("Bad domain: \"{$domain}\" must not contain whitespace.")
+                ->identifier('domain.whitespace')
+                ->build();
+
+            return true;
+        }
+
+        // https://github.com/gorhill/uBlock/blob/e5e96f6765/src/js/static-filtering-parser.js#L830
+        // https://www.daleswanson.org/ascii.htm
+        $reBadHostnameChars = '/[\x00-\x24\x26-\x29\x2b\x2c\x2f\x3b-\x40\x5c\x5e\x60\x7b-\x7f]/';
+        if (preg_match($reBadHostnameChars, $normDomain)) {
+            $err->message("Bad domain: \"{$domain}\"")
+                ->identifier('domain.badChar')
+                ->build();
+
+            return true;
+        }
+
+        // =================================================================
+        // Bad form
+        // =================================================================
+        if (str_starts_with($domain, '.') || str_ends_with($domain, '.')) {
+            $err->message("Bad domain: \"{$domain}\"")
+                ->identifier('domain.malformed')
+                ->build();
+
+            return true;
+        }
+
+        if (str_contains($domain, '*') && !str_ends_with($domain, '*')) {
+            $err->message("Bad domain: \"{$domain}\" has a wildcard in an invalid position.")
+                ->identifier('domain.misplacedWildcard')
+                ->build();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkBadDomainTld($err, string $domain): void
+    {
         if (!$this->config->rules['no_bad_domains']) {
+            return;
+        }
+
+        $domain = idn_to_ascii($domain);
+        if ($domain === false) {
             return;
         }
 
@@ -170,67 +256,6 @@ final class DomainCheck implements Rule
             return;
         }
 
-        $domain = strtolower($domain);
-
-        // =================================================================
-        // Single character check
-        // =================================================================
-        if (strlen($domain) === 1
-            && (($domain == '*' && $separator === '|') || $domain !== '*')
-        ) {
-            $err->message("Bad domain: \"{$domain}\"")
-                ->identifier('domain.singleChar')
-                ->build();
-
-            return;
-        }
-
-        // =================================================================
-        // Whitespace check
-        // =================================================================
-        if (preg_match('/\s/', $domain)) {
-            $err->message("Bad domain: \"{$domain}\" must not contain whitespace.")
-                ->identifier('domain.whitespace')
-                ->build();
-
-            return;
-        }
-
-        // =================================================================
-        // Format / forbidden character check
-        // =================================================================
-        $dIdnaAscii = idn_to_ascii($domain);
-        if ($dIdnaAscii === false) {
-            $err->message("Bad domain: \"{$domain}\"")
-                ->identifier('domain.malformed')
-                ->build();
-
-            return;
-        }
-
-        if (str_ends_with($domain, '.') && !preg_match('/^[\d\.]+$/', $domain)
-            || str_starts_with($domain, '.')
-            || str_contains($domain, '/')
-        ) {
-            $err->message("Bad domain: \"{$domain}\"")
-                ->identifier('domain.malformed')
-                ->build();
-
-            return;
-        }
-
-        $domain = rtrim($dIdnaAscii, '>'); // clean up the ancestor context
-
-        // missplaced wildcard
-        if (str_contains($domain, '*') && !str_ends_with($domain, '*')) {
-            $err->message("Bad domain: \"{$domain}\" has a wildcard in an invalid position.")
-                ->identifier('domain.misplacedWildcard')
-                ->build();
-        }
-
-        // =================================================================
-        // TLD problems
-        // =================================================================
         if (preg_match('/^[a-z0-9\-]+$/i', $domain) && !ctype_alpha($domain) && !str_starts_with($domain, 'xn--')) {
             $err->message("Bad domain: \"{$domain}\"")
                 ->identifier('domain.malformed')
@@ -239,8 +264,8 @@ final class DomainCheck implements Rule
 
         if (ctype_alpha($domain) || (str_starts_with($domain, 'xn--') && !str_contains($domain, '.'))) {
             if (!isset(Tld::VALUES[$domain])) {
-                $msg = strlen($domain) <= 4 ?
-                    "Bad domain: \"{$domain}\" is an invalid TLD."
+                $msg = strlen($domain) <= 4
+                    ? "Bad domain: \"{$domain}\" is an invalid TLD."
                     : "Bad domain: \"{$domain}\"";
 
                 $err->message($msg)
@@ -269,10 +294,10 @@ final class DomainCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkAncestorContexts($err, string $domain, string $separator): void
+    private function checkAncestorContexts($err, string $domain, string $separator): bool
     {
         if (!str_ends_with($domain, '>')) {
-            return;
+            return false;
         }
 
         if ($separator === '|') {
@@ -280,7 +305,7 @@ final class DomainCheck implements Rule
                 ->identifier('domain.invalidAncestorContext')
                 ->build();
 
-            return;
+            return true;
         }
 
         preg_match('/([^>]+)([>]+)/', $domain, $m);
@@ -290,7 +315,11 @@ final class DomainCheck implements Rule
                 ->identifier('domain.invalidAncestorContext')
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
                 ->build();
+
+            return true;
         }
+
+        return false;
     }
 
     /**
