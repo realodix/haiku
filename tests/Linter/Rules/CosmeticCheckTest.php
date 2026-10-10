@@ -22,8 +22,8 @@ class CosmeticCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Bad separator.'],
-            [2, 'Bad separator.'],
+            [1, 'Bad cosmetic rule separator.'],
+            [2, 'Bad cosmetic rule separator.'],
         ]);
     }
 
