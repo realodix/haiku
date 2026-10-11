@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Fixer\Components;
 use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Arr;
+use Realodix\Haiku\Support\Util;
 
 final class DomainNormalizer
 {
@@ -23,7 +24,7 @@ final class DomainNormalizer
     public function applyFix(string $domainStr, string $separator, bool $caseSensitive = false): string
     {
         // Regex domain, don't touch
-        if ($this->containsRegexDomain($domainStr)) {
+        if (Util::containsRegex($domainStr)) {
             return $domainStr;
         }
 
@@ -230,18 +231,5 @@ final class DomainNormalizer
             $isTld ? 0 : ($isNegated ? 1 : 2),
             $domain,
         ];
-    }
-
-    /**
-     * Determine whether the domain string represents or contains a regex-based domain
-     * definition.
-     *
-     * @param string $domainStr The domain string to check
-     * @return bool True if the domain string contains a regex domain, false otherwise
-     */
-    private function containsRegexDomain(string $domainStr): bool
-    {
-        return preg_match('/^~?\/.+\/$/', $domainStr)
-            || str_contains($domainStr, '/') && preg_match('/[\\^([{$\\\]/', $domainStr);
     }
 }

@@ -43,6 +43,17 @@ final class Util
     }
 
     /**
+     * Determine whether the string represents or contains a regex.
+     *
+     * @return bool True if the string contains a regex, false otherwise.
+     */
+    public static function containsRegex(string $value): bool
+    {
+        return preg_match('/^~?\/.+\/$/', $value)
+            || (str_contains($value, '/') && preg_match('/[\\^([{$\\\]/', $value));
+    }
+
+    /**
      * @return list<string>
      */
     public static function splitOptions(string $opt): array

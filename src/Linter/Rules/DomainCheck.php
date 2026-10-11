@@ -73,7 +73,7 @@ final class DomainCheck implements Rule
      */
     private function validateDomains($err, string $domainStr, string $separator): void
     {
-        if ($this->containsRegexDomain($domainStr)) {
+        if (Util::containsRegex($domainStr)) {
             return;
         }
 
@@ -422,13 +422,5 @@ final class DomainCheck implements Rule
         }
 
         return false;
-    }
-
-    private function containsRegexDomain(string $domainStr): bool
-    {
-        $domainStr = trim($domainStr);
-
-        return (str_starts_with($domainStr, '/') && str_ends_with($domainStr, '/'))
-            || (str_contains($domainStr, '/') && preg_match('/[\\^([{$\\\]/', $domainStr));
     }
 }
