@@ -6,6 +6,7 @@ use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Support\File;
+use Realodix\Haiku\Support\Util;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -83,7 +84,7 @@ final class Runner
         return [
             'status' => 'processed',
             'path' => $path,
-            'hash' => Helper::hash($content, $config),
+            'hash' => Util::hash($content, $config->flags),
         ];
     }
 
@@ -139,7 +140,7 @@ final class Runner
             return true;
         }
 
-        $fingerprint = Helper::hash(Helper::joinLines($content), $config);
+        $fingerprint = Util::hash(Helper::joinLines($content), $config->flags);
 
         return $this->cache->isValid($path, $fingerprint);
     }

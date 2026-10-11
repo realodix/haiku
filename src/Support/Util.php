@@ -191,4 +191,16 @@ final class Util
 
         return $best;
     }
+
+    /**
+     * @param array<string, mixed> $seed
+     */
+    public static function hash(string $str, $seed): string
+    {
+        $seed = collect($seed)
+            ->reject(static fn($value) => $value === false || $value === null)
+            ->sortKeys()->toJson();
+
+        return hash('xxh128', $str.$seed);
+    }
 }

@@ -7,6 +7,7 @@ use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\File;
+use Realodix\Haiku\Support\Util;
 
 /**
  * @phpstan-import-type _RuleError from ErrorBuilder
@@ -78,7 +79,7 @@ final class Linter
             return;
         }
 
-        $fingerprint = Helper::hash(implode("\n", $content), $config);
+        $fingerprint = Util::hash(implode("\n", $content), $config->rules);
 
         // Cache hit: restore cached errors and apply ignore filters
         if ($this->cache->isValid($path, $fingerprint)) {

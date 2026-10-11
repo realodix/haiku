@@ -28,16 +28,4 @@ final class Helper
 
         return $rules;
     }
-
-    /**
-     * @param \Realodix\Haiku\Config\LinterConfig $config
-     */
-    public static function hash(string $str, $config): string
-    {
-        $seed = collect($config->rules)
-            ->reject(static fn($value) => $value === false)
-            ->sortKeys()->toJson();
-
-        return hash('xxh128', $str.$seed);
-    }
 }
