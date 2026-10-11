@@ -355,10 +355,10 @@ class DomainCheckTest extends TestCase
     {
         // Currently we skip regex domains to avoid complex comma handling
         $lines = [
-            '||example.com^$domain=/regex{1,3}/',
-            '/a,b/##.ads',
+            '||example.com^$domain=/[a-z]{1,3}/|foo',
+            '/[a-z]{1,3}/,foo##.ads',
         ];
 
-        $this->analyse($lines, []);
+        $this->analyse($lines);
     }
 }
