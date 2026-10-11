@@ -351,6 +351,22 @@ class DomainCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function wrong_separator(): void
+    {
+        // Currently we skip regex domains to avoid complex comma handling
+        $lines = [
+            '||example.com^$domain=a.com,b.com,css',
+            'a.com|b.com##.ads',
+        ];
+
+        $this->analyse($lines, [
+            [1, 'Domain: wrong separator.'],
+            [1, 'Unknown filter option: "b.com"'],
+            [2, 'Domain: wrong separator.'],
+        ]);
+    }
+
+    #[PHPUnit\Test]
     public function regex_domain_is_skipped(): void
     {
         // Currently we skip regex domains to avoid complex comma handling
