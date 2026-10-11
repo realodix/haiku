@@ -155,11 +155,11 @@ final class DomainCheck implements Rule
         $context = '';
 
         if ($prev !== null && $prev !== '' && $next !== null && $next !== '') {
-            $context = sprintf('between "%s" and "%s"', $prev, $next);
+            $context = "between \"{$prev}\" and \"{$next}\"";
         } elseif ($prev !== null && $prev !== '') {
-            $context = sprintf('after "%s"', $prev);
+            $context = "after \"{$prev}\"";
         } elseif ($next !== null && $next !== '') {
-            $context = sprintf('before "%s"', $next);
+            $context = "before \"{$next}\"";
         }
 
         $err->message("Unexpected empty domain {$context}")
