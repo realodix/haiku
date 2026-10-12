@@ -72,6 +72,7 @@ domain.badChar
 domain.whitespace
 domain.malformed
 domain.misplacedWildcard
+domain.wrongSeparator
 
 
 net.badSeparator
