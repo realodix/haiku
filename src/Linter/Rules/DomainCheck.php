@@ -98,6 +98,10 @@ final class DomainCheck implements Rule
         ];
 
         foreach ($domains as $index => $domain) {
+            if ($this->checkWrongSeparator($err, $domain, $separator)) {
+                continue;
+            }
+
             if ($this->checkEmptyDomain($err, $domains, $index)) {
                 continue;
             }
@@ -314,6 +318,29 @@ final class DomainCheck implements Rule
             $err->message("Bad domain: \"{$domain}\"")
                 ->identifier('domain.invalidAncestorContext')
                 ->tip(sprintf('Did you mean "%s"?', $m[1].'>>'))
+                ->build();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkWrongSeparator($err, string $domainStr, string $separator): bool
+    {
+        $wrongSeparators = [
+            ',' => '|',
+            '|' => ',',
+        ];
+
+        $wrongSeparator = $wrongSeparators[$separator];
+
+        if (str_contains($domainStr, $wrongSeparator)) {
+            $err->message('Domain: wrong separator.')
+                ->identifier('domain.wrongSeparator')
                 ->build();
 
             return true;
