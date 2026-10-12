@@ -44,7 +44,7 @@ class App
 
         $conf = Helper::resolveConfigPath($iConfig);
         if ($conf !== null) {
-            $io->writeln(sprintf('Loaded config from "%s"', $conf));
+            $io->writeln("Loaded config from \"{$conf}\"");
         }
     }
 }

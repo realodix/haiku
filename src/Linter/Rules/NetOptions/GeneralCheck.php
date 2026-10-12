@@ -436,7 +436,7 @@ final class GeneralCheck implements Rule
                 ->identifier('option.deprecated');
 
             if ($replacement !== null) {
-                $err->tip(sprintf('Use "%s" instead.', $replacement));
+                $err->tip("Use \"{$replacement}\" instead.");
             }
 
             $err->build();
