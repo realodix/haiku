@@ -33,6 +33,7 @@ final class NetPatternCheck implements Rule
 
             $this->checkTooShortPattern($err, $line, $hasOptions);
             $this->checkBadDomainAnchors($err, $line, $hasOptions);
+            $this->checkUnnecessaryWildcard($err, $line);
         }
 
         return $err->toArray();
@@ -83,5 +84,62 @@ final class NetPatternCheck implements Rule
                 ->identifier('netPattern.tooManyRightAnchors')
                 ->build();
         }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkUnnecessaryWildcard($err, string $line): void
+    {
+        // uBlacklist rule
+        if (preg_match('/^@?\*:\/\//', $line)) {
+            return;
+        }
+
+        if (str_starts_with($line, '@@')) {
+            $line = substr($line, 2);
+        }
+
+        if (str_starts_with($line, '/') && str_ends_with($line, '/*')
+            || str_starts_with($line, '*/') && str_ends_with($line, '/')
+            || strlen($line) < 4
+        ) {
+            return;
+        }
+
+        $hasLeadingWildcard = false;
+        $hasTrailingWildcard = false;
+        $afterChar = $line[1];
+        $prevChar = $line[strlen($line) - 2];
+
+        if (str_starts_with($line, '*') && preg_match('/[\^\/?=%\-_.]/', $afterChar)) {
+            $hasLeadingWildcard = true;
+        }
+
+        if (str_ends_with($line, '*') && preg_match('/[\^\/?=%\-_.]/', $prevChar)) {
+            if (str_starts_with($line, '||') && str_ends_with($line, '.*')) {
+                return;
+            }
+
+            $hasTrailingWildcard = true;
+
+            if (str_starts_with($line, '*/') && str_ends_with($line, '/*')) {
+                $hasTrailingWildcard = false;
+            }
+        }
+
+        if ($hasLeadingWildcard && $hasTrailingWildcard) {
+            $message = 'Unnecessary leading and trailing wildcards.';
+        } elseif ($hasLeadingWildcard) {
+            $message = 'Unnecessary leading wildcard.';
+        } elseif ($hasTrailingWildcard) {
+            $message = 'Unnecessary trailing wildcard.';
+        } else {
+            return;
+        }
+
+        $err->message($message)
+            ->identifier('unnecessaryWildcard')
+            ->build();
     }
 }

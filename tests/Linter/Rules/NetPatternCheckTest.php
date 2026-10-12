@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Test\Linter\Rules;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Config\LinterConfig;
+use Realodix\Haiku\Linter\Rules\NetPatternCheck;
 use Realodix\Haiku\Test\TestCase;
 
 class NetPatternCheckTest extends TestCase
@@ -89,5 +90,51 @@ class NetPatternCheckTest extends TestCase
             [2, 'Too many "|" at the beginning (max 2 allowed).'],
             [4, 'Too many "|" at the beginning (max 2 allowed).'],
         ]);
+    }
+
+    #[PHPUnit\Test]
+    public function unnecessaryWildcard(): void
+    {
+        $lines = [
+            '*/banner123/*',
+        ];
+        $this->analyse($lines, [
+            [1, 'Unnecessary leading wildcard.'],
+        ], onlyRules: [NetPatternCheck::class]);
+
+        $lines = [
+            '*example.com*', // leading and trailing        // 1
+            '*example.org^', // leading                     // 2
+            '@@*/banner/*/', // leading                     // 4
+            '||foo.*$all',   // trailing                    // 5
+            '@@*xample.com***', // leading and trailing     // 6
+
+            // Preserve
+            '*$domain=example.com',                         // 7
+            '/banner123/*',                                 // 8
+            '@@/ads/*',                                     // 9
+            'img.gif|*',                                    // 10
+            // '||assets.bilsyndication.com/plugins/*',        // 11
+            // '@@||1bit.space/default/public/assets/*',       // 12
+            // Some people usually add `*` in front to avoid being considered a comment
+            '*#*/ad/$image,redirect-rule=1x1.gif',          // 13
+        ];
+        $this->analyse($lines, [
+            // [1, 'Unnecessary leading and trailing wildcards.'],
+            // [2, 'Unnecessary leading wildcard.'],
+            // [4, 'Unnecessary leading wildcard.'],
+            // [5, 'Unnecessary trailing wildcard.'],
+            // [6, 'Unnecessary leading and trailing wildcards.'],
+            // [10, 'Unnecessary trailing wildcard.'],
+        ], onlyRules: [NetPatternCheck::class]);
+
+        $lines = [
+            // uBlacklist
+            '*://*.be/*',
+            '@*://*.diplomatie.be/*',
+            // Syntax error, we'll leave it as is
+            '*',
+        ];
+        $this->analyse($lines, onlyRules: [NetPatternCheck::class]);
     }
 }
