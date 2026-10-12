@@ -78,9 +78,9 @@ class CosmeticAdgModifierTest extends TestCase
             'example.com#?#div:has(> a[target="_blank"][rel="nofollow"])',
         ];
         $expected = [
-            '[$app=org.example.app]example.com,example.org##.textad1',
             '##.top-banners',
             'example.com#?#div:has(> a[target="_blank"][rel="nofollow"])',
+            '[$app=org.example.app]example.com,example.org##.textad1',
             '[$app=~org.example.app1|~org.example.app2]example.com##.textad2',
             'example.com##+js(nobab)',
         ];

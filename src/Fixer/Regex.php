@@ -42,5 +42,5 @@ final class Regex
      *
      * @link https://regex101.com/r/2E6nAd
      */
-    const COSMETIC_DOMAIN = '/^(?!##?\s)([^\/\|\@\"!]*?)(##|#[@?$%]{1,3}#|\$@?\$)/';
+    const COSMETIC_DOMAIN = '/^(?!##?\s)([^=\/\@\"!]*?)(##|#[@?$%]{1,3}#|\$@?\$)/';
 }

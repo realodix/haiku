@@ -103,12 +103,12 @@ class GeneralTest extends TestCase
 
             'example.com###ads',
             'example.com,example.org##.ad',
-            '[$app=org.example.app]example.com,example.org##.textad1',
             'example.com##ads',
             'example.com#@##ads',
             'example.com#@#.ads',
             'example.com#@#ads',
 
+            '[$app=org.example.app]example.com,example.org##.textad1',
             '[$app=~org.example.app1|~org.example.app2]example.com##.textad2',
             'example.com#@#+js(...)',
             'example.com#@%#ads',
