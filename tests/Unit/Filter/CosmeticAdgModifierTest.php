@@ -73,13 +73,15 @@ class CosmeticAdgModifierTest extends TestCase
         $input = [
             'example.com##+js(nobab)',
             '##.top-banners',
+            '[$app=org.example.app]example.org,example.com##.textad1',
+            '[$app=~org.example.app1|~org.example.app2]example.com##.textad2',
             'example.com#?#div:has(> a[target="_blank"][rel="nofollow"])',
-            '[$app=org.example.app]example.org,example.com##.textad',
         ];
         $expected = [
-            '[$app=org.example.app]example.com,example.org##.textad',
+            '[$app=org.example.app]example.com,example.org##.textad1',
             '##.top-banners',
             'example.com#?#div:has(> a[target="_blank"][rel="nofollow"])',
+            '[$app=~org.example.app1|~org.example.app2]example.com##.textad2',
             'example.com##+js(nobab)',
         ];
         $this->assertSame($expected, $this->fix($input));

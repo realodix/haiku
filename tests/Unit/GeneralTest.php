@@ -77,7 +77,8 @@ class GeneralTest extends TestCase
     public function multiple_sections_are_ordered_correctly()
     {
         $input = [
-            '[$app=org.example.app]example.com##.textad',
+            '[$app=org.example.app]example.org,example.com##.textad1',
+            '[$app=~org.example.app1|~org.example.app2]example.com##.textad2',
             'example.com###ads',
             'example.com##.ad',
 
@@ -102,12 +103,13 @@ class GeneralTest extends TestCase
 
             'example.com###ads',
             'example.com,example.org##.ad',
-            '[$app=org.example.app]example.com##.textad',
+            '[$app=org.example.app]example.com,example.org##.textad1',
             'example.com##ads',
             'example.com#@##ads',
             'example.com#@#.ads',
             'example.com#@#ads',
 
+            '[$app=~org.example.app1|~org.example.app2]example.com##.textad2',
             'example.com#@#+js(...)',
             'example.com#@%#ads',
         ];
