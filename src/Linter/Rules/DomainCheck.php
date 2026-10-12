@@ -339,7 +339,7 @@ final class DomainCheck implements Rule
         $wrongSeparator = $wrongSeparators[$separator];
 
         if (str_contains($domainStr, $wrongSeparator)) {
-            $err->message('Domain: wrong separator.')
+            $err->message("Unexpected \"{$wrongSeparator}\" as domain separator.")
                 ->identifier('domain.wrongSeparator')
                 ->build();
 

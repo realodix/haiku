@@ -360,9 +360,9 @@ class DomainCheckTest extends TestCase
         ];
 
         $this->analyse($lines, [
-            [1, 'Domain: wrong separator.'],
+            [1, 'Unexpected "," as domain separator.'],
             [1, 'Unknown filter option: "b.com"'],
-            [2, 'Domain: wrong separator.'],
+            [2, 'Unexpected "|" as domain separator.'],
         ]);
     }
 
