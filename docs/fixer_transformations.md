@@ -396,20 +396,6 @@ Option names must be in lowercase.
 *$image
 ```
 
-### # Remove Unnecessary Wildcards
-
-`fixer.flags.remove_unnecessary_wildcard`, default: `false`
-
-**Possible values**: `true`, `false`
-
-```adblock
-!## BEFORE
-*/banner123/*
-
-!## AFTER
-/banner123/*
-```
-
 
 ## Conversions
 

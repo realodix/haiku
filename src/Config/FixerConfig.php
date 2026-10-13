@@ -19,7 +19,6 @@ use Realodix\Haiku\Support\File;
  *  option_order: false|'name'|'type',
  *  remove_empty_lines: bool|'keep_before_comment',
  *  remove_subdomains: bool,
- *  remove_unnecessary_wildcard: bool,
  *  remove_wildcard_covered_domains: bool,
  * }
  */
@@ -50,7 +49,6 @@ final class FixerConfig
         'option_order' => 'type',
         'remove_empty_lines' => 'keep_before_comment',
         'remove_subdomains' => false,
-        'remove_unnecessary_wildcard' => false,
         'remove_wildcard_covered_domains' => false,
     ] {
         /** @param array<array-key, mixed> $value */
