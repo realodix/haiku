@@ -231,7 +231,7 @@ class NetworkCheckTest extends TestCase
         $lines = [
             // Case 1: Almost-global filter should NOT cover local filter on its excluded domain
             '/banner-unique/*$domain=~example.org',
-            '||example.org/banner-unique/*$image',
+            '||example.org/banner-unique/$image',
 
             // Case 2: Rules with different exclusions should NOT cover each other
             '/ads-diff-neg/*$domain=~example.org',
