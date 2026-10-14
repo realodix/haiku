@@ -23,11 +23,11 @@ use Symfony\Component\Filesystem\Path;
  *  no_invalid_abp_extended_css_selectors: bool,
  *  no_invalid_id_selectors: bool,
  *  no_invalid_if_directive_values: bool,
+ *  no_invalid_negated_options: bool,
  *  no_invalid_option_context: bool,
  *  no_invalid_redirect_resources: bool,
  *  no_invalid_scriptlets: bool|array{known: list<string>},
  *  no_short_rules: null|false|array{minLen: int},
- *  no_unsupported_option_negation: bool,
  *  no_uppercase_domains: bool,
  * }
  * @phpstan-type _ConfigIgnoredError array{
@@ -68,11 +68,11 @@ final class LinterConfig
         'no_invalid_abp_extended_css_selectors' => true,
         'no_invalid_id_selectors' => true,
         'no_invalid_if_directive_values' => true,
+        'no_invalid_negated_options' => true,
         'no_invalid_option_context' => true,
         'no_invalid_redirect_resources' => true,
         'no_invalid_scriptlets' => true,
         'no_short_rules' => null,
-        'no_unsupported_option_negation' => true,
         'no_uppercase_domains' => true,
     ] {
         /** @param array<array-key, mixed> $value */

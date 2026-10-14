@@ -240,7 +240,7 @@ final class GeneralCheck implements Rule
      */
     private function checkInvalidNegation($err, array $rawOpts): void
     {
-        if (!$this->config->rules['no_unsupported_option_negation']) {
+        if (!$this->config->rules['no_invalid_negated_options']) {
             return;
         }
 
