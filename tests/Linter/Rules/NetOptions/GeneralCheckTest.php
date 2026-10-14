@@ -131,34 +131,31 @@ class GeneralCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function exceptionOnly(): void
+    public function exceptionRules(): void
     {
-        $lines = [
-            '@@*$important',
-        ];
-
-        $this->analyse($lines, [
-            [1, 'Invalid filter: $important is not allowed in exception rules.'],
-        ]);
-
+        // Only allowed in exception rules
         $lines = [
             '*$cname',
             '*$genericblock',
-        ];
 
+            '@@*$cname',
+            '@@*$genericblock',
+        ];
         $this->analyse($lines, [
             [1, 'Invalid filter: $cname is only allowed in exception rules.'],
             [2, 'Invalid filter: $genericblock is only allowed in exception rules.'],
         ]);
 
+
+        // Only allowed in block rules
         $lines = [
+            '@@*$important',
+
             '*$important',
-
-            '@@*$cname',
-            '@@*$genericblock',
         ];
-
-        $this->analyse($lines);
+        $this->analyse($lines, [
+            [1, 'Invalid filter: $important is not allowed in exception rules.'],
+        ]);
     }
 
     #[PHPUnit\Test]
