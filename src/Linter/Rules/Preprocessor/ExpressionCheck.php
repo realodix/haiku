@@ -135,16 +135,18 @@ final class ExpressionCheck implements Rule
         }
 
         // Tokenize condition to find identifiers
-        preg_match_all('/[a-zA-Z_][a-zA-Z0-9_]*/', $condition, $valueMatches);
+        preg_match_all('/[a-zA-Z_][a-zA-Z0-9_]*/', $condition, $values);
 
-        if (empty($valueMatches[0])) {
+        if ($values[0] === []) {
             $err->message('!#if directive requires a condition.')
                 ->identifier('if.empty')
                 ->build();
+
+            return;
         }
 
         $knownPreprocessorValues = Registry::PREPROCESSOR_DIRECTIVES;
-        foreach ($valueMatches[0] as $value) {
+        foreach ($values[0] as $value) {
             if (!in_array($value, $knownPreprocessorValues, true)) {
                 $hint = Util::getSuggestion($knownPreprocessorValues, $value);
                 $err->message("Invalid !#if constant \"{$value}\".")
