@@ -4,6 +4,7 @@ namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\Util;
 
@@ -303,12 +304,7 @@ final class GeneralCheck implements Rule
             return;
         }
 
-        $excRuleOpt = [
-            'cname',
-            'genericblock',
-        ];
-
-        foreach ($excRuleOpt as $opt) {
+        foreach (Registry::EXCEPTION_OPTIONS as $opt) {
             if (array_key_exists($opt, $opts) && !$isExcRule) {
                 $err->message("Invalid filter: \${$opt} is only allowed in exception rules.")
                     ->identifier('option.invalidInBlock')

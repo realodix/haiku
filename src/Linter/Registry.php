@@ -41,6 +41,19 @@ final class Registry
         'denyallow',
     ];
 
+    const EXCEPTION_OPTIONS = [
+        'cname',
+        'ehide', 'elemhide',
+        'ghide', 'generichide',
+        'shide', 'specifichide',
+
+        'genericblock',
+        'extension',
+        'jsinject',
+        'stealth',
+        'urlblock',
+    ];
+
     const SCRIPTLETS = [
         'acs', 'abort-current-script', 'abort-current-inline-script', 'acis',
         'aopr', 'abort-on-property-read',
