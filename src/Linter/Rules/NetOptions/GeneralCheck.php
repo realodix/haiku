@@ -280,10 +280,10 @@ final class GeneralCheck implements Rule
             return;
         }
 
-        $isException = str_starts_with($lineContent, '@@');
+        $isExcRule = str_starts_with($lineContent, '@@');
 
         // 1. Must NOT be used in exception rules
-        $foundInvalid = array_find(['important'], fn($opt) => $isException && array_key_exists($opt, $opts));
+        $foundInvalid = array_find(['important'], fn($opt) => $isExcRule && array_key_exists($opt, $opts));
         if ($foundInvalid) {
             $err->message("Invalid filter: \${$foundInvalid} is not allowed in exception rules.")
                 ->identifier('option.invalidInException')
@@ -291,13 +291,13 @@ final class GeneralCheck implements Rule
         }
 
         // 2. Options that are ONLY allowed in exception rules
-        $exceptionOnly = [
+        $excRuleOpt = [
             'cname',
             'genericblock',
         ];
 
-        foreach ($exceptionOnly as $opt) {
-            if (array_key_exists($opt, $opts) && !$isException) {
+        foreach ($excRuleOpt as $opt) {
+            if (array_key_exists($opt, $opts) && !$isExcRule) {
                 $err->message("Invalid filter: \${$opt} is only allowed in exception rules.")
                     ->identifier('option.exceptionOnly')
                     ->build();
@@ -317,7 +317,7 @@ final class GeneralCheck implements Rule
      */
     private function checkWithoutValueExceptionOnly($err, array $opts, string $lineContent): void
     {
-        $isException = str_starts_with($lineContent, '@@');
+        $isExcRule = str_starts_with($lineContent, '@@');
         $reqExcIfNoValue = [
             'csp', 'permissions', 'redirect', 'redirect-rule', 'replace',
             'uritransform', 'urlskip',
@@ -337,7 +337,7 @@ final class GeneralCheck implements Rule
                 }
 
                 // If no value -> must be used in an exception rule
-                if (!$isException) {
+                if (!$isExcRule) {
                     $err->message("Invalid filter: \${$opt} without a value is only allowed as an exception rule.")
                         ->identifier('option.withoutValue')
                         ->build();
