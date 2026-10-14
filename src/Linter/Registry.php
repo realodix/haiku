@@ -24,8 +24,6 @@ final class Registry
         'empty', 'mp4', 'object-subrequest', 'queryprune', 'webrtc',
     ];
 
-    const DOMAIN_OPTIONS = ['domain', 'from', 'to', 'top', 'denyallow'];
-
     /**
      * A list of known options from AdGuard.
      */
@@ -33,6 +31,14 @@ final class Registry
         'app', 'content', 'cookie', 'extension', 'hls', 'jsinject', 'jsonprune', 'network', 'path',
         'removeheader', 'referrerpolicy', 'stealth', 'url', 'urlblock', 'xmlprune',
         'client', 'ctag', 'dnstype', 'dnsrewrite', // Adg DNS
+    ];
+
+    const DOMAIN_OPTIONS = [
+        'domain',
+        'from',
+        'to',
+        'top',
+        'denyallow',
     ];
 
     const SCRIPTLETS = [
