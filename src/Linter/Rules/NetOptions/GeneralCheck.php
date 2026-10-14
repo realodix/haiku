@@ -55,10 +55,12 @@ final class GeneralCheck implements Rule
             $this->checkInvalidNegation($err, $rawOpts);
 
             $opts = $this->parseOptions($rawOpts);
+            $isExcRule = str_starts_with($line, '@@');
 
             $this->checkDuplicateWithAlias($err, $opts);
-            $this->checkInvalidException($err, $opts, $line);
-            $this->checkWithoutValueExceptionOnly($err, $opts, $line);
+            $this->checkInvalidInException($err, $opts, $isExcRule);
+            $this->checkInvalidInBlock($err, $opts, $isExcRule);
+            $this->checkNoValueInvalidInBlock($err, $opts, $isExcRule);
             $this->checkDenyallowValue($err, $opts);
             $this->checkDenyallowAndToConflict($err, $opts);
             $this->checkDenyallowRequiresDomain($err, $opts);
@@ -273,24 +275,34 @@ final class GeneralCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
+     * @param bool $isExcRule Whether the option are used in an exception rule.
      */
-    private function checkInvalidException($err, array $opts, string $lineContent): void
+    private function checkInvalidInException($err, array $opts, bool $isExcRule): void
     {
         if (!$this->config->rules['no_invalid_option_context']) {
             return;
         }
 
-        $isExcRule = str_starts_with($lineContent, '@@');
-
-        // 1. Must NOT be used in exception rules
         $foundInvalid = array_find(['important'], fn($opt) => $isExcRule && array_key_exists($opt, $opts));
+
         if ($foundInvalid) {
             $err->message("Invalid filter: \${$foundInvalid} is not allowed in exception rules.")
                 ->identifier('option.invalidInException')
                 ->build();
         }
+    }
 
-        // 2. Options that are ONLY allowed in exception rules
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     * @param array<string, list<string|null>> $opts
+     * @param bool $isExcRule Whether the option are used in an exception rule.
+     */
+    private function checkInvalidInBlock($err, array $opts, bool $isExcRule): void
+    {
+        if (!$this->config->rules['no_invalid_option_context']) {
+            return;
+        }
+
         $excRuleOpt = [
             'cname',
             'genericblock',
@@ -299,7 +311,7 @@ final class GeneralCheck implements Rule
         foreach ($excRuleOpt as $opt) {
             if (array_key_exists($opt, $opts) && !$isExcRule) {
                 $err->message("Invalid filter: \${$opt} is only allowed in exception rules.")
-                    ->identifier('option.exceptionOnly')
+                    ->identifier('option.invalidInBlock')
                     ->build();
             }
         }
@@ -314,10 +326,14 @@ final class GeneralCheck implements Rule
      *
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, list<string|null>> $opts
+     * @param bool $isExcRule Whether the option are used in an exception rule.
      */
-    private function checkWithoutValueExceptionOnly($err, array $opts, string $lineContent): void
+    private function checkNoValueInvalidInBlock($err, array $opts, bool $isExcRule): void
     {
-        $isExcRule = str_starts_with($lineContent, '@@');
+        if (!$this->config->rules['no_invalid_option_context']) {
+            return;
+        }
+
         $reqExcIfNoValue = [
             'csp', 'permissions', 'redirect', 'redirect-rule', 'replace',
             'uritransform', 'urlskip',
@@ -339,7 +355,7 @@ final class GeneralCheck implements Rule
                 // If no value -> must be used in an exception rule
                 if (!$isExcRule) {
                     $err->message("Invalid filter: \${$opt} without a value is only allowed as an exception rule.")
-                        ->identifier('option.withoutValue')
+                        ->identifier('option.noValueInvalidInBlock')
                         ->build();
                 }
             }

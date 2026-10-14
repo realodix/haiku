@@ -81,10 +81,9 @@ option.case
 option.duplicate
 option.negated
 option.deprecated
-
 option.invalidInException
-option.exceptionOnly
-option.withoutValue
+option.invalidInBlock
+option.noValueInvalidInBlock
 
 denyallow.missingDomainOption
 denyallow.negatedDomain
