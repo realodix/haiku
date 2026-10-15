@@ -168,19 +168,19 @@ final class GeneralCheck implements Rule
         $positive = [];
         $negative = [];
 
-        foreach (array_keys($opts) as $rawName) {
-            if (str_starts_with($rawName, '~')) {
-                $negative[] = substr($rawName, 1);
+        foreach (array_keys($opts) as $name) {
+            $isNegative = str_starts_with($name, '~');
+            $name = $isNegative ? substr($name, 1) : $name;
+            $name = self::ALIASES[$name] ?? $name;
+
+            if ($isNegative) {
+                $negative[] = $name;
             } else {
-                $positive[] = $rawName;
+                $positive[] = $name;
             }
         }
 
-        $normalize = fn(string $opt): string => self::ALIASES[$opt] ?? $opt;
-        $positiveNorm = array_map($normalize, $positive);
-        $negativeNorm = array_map($normalize, $negative);
-
-        $conflicts = array_intersect($positiveNorm, $negativeNorm);
+        $conflicts = array_intersect($positive, $negative);
 
         if ($conflicts === []) {
             return;
