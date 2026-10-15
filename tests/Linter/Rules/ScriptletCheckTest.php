@@ -81,4 +81,36 @@ class ScriptletCheckTest extends TestCase
             [2, 'Deprecated: Scriptlet csp is deprecated.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function invalid_value(): void
+    {
+        $lines = [
+            'example.com##+js(set, Object.keys, foo)',
+            'example.com##+js(set-cookie, CookieConsent, foo)',
+            'example.com##+js(set-local-storage-item, player.live.current.mute, foo)',
+        ];
+        $this->analyse($lines, [
+            [1, 'Invalid set-constant value: foo'],
+            [2, 'Invalid set-cookie value: foo'],
+            [3, 'Invalid set-local-storage-item value: foo'],
+        ]);
+
+        $lines = [
+            'example.com##+js(set, Object.keys, "trueFunc")',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            "example.com##+js(set, CookieConsent, '')",
+            "example.com##+js(set-local-storage-item, foo, '')",
+            'example.com##+js(set, CookieConsent, )',
+            'example.com##+js(set-local-storage-item, foo, )',
+
+            // others
+            "example.com##+js(acis, foo, '')",
+            'example.com##+js(acis, foo, )',
+        ];
+        $this->analyse($lines);
+    }
 }
