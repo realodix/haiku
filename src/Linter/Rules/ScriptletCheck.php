@@ -23,14 +23,14 @@ final class ScriptletCheck implements Rule
             }
 
             if (preg_match('/\+js\(\s*([^,\s\)]+)/', $line, $m)) {
-                $actualName = $this->normalizeParam($m[1]);
+                $name = $this->normalizeParam($m[1]);
 
-                if (str_starts_with($actualName, 'trusted-') || str_starts_with($actualName, 'brave-')) {
+                if (str_starts_with($name, 'trusted-') || str_starts_with($name, 'brave-')) {
                     continue;
                 }
 
-                $this->checkUnknownName($err, $actualName);
-                $this->checkDeprecated($err, $actualName);
+                $this->checkUnknownName($err, $name);
+                $this->checkDeprecated($err, $name);
             }
         }
 
