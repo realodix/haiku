@@ -122,11 +122,10 @@ final class GeneralCheck implements Rule
             $opt = trim($opt);
 
             $parts = explode('=', $opt, 2);
-            $rawName = trim($parts[0]);
-            $name = strtolower($rawName);
+            $name = $parts[0];
 
-            if ($rawName !== $name) {
-                $err->message("Option \"{$rawName}\" must be lowercase.")
+            if ($name !== strtolower($name)) {
+                $err->message("Option \"{$name}\" must be lowercase.")
                     ->identifier('option.case')
                     ->build();
             }
