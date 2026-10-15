@@ -249,16 +249,28 @@ final class GeneralCheck implements Rule
                 continue;
             }
 
-            $hasValue = str_contains($opt, '=');
             $name = substr($opt, 1);
-            if ($hasValue) {
-                $name = strstr($name, '=', true);
-                if ($name === false) {
-                    continue;
-                }
+            $nonNegatables = [
+                'all', 'cname', 'important', 'removeparam',
+                'ehide', 'elemhide',
+                'ghide', 'generichide',
+                'shide', 'specifichide',
+                'strict1p', 'strict3p',
+                'empty', 'mp4', 'queryprune', 'genericblock',
+            ];
+
+            $nonNegatable = false;
+            if (in_array($name, $nonNegatables, true)) {
+                $nonNegatable = true;
             }
 
-            if ($this->isNegatableOption($name, $hasValue)) {
+            $hasValue = str_contains($opt, '=');
+            if ($hasValue) {
+                $parts = explode('=', $name, 2);
+                $name = $parts[0];
+            }
+
+            if (!$nonNegatable && !$hasValue) {
                 continue;
             }
 
@@ -469,29 +481,5 @@ final class GeneralCheck implements Rule
         }
 
         return $map;
-    }
-
-    private function isNegatableOption(string $name, bool $hasValue): bool
-    {
-        // Options with value cannot be negated
-        if ($hasValue) {
-            return false;
-        }
-
-        // Non-negatable options (explicit list)
-        static $nonNegatable = [
-            'all', 'cname', 'important', 'removeparam',
-            'ehide', 'elemhide',
-            'ghide', 'generichide',
-            'shide', 'specifichide',
-            'strict1p', 'strict3p',
-            'empty', 'mp4', 'queryprune', 'genericblock',
-        ];
-
-        if (in_array($name, $nonNegatable, true)) {
-            return false;
-        }
-
-        return true;
     }
 }
