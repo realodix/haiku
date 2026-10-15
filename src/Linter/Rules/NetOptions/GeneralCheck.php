@@ -51,17 +51,19 @@ final class GeneralCheck implements Rule
             $rawOpts = Util::splitOptions($m[2]);
 
             $this->checkCase($err, $rawOpts);
-            $this->checkDuplicate($err, $rawOpts);
-            $this->checkDuplicateWithNegation($err, $rawOpts);
             $this->checkInvalidNegation($err, $rawOpts);
 
             $opts = $this->parseOptions($rawOpts);
             $isExcRule = str_starts_with($line, '@@');
 
+            $this->checkDuplicate($err, $opts);
+            $this->checkDuplicateWithNegation($err, $opts);
             $this->checkDuplicateWithAlias($err, $opts);
+
             $this->checkInvalidInException($err, $opts, $isExcRule);
             $this->checkInvalidInBlock($err, $opts, $isExcRule);
             $this->checkNoValueInvalidInBlock($err, $opts, $isExcRule);
+
             $this->checkDenyallowValue($err, $opts);
             $this->checkDenyallowAndToConflict($err, $opts);
             $this->checkDenyallowRequiresDomain($err, $opts);
@@ -134,7 +136,7 @@ final class GeneralCheck implements Rule
 
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
-     * @param list<string> $opts
+     * @param array<string, list<string|null>> $opts
      */
     private function checkDuplicate($err, array $opts): void
     {
@@ -142,34 +144,22 @@ final class GeneralCheck implements Rule
             return;
         }
 
-        $seen = [];
-        $duplicates = [];
-
-        foreach ($opts as $opt) {
-            $opt = trim($opt);
-
-            $parts = explode('=', $opt, 2);
-            $name = strtolower(trim($parts[0]));
-
-            if (isset($seen[$name])) {
-                $duplicates[] = $name;
+        foreach ($opts as $name => $entries) {
+            // parseOptions() merges values under the same key,
+            // so multiple entries indicate a duplicate.
+            if (count($entries) > 1) {
+                $err->message("Duplicate option: \${$name}")
+                    ->identifier('option.duplicate')
+                    ->build();
             }
-
-            $seen[$name] = true;
-        }
-
-        foreach (array_unique($duplicates) as $dup) {
-            $err->message("Duplicate option: \${$dup}")
-                ->identifier('option.duplicate')
-                ->build();
         }
     }
 
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
-     * @param list<string> $rawOpts
+     * @param array<string, list<string|null>> $opts
      */
-    private function checkDuplicateWithNegation($err, array $rawOpts): void
+    private function checkDuplicateWithNegation($err, array $opts): void
     {
         if (!$this->config->rules['no_dupe_options']) {
             return;
@@ -178,29 +168,19 @@ final class GeneralCheck implements Rule
         $positive = [];
         $negative = [];
 
-        foreach ($rawOpts as $opt) {
-            $opt = trim($opt);
+        foreach (array_keys($opts) as $name) {
+            $isNegative = str_starts_with($name, '~');
+            $name = $isNegative ? substr($name, 1) : $name;
+            $name = self::ALIASES[$name] ?? $name;
 
-            $parts = explode('=', $opt, 2);
-            $rawName = trim($parts[0]);
-
-            if ($rawName === '') {
-                continue;
-            }
-
-            if (str_starts_with($rawName, '~')) {
-                $name = substr($rawName, 1);
-                $negative[] = strtolower($name);
+            if ($isNegative) {
+                $negative[] = $name;
             } else {
-                $positive[] = strtolower($rawName);
+                $positive[] = $name;
             }
         }
 
-        $normalize = fn(string $opt): string => self::ALIASES[$opt] ?? $opt;
-        $positiveNorm = array_map($normalize, $positive);
-        $negativeNorm = array_map($normalize, $negative);
-
-        $conflicts = array_intersect($positiveNorm, $negativeNorm);
+        $conflicts = array_intersect($positive, $negative);
 
         if ($conflicts === []) {
             return;
@@ -474,7 +454,7 @@ final class GeneralCheck implements Rule
             $opt = trim($opt);
 
             $parts = explode('=', $opt, 2);
-            $name = strtolower(trim($parts[0]));
+            $name = strtolower($parts[0]);
             $value = $parts[1] ?? null;
 
             $map[$name][] = $value;
