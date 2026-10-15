@@ -197,11 +197,7 @@ final class GeneralCheck implements Rule
             }
         }
 
-        // Normalize aliases
-        $normalize = function (string $opt): string {
-            return self::ALIASES[$opt] ?? $opt;
-        };
-
+        $normalize = fn(string $opt): string => self::ALIASES[$opt] ?? $opt;
         $positiveNorm = array_map($normalize, $positive);
         $negativeNorm = array_map($normalize, $negative);
 
