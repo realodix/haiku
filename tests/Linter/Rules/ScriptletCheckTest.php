@@ -9,14 +9,14 @@ use Realodix\Haiku\Test\TestCase;
 class ScriptletCheckTest extends TestCase
 {
     #[PHPUnit\Test]
-    public function parameter(): void
+    public function sl_name(): void
     {
         $lines = [
             'example.org##+js(nowoif)',
             'example.org##+js(nowoif.js)',
             'example.org##+js( nowoif )',
-            "example.org##+js('nowoif')",
             'example.org##+js("nowoif")',
+            "example.org##+js('nowoif')",
 
             'example.org##+js(google-ima)',
             'example.org##+js(google-ima.js)',
@@ -27,7 +27,7 @@ class ScriptletCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function unknown_parameter(): void
+    public function unknown_name(): void
     {
         $lines = [
             'example.org##+js(bar)',
@@ -56,7 +56,7 @@ class ScriptletCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function trusted_and_custom_parameter(): void
+    public function trusted_and_custom_name(): void
     {
         $lines = [
             'example.org##+js(trusted-something)',
@@ -69,7 +69,7 @@ class ScriptletCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function deprecated_parameter(): void
+    public function deprecated(): void
     {
         $lines = [
             'example.org##+js(csp)',
