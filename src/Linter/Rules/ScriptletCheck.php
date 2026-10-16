@@ -102,9 +102,8 @@ final class ScriptletCheck implements Rule
             || (str_starts_with($param, "'") && str_ends_with($param, "'"))
         ) {
             $param = substr($param, 1, -1);
+            $param = trim($param);
         }
-
-        $param = trim($param);
 
         // remove .js suffix
         if (str_ends_with($param, '.js')) {
