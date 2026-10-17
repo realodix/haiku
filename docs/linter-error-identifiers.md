@@ -47,7 +47,7 @@ netPattern.tooManyLeftAnchors
 netPattern.tooManyRightAnchors
 
 
-cosmetic.badSeparator
+cosmetic.badSelector
 cosmetic.duplicate
 cosmetic.redundant
 cosmetic.abpExtInvalid
