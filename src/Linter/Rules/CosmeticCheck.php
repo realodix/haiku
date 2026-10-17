@@ -46,7 +46,7 @@ final class CosmeticCheck implements Rule
      */
     private function checkSeparator($err, array $node): void
     {
-        if (($node['separator'] === '##' || $node['separator'] !== '#@#')
+        if (($node['separator'] === '##' || $node['separator'] === '#@#')
             && str_starts_with($node['selector'], '#')
             && strlen($node['selector']) > 1
         ) {
