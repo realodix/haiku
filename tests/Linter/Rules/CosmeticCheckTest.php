@@ -36,7 +36,7 @@ class CosmeticCheckTest extends TestCase
 
         $lines = [
             'example.com##a[href="../noads.html"]',
-            'example.com##:xpath(//span[contains(text(),"Advert")]/../..)'
+            'example.com##:xpath(//span[contains(text(),"Advert")]/../..)',
         ];
         $this->analyse($lines);
     }
