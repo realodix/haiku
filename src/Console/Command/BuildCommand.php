@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Console\Command;
 
+use Composer\XdebugHandler\XdebugHandler;
 use Realodix\Haiku\Builder\Builder;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\App;
@@ -36,6 +37,10 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $xdebug = new XdebugHandler('haiku');
+        $xdebug->check();
+        unset($xdebug);
+
         $iConfig = $input->getOption('config');
         if ($iConfig && !file_exists($iConfig)) {
             throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
