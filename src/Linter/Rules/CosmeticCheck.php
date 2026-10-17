@@ -31,7 +31,7 @@ final class CosmeticCheck implements Rule
                 'selector' => $m[5],  // .ads
             ];
 
-            $this->checkSeparator($err, $node);
+            $this->checkIdClassSelector($err, $node);
             $this->checkIdSelectorStartsWithDigit($err, $node);
             $this->checkColonEscape($err, $node);
             $this->checkAbpExtendedCssSelectors($err, $node);
@@ -44,15 +44,22 @@ final class CosmeticCheck implements Rule
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      * @param array<string, string> $node
      */
-    private function checkSeparator($err, array $node): void
+    private function checkIdClassSelector($err, array $node): void
     {
-        if (($node['separator'] === '##' || $node['separator'] === '#@#')
-            && str_starts_with($node['selector'], '#')
-            && strlen($node['selector']) > 1
-        ) {
-            if (preg_match('/[.#]/', $node['selector'][1])) {
-                $err->message('Bad cosmetic rule separator.')
-                    ->identifier('cosmetic.badSeparator')
+        if ($node['separator'] === '##' || $node['separator'] === '#@#') {
+            // https://regex101.com/r/kgF0Vx
+            $cleanSelector = preg_replace(
+                '/
+                    \[[^\]]+\]              # attribute [...]
+                    |:(xpath)\s*\([^:]+\)   # :xpath(...)
+                /x',
+                '',
+                $node['selector'],
+            );
+
+            if (preg_match('/[#.]{2,}[^#.\s+>~,]+/', $cleanSelector, $m)) {
+                $err->message("Bad selector: {$m[0]}")
+                    ->identifier('cosmetic.badSelector')
                     ->build();
             }
         }
