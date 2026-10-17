@@ -17,8 +17,8 @@ class CosmeticCheckTest extends TestCase
     {
         // https://github.com/ABPindo/indonesianadblockrules/blob/48909402ea/src/advert/specific_hide.txt#L325
         $lines = [
-            'shinigami09.com###.ad-container',
-            'shinigami09.com####ad-container',
+            '###.ad-container',
+            '####ad-container',
         ];
         $this->analyse($lines, [
             [1, 'Bad selector: #.ad-container'],
