@@ -90,11 +90,23 @@ final class ScriptletCheck implements Rule
      */
     private function checkUnknownName($err, string $value): void
     {
-        if ($this->config->rules['no_invalid_scriptlets'] === false) {
+        $config = $this->config->rules['no_invalid_scriptlets'];
+
+        if ($config === false) {
             return;
         }
 
-        $scriptlets = $this->getScriptletNames();
+        $resources = array_map(
+            fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
+            Util::getRedirectResources(scriptlet: true),
+        );
+        $scriptlets = array_unique([
+            ...$resources,
+            ...Registry::SCRIPTLETS,
+            ...Registry::DEPRECATED_SCRIPTLETS,
+            ...$config['known'] ?? [],
+        ]);
+
         if (!in_array($value, $scriptlets, true)) {
             $hint = Util::getSuggestion($scriptlets, $value);
             $err->message("Invalid scriptlet: {$value}")
@@ -219,27 +231,6 @@ final class ScriptletCheck implements Rule
                 ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
                 ->build();
         }
-    }
-
-    /**
-     * Retrieves a list of unique scriptlet names.
-     *
-     * @return array<int, string> A list of unique scriptlet names
-     */
-    private function getScriptletNames(): array
-    {
-        $config = $this->config->rules['no_invalid_scriptlets'];
-        $resources = array_map(
-            fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
-            Util::getRedirectResources(scriptlet: true),
-        );
-
-        return array_unique([
-            ...$resources,
-            ...Registry::SCRIPTLETS,
-            ...Registry::DEPRECATED_SCRIPTLETS,
-            ...$config['known'] ?? [],
-        ]);
     }
 
     private function normalizeParam(string|int $param): int|string
