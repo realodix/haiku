@@ -12,6 +12,34 @@ final class ScriptletCheck implements Rule
         private LinterConfig $config,
     ) {}
 
+    // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/cookie.js#L28
+    const COOKIE_VALUES = [
+        'accept', 'reject',
+        'accepted', 'rejected', 'notaccepted',
+        'allow', 'disallow', 'deny',
+        'allowed', 'denied',
+        'approved', 'disapproved',
+        'checked', 'unchecked',
+        'dismiss', 'dismissed',
+        'enable', 'disable',
+        'enabled', 'disabled',
+        'essential', 'nonessential',
+        'forbidden', 'forever',
+        'hide', 'hidden',
+        'necessary', 'required',
+        'ok',
+        'on', 'off',
+        'true', 't', 'false', 'f',
+        'yes', 'y', 'no', 'n',
+        'all', 'none', 'functional',
+        'granted', 'done',
+        'decline', 'declined',
+        'closed', 'next', 'mandatory',
+        'disagree', 'agree',
+        'set', 'unset',
+        'given',
+    ];
+
     public function check(array $content, $err): array
     {
         foreach ($content as $index => $line) {
@@ -22,8 +50,24 @@ final class ScriptletCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/\+js\(\s*([^,\s\)]+)/', $line, $m)) {
-                $name = $this->normalizeParam($m[1]);
+            if (preg_match('/\+js\((.+)\)$/', $line, $slParams)) {
+                // https://regex101.com/r/znIIZL
+                $pattern = '/\s*(?:"([^"]*)"|\x27([^\x27]*)\x27|([^,]+))\s*(?:,\s*|$)/';
+                preg_match_all($pattern, $slParams[1], $matches, PREG_SET_ORDER);
+
+                $params = [];
+                foreach ($matches as $match) {
+                    if (isset($match[1]) && $match[1] !== '') {
+                        $params[] = $match[1];
+                    } elseif (isset($match[2]) && $match[2] !== '') {
+                        $params[] = $match[2];
+                    } elseif (isset($match[3])) {
+                        $params[] = trim($match[3]);
+                    }
+                }
+
+                $name = $this->normalizeParam($params[0]);
+                $value = $this->normalizeParam($params[2] ?? '');
 
                 if (str_starts_with($name, 'trusted-') || str_starts_with($name, 'brave-')) {
                     continue;
@@ -31,6 +75,10 @@ final class ScriptletCheck implements Rule
 
                 $this->checkUnknownName($err, $name);
                 $this->checkDeprecated($err, $name);
+
+                $this->checkSetConstantValue($err, $name, $value);
+                $this->checkSetCookieValue($err, $name, $value);
+                $this->checkSetLocalStorageItemValue($err, $name, $value);
             }
         }
 
@@ -73,6 +121,107 @@ final class ScriptletCheck implements Rule
     }
 
     /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkSetConstantValue($err, string $name, string|int $value): void
+    {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
+        if ($name !== 'set' && $name !== 'set-constant') {
+            return;
+        }
+
+        if (is_int($value)) {
+            return;
+        }
+
+        $values = [
+            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L55
+            'emptyArr', 'emptyObj',
+            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L61
+            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/set-constant.js#L29
+            'undefined', 'true', 'false', 'null', 'noopFunc', 'trueFunc', 'falseFunc',
+            'throwFunc', '[]', '{}', "''", '',
+        ];
+
+        if (!in_array($value, $values, true)) {
+            $hint = Util::getSuggestion($values, $value);
+            $err->message("Invalid set-constant value: {$value}")
+                ->identifier('scriptlet.invalidValue')
+                ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                ->build();
+        }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkSetCookieValue($err, string $name, string|int $value): void
+    {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
+        if ($name !== 'set-cookie' && $name !== 'set-cookie-reload') {
+            return;
+        }
+
+        if (is_int($value)) {
+            return;
+        }
+
+        $value = strtolower($value);
+
+        $values = self::COOKIE_VALUES;
+        if (!in_array($value, $values, true)) {
+            $hint = Util::getSuggestion($values, $value);
+            $err->message("Invalid set-cookie value: {$value}")
+                ->identifier('scriptlet.invalidValue')
+                ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                ->build();
+        }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkSetLocalStorageItemValue($err, string $name, string|int $value): void
+    {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
+        if ($name !== 'set-local-storage-item' && $name !== 'set-session-storage-item') {
+            return;
+        }
+
+        if (is_int($value)) {
+            return;
+        }
+
+        $value = strtolower($value);
+
+        // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L61
+        $values = [
+            '',
+            'undefined', 'null',
+            '{}', '[]', '""',
+            '$remove$',
+            ...self::COOKIE_VALUES,
+        ];
+
+        if (!in_array($value, $values, true)) {
+            $hint = Util::getSuggestion($values, $value);
+            $err->message("Invalid set-local-storage-item value: {$value}")
+                ->identifier('scriptlet.invalidValue')
+                ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                ->build();
+        }
+    }
+
+    /**
      * Retrieves a list of unique scriptlet names.
      *
      * @return array<int, string> A list of unique scriptlet names
@@ -93,7 +242,7 @@ final class ScriptletCheck implements Rule
         ]);
     }
 
-    private function normalizeParam(string $param): string
+    private function normalizeParam(string|int $param): int|string
     {
         $param = trim($param);
 
@@ -103,6 +252,10 @@ final class ScriptletCheck implements Rule
         ) {
             $param = substr($param, 1, -1);
             $param = trim($param);
+        }
+
+        if (preg_match('/^-?\d+$/', $param)) {
+            return (int) $param;
         }
 
         // remove .js suffix

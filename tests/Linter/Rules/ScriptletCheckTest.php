@@ -81,4 +81,44 @@ class ScriptletCheckTest extends TestCase
             [2, 'Deprecated: Scriptlet csp is deprecated.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function invalid_value(): void
+    {
+        $lines = [
+            'example.com##+js(set, Object.keys, foo)',
+            'example.com##+js(set-cookie, CookieConsent, foo)',
+            'example.com##+js(set-local-storage-item, player.live.current.mute, foo)',
+        ];
+        $this->analyse($lines, [
+            [1, 'Invalid set-constant value: foo'],
+            [2, 'Invalid set-cookie value: foo'],
+            [3, 'Invalid set-local-storage-item value: foo'],
+        ]);
+
+        $lines = [
+            // case
+            'example.com##+js(set, fooCase, "trueFunc")',
+
+            // integer
+            'example.com##+js(set, fooInt, 1)',
+            'example.com##+js(set-cookie, fooInt, 1)',
+            'example.com##+js(set-local-storage-item, fooInt, 1)',
+
+            // empty
+            "example.com##+js(set, CookieConsent, '')",
+            "example.com##+js(set-local-storage-item, foo, '')",
+            'example.com##+js(set, CookieConsent, )',
+            'example.com##+js(set-local-storage-item, foo, )',
+
+            // others
+            "example.com##+js(acis, foo, '')",
+            'example.com##+js(acis, foo, )',
+            // https://github.com/uBlockOrigin/uAssets/blob/0b5ee02b1b/filters/annoyances-cookies.txt#L399
+            'hatch.co##+js(set-local-storage-item, COOKIE_CONSENT_STATUS_4124, \'"dismissed"\', aa)',
+            // https://github.com/uBlockOrigin/uAssets/blob/0b5ee02b1b/filters/filters-2023.txt#L3129
+            'trakt.tv##+js(set, art3m1sItemNames.affiliate-wrapper, \'""\')',
+        ];
+        $this->analyse($lines);
+    }
 }
