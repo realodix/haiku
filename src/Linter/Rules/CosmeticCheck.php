@@ -47,11 +47,11 @@ final class CosmeticCheck implements Rule
     private function checkIdClassSelector($err, array $node): void
     {
         if ($node['separator'] === '##' || $node['separator'] === '#@#') {
-            // https://regex101.com/r/kgF0Vx
+            // https://regex101.com/r/936hbo
             $cleanSelector = preg_replace(
                 '/
-                    \[[^\]]+\]              # attribute [...]
-                    |:(xpath)\s*\([^:]+\)   # :xpath(...)
+                    \[[^\]]+\]                      # attribute [...]
+                    |:(has-text|xpath)\s*\([^:]+\)  # :<func>(...)
                 /x',
                 '',
                 $node['selector'],
