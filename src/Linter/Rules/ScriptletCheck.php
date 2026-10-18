@@ -50,14 +50,24 @@ final class ScriptletCheck implements Rule
                 continue;
             }
 
-            if (preg_match('/\+js\((.+)\)$/', $line, $m)) {
-                $parts = preg_split('/(?<!\\\),\s*/', $m[1]);
-                if ($parts === false) {
-                    continue;
+            if (preg_match('/\+js\((.+)\)$/', $line, $slParams)) {
+                // https://regex101.com/r/znIIZL
+                $pattern = '/\s*(?:"([^"]*)"|\x27([^\x27]*)\x27|([^,]+))\s*(?:,\s*|$)/';
+                preg_match_all($pattern, $slParams[1], $matches, PREG_SET_ORDER);
+
+                $params = [];
+                foreach ($matches as $match) {
+                    if (isset($match[1]) && $match[1] !== '') {
+                        $params[] = $match[1];
+                    } elseif (isset($match[2]) && $match[2] !== '') {
+                        $params[] = $match[2];
+                    } elseif (isset($match[3])) {
+                        $params[] = trim($match[3]);
+                    }
                 }
 
-                $name = $this->normalizeParam($parts[0]);
-                $value = $this->normalizeParam($parts[2] ?? '');
+                $name = $this->normalizeParam($params[0]);
+                $value = $this->normalizeParam($params[2] ?? '');
 
                 if (str_starts_with($name, 'trusted-') || str_starts_with($name, 'brave-')) {
                     continue;

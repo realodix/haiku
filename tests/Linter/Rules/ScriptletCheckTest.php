@@ -110,6 +110,10 @@ class ScriptletCheckTest extends TestCase
             // others
             "example.com##+js(acis, foo, '')",
             'example.com##+js(acis, foo, )',
+            // https://github.com/uBlockOrigin/uAssets/blob/0b5ee02b1b/filters/annoyances-cookies.txt#L399
+            'hatch.co##+js(set-local-storage-item, COOKIE_CONSENT_STATUS_4124, \'"dismissed"\', aa)',
+            // https://github.com/uBlockOrigin/uAssets/blob/0b5ee02b1b/filters/filters-2023.txt#L3129
+            'trakt.tv##+js(set, art3m1sItemNames.affiliate-wrapper, \'""\')',
         ];
         $this->analyse($lines);
     }
