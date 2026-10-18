@@ -79,6 +79,10 @@ final class GeneralCheck implements Rule
      */
     private function checkNetSeparator($err, string $line): void
     {
+        if (!$this->config->rules['net.badSeparator']) {
+            return;
+        }
+
         if (!preg_match('/(?<=[\^,\$])domain=(?=[a-z0-9])/', $line, $m, PREG_OFFSET_CAPTURE)) {
             return;
         }
