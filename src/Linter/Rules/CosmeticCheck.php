@@ -47,17 +47,21 @@ final class CosmeticCheck implements Rule
     private function checkIdClassSelector($err, array $node): void
     {
         if ($node['separator'] === '##' || $node['separator'] === '#@#') {
-            // https://regex101.com/r/936hbo
-            $cleanSelector = preg_replace(
+            if (str_contains($node['selector'], ':xpath(')) {
+                return;
+            }
+
+            // https://regex101.com/r/JPArmy
+            $selector = preg_replace(
                 '/
-                    \[[^\]]+\]                      # attribute [...]
-                    |:(has-text|xpath)\s*\([^:]+\)  # :<func>(...)
+                    \[[^\]]+\]                  # attribute [...]
+                    |:has-text\s*\([^:]+\)      # :<func>(...)
                 /x',
                 '',
                 $node['selector'],
             );
 
-            if (preg_match('/[#.]{2,}[^#.\s+>~,]+/', $cleanSelector, $m)) {
+            if (preg_match('/[#.]{2,}[^#.\s+>~,]+/', $selector, $m)) {
                 $err->message("Bad selector: {$m[0]}")
                     ->identifier('cosmetic.badSelector')
                     ->build();

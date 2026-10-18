@@ -36,7 +36,7 @@ class CosmeticCheckTest extends TestCase
 
         $lines = [
             'example.com##a[href="../noads.html"]',
-            'example.com##:xpath(//span[contains(text(),"Advert")]/../..)',
+            "quora.com##:xpath(//span[contains(text(), 'by')]/ancestor::*[contains(concat(' ', @class, ' '), ' external_link ')]/../../..)",
             // https://github.com/easylist/ruadlist/blob/c91727fd98/js-fixes-experimental.txt#L644
             'example.com##p:has-text(foo...)',
         ];
