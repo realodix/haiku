@@ -97,11 +97,15 @@ class ScriptletCheckTest extends TestCase
         ]);
 
         $lines = [
-            'example.com##+js(set, Object.keys, "trueFunc")',
-        ];
-        $this->analyse($lines);
+            // case
+            'example.com##+js(set, fooCase, "trueFunc")',
 
-        $lines = [
+            // integer
+            'example.com##+js(set, fooInt, 1)',
+            'example.com##+js(set-cookie, fooInt, 1)',
+            'example.com##+js(set-local-storage-item, fooInt, 1)',
+
+            // empty
             "example.com##+js(set, CookieConsent, '')",
             "example.com##+js(set-local-storage-item, foo, '')",
             'example.com##+js(set, CookieConsent, )',

@@ -125,6 +125,10 @@ final class ScriptletCheck implements Rule
      */
     private function checkSetConstantValue($err, string $name, string|int $value): void
     {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
         if ($name !== 'set' && $name !== 'set-constant') {
             return;
         }
@@ -156,6 +160,10 @@ final class ScriptletCheck implements Rule
      */
     private function checkSetCookieValue($err, string $name, string|int $value): void
     {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
         if ($name !== 'set-cookie' && $name !== 'set-cookie-reload') {
             return;
         }
@@ -181,6 +189,10 @@ final class ScriptletCheck implements Rule
      */
     private function checkSetLocalStorageItemValue($err, string $name, string|int $value): void
     {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
         if ($name !== 'set-local-storage-item' && $name !== 'set-session-storage-item') {
             return;
         }
