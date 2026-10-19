@@ -135,7 +135,7 @@ final class ScriptletCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkSetConstantValue($err, string $name, string|int $value): void
+    private function checkSetConstantValue($err, string $name, string $value): void
     {
         if (!$this->config->rules['scriptlet.invalidValue']) {
             return;
@@ -145,7 +145,7 @@ final class ScriptletCheck implements Rule
             return;
         }
 
-        if (is_int($value)) {
+        if (preg_match('/^-?\d+$/', $value)) {
             return;
         }
 
@@ -170,7 +170,7 @@ final class ScriptletCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkSetCookieValue($err, string $name, string|int $value): void
+    private function checkSetCookieValue($err, string $name, string $value): void
     {
         if (!$this->config->rules['scriptlet.invalidValue']) {
             return;
@@ -180,7 +180,7 @@ final class ScriptletCheck implements Rule
             return;
         }
 
-        if (is_int($value)) {
+        if (preg_match('/^-?\d+$/', $value)) {
             return;
         }
 
@@ -199,7 +199,7 @@ final class ScriptletCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkSetLocalStorageItemValue($err, string $name, string|int $value): void
+    private function checkSetLocalStorageItemValue($err, string $name, string $value): void
     {
         if (!$this->config->rules['scriptlet.invalidValue']) {
             return;
@@ -209,7 +209,7 @@ final class ScriptletCheck implements Rule
             return;
         }
 
-        if (is_int($value)) {
+        if (preg_match('/^-?\d+$/', $value)) {
             return;
         }
 
@@ -233,9 +233,9 @@ final class ScriptletCheck implements Rule
         }
     }
 
-    private function normalizeParam(string|int $param): int|string
+    private function normalizeParam(string|int $param): string
     {
-        $param = trim($param);
+        $param = trim((string) $param);
 
         // remove wrapping quotes (single or double)
         if ((str_starts_with($param, '"') && str_ends_with($param, '"'))
@@ -243,10 +243,6 @@ final class ScriptletCheck implements Rule
         ) {
             $param = substr($param, 1, -1);
             $param = trim($param);
-        }
-
-        if (preg_match('/^-?\d+$/', $param)) {
-            return (int) $param;
         }
 
         // remove .js suffix
