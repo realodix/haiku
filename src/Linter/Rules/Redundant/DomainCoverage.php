@@ -66,7 +66,7 @@ final class DomainCoverage
             }
 
             $firstDot = strpos($parent, '.');
-            if ($firstDot === $dotPos) {
+            if ($firstDot === false || $firstDot === $dotPos) {
                 break;
             }
 
