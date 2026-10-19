@@ -78,6 +78,7 @@ final class Helper
             $baseConfig[$name] = $value;
         }
 
+        /** @var T */
         return $baseConfig;
     }
 }
