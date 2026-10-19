@@ -107,6 +107,7 @@ class ScriptletCheckTest extends TestCase
 
             // empty
             "example.com##+js(set, CookieConsent, '')",
+            "example.com##+js(set, document.body.oncopy, '', runAt)",
             "example.com##+js(set-local-storage-item, foo, '')",
             'example.com##+js(set, CookieConsent, )',
             'example.com##+js(set-local-storage-item, foo, )',

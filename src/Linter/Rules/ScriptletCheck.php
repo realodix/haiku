@@ -52,7 +52,7 @@ final class ScriptletCheck implements Rule
 
             if (preg_match('/\+js\((.+)\)$/', $line, $slParams)) {
                 // https://regex101.com/r/znIIZL
-                $pattern = '/\s*(?:"([^"]*)"|\x27([^\x27]*)\x27|([^,]+))\s*(?:,\s*|$)/';
+                $pattern = '/\s*(?:"([^"]+)"|\x27([^\x27]+)\x27|([^,]+))\s*(?:,\s*|$)/';
                 preg_match_all($pattern, $slParams[1], $matches, PREG_SET_ORDER);
 
                 $params = [];
