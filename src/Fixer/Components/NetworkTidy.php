@@ -59,8 +59,9 @@ final class NetworkTidy
             if (isset(self::MULTI_VALUE[$name]) && $value !== null) {
                 // First occurrence defines the position of the aggregated node
                 if (!isset($multiIndexes[$name])) {
+                    // Record the next node's index before appending it.
+                    $multiIndexes[$name] = count($nodes);
                     $nodes[] = ['name' => $name, 'values' => []];
-                    $multiIndexes[$name] = array_key_last($nodes);
                 }
 
                 // Subsequent occurrences only contribute values
