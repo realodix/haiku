@@ -145,6 +145,14 @@ final class ScriptletCheck implements Rule
             return;
         }
 
+        if ($value === '') {
+            $err->message('Missing set-constant value.')
+                ->identifier('scriptlet.missingValue')
+                ->build();
+
+            return;
+        }
+
         if (preg_match('/^-?\d+$/', $value)) {
             return;
         }
@@ -184,8 +192,15 @@ final class ScriptletCheck implements Rule
             return;
         }
 
-        $value = strtolower($value);
+        if ($value === '') {
+            $err->message('Missing set-cookie value.')
+                ->identifier('scriptlet.missingValue')
+                ->build();
 
+            return;
+        }
+
+        $value = strtolower($value);
         $values = self::COOKIE_VALUES;
         if (!in_array($value, $values, true)) {
             $hint = Util::getSuggestion($values, $value);
@@ -206,6 +221,14 @@ final class ScriptletCheck implements Rule
         }
 
         if ($name !== 'set-local-storage-item' && $name !== 'set-session-storage-item') {
+            return;
+        }
+
+        if ($value === '') {
+            $err->message('Missing set-local-storage-item value.')
+                ->identifier('scriptlet.missingValue')
+                ->build();
+
             return;
         }
 

@@ -96,6 +96,19 @@ class ScriptletCheckTest extends TestCase
             [3, 'Invalid set-local-storage-item value: foo'],
         ]);
 
+        // requires value
+        $lines = [
+            'example.com##+js(set, CookieConsent)',
+            'example.com##+js(set-local-storage-item, foo, )',
+            // https://github.com/easylist/easylist/blob/b073762429/easylist_cookie/easylist_cookie_specific_uBO.txt#L177
+            'wagner-tuning.com##+js(set-cookie, CookieLaw_statistik 0)',
+        ];
+        $this->analyse($lines, [
+            [1, 'Missing set-constant value.'],
+            [2, 'Missing set-local-storage-item value.'],
+            [3, 'Missing set-cookie value.'],
+        ]);
+
         $lines = [
             // case
             'example.com##+js(set, fooCase, "trueFunc")',
@@ -109,8 +122,6 @@ class ScriptletCheckTest extends TestCase
             "example.com##+js(set, CookieConsent, '')",
             "example.com##+js(set, document.body.oncopy, '', runAt)",
             "example.com##+js(set-local-storage-item, foo, '')",
-            'example.com##+js(set, CookieConsent, )',
-            'example.com##+js(set-local-storage-item, foo, )',
 
             // others
             "example.com##+js(acis, foo, '')",
