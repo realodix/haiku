@@ -46,6 +46,7 @@ final class NetworkTidy
      */
     private function normalizeOption(string $optionString)
     {
+        /** @var list<array{name: string, values: list<string>}> */
         $nodes = [];
 
         // 1. Parse raw option string into structured nodes
@@ -81,6 +82,7 @@ final class NetworkTidy
 
         // 2. Convert nodes back into string
         $optionList = [];
+        /** @var list<array{name: string, values: list<string>}> $nodes */
         foreach ($nodes as $node) {
             $name = $node['name'];
             $values = $node['values'];
