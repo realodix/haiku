@@ -129,7 +129,7 @@ class ScriptletCheckTest extends TestCase
             'vandemoortel.de##+js(set-cookie, cookieConsent_given, , reload, 1)',
         ];
         $this->analyse($lines, [
-            [1, 'Invalid set-cookie value: '],
+            [1, 'Missing set-cookie value.'],
         ]);
     }
 }

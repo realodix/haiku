@@ -57,8 +57,9 @@ selector.colonTooManyBackslash
 
 
 scriptlet.invalid
-scriptlet.invalidValue
 scriptlet.deprecated
+scriptlet.invalidValue
+scriptlet.missingValue
 
 
 domain.invalid

@@ -182,6 +182,14 @@ final class ScriptletCheck implements Rule
             return;
         }
 
+        if ($value === '') {
+            $err->message('Missing set-cookie value.')
+                ->identifier('scriptlet.missingValue')
+                ->build();
+
+            return;
+        }
+
         if (preg_match('/^-?\d+$/', $value)) {
             return;
         }
