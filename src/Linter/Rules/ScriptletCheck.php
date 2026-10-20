@@ -52,7 +52,7 @@ final class ScriptletCheck implements Rule
 
             if (preg_match('/\+js\((.+)\)$/', $line, $slParams)) {
                 // https://regex101.com/r/znIIZL
-                $pattern = '/\s*(?:"([^"]+)"|\x27([^\x27]+)\x27|([^,]+))\s*(?:,\s*|$)/';
+                $pattern = '/(?:"([^"]+)"|\x27([^\x27]+)\x27|([^,\s]+)|(\s+))\s*(?:,|$)/';
                 preg_match_all($pattern, $slParams[1], $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
 
                 $params = [];
@@ -63,6 +63,8 @@ final class ScriptletCheck implements Rule
                         $params[] = $match[2];
                     } elseif (isset($match[3])) {
                         $params[] = trim($match[3]);
+                    } elseif (isset($match[4])) {
+                        $params[] = $match[4];
                     }
                 }
 
@@ -185,7 +187,6 @@ final class ScriptletCheck implements Rule
         }
 
         $value = strtolower($value);
-
         $values = self::COOKIE_VALUES;
         if (!in_array($value, $values, true)) {
             $hint = Util::getSuggestion($values, $value);

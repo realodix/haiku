@@ -121,5 +121,15 @@ class ScriptletCheckTest extends TestCase
             'hatch.co##+js(set-local-storage-item, COOKIE_CONSENT_STATUS_4124, \'"dismissed"\', aa)',
         ];
         $this->analyse($lines);
+
+        // requires a value
+        $lines = [
+            // https://github.com/easylist/easylist/blob/ea218bd35d/easylist_cookie/easylist_cookie_specific_uBO.txt#L848
+            // We should get an empty-string, not `'reload` instead.
+            'vandemoortel.de##+js(set-cookie, cookieConsent_given, , reload, 1)',
+        ];
+        $this->analyse($lines, [
+            [1, 'Invalid set-cookie value: '],
+        ]);
     }
 }
