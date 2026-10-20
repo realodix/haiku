@@ -150,12 +150,12 @@ final class ScriptletCheck implements Rule
         }
 
         $values = [
-            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L55
             'emptyArr', 'emptyObj',
-            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L61
             // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/set-constant.js#L29
             'undefined', 'true', 'false', 'null', 'noopFunc', 'trueFunc', 'falseFunc',
-            'throwFunc', '[]', '{}', "''", '',
+            'throwFunc', '[]', '{}',
+            // empty
+            '', "''", '""',
         ];
 
         if (!in_array($value, $values, true)) {
@@ -214,14 +214,16 @@ final class ScriptletCheck implements Rule
         }
 
         $value = strtolower($value);
-
-        // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L61
         $values = [
-            '',
+            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L55
+            'emptyArr', 'emptyObj',
+            // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L61
             'undefined', 'null',
-            '{}', '[]', '""',
+            '{}', '[]',
             '$remove$',
             ...self::COOKIE_VALUES,
+            // empty
+            "''", '""',
         ];
 
         if (!in_array($value, $values, true)) {
@@ -236,6 +238,10 @@ final class ScriptletCheck implements Rule
     private function normalizeParam(string|int $param): string
     {
         $param = trim((string) $param);
+
+        if ($param === "''" || $param === '""') {
+            return $param;
+        }
 
         // remove wrapping quotes (single or double)
         if ((str_starts_with($param, '"') && str_ends_with($param, '"'))
