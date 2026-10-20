@@ -260,6 +260,10 @@ final class ScriptletCheck implements Rule
     {
         $param = trim((string) $param);
 
+        if ($param === "''" || $param === '""') {
+            return $param;
+        }
+
         // remove wrapping quotes (single or double)
         if ((str_starts_with($param, '"') && str_ends_with($param, '"'))
             || (str_starts_with($param, "'") && str_ends_with($param, "'"))
