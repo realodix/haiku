@@ -100,12 +100,15 @@ class NetPatternCheckTest extends TestCase
             '**/ads-*',
             '*/ads-**',
             '**/ads-**',
+
+            '@@**/ads-**$css',
         ];
         $this->analyse($lines, [
             [1, 'Unnecessary leading wildcard.'],
             [2, 'Unnecessary leading wildcard.'],
             [3, 'Unnecessary trailing wildcard.'],
             [4, 'Unnecessary leading and trailing wildcards.'],
+            [5, 'Unnecessary leading and trailing wildcards.'],
         ], onlyRules: [NetPatternCheck::class]);
 
         $lines = [

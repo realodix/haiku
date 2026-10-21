@@ -91,6 +91,10 @@ final class NetPatternCheck implements Rule
      */
     private function checkUnnecessaryWildcard($err, string $line): void
     {
+        if (!$this->config->rules['net.unnecessaryWildcard']) {
+            return;
+        }
+
         if (str_starts_with($line, '@@')) {
             $line = substr($line, 2);
         }
@@ -124,7 +128,7 @@ final class NetPatternCheck implements Rule
         }
 
         $err->message($message)
-            ->identifier('unnecessaryWildcard')
+            ->identifier('net.unnecessaryWildcard')
             ->build();
     }
 }
