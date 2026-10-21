@@ -91,11 +91,6 @@ final class NetPatternCheck implements Rule
      */
     private function checkUnnecessaryWildcard($err, string $line): void
     {
-        // uBlacklist rule
-        if (preg_match('/^@?\*:\/\//', $line)) {
-            return;
-        }
-
         if (str_starts_with($line, '@@')) {
             $line = substr($line, 2);
         }
@@ -109,23 +104,13 @@ final class NetPatternCheck implements Rule
 
         $hasLeadingWildcard = false;
         $hasTrailingWildcard = false;
-        $afterChar = $line[1];
-        $prevChar = $line[strlen($line) - 2];
 
-        if (str_starts_with($line, '*') && preg_match('/[\^\/?=%\-_.]/', $afterChar)) {
+        if (str_starts_with($line, '**') || (str_starts_with($line, '*/') && str_ends_with($line, '/*'))) {
             $hasLeadingWildcard = true;
         }
 
-        if (str_ends_with($line, '*') && preg_match('/[\^\/?=%\-_.]/', $prevChar)) {
-            if (str_starts_with($line, '||') && str_ends_with($line, '.*')) {
-                return;
-            }
-
+        if (str_ends_with($line, '**')) {
             $hasTrailingWildcard = true;
-
-            if (str_starts_with($line, '*/') && str_ends_with($line, '/*')) {
-                $hasTrailingWildcard = false;
-            }
         }
 
         if ($hasLeadingWildcard && $hasTrailingWildcard) {
