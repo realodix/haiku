@@ -252,11 +252,11 @@ class NetworkCheckTest extends TestCase
         $lines = [
             '/advertisement/ads-$image',
             '/advertisement/*$image',
-            '/adv/$image',
+            '/*/*$image',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3'],
-            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /*/* on line 3'],
+            [2, 'Redundant filter: /advertisement/*$image already covered by /*/* on line 3'],
         ]);
 
         $lines = [
@@ -388,41 +388,42 @@ class NetworkCheckTest extends TestCase
         // assert 1
         $lines = [
             '/advertisement/ads-$image',
-            '/adv/$image',
+            '/*/*$image',
             '/advertisement/*$image',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 2'],
-            [3, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 2'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /*/* on line 2'],
+            [3, 'Redundant filter: /advertisement/*$image already covered by /*/* on line 2'],
         ]);
 
         // assert 2
         $lines = [
             '/advertisement/ads-$image',
             '/advertisement/*$image',
-            '/adv/',
+            '/*/*',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3'],
-            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /*/* on line 3'],
+            [2, 'Redundant filter: /advertisement/*$image already covered by /*/* on line 3'],
         ]);
 
         // assert 3
         $lines = [
             '/advertisement/ads-$image',
             '/advertisement/*$image',
-            '/adv/$image',
+            '/*/*$image',
         ];
         $this->analyse($lines, [
-            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv/ on line 3'],
-            [2, 'Redundant filter: /advertisement/*$image already covered by /adv/ on line 3'],
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /*/* on line 3'],
+            [2, 'Redundant filter: /advertisement/*$image already covered by /*/* on line 3'],
         ]);
     }
 
     #[PHPUnit\Test]
     public function net_typo(): void
     {
-        // typo, appears as a regex
+        // An unescaped `/` can trigger a `preg_match` error
+        // https://github.com/realodix/haiku/blob/80dec07b3e/src/Linter/Rules/Redundant/NetworkCheck.php#L712
         $lines = [
             '/foo/bar/$image',
         ];
