@@ -78,6 +78,7 @@ domain.wrongSeparator
 
 
 net.badSeparator
+net.unnecessaryWildcard
 option.invalid
 option.case
 option.duplicate

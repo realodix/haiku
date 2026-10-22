@@ -33,6 +33,7 @@ final class NetPatternCheck implements Rule
 
             $this->checkTooShortPattern($err, $line, $hasOptions);
             $this->checkBadDomainAnchors($err, $line, $hasOptions);
+            $this->checkUnnecessaryWildcard($err, $line);
         }
 
         return $err->toArray();
@@ -83,5 +84,51 @@ final class NetPatternCheck implements Rule
                 ->identifier('netPattern.tooManyRightAnchors')
                 ->build();
         }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     */
+    private function checkUnnecessaryWildcard($err, string $line): void
+    {
+        if (!$this->config->rules['net.unnecessaryWildcard']) {
+            return;
+        }
+
+        if (str_starts_with($line, '@@')) {
+            $line = substr($line, 2);
+        }
+
+        if (str_starts_with($line, '/') && str_ends_with($line, '/*')
+            || str_starts_with($line, '*/') && str_ends_with($line, '/')
+            || strlen($line) < 4
+        ) {
+            return;
+        }
+
+        $hasLeadingWildcard = false;
+        $hasTrailingWildcard = false;
+
+        if (str_starts_with($line, '**') || (str_starts_with($line, '*/') && str_ends_with($line, '/*'))) {
+            $hasLeadingWildcard = true;
+        }
+
+        if (str_ends_with($line, '**')) {
+            $hasTrailingWildcard = true;
+        }
+
+        if ($hasLeadingWildcard && $hasTrailingWildcard) {
+            $message = 'Unnecessary leading and trailing wildcards.';
+        } elseif ($hasLeadingWildcard) {
+            $message = 'Unnecessary leading wildcard.';
+        } elseif ($hasTrailingWildcard) {
+            $message = 'Unnecessary trailing wildcard.';
+        } else {
+            return;
+        }
+
+        $err->message($message)
+            ->identifier('net.unnecessaryWildcard')
+            ->build();
     }
 }

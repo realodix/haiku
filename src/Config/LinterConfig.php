@@ -30,6 +30,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_short_rules: null|false|array{minLen: int},
  *  no_uppercase_domains: bool,
  *  'net.badSeparator': bool,
+ *  'net.unnecessaryWildcard': bool,
  *  'scriptlet.invalidValue': bool,
  * }
  * @phpstan-type _ConfigIgnoredError array{
@@ -77,6 +78,7 @@ final class LinterConfig
         'no_short_rules' => null,
         'no_uppercase_domains' => true,
         'net.badSeparator' => false,
+        'net.unnecessaryWildcard' => false,
         'scriptlet.invalidValue' => false,
     ] {
         /** @param array<array-key, mixed> $value */
