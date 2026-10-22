@@ -93,6 +93,27 @@ class NetPatternCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function likePathOrRegex(): void
+    {
+        $lines = [
+            '/abc/',
+            '/[0-9]+/*',
+        ];
+        $this->analyse($lines, [
+            [1, 'Possible path pattern in regex format.'],
+            [2, 'Possible regex pattern in path format.'],
+        ]);
+
+        $lines = [
+            '/abc/*',
+            '/[0-9]+/',
+            // https://github.com/easylist/ruadlist/blob/353c040553/advblock/general_block.txt#L345
+            '/play/?ref=*/play/*$third-party,subdocument',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function unnecessaryWildcard(): void
     {
         $lines = [
