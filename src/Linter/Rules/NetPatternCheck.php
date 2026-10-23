@@ -117,6 +117,10 @@ final class NetPatternCheck implements Rule
         }
 
         if (!$isPath && !$hasRegexSyntax) {
+            if ($m[2] === '.*') {
+                return;
+            }
+
             $err->message('Possible path pattern in regex format.')
                 ->tip('Use path format by adding "*" to the appropriate side.')
                 ->identifier('net.regexLikePath')

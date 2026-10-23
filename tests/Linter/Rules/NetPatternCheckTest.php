@@ -100,10 +100,12 @@ class NetPatternCheckTest extends TestCase
 
             '/[0-9]+/',
             '/https:\/\/(www\.)?[a-z\d\.]+\/\?id=/',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/83e5d4cfe1/SpywareFilter/sections/general_extensions.txt#L433
+            '/.*/',
         ];
         $this->analyse($lines, [
             [1, 'Possible path pattern in regex format.'],
-        ]);
+        ], onlyRules: [NetPatternCheck::class]);
 
         $lines = [
             '/[0-9]+/*',
