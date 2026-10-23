@@ -103,7 +103,8 @@ final class NetPatternCheck implements Rule
         $isPath = !empty($m[1]) || !empty($m[3]);
         $hasRegexSyntax = strpbrk($m[2], '\()[]{}|^$') !== false
             || (str_contains($m[2], '?')
-                && !preg_match('/(?<!\\\)\/\?[a-zA-Z]+=/', $m[2])
+                // https://regex101.com/r/aODftK
+                && !preg_match('/([^\\\]\/|\.[a-z]{2,})\?[a-zA-Z*]+=/', $m[2])
             );
 
         if ($isPath && $hasRegexSyntax) {

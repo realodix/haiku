@@ -112,6 +112,10 @@ class NetPatternCheckTest extends TestCase
             '/abc/*',
             // https://github.com/easylist/ruadlist/blob/353c040553/advblock/general_block.txt#L345
             '/play/?ref=*/play/*$third-party,subdocument',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/e56a874505/SpywareFilter/sections/general_url.txt#L566
+            '/logger/p.gif?*d=/*',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/f26115209b/SpywareFilter/sections/specific.txt#L6203
+            '/static/cache.php?url=https://mc.yandex.com/metrika/*',
         ];
         $this->analyse($lines, [
             [1, 'Possible regex pattern in path format.'],
