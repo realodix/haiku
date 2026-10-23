@@ -97,23 +97,26 @@ class NetPatternCheckTest extends TestCase
     {
         $lines = [
             '/abc/',
-            '/[0-9]+/*',
-            '/foo?/*',
+
+            '/[0-9]+/',
+            '/https:\/\/(www\.)?[a-z\d\.]+\/\?id=/',
         ];
         $this->analyse($lines, [
             [1, 'Possible path pattern in regex format.'],
-            [2, 'Possible regex pattern in path format.'],
-            [3, 'Possible regex pattern in path format.'],
         ]);
 
         $lines = [
+            '/[0-9]+/*',
+            '/foo?/*',
+
             '/abc/*',
-            '/[0-9]+/',
-            '/https:\/\/(www\.)?[a-z\d\.]+\/\?id=/',
             // https://github.com/easylist/ruadlist/blob/353c040553/advblock/general_block.txt#L345
             '/play/?ref=*/play/*$third-party,subdocument',
         ];
-        $this->analyse($lines);
+        $this->analyse($lines, [
+            [1, 'Possible regex pattern in path format.'],
+            [2, 'Possible regex pattern in path format.'],
+        ]);
     }
 
     #[PHPUnit\Test]
