@@ -427,7 +427,9 @@ class NetworkCheckTest extends TestCase
         $lines = [
             '/foo/bar/$image',
         ];
-        $this->analyse($lines);
+        $this->analyse($lines, [
+            [1, 'Possible path pattern in regex format: /foo/bar/'],
+        ]);
 
         // regex not valid
         // preg_match(): Compilation failed: missing opening brace after \o at offset 24

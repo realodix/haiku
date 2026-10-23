@@ -78,6 +78,8 @@ domain.wrongSeparator
 
 
 net.badSeparator
+net.pathLikeRegex
+net.regexLikePath
 net.unnecessaryWildcard
 option.invalid
 option.case
