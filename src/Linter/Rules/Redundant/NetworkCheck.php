@@ -46,6 +46,7 @@ final class NetworkCheck implements Rule
      * @var array{
      *  by_token: array<string, array<string, list<_NetRule>>>,
      *  no_token: array<string, list<_NetRule>>,
+     *  wildcard: array<string, list<_NetRule>>,
      *  stored: array<string, array<string, bool>>,
      * }
      */
@@ -183,6 +184,10 @@ final class NetworkCheck implements Rule
 
             $this->globalIndex['stored'][$type][$uniqueKey] = true;
 
+            if (str_contains($pattern, '*')) {
+                $this->globalIndex['wildcard'][$type][] = $entry;
+            }
+
             $token = $this->getPrimaryToken($pattern);
             if ($token !== null) {
                 $this->globalIndex['by_token'][$type][$token][] = $entry;
@@ -205,6 +210,7 @@ final class NetworkCheck implements Rule
         $this->globalIndex = [
             'by_token' => [],
             'no_token' => [],
+            'wildcard' => [],
             // For global rules deduplication
             'stored' => [],
         ];
@@ -278,9 +284,20 @@ final class NetworkCheck implements Rule
         if (!empty($this->globalIndex['no_token'][$type])) {
             $bucketsToCheck[] = $this->globalIndex['no_token'][$type];
         }
+        if (!empty($this->globalIndex['wildcard'][$type])) {
+            $bucketsToCheck[] = $this->globalIndex['wildcard'][$type];
+        }
+
+        $checkedCandidates = [];
 
         foreach ($bucketsToCheck as $bucket) {
             foreach ($bucket as $candidate) {
+                if (isset($checkedCandidates[$candidate['lineNum']])) {
+                    continue;
+                }
+
+                $checkedCandidates[$candidate['lineNum']] = true;
+
                 if ($entry['lineNum'] === $candidate['lineNum']) {
                     continue;
                 }
