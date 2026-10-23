@@ -96,8 +96,27 @@ class NetPatternCheckTest extends TestCase
     public function likePathOrRegex(): void
     {
         $lines = [
+            '/[0-9]+/*',
+            '/foo?/*',
+
+            '/abc/*',
+            // https://github.com/easylist/ruadlist/blob/353c040553/advblock/general_block.txt#L345
+            '/play/?ref=*/play/*$third-party,subdocument',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/83e5d4cfe1/SpywareFilter/sections/general_url.txt#L566
+            '/logger/p.gif?*d=/*',
+            // https://github.com/AdguardTeam/AdguardFilters/blob/83e5d4cfe1/SpywareFilter/sections/specific.txt#L6203
+            '/static/cache.php?url=https://mc.yandex.com/metrika/*',
+        ];
+        $this->analyse($lines, [
+            [1, 'Possible regex pattern in path format.'],
+            [2, 'Possible regex pattern in path format.'],
+        ]);
+
+        $lines = [
+            '/foo/bar/',
             '/abc/',
 
+            '/foo\/bar/',
             '/[0-9]+/',
             '/https:\/\/(www\.)?[a-z\d\.]+\/\?id=/',
             // https://github.com/AdguardTeam/AdguardFilters/blob/83e5d4cfe1/SpywareFilter/sections/general_extensions.txt#L433
@@ -105,24 +124,8 @@ class NetPatternCheckTest extends TestCase
         ];
         $this->analyse($lines, [
             [1, 'Possible path pattern in regex format.'],
+            [2, 'Possible path pattern in regex format.'],
         ], onlyRules: [NetPatternCheck::class]);
-
-        $lines = [
-            '/[0-9]+/*',
-            '/foo?/*',
-
-            '/abc/*',
-            // https://github.com/easylist/ruadlist/blob/353c040553/advblock/general_block.txt#L345
-            '/play/?ref=*/play/*$third-party,subdocument',
-            // https://github.com/AdguardTeam/AdguardFilters/blob/e56a874505/SpywareFilter/sections/general_url.txt#L566
-            '/logger/p.gif?*d=/*',
-            // https://github.com/AdguardTeam/AdguardFilters/blob/f26115209b/SpywareFilter/sections/specific.txt#L6203
-            '/static/cache.php?url=https://mc.yandex.com/metrika/*',
-        ];
-        $this->analyse($lines, [
-            [1, 'Possible regex pattern in path format.'],
-            [2, 'Possible regex pattern in path format.'],
-        ]);
     }
 
     #[PHPUnit\Test]
