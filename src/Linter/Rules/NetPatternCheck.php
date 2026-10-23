@@ -101,12 +101,12 @@ final class NetPatternCheck implements Rule
         }
 
         $isPath = !empty($m[1]) || !empty($m[3]);
-        $hasRegexSyntax = strpbrk($m[2], '\()[]{}|^$') !== false;
-        $hasQMark = !$hasRegexSyntax
-            && str_contains($m[2], '?')
-            && !preg_match('/(?<!\\\)\/\?[a-zA-Z]+=/', $m[2]);
+        $hasRegexSyntax = strpbrk($m[2], '\()[]{}|^$') !== false
+            || (str_contains($m[2], '?')
+                && !preg_match('/(?<!\\\)\/\?[a-zA-Z]+=/', $m[2])
+            );
 
-        if ($isPath && ($hasRegexSyntax || $hasQMark)) {
+        if ($isPath && $hasRegexSyntax) {
             $err->message('Possible regex pattern in path format.')
                 ->tip('Use regex format by removing "*" to the appropriate.')
                 ->identifier('net.pathLikeRegex')
