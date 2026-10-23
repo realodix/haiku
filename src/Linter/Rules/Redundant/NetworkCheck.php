@@ -27,6 +27,8 @@ use Realodix\Haiku\Support\Util;
  */
 final class NetworkCheck implements Rule
 {
+    private const MIN_TOKEN_LENGTH = 3;
+
     /**
      * Exact duplicates
      *
@@ -46,7 +48,6 @@ final class NetworkCheck implements Rule
      * @var array{
      *  by_token: array<string, array<string, list<_NetRule>>>,
      *  no_token: array<string, list<_NetRule>>,
-     *  wildcard: array<string, list<_NetRule>>,
      *  stored: array<string, array<string, bool>>,
      * }
      */
@@ -184,10 +185,6 @@ final class NetworkCheck implements Rule
 
             $this->globalIndex['stored'][$type][$uniqueKey] = true;
 
-            if (str_contains($pattern, '*')) {
-                $this->globalIndex['wildcard'][$type][] = $entry;
-            }
-
             $token = $this->getPrimaryToken($pattern);
             if ($token !== null) {
                 $this->globalIndex['by_token'][$type][$token][] = $entry;
@@ -210,7 +207,6 @@ final class NetworkCheck implements Rule
         $this->globalIndex = [
             'by_token' => [],
             'no_token' => [],
-            'wildcard' => [],
             // For global rules deduplication
             'stored' => [],
         ];
@@ -274,30 +270,35 @@ final class NetworkCheck implements Rule
         $best = null;
 
         $bucketsToCheck = [];
+
         $tokens = $this->getAllTokens($pattern);
+        $checkedBuckets = [];
         foreach ($tokens as $token) {
-            if (isset($this->globalIndex['by_token'][$type][$token])) {
-                $bucketsToCheck[] = $this->globalIndex['by_token'][$type][$token];
+            $tokenLength = strlen($token);
+
+            // Check exact token and its prefixes to find broader wildcard patterns.
+            for ($length = self::MIN_TOKEN_LENGTH; $length <= $tokenLength; $length++) {
+                $prefix = substr($token, 0, $length);
+
+                if (!isset($this->globalIndex['by_token'][$type][$prefix])) {
+                    continue;
+                }
+
+                if (isset($checkedBuckets[$prefix])) {
+                    continue;
+                }
+
+                $checkedBuckets[$prefix] = true;
+                $bucketsToCheck[] = $this->globalIndex['by_token'][$type][$prefix];
             }
         }
 
         if (!empty($this->globalIndex['no_token'][$type])) {
             $bucketsToCheck[] = $this->globalIndex['no_token'][$type];
         }
-        if (!empty($this->globalIndex['wildcard'][$type])) {
-            $bucketsToCheck[] = $this->globalIndex['wildcard'][$type];
-        }
-
-        $checkedCandidates = [];
 
         foreach ($bucketsToCheck as $bucket) {
             foreach ($bucket as $candidate) {
-                if (isset($checkedCandidates[$candidate['lineNum']])) {
-                    continue;
-                }
-
-                $checkedCandidates[$candidate['lineNum']] = true;
-
                 if ($entry['lineNum'] === $candidate['lineNum']) {
                     continue;
                 }
@@ -566,7 +567,7 @@ final class NetworkCheck implements Rule
             return null;
         }
 
-        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
+        if (preg_match_all('/[a-z0-9]{'.self::MIN_TOKEN_LENGTH.',}/i', $pattern, $matches)) {
             $longest = '';
             foreach ($matches[0] as $m) {
                 if (strlen($m) > strlen($longest)) {
@@ -595,7 +596,7 @@ final class NetworkCheck implements Rule
             }
         }
 
-        if (preg_match_all('/[a-z0-9]{3,}/i', $pattern, $matches)) {
+        if (preg_match_all('/[a-z0-9]{'.self::MIN_TOKEN_LENGTH.',}/i', $pattern, $matches)) {
             foreach ($matches[0] as $m) {
                 $tokens[strtolower($m)] = true;
             }
