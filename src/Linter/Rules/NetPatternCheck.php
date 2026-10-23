@@ -33,7 +33,7 @@ final class NetPatternCheck implements Rule
 
             $this->checkTooShortPattern($err, $line, $hasOptions);
             $this->checkBadDomainAnchors($err, $line, $hasOptions);
-            $this->checkLikePathOrRegex($err, $line);
+            $this->checkLikeRegexOrPath($err, $line);
             $this->checkUnnecessaryWildcard($err, $line);
         }
 
@@ -90,12 +90,8 @@ final class NetPatternCheck implements Rule
     /**
      * @param \Realodix\Haiku\Linter\ErrorBuilder $err
      */
-    private function checkLikePathOrRegex($err, string $line): void
+    private function checkLikeRegexOrPath($err, string $line): void
     {
-        if (!$this->config->rules['likePathOrRegex']) {
-            return;
-        }
-
         if (!preg_match('/^(?:@@)?(\*)?\/(.+)\/(\*)?$/', $line, $m)) {
             return;
         }
@@ -108,11 +104,15 @@ final class NetPatternCheck implements Rule
             );
 
         if ($isPath && $hasRegexSyntax) {
-            $err->message('Possible regex pattern in path format.')
+            $err->message("Possible regex pattern in path format: {$line}")
                 ->tip('Use regex format by removing "*" to the appropriate.')
                 ->identifier('net.pathLikeRegex')
                 ->build();
 
+            return;
+        }
+
+        if (!$this->config->rules['net.regexLikePath']) {
             return;
         }
 
@@ -121,7 +121,7 @@ final class NetPatternCheck implements Rule
                 return;
             }
 
-            $err->message('Possible path pattern in regex format.')
+            $err->message("Possible path pattern in regex format: {$line}")
                 ->tip('Use path format by adding "*" to the appropriate side.')
                 ->identifier('net.regexLikePath')
                 ->build();

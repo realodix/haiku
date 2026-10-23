@@ -30,9 +30,9 @@ use Symfony\Component\Filesystem\Path;
  *  no_short_rules: null|false|array{minLen: int},
  *  no_uppercase_domains: bool,
  *  'net.badSeparator': bool,
+ *  'net.regexLikePath': bool,
  *  'net.unnecessaryWildcard': bool,
  *  'scriptlet.invalidValue': bool,
- *  likePathOrRegex: bool,
  * }
  * @phpstan-type _ConfigIgnoredError array{
  *  message?: string,
@@ -78,8 +78,8 @@ final class LinterConfig
         'no_invalid_scriptlets' => true,
         'no_short_rules' => null,
         'no_uppercase_domains' => true,
-        'likePathOrRegex' => false,
         'net.badSeparator' => false,
+        'net.regexLikePath' => false,
         'net.unnecessaryWildcard' => false,
         'scriptlet.invalidValue' => false,
     ] {
