@@ -23,7 +23,7 @@ class HelperTest extends TestCase
         $expected = [
             'a1' => true,
             'a2' => true,
-            'a3' => null,
+            'a3' => true,
         ];
         $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override));
 
@@ -34,15 +34,11 @@ class HelperTest extends TestCase
         $expected = [
             'a1' => true,
             'a2' => 'foo',
-            'a3' => null,
+            'a3' => true,
         ];
         $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override));
 
-        $override = [
-            'all' => true,
-            'a2' => 'foo',
-        ];
-        $enabledValues = [
+        $defaultEnabledValues = [
             'a3' => 'foo',
         ];
         $expected = [
@@ -50,21 +46,21 @@ class HelperTest extends TestCase
             'a2' => 'foo',
             'a3' => 'foo',
         ];
-        $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override, $enabledValues));
+        $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override, $defaultEnabledValues));
 
         // Disable
         $override = [
             'all' => false,
             'a2' => 'foo',
         ];
-        $enabledValues = [
-            'a3' => 'foo',
+        $defaultEnabledValues = [
+            'a3' => 'bar',
         ];
         $expected = [
             'a1' => false,
             'a2' => 'foo',
-            'a3' => null,
+            'a3' => false,
         ];
-        $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override, $enabledValues));
+        $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override, $defaultEnabledValues));
     }
 }

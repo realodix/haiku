@@ -9,14 +9,14 @@ use Realodix\Haiku\Support\File;
  *  all?: bool,
  *  fmode?: bool,
  *  adg_non_basic_rule_modifier: bool,
- *  attr_to_basic_selector: null|'strict'|'loose',
+ *  attr_to_basic_selector: 'strict'|'loose'|false,
  *  combine_option_sets: bool,
  *  convert_abp_ext_selectors: bool,
  *  convert_legacy_remove_action: bool,
  *  fix_domain_separators: bool,
  *  migrate_deprecated_options: bool,
- *  option_format: null|'native'|'long'|'short',
- *  option_order: false|'name'|'type',
+ *  option_format: 'native'|'long'|'short'|false,
+ *  option_order: 'name'|'type'|false,
  *  remove_empty_lines: bool|'keep_before_comment',
  *  remove_subdomains: bool,
  *  remove_wildcard_covered_domains: bool,
@@ -39,13 +39,13 @@ final class FixerConfig
     /** @var _FixerFlags */
     public array $flags = [
         'adg_non_basic_rule_modifier' => false,
-        'attr_to_basic_selector' => null,
+        'attr_to_basic_selector' => false,
         'combine_option_sets' => true,
         'convert_abp_ext_selectors' => false,
         'convert_legacy_remove_action' => false,
         'fix_domain_separators' => false,
         'migrate_deprecated_options' => false,
-        'option_format' => null,
+        'option_format' => false,
         'option_order' => 'type',
         'remove_empty_lines' => 'keep_before_comment',
         'remove_subdomains' => false,
@@ -53,14 +53,11 @@ final class FixerConfig
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
-            $this->flags = Helper::resolveOptions(
-                $this->flags,
-                $value,
-                [
-                    'attr_to_basic_selector' => 'loose',
-                    'option_format' => 'native',
-                ],
-            );
+            $enabledValues = [
+                'attr_to_basic_selector' => 'loose',
+                'option_format' => 'native',
+            ];
+            $this->flags = Helper::resolveOptions($this->flags, $value, $enabledValues);
         }
     }
 

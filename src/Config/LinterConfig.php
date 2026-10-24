@@ -27,7 +27,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_invalid_option_context: bool,
  *  no_invalid_redirect_resources: bool,
  *  no_invalid_scriptlets: bool|array{known: list<string>},
- *  no_short_rules: null|false|array{minLen: int},
+ *  no_short_rules: false|array{minLen: int},
  *  no_uppercase_domains: bool,
  *  'net.badSeparator': bool,
  *  'net.regexLikePath': bool,
@@ -76,7 +76,7 @@ final class LinterConfig
         'no_invalid_option_context' => true,
         'no_invalid_redirect_resources' => true,
         'no_invalid_scriptlets' => true,
-        'no_short_rules' => null,
+        'no_short_rules' => false,
         'no_uppercase_domains' => true,
         'net.badSeparator' => false,
         'net.regexLikePath' => false,
@@ -85,7 +85,10 @@ final class LinterConfig
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
-            $this->rules = Helper::resolveOptions($this->rules, $value, type: 'rule');
+            $enabledValues = [
+                'no_short_rules' => ['minLen' => 4],
+            ];
+            $this->rules = Helper::resolveOptions($this->rules, $value, $enabledValues, 'rule');
         }
     }
 
