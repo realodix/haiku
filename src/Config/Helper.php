@@ -42,16 +42,28 @@ final class Helper
      *
      * @param T $baseConfig Current configuration array
      * @param array<string, mixed> $override Overrides to apply
+     * @param array<string, mixed> $enabledValues Default values for enabled options
      * @param string $type Type of configuration for error messages
      * @return T
      */
-    public static function resolveOptions(array $baseConfig, array $override, string $type = 'flag'): array
-    {
+    public static function resolveOptions(
+        array $baseConfig,
+        array $override,
+        array $enabledValues = [],
+        string $type = 'flag',
+    ): array {
+        // Acts as a bulk toggle for all options
         if (array_key_exists('all', $override)) {
-            $value = $override['all'];
+            $allValue = $override['all'];
+
             foreach ($baseConfig as $name => $defaultValue) {
-                if (is_bool($defaultValue)) {
-                    $baseConfig[$name] = $value;
+                $baseConfig[$name] = $allValue;
+            }
+
+            // Apply predefined enabled values for non-boolean options
+            if ($allValue === true) {
+                foreach ($enabledValues as $name => $allValue) {
+                    $baseConfig[$name] = $allValue;
                 }
             }
 

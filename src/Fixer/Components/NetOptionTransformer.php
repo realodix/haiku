@@ -78,7 +78,7 @@ final class NetOptionTransformer
     {
         $format = $this->config->flags['option_format'];
 
-        if ($format === null) {
+        if ($format === false) {
             return $option;
         }
 

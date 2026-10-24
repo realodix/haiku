@@ -403,7 +403,7 @@ Option names must be in lowercase.
 
 Normalizes network filter option names into a consistent format.
 
-`fixer.flags.option_format`, default: unset
+`fixer.flags.option_format`, default: unset; `native` when `all` is set to `true`.
 
 **Possible values**:
 - `long`: Converts all options to their descriptive (long) form.
@@ -478,7 +478,7 @@ example.com##div:has(> span:has-text(Advertisment))
 
 Converts `id` and `class` attribute selectors into their equivalent CSS basic selector forms.
 
-`fixer.flags.attr_to_basic_selector`, default: unset
+`fixer.flags.attr_to_basic_selector`, default: unset; `loose` when `all` is set to `true`.
 
 **Possible values**:
 - `strict`: Only applies transformations that are fully semantically equivalent.

@@ -46,6 +46,7 @@ abstract class TestCase extends BaseTestCase
 
         app(LinterConfig::class)->rules = [
             'all' => true,
+            'no_short_rules' => false,
         ];
     }
 
@@ -53,8 +54,10 @@ abstract class TestCase extends BaseTestCase
     {
         app(FixerConfig::class)->flags = array_merge([
             'all' => true,
+            'attr_to_basic_selector' => false,
             'convert_abp_ext_selectors' => false,
             'convert_legacy_remove_action' => false,
+            'option_format' => false,
         ], $flags);
     }
 
