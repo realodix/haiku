@@ -47,12 +47,6 @@ final class Helper
      */
     public static function resolveOptions(array $baseConfig, array $override, string $type = 'flag'): array
     {
-        // Acts as a bulk toggle for all boolean values
-        if (array_key_exists('fmode', $override)) {
-            $override['all'] = $override['fmode'];
-            unset($override['fmode']);
-        }
-
         if (array_key_exists('all', $override)) {
             $value = $override['all'];
             foreach ($baseConfig as $name => $defaultValue) {
