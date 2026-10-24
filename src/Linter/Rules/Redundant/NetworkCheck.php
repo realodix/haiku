@@ -302,7 +302,7 @@ final class NetworkCheck implements Rule
                     continue;
                 }
 
-                // malformed anchored domain pattern
+                // @todo: filters like `||example.` are actually valid, but for now, let's avoid them.
                 if (str_starts_with($candidate['pattern'], '||')
                     && !str_contains($candidate['pattern'], '/')
                     && (str_ends_with($candidate['pattern'], '.') || str_ends_with($candidate['pattern'], '-'))
