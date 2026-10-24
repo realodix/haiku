@@ -268,7 +268,6 @@ final class NetworkCheck implements Rule
 
         /** @var _NetRule|null */
         $best = null;
-
         $bucketsToCheck = [];
 
         $tokens = $this->getAllTokens($pattern);
@@ -300,6 +299,14 @@ final class NetworkCheck implements Rule
         foreach ($bucketsToCheck as $bucket) {
             foreach ($bucket as $candidate) {
                 if ($entry['lineNum'] === $candidate['lineNum']) {
+                    continue;
+                }
+
+                // malformed anchored domain pattern
+                if (str_starts_with($candidate['pattern'], '||')
+                    && !str_contains($candidate['pattern'], '/')
+                    && (str_ends_with($candidate['pattern'], '.') || str_ends_with($candidate['pattern'], '-'))
+                ) {
                     continue;
                 }
 

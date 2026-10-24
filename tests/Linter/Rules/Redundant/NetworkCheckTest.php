@@ -116,6 +116,54 @@ class NetworkCheckTest extends TestCase
     }
 
     #[PHPUnit\Test]
+    public function generic_redundancy_2(): void
+    {
+        $lines = [
+            '||blogspot.com^',
+            '||foo.blogspot.com^',
+            '||foo.blogspot.com.sg^',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/SpywareFilter/sections/mobile.txt#L887
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/SpywareFilter/sections/mobile.txt#L912
+            '||overseauspider.yuanshen.com:8888/log^',
+            '||overseauspider.yuanshen.com^',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: ||overseauspider.yuanshen.com:8888/log^ already covered by ||overseauspider.yuanshen.com^ on line 2'],
+        ]);
+
+        $lines = [
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/CyrillicFilters/RussianFilter/sections/adservers_firstparty.txt#L85-L86
+            '||an.yandex.ru^',
+            '||an.yandex.',
+
+            // https://github.com/easylist/easylist/blob/86dd8ba437/easylist/easylist_adservers.txt#L51718-L51719
+            '||23.109.87.',
+            '||23.109.87.123^',
+
+            // https://github.com/uBlockOrigin/uAssets/blob/1c04f1acc5/filters/badware.txt#L5303
+            // https://github.com/uBlockOrigin/uAssets/blob/1c04f1acc5/filters/badware.txt#L5376
+            '||khach-hang-the-$doc',
+            '||khach-hang-$doc',
+
+            // https://github.com/uBlockOrigin/uAssets/blob/1c04f1acc5/filters/badware.txt#L5476
+            // https://github.com/uBlockOrigin/uAssets/blob/1c04f1acc5/filters/badware.txt#L6233
+            '||kmspico-$doc',
+            '||kmspico-mafia.com^$doc',
+            '||kmspico-oficial.com^$doc',
+
+            // https://github.com/uBlockOrigin/uAssets/blob/1c04f1acc5/filters/privacy-removeparam.txt#L562
+            // https://github.com/uBlockOrigin/uAssets/blob/1c04f1acc5/filters/privacy-removeparam.txt#L1518
+            '||dailymail.com^$removeparam=ns_mchannel',
+            '||dailymail.$removeparam=ns_mchannel',
+        ];
+        $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
     public function generic_redundancy_with_wildcard(): void
     {
         $lines = [
@@ -171,11 +219,17 @@ class NetworkCheckTest extends TestCase
             '/foobar/ads-$image',
             '/foo*/s-$image',
             '/foobar/*$image',
+
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/SpywareFilter/sections/mobile.txt#L655
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/SpywareFilter/sections/mobile.txt#L1317
+            '-ulogl2.kwai-pro.com^',
+            '-ulogl*.kwai-pro.com^',
         ];
         $this->analyse($lines, [
             [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv*/* on line 2'],
             [3, 'Redundant filter: /advertisement/*$image already covered by /adv*/* on line 2'],
             [4, 'Redundant filter: /foobar/ads-$image already covered by /foobar/* on line 6'],
+            [7, 'Redundant filter: -ulogl2.kwai-pro.com^ already covered by -ulogl*.kwai-pro.com^ on line 8'],
         ]);
     }
 
