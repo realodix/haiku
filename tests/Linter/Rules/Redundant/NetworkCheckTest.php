@@ -162,6 +162,22 @@ class NetworkCheckTest extends TestCase
             [11, 'Redundant filter: ||somesite1.com^ already covered by ||somesite*.com^ on line 12'],
             [14, 'Redundant filter: ||x.example.com^ already covered by ||*.example.com^ on line 13'],
         ]);
+
+        $lines = [
+            '/advertisement/ads-$image',
+            '/adv*/*$image',
+            '/advertisement/*$image',
+
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/SpywareFilter/sections/mobile.txt#L655
+            // https://github.com/AdguardTeam/AdguardFilters/blob/8e4630c805/SpywareFilter/sections/mobile.txt#L1317
+            '-ulogl2.kwai-pro.com^',
+            '-ulogl*.kwai-pro.com^',
+        ];
+        $this->analyse($lines, [
+            [1, 'Redundant filter: /advertisement/ads-$image already covered by /adv*/* on line 2'],
+            [3, 'Redundant filter: /advertisement/*$image already covered by /adv*/* on line 2'],
+            [4, 'Redundant filter: -ulogl2.kwai-pro.com^ already covered by -ulogl*.kwai-pro.com^ on line 5'],
+        ]);
     }
 
     #[PHPUnit\Test]
