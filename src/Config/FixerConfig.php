@@ -54,7 +54,7 @@ final class FixerConfig
         /** @param array<array-key, mixed> $value */
         set(array $value) {
             $enabledValues = [
-                'attr_to_basic_selector' => 'loose',
+                'attr_to_basic_selector' => 'strict',
                 'option_format' => 'native',
             ];
             $this->flags = Helper::resolveOptions($this->flags, $value, $enabledValues);

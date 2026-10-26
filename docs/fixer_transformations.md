@@ -478,7 +478,7 @@ example.com##div:has(> span:has-text(Advertisment))
 
 Converts `id` and `class` attribute selectors into their equivalent CSS basic selector forms.
 
-`fixer.flags.attr_to_basic_selector`, default: unset; `loose` when `all` is set to `true`.
+`fixer.flags.attr_to_basic_selector`, default: unset; `strict` when `all` is set to `true`.
 
 **Possible values**:
 - `strict`: Only applies transformations that are fully semantically equivalent.
