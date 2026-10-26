@@ -125,11 +125,16 @@ class NetworkCheckTest extends TestCase
             '-sso-*.webflow.io^',
             '/mailer.hostinger.io/o/*$image',
             '/mailer.*/o/*$image',
+            '/foo-bar-baz/*',
+            '/foo-b*-baz/*',
+            '/foo-bar-baz/123-',
         ];
         $this->analyse($lines, [
             [2, 'Redundant filter: ||example.org/wp-content/uploads/2020/10/google-play-spoticatolico.png$domain=ex... already covered by ||example.org/wp-content/uploads/*/google-play-spoticatolico.png on line 1'],
             [3, 'Redundant filter: ||secure---sso---robinhood---com-cdn.webflow.io^$doc already covered by -sso-*.webflow.io^ on line 4'],
             [5, 'Redundant filter: /mailer.hostinger.io/o/*$image already covered by /mailer.*/o/* on line 6'],
+            [7, 'Redundant filter: /foo-bar-baz/* already covered by /foo-b*-baz/* on line 8'],
+            [9, 'Redundant filter: /foo-bar-baz/123- already covered by /foo-b*-baz/* on line 8'],
         ]);
 
         $lines = [
