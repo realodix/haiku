@@ -16,7 +16,6 @@ use Symfony\Component\Filesystem\Path;
  *  filename: string,
  *  header?: string,
  *  includes: array<int, string>,
- *  source?: array<int, string>,
  *  remove_duplicates?: bool,
  * }>
  * @phpstan-type _BuilderConfig array{
