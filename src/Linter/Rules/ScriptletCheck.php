@@ -81,6 +81,7 @@ final class ScriptletCheck implements Rule
                 $this->checkSetConstantValue($err, $name, $value);
                 $this->checkSetCookieValue($err, $name, $value);
                 $this->checkSetLocalStorageItemValue($err, $name, $value);
+                $this->checkSetAttrValue($err, $name, $params);
             }
         }
 
@@ -238,6 +239,41 @@ final class ScriptletCheck implements Rule
         if (!in_array($value, $values, true)) {
             $hint = Util::getSuggestion($values, $value);
             $err->message("Invalid set-local-storage-item value: {$value}")
+                ->identifier('scriptlet.invalidValue')
+                ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
+                ->build();
+        }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorBuilder $err
+     * @param list<string> $params
+     */
+    private function checkSetAttrValue($err, string $name, array $params): void
+    {
+        if (!$this->config->rules['scriptlet.invalidValue']) {
+            return;
+        }
+
+        if ($name !== 'set-attr') {
+            return;
+        }
+
+        $value = $this->normalizeParam($params[3] ?? '');
+        $validValues = [
+            // https://github.com/gorhill/uBlock/blob/0ab2e114fb/src/js/resources/attribute.js#L132
+            'true', 'false', "''",
+        ];
+
+        if (!in_array($value, $validValues, true)) {
+            if (preg_match('/^-?\d+$/', $value)) {
+                return;
+            } elseif (preg_match('/^\[.+\]$/', $value)) {
+                return;
+            }
+
+            $hint = Util::getSuggestion($validValues, $value);
+            $err->message("Invalid set-attr value: {$value}")
                 ->identifier('scriptlet.invalidValue')
                 ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
                 ->build();

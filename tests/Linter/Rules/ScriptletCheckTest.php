@@ -132,4 +132,25 @@ class ScriptletCheckTest extends TestCase
             [1, 'Missing set-cookie value.'],
         ]);
     }
+
+    #[PHPUnit\Test]
+    public function invalidValue_setAttr(): void
+    {
+        $lines = [
+            "example.com##+js(set-attr, selector, attr, '')",
+            'example.com##+js(set-attr, selector, attr, true)',
+            'example.com##+js(set-attr, selector, attr, false)',
+            'example.com##+js(set-attr, selector, attr, 0)',
+            'example.com##+js(set-attr, selector, attr, -1)',
+            'example.com##+js(set-attr, selector, attr, [data-src])',
+        ];
+        $this->analyse($lines);
+
+        $lines = [
+            'example.com##+js(set-attr, selector, attr, foo)',
+        ];
+        $this->analyse($lines, [
+            [1, 'Invalid set-attr value: foo'],
+        ]);
+    }
 }
