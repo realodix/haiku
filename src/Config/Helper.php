@@ -56,7 +56,7 @@ final class Helper
         if (array_key_exists('all', $override)) {
             $allValue = $override['all'];
 
-            foreach ($baseConfig as $name => $defaultValue) {
+            foreach ($baseConfig as $name => $_) {
                 $baseConfig[$name] = $allValue;
             }
 
