@@ -140,19 +140,13 @@ final class ScriptletCheck implements Rule
      */
     private function checkSetConstantValue($err, string $name, string $value): void
     {
-        if (!$this->config->rules['scriptlet.invalidValue']) {
+        if (!$this->config->rules['scriptlet.invalidValue']
+            || !in_array($name, ['set', 'set-constant'])
+        ) {
             return;
         }
 
-        if ($name !== 'set' && $name !== 'set-constant') {
-            return;
-        }
-
-        if (preg_match('/^-?\d+$/', $value)) {
-            return;
-        }
-
-        $values = [
+        $validValues = [
             'emptyArr', 'emptyObj',
             // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/set-constant.js#L29
             'undefined', 'true', 'false', 'null', 'noopFunc', 'trueFunc', 'falseFunc',
@@ -161,8 +155,12 @@ final class ScriptletCheck implements Rule
             '', "''", '""',
         ];
 
-        if (!in_array($value, $values, true)) {
-            $hint = Util::getSuggestion($values, $value);
+        if (!in_array($value, $validValues, true)) {
+            if (preg_match('/^-?\d+$/', $value)) {
+                return;
+            }
+
+            $hint = Util::getSuggestion($validValues, $value);
             $err->message("Invalid set-constant value: {$value}")
                 ->identifier('scriptlet.invalidValue')
                 ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
@@ -175,11 +173,9 @@ final class ScriptletCheck implements Rule
      */
     private function checkSetCookieValue($err, string $name, string $value): void
     {
-        if (!$this->config->rules['scriptlet.invalidValue']) {
-            return;
-        }
-
-        if ($name !== 'set-cookie' && $name !== 'set-cookie-reload') {
+        if (!$this->config->rules['scriptlet.invalidValue']
+            || !in_array($name, ['set-cookie', 'set-cookie-reload'])
+        ) {
             return;
         }
 
@@ -191,14 +187,14 @@ final class ScriptletCheck implements Rule
             return;
         }
 
-        if (preg_match('/^-?\d+$/', $value)) {
-            return;
-        }
-
         $value = strtolower($value);
-        $values = self::COOKIE_VALUES;
-        if (!in_array($value, $values, true)) {
-            $hint = Util::getSuggestion($values, $value);
+        $validValues = self::COOKIE_VALUES;
+        if (!in_array($value, $validValues, true)) {
+            if (preg_match('/^-?\d+$/', $value)) {
+                return;
+            }
+
+            $hint = Util::getSuggestion($validValues, $value);
             $err->message("Invalid set-cookie value: {$value}")
                 ->identifier('scriptlet.invalidValue')
                 ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
@@ -211,20 +207,14 @@ final class ScriptletCheck implements Rule
      */
     private function checkSetLocalStorageItemValue($err, string $name, string $value): void
     {
-        if (!$this->config->rules['scriptlet.invalidValue']) {
-            return;
-        }
-
-        if ($name !== 'set-local-storage-item' && $name !== 'set-session-storage-item') {
-            return;
-        }
-
-        if (preg_match('/^-?\d+$/', $value)) {
+        if (!$this->config->rules['scriptlet.invalidValue']
+            || !in_array($name, ['set-local-storage-item', 'set-session-storage-item'])
+        ) {
             return;
         }
 
         $value = strtolower($value);
-        $values = [
+        $validValues = [
             // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L55
             'emptyArr', 'emptyObj',
             // https://github.com/gorhill/uBlock/blob/dfca51bea2/src/js/resources/localstorage.js#L61
@@ -236,8 +226,12 @@ final class ScriptletCheck implements Rule
             "''", '""',
         ];
 
-        if (!in_array($value, $values, true)) {
-            $hint = Util::getSuggestion($values, $value);
+        if (!in_array($value, $validValues, true)) {
+            if (preg_match('/^-?\d+$/', $value)) {
+                return;
+            }
+
+            $hint = Util::getSuggestion($validValues, $value);
             $err->message("Invalid set-local-storage-item value: {$value}")
                 ->identifier('scriptlet.invalidValue')
                 ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))
