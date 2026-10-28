@@ -2,7 +2,7 @@
     "name": "realodix/haiku",
     "description": "A tool to manage and maintain Adblock filter lists.",
     "license": "MIT",
-    "type": "library",
+    "type": "project",
     "authors": [{"name": "Budi Hermawan", "role": "Developer"}],
     "homepage": "https://github.com/realodix/haiku",
     "require": {
