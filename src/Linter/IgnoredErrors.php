@@ -247,10 +247,8 @@ final class IgnoredErrors
     {
         $count = 0;
 
-        foreach ($this->patternMatched as $index => $used) {
-            $pattern = $this->ignorePatterns[$index];
-
-            if (!$used && isset($pattern['isBaseline'])) {
+        foreach ($this->ignorePatterns as $index => $pattern) {
+            if (isset($pattern['isBaseline']) && !$this->patternMatched[$index]) {
                 $count++;
             }
         }
