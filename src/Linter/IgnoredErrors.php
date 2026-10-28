@@ -241,6 +241,22 @@ final class IgnoredErrors
     }
 
     /**
+     * The number of baseline entries that did not match any reported errors.
+     */
+    public function countUnmatchedBaselineEntries(): int
+    {
+        $count = 0;
+
+        foreach ($this->ignorePatterns as $index => $pattern) {
+            if (isset($pattern['isBaseline']) && !$this->patternMatched[$index]) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * Check if a value matches a pattern.
      *
      * @param string $pattern The pattern to match

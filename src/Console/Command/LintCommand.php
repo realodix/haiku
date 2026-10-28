@@ -103,7 +103,9 @@ class LintCommand extends Command
         $globalErrors = $errorReporter->getGlobalErrors();
 
         if ($errorReporter->count() === 0) {
+            $this->renderUnmatchedBaselineWarning($io, $errorReporter);
             $this->renderBaselineFilteredCount($io, $errorReporter);
+
             $io->success('No errors found!');
 
             return;
@@ -176,6 +178,7 @@ class LintCommand extends Command
             $io->newLine();
         }
 
+        $this->renderUnmatchedBaselineWarning($io, $errorReporter);
         $this->renderBaselineFilteredCount($io, $errorReporter);
 
         $io->error(sprintf(
@@ -260,6 +263,24 @@ class LintCommand extends Command
                 $baselineFiltered === 1 ? 'error' : 'errors',
             ));
         }
+    }
+
+    /**
+     * @param \Realodix\Haiku\Linter\ErrorReporter $errorReporter
+     */
+    private function renderUnmatchedBaselineWarning(SymfonyStyle $io, $errorReporter): void
+    {
+        $count = $errorReporter->unmatchedBaselineEntries;
+
+        if ($count === 0) {
+            return;
+        }
+
+        $io->writeln(sprintf(
+            '<fg=yellow>WARN</> Your baseline file contains %d %s for issues that no longer exist. Consider regenerating it with --generate-baseline.',
+            $count,
+            $count === 1 ? 'entry' : 'entries',
+        ));
     }
 
     private function meta(string $content, ?string $icon = null): string
