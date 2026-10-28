@@ -56,8 +56,10 @@ final class Helper
         if (array_key_exists('all', $override)) {
             $allValue = $override['all'];
 
-            foreach ($baseConfig as $name => $_) {
-                $baseConfig[$name] = $allValue;
+            foreach ($baseConfig as $name => $defaultValue) {
+                if ($allValue === false || is_bool($defaultValue)) {
+                    $baseConfig[$name] = $allValue;
+                }
             }
 
             // Apply predefined enabled values for non-boolean options

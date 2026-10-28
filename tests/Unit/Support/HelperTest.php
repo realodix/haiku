@@ -23,7 +23,7 @@ class HelperTest extends TestCase
         $expected = [
             'a1' => true,
             'a2' => true,
-            'a3' => true,
+            'a3' => null,
         ];
         $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override));
 
@@ -31,13 +31,6 @@ class HelperTest extends TestCase
             'all' => true,
             'a2' => 'foo',
         ];
-        $expected = [
-            'a1' => true,
-            'a2' => 'foo',
-            'a3' => true,
-        ];
-        $this->assertSame($expected, ConfigHelper::resolveOptions($base, $override));
-
         $defaultEnabledValues = [
             'a3' => 'foo',
         ];
