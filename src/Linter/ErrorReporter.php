@@ -9,6 +9,8 @@ final class ErrorReporter
 {
     public int $baselineMatches = 0;
 
+    public int $unmatchedBaselineEntries = 0;
+
     /** @var array<string, list<_RuleError>> */
     private array $errors = [];
 
