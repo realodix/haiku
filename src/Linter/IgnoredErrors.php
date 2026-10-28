@@ -198,6 +198,7 @@ final class IgnoredErrors
         foreach ($this->patternMatched as $index => $used) {
             $pattern = $this->ignorePatterns[$index];
 
+            // If the pattern was matched, or it's a baseline entry, skip it
             if ($used || isset($pattern['isBaseline'])) {
                 continue;
             }
