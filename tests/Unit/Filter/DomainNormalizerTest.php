@@ -195,12 +195,12 @@ final class DomainNormalizerTest extends TestCase
     public function wildcardDomainCoverage()
     {
         $input = [
-            '*$domain=example.com|~example.net|example.*',
-            'example.com,~example.net,example.*##.ads',
+            '*$domain=example.com|example.*|~example.net|~example.*',
+            'example.com,example.*,~example.net,~example.*,example.com>>,example.*>>,~example.com>>,~example.*>>##.ads',
         ];
         $expected = [
-            '*$domain=~example.net|example.*',
-            '~example.net,example.*##.ads',
+            '*$domain=~example.*|example.*',
+            '~example.*,~example.*>>,example.*,example.*>>##.ads',
         ];
         $this->assertSame($expected, $this->fix($input));
 
@@ -225,7 +225,7 @@ final class DomainNormalizerTest extends TestCase
 
         // The parent domain is the negated domain.
         $input = ['*$domain=example.com|~example.net|~example.*'];
-        $expected = ['*$domain=~example.*|~example.net|example.com'];
+        $expected = ['*$domain=~example.*|example.com'];
         $this->assertSame($expected, $this->fix($input));
 
         // Just in case the user enters invalid input
