@@ -36,9 +36,9 @@ use Symfony\Component\Filesystem\Path;
  * }
  * @phpstan-type _ConfigIgnoredError array{
  *  message?: string,
- *  messages?: list<string>|string,
+ *  messages?: list<string>,
  *  path?: string,
- *  paths?: list<string>|string,
+ *  paths?: list<string>,
  *  identifier?: string,
  *  identifiers?: list<string>,
  * }|string
