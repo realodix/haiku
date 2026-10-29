@@ -44,7 +44,7 @@ final class DomainNormalizer
         }
 
         $domains = $this->removeWildcardCoveredDomains($domains);
-        $domains = $this->removeSubdomainCoveredDomains($domains);
+        $domains = $this->removeCoveredSubdomains($domains);
         $domains = array_unique($domains);
         $domains = Arr::sortBy($domains, fn(string $value) => $this->domainSortKey($value));
 
@@ -165,22 +165,47 @@ final class DomainNormalizer
      * @param array<int, string> $domains
      * @return array<int, string>
      */
-    private function removeSubdomainCoveredDomains(array $domains)
+    private function removeCoveredSubdomains(array $domains)
     {
         if (!$this->config->flags['remove_subdomains']) {
             return $domains;
         }
 
-        // Build lookup set of candidate parent domains. Used to detect subdomains
-        // covered by their parent.
+        // Build lookup set of candidate parent domains, grouped by negation and suffix.
         $baseSet = [];
 
         foreach ($domains as $d) {
-            if ($d[0] !== '~'
-                && !str_ends_with($d, '.*')
-                && strpos($d, '.') !== false
+            $isNegated = str_starts_with($d, '~');
+            $domain = substr($d, $isNegated ? 1 : 0);
+            $isAncestor = str_ends_with($domain, '>>');
+
+            if ($isAncestor) {
+                $domain = substr($domain, 0, -2);
+            }
+
+            if (!$isNegated
+                && !str_ends_with($domain, '.*')
+                && strpos($domain, '.') !== false
             ) {
-                $baseSet[$d] = true;
+                $baseSet[$isAncestor ? '>>' : ''][$domain] = true;
+            }
+        }
+
+        // Include negated parent domains as well.
+        foreach ($domains as $d) {
+            $isNegated = str_starts_with($d, '~');
+            $domain = substr($d, $isNegated ? 1 : 0);
+            $isAncestor = str_ends_with($domain, '>>');
+
+            if ($isAncestor) {
+                $domain = substr($domain, 0, -2);
+            }
+
+            if ($isNegated
+                && !str_ends_with($domain, '.*')
+                && strpos($domain, '.') !== false
+            ) {
+                $baseSet['~'.($isAncestor ? '>>' : '')][$domain] = true;
             }
         }
 
@@ -189,20 +214,23 @@ final class DomainNormalizer
         }
 
         $filtered = array_filter($domains, static function ($d) use ($baseSet) {
-            // Keep negated domains
-            if ($d[0] === '~') {
-                return true;
+            $isNegated = str_starts_with($d, '~');
+            $domain = substr($d, $isNegated ? 1 : 0);
+            $isAncestor = str_ends_with($domain, '>>');
+
+            if ($isAncestor) {
+                $domain = substr($domain, 0, -2);
             }
 
-            $check = $d;
+            $key = ($isNegated ? '~' : '').($isAncestor ? '>>' : '');
 
             // Strip leftmost label iteratively:
             // login.api.example.com -> api.example.com -> example.com
-            while (($pos = strpos($check, '.')) !== false) {
-                $check = substr($check, $pos + 1);
+            while (($pos = strpos($domain, '.')) !== false) {
+                $domain = substr($domain, $pos + 1);
 
-                if (isset($baseSet[$check])) {
-                    return false; // Covered
+                if (isset($baseSet[$key][$domain])) {
+                    return false;
                 }
             }
 

@@ -237,6 +237,14 @@ final class DomainNormalizerTest extends TestCase
     public function subdomainCoverage()
     {
         $input = [
+            'example.com,ads.example.com,~example.com,~ads.example.com,example.com>>,ads.example.com>>,~example.com>>,~ads.example.com>>##.ads',
+        ];
+        $expected = [
+            '~example.com,~example.com>>,example.com,example.com>>##.ads',
+        ];
+        $this->assertSame($expected, $this->fix($input));
+
+        $input = [
             '*$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk|example.co.uk|login.example.co.uk',
             'example.com,~ads.example.com,api.example.com,example.org##.ads',
         ];
@@ -261,7 +269,7 @@ final class DomainNormalizerTest extends TestCase
 
         // The parent domain is the negated domain.
         $input = ['*$domain=~ads.example.co.uk|api.example.co.uk|~example.co.uk'];
-        $expected = ['*$domain=~ads.example.co.uk|~example.co.uk|api.example.co.uk'];
+        $expected = ['*$domain=~example.co.uk|api.example.co.uk'];
         $this->assertSame($expected, $this->fix($input));
     }
 }
