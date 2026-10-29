@@ -7,7 +7,6 @@ use Realodix\Haiku\Support\File;
 /**
  * @phpstan-type _FixerFlags array{
  *  all?: bool,
- *  fmode?: bool,
  *  adg_non_basic_rule_modifier: bool,
  *  attr_to_basic_selector: 'strict'|'loose'|false,
  *  combine_option_sets: bool,
