@@ -117,12 +117,26 @@ final class DomainNormalizer
             return $domains;
         }
 
-        // Build lookup set of wildcard prefixes (example.* -> example)
-        // Used to detect domains covered by wildcard TLD domain
+        // Build lookup set of wildcard prefixes, grouped by negation and suffix.
         $wildcardBases = [];
         foreach ($domains as $d) {
-            if ($d[0] !== '~' && str_ends_with($d, '.*')) {
-                $wildcardBases[substr($d, 0, -2)] = true;
+            if (!str_ends_with(ltrim($d, '~'), '.*')
+                && !str_ends_with(ltrim($d, '~'), '.*>>')
+            ) {
+                continue;
+            }
+
+            $isNegated = str_starts_with($d, '~');
+            $isAncestor = str_ends_with($d, '>>');
+            $domain = substr($d, $isNegated ? 1 : 0);
+
+            if ($isAncestor) {
+                $domain = substr($domain, 0, -2);
+            }
+
+            if (str_ends_with($domain, '.*')) {
+                $base = substr($domain, 0, -2);
+                $wildcardBases[($isNegated ? '~' : '').($isAncestor ? '>>' : '')][$base] = true;
             }
         }
 
@@ -131,23 +145,29 @@ final class DomainNormalizer
         }
 
         $filtered = array_filter($domains, static function ($d) use ($wildcardBases) {
-            if (str_starts_with($d, '~') // keep negated domains
-                || str_ends_with($d, '.*') // keep wildcard domains
-                // IP never uses wildcard, but we assume the input is not always correct
-                || filter_var($d, FILTER_VALIDATE_IP) !== false
+            $isNegated = str_starts_with($d, '~');
+            $isAncestor = str_ends_with($d, '>>');
+            $domain = substr($d, $isNegated ? 1 : 0);
+
+            if ($isAncestor) {
+                $domain = substr($domain, 0, -2);
+            }
+
+            if (str_ends_with($domain, '.*')
+                || filter_var($domain, FILTER_VALIDATE_IP) !== false
             ) {
                 return true;
             }
 
-            // Extract first label prefix (example.com -> example)
-            $dotPos = strpos($d, '.');
+            $dotPos = strpos($domain, '.');
             if ($dotPos === false) {
                 return true;
             }
-            $base = substr($d, 0, $dotPos);
 
-            // Reject if covered by wildcard
-            return !isset($wildcardBases[$base]);
+            $base = substr($domain, 0, $dotPos);
+            $key = ($isNegated ? '~' : '').($isAncestor ? '>>' : '');
+
+            return !isset($wildcardBases[$key][$base]);
         });
 
         return $filtered;
