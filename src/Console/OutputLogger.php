@@ -3,7 +3,6 @@
 namespace Realodix\Haiku\Console;
 
 use Illuminate\Container\Attributes\Singleton;
-use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
@@ -19,14 +18,6 @@ final class OutputLogger
         $this->root = base_path();
     }
 
-    public function processing(string $path): void
-    {
-        $path = Path::makeRelative($path, $this->root);
-
-        $this->stats->incrementProcessing();
-        $this->output->writeln("<fg=gray>[P]: $path</>");
-    }
-
     /**
      * Logs a processed file.
      *
@@ -35,10 +26,6 @@ final class OutputLogger
     public function processed(string $path): void
     {
         $path = Path::makeRelative($path, $this->root);
-
-        if ($this->stats()->getProcessing() > 0) {
-            new Cursor($this->output)->moveUp()->clearLine();
-        }
 
         $this->output->writeln("<info>[P]: $path</info>");
         $this->stats->incrementProcessed();
