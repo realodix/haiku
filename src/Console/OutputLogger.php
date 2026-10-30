@@ -26,7 +26,6 @@ final class OutputLogger
     public function processed(string $path): void
     {
         $path = Path::makeRelative($path, $this->root);
-
         $this->output->writeln("<info>[P]: $path</info>");
         $this->stats->incrementProcessed();
     }
