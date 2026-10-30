@@ -67,7 +67,7 @@ class FixCommand extends Command
             $io->newLine();
         } else {
             $io->newLine();
-            $io->writeln($stats);
+            $io->writeln($stats->summary());
             $io->writeln('------------------');
         }
 

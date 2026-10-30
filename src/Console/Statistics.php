@@ -47,7 +47,7 @@ class Statistics
         return $this->processed + $this->skipped + $this->error;
     }
 
-    public function __toString(): string
+    public function summary(): string
     {
         return sprintf(
             'Total: %d, Processed: %d, Skipped: %d, Error: %d',
