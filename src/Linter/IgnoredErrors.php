@@ -322,7 +322,7 @@ final class IgnoredErrors
 
             $messages = array_merge(
                 isset($pattern['message']) ? [$pattern['message']] : [],
-                (array) ($pattern['messages'] ?? []),
+                ($pattern['messages'] ?? []),
             );
             if (!empty($messages)) {
                 $dimensions['message'] = $messages;
@@ -330,7 +330,7 @@ final class IgnoredErrors
 
             $paths = array_merge(
                 isset($pattern['path']) ? [$pattern['path']] : [],
-                (array) ($pattern['paths'] ?? []),
+                ($pattern['paths'] ?? []),
             );
             if (!empty($paths)) {
                 $dimensions['path'] = $paths;
@@ -338,7 +338,7 @@ final class IgnoredErrors
 
             $identifiers = array_merge(
                 isset($pattern['identifier']) ? [$pattern['identifier']] : [],
-                (array) ($pattern['identifiers'] ?? []),
+                ($pattern['identifiers'] ?? []),
             );
             if (!empty($identifiers)) {
                 $dimensions['identifier'] = $identifiers;

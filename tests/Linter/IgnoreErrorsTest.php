@@ -246,11 +246,11 @@ YAML);
                 ],
             ],
             'messages as string' => [
-                [['messages' => 'foo']],
+                [['messages' => ['foo']]],
                 [['message' => 'foo']],
             ],
             'paths as string' => [
-                [['paths' => 'foo.txt']],
+                [['paths' => ['foo.txt']]],
                 [['path' => 'foo.txt']],
             ],
             'all combinations' => [

@@ -132,7 +132,7 @@ final class LinterConfig
             if (isset($ignore['paths'])) {
                 $ignore['paths'] = array_map(
                     fn($p) => Path::normalize($p),
-                    (array) $ignore['paths'],
+                    $ignore['paths'],
                 );
             }
         }
