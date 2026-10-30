@@ -44,6 +44,7 @@ final class Runner
             $results = $this->parallel->run($this, $config, $cmdOpt);
         } else {
             foreach ($config->paths as $path) {
+                $this->logger->processing($path);
                 $result = $this->fixFile($path, $config);
 
                 $this->record($result);
