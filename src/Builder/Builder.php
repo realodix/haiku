@@ -90,16 +90,14 @@ final class Builder
         $text = [];
 
         foreach ($paths as $path) {
-            $data = null;
-
             if (filter_var($path, FILTER_VALIDATE_URL)) {
                 $context = stream_context_create(['http' => ['timeout' => 5]]);
-                $data = @file($path, 0, $context) ?: null;
-            } elseif (is_readable($path)) {
-                $data = file($path);
+                $data = @file($path, 0, $context);
+            } else {
+                $data = @file($path);
             }
 
-            if ($data === null) {
+            if ($data === false) {
                 $this->logger->error("Failed to read: {$path}");
 
                 return null;
