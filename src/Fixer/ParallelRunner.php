@@ -140,8 +140,9 @@ final class ParallelRunner
             escapeshellarg($address),
         );
 
-        if ($cmdOpt->configFile) {
-            $command .= ' --config='.escapeshellarg($cmdOpt->configFile);
+        $configFile = $cmdOpt->configFile;
+        if ($configFile !== null) {
+            $command .= ' --config='.escapeshellarg($configFile);
         }
 
         $process = new Process($command, null, null, []);

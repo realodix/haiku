@@ -161,7 +161,7 @@ final class CosmeticCheck implements Rule
             // Group rules into interaction buckets:
             // 'A' (Attribute Selector), 'S' (Standard Selector), 'U' (Unparsed/Complex Selector)
             // 'E' (Exact Match), 'P' (Partial Match)
-            if ($attrData) {
+            if ($attrData !== null) {
                 $val = strtolower($attrData['value']);
                 $op = $attrData['operator'];
                 $tag = $attrData['tag'];
@@ -276,7 +276,7 @@ final class CosmeticCheck implements Rule
             }
         }
 
-        if ($bestParent) {
+        if ($bestParent !== null) {
             $entryLine = $entry['line'];
             if (count($entry['domains']) > 2) {
                 $entryLine = '...,'.array_key_last($entry['domains'])
@@ -380,7 +380,7 @@ final class CosmeticCheck implements Rule
                 }
             }
 
-            if ($bestParent) {
+            if ($bestParent !== null) {
                 $coverageMap[$bestParent['lineNum']][] = [
                     'domain' => $domain,
                     'covering' => $bestCovering,
@@ -445,7 +445,7 @@ final class CosmeticCheck implements Rule
         // -----------------------------------------------------------------
         // Attribute selector candidates
         // -----------------------------------------------------------------
-        if ($entry['attrData']) {
+        if ($entry['attrData'] !== null) {
             $val = strtolower($entry['attrData']['value']);
             $op = $entry['attrData']['operator'];
             $tag = $entry['attrData']['tag'];
@@ -680,7 +680,7 @@ final class CosmeticCheck implements Rule
             if (!$candCoversBest && $bestCoversCand) {
                 return false;
             }
-        } elseif ($candidate['attrData'] && $best['attrData']) {
+        } elseif ($candidate['attrData'] !== null && $best['attrData'] !== null) {
             $candCoversBest = $this->isAttrCoveredBy($best['attrData'], $candidate['attrData']);
             $bestCoversCand = $this->isAttrCoveredBy($candidate['attrData'], $best['attrData']);
 

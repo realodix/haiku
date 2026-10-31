@@ -683,8 +683,8 @@ final class NetworkCheck implements Rule
     private function isBetter(array $candidate, array $best): bool
     {
         // 1. Semantic generality in Pattern
-        $candCoversBest = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']);
-        $bestCoversCand = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']);
+        $candCoversBest = preg_match($this->buildRegex($candidate['pattern']), $best['pattern']) === 1;
+        $bestCoversCand = preg_match($this->buildRegex($best['pattern']), $candidate['pattern']) === 1;
 
         if ($candCoversBest && !$bestCoversCand) {
             return true; // $candidate is strictly more general

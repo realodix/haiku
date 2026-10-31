@@ -16,9 +16,9 @@ final class Util
     public static function isCosmeticRule(string $line): bool
     {
         // https://regex101.com/r/OW1tkq/1
-        $basic = preg_match('/^#@?#[^\s|\#]|^#@?##[^\s|\#]/', $line);
+        $basic = preg_match('/^#@?#[^\s|\#]|^#@?##[^\s|\#]/', $line) === 1;
         // https://regex101.com/r/SPcKMv/1
-        $advanced = preg_match('/^(#(?:@?(?:\$|\?|%)|@?\$\?)#)[^\s]/', $line);
+        $advanced = preg_match('/^(#(?:@?(?:\$|\?|%)|@?\$\?)#)[^\s]/', $line) === 1;
 
         return $basic || $advanced;
     }
@@ -40,7 +40,7 @@ final class Util
             // header
             || str_starts_with($line, '[') && str_ends_with($line, ']') && !str_contains($line, '$')
             // YAML metadata
-            || preg_match('/^-+$/', $line);
+            || preg_match('/^-+$/', $line) === 1;
     }
 
     /**

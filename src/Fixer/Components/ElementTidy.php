@@ -65,7 +65,7 @@ final class ElementTidy
     {
         $mode = $this->config->flags['attr_to_basic_selector'];
 
-        if (!$mode) {
+        if ($mode === false) {
             return $selector;
         }
 

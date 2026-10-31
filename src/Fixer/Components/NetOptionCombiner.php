@@ -65,7 +65,7 @@ final class NetOptionCombiner
 
             $groups[$pattern] ??= ['pattern' => $pattern, 'options' => []];
             $existing = $groups[$pattern]['options'];
-            if ($existing) {
+            if ($existing !== []) {
                 if (!$this->canMerge($existing, $options)) {
                     $passthrough[] = $rule;
 

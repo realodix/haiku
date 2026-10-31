@@ -277,7 +277,7 @@ final class GeneralCheck implements Rule
 
         $foundInvalid = array_find(['important'], fn($opt) => $isExcRule && array_key_exists($opt, $opts));
 
-        if ($foundInvalid) {
+        if ($foundInvalid !== null) {
             $err->message("Invalid filter: \${$foundInvalid} is not allowed in exception rules.")
                 ->identifier('option.invalidInException')
                 ->build();

@@ -113,7 +113,7 @@ final class NetworkTidy
         $optionList = array_filter($optionList, static fn($s) => $s !== '');
         $optionList = array_unique($optionList);
 
-        if (!$this->config->flags['option_order']) {
+        if ($this->config->flags['option_order'] === false) {
             return $optionList;
         }
 

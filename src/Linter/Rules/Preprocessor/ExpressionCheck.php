@@ -197,7 +197,7 @@ final class ExpressionCheck implements Rule
             // 2. Identify if the current value belongs to any pre-defined exclusive group.
             $group = array_find(self::EXCLUSIVE_GROUPS, fn($g) => in_array($value, $g, true));
 
-            if (!$group) {
+            if ($group === null) {
                 continue;
             }
 
@@ -208,7 +208,7 @@ final class ExpressionCheck implements Rule
                 fn($item) => $item !== $value && in_array($item, $parentRequired, true),
             );
 
-            if ($other) {
+            if ($other !== null) {
                 // 4. Trace back through the stack to find the nearest frame
                 // containing the conflicting token for error reporting.
                 $parentFrame = array_find(

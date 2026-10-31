@@ -140,7 +140,7 @@ final class DomainNormalizer
             }
         }
 
-        if (!$wildcardBases) {
+        if ($wildcardBases === []) {
             return $domains;
         }
 
@@ -193,7 +193,6 @@ final class DomainNormalizer
 
         // Build lookup set of candidate parent domains, grouped by negation and suffix.
         $baseSet = [];
-
         foreach ($domains as $d) {
             $isNegated = str_starts_with($d, '~');
             $domain = substr($d, $isNegated ? 1 : 0);
@@ -229,7 +228,7 @@ final class DomainNormalizer
             }
         }
 
-        if (!$baseSet) {
+        if ($baseSet === []) {
             return $domains;
         }
 
