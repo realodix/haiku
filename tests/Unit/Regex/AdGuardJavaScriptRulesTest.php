@@ -11,34 +11,6 @@ use Realodix\Haiku\Test\TestCase;
  */
 class AdGuardJavaScriptRulesTest extends TestCase
 {
-    public static function regexMatchProvider(): array
-    {
-        return [
-            [
-                '#%#window.__gaq = undefined;',
-                '#%#window.__gaq = undefined;',
-                '',
-                '#%#',
-                'window.__gaq = undefined;',
-            ],
-            [
-                '#@%#window.__gaq = undefined;',
-                '#@%#window.__gaq = undefined;',
-                '',
-                '#@%#',
-                'window.__gaq = undefined;',
-            ],
-
-            [
-                'example.com,~auth.example.com#@%#window.__gaq = undefined;',
-                'example.com,~auth.example.com#@%#window.__gaq = undefined;',
-                'example.com,~auth.example.com',
-                '#@%#',
-                'window.__gaq = undefined;',
-            ],
-        ];
-    }
-
     #[PHPUnit\DataProvider('regexDomainMatchProvider')]
     #[PHPUnit\Test]
     public function regex_domain_match($rule, $expectedMatch, $expectedDomain)
