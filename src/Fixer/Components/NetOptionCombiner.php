@@ -63,8 +63,8 @@ final class NetOptionCombiner
                 continue;
             }
 
-            $existing = $groups[$pattern]['options'] ?? [];
-
+            $groups[$pattern] ??= ['pattern' => $pattern, 'options' => []];
+            $existing = $groups[$pattern]['options'];
             if ($existing) {
                 if (!$this->canMerge($existing, $options)) {
                     $passthrough[] = $rule;
@@ -83,8 +83,6 @@ final class NetOptionCombiner
             foreach ($options as $opt) {
                 $groups[$pattern]['options'][$opt] = true;
             }
-
-            $groups[$pattern]['pattern'] = $pattern;
         }
 
         return array_merge($passthrough, $this->rebuild($groups));
