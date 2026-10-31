@@ -4,18 +4,11 @@ namespace Realodix\Haiku\Console;
 
 class Statistics
 {
-    private int $processing = 0;
-
     private int $processed = 0;
 
     private int $skipped = 0;
 
     private int $error = 0;
-
-    public function incrementProcessing(): void
-    {
-        $this->processing++;
-    }
 
     public function incrementProcessed(): void
     {
@@ -30,11 +23,6 @@ class Statistics
     public function incrementError(): void
     {
         $this->error++;
-    }
-
-    public function getProcessing(): int
-    {
-        return $this->processing;
     }
 
     public function allSkipped(): bool

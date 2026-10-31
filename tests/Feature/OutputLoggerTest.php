@@ -21,7 +21,6 @@ class OutputLoggerTest extends TestCase
 
         $statsMock = \Mockery::mock(Statistics::class);
         $statsMock->expects('incrementProcessed');
-        $statsMock->expects('getProcessing');
 
         $logger = new OutputLogger($outputMock, $statsMock);
         $logger->processed($absolutePath);
