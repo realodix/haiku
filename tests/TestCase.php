@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Path;
 
 abstract class TestCase extends BaseTestCase
 {
-    use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+    use \JMac\Testing\Integrations\PHPUnit\VerifiesDoubles;
 
     public $tmpDir = __DIR__.'/Integration/tmp';
 

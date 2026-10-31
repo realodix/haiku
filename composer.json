@@ -24,7 +24,7 @@
         "symfony/yaml": "^8.1"
     },
     "require-dev": {
-        "mockery/mockery": "^1.6",
+        "jasonmccreary/double": "^1.1",
         "phpbench/phpbench": "^1.7",
         "phpstan/phpstan": "^2.3",
         "phpunit/phpunit": "^13.4",

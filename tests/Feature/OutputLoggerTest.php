@@ -2,6 +2,7 @@
 
 namespace Realodix\Haiku\Test\Feature;
 
+use JMac\Testing\Double;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Console\Statistics;
 use Realodix\Haiku\Test\TestCase;
@@ -14,11 +15,11 @@ class OutputLoggerTest extends TestCase
         $testPath = 'path/to/another-file.txt';
         $absolutePath = base_path($testPath);
 
-        $outputMock = \Mockery::mock(OutputInterface::class);
+        $outputMock = Double::for(OutputInterface::class);
         $outputMock->expects('writeln')
             ->with("<info>[P]: {$testPath}</info>");
 
-        $statsMock = \Mockery::mock(Statistics::class);
+        $statsMock = Double::for(Statistics::class);
         $statsMock->expects('incrementProcessed');
 
         $logger = new OutputLogger($outputMock, $statsMock);
@@ -30,14 +31,14 @@ class OutputLoggerTest extends TestCase
         $testPath = 'path/to/file.txt';
         $absolutePath = base_path($testPath);
 
-        $outputMock = \Mockery::mock(OutputInterface::class);
+        $outputMock = Double::for(OutputInterface::class);
         // Set isVerbose() to return true
-        $outputMock->shouldReceive('isVerbose')->andReturn(true);
+        $outputMock->expects('isVerbose')->returns(true);
         // Set expectations: writeln() should be called 1x with a valid string
         $outputMock->expects('writeln')
             ->with("<fg=gray>[S]: {$testPath}</>");
 
-        $statsMock = \Mockery::mock(Statistics::class);
+        $statsMock = Double::for(Statistics::class);
         $statsMock->expects('incrementSkipped');
 
         $logger = new OutputLogger($outputMock, $statsMock);
@@ -46,14 +47,14 @@ class OutputLoggerTest extends TestCase
 
     public function testSkippedDoesNotWriteToOutputInNormalMode()
     {
-        $outputMock = \Mockery::mock(OutputInterface::class);
+        $outputMock = Double::for(OutputInterface::class);
         // Set isVerbose() to return false
-        $outputMock->shouldReceive('isVerbose')->andReturn(false);
+        $outputMock->expects('isVerbose')->returns(false);
         // Set expectations: writeln() should not be called at all
         $outputMock->expects('writeln')
             ->never();
 
-        $statsMock = \Mockery::mock(Statistics::class);
+        $statsMock = Double::for(Statistics::class);
         $statsMock->expects('incrementSkipped');
 
         $logger = new OutputLogger($outputMock, $statsMock);
@@ -64,11 +65,11 @@ class OutputLoggerTest extends TestCase
     {
         $errorMessage = 'Something went wrong.';
 
-        $outputMock = \Mockery::mock(OutputInterface::class);
+        $outputMock = Double::for(OutputInterface::class);
         $outputMock->expects('writeln')
             ->with("<fg=red>[E]: {$errorMessage}</>");
 
-        $statsMock = \Mockery::mock(Statistics::class);
+        $statsMock = Double::for(Statistics::class);
         $statsMock->expects('incrementError');
 
         $logger = new OutputLogger($outputMock, $statsMock);
