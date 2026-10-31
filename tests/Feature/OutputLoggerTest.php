@@ -15,7 +15,6 @@ class OutputLoggerTest extends TestCase
         $absolutePath = base_path($testPath);
 
         $outputMock = \Mockery::mock(OutputInterface::class);
-        $outputMock->shouldReceive('write');
         $outputMock->expects('writeln')
             ->with("<info>[P]: {$testPath}</info>");
 
