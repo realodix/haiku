@@ -79,6 +79,6 @@ final class AdgModifierForElement
         return !$this->config->flags['adg_non_basic_rule_modifier']
             || !str_starts_with($modifier, '[$')
             // bracket count mismatch
-            || !(substr_count($modifier, '[') != substr_count($modifier, ']'));
+            || substr_count($modifier, '[') === substr_count($modifier, ']');
     }
 }
