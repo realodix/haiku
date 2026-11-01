@@ -53,7 +53,7 @@ final class AdgModifierForElement
 
         // add back the consolidated domain-like options.
         foreach ($multiValue as $name) {
-            if (!empty($parsed[$name])) {
+            if ($parsed[$name] !== []) {
                 $domainString = $parsed[$name][0];
 
                 if (str_contains($domainString, '/')) {

@@ -19,7 +19,6 @@ final class IfClosedCheck implements Rule
 
         /** @var list<array{lineNum: int, type: string, hasElse: bool}> */
         $stack = [];
-
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $err->line($lineNum);
@@ -32,7 +31,7 @@ final class IfClosedCheck implements Rule
             }
 
             if (str_starts_with($line, '!#else')) {
-                if (empty($stack)) {
+                if ($stack === []) {
                     $err->message('Unexpected !#else without matching !#if.')
                         ->identifier('if.elseWithoutIf')
                         ->build();
@@ -52,7 +51,7 @@ final class IfClosedCheck implements Rule
             }
 
             if (str_starts_with($line, '!#endif')) {
-                if (empty($stack)) {
+                if ($stack === []) {
                     $err->message('Unexpected !#endif without matching !#if.')
                         ->identifier('if.endifWithoutIf')
                         ->build();

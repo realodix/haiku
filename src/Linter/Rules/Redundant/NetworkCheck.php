@@ -470,7 +470,7 @@ final class NetworkCheck implements Rule
             }
         }
 
-        if (!$isMixedContext && !empty($redundantDomains)) {
+        if (!$isMixedContext && $redundantDomains !== []) {
             foreach ($redundantDomains as $rd) {
                 $err->message("Redundant filter: domain {$rd['domain']} already covered")
                     ->identifier('net.redundant')

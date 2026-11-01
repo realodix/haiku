@@ -26,7 +26,6 @@ final class ExpressionCheck implements Rule
         // This is used to detect conflicts in nested directives.
         /** @var list<array{lineNum: int, reqValue: list<string>}> */
         $stack = [];
-
         foreach ($content as $index => $line) {
             $lineNum = $index + 1;
             $err->line($lineNum);
@@ -69,7 +68,7 @@ final class ExpressionCheck implements Rule
                         ->build();
                 }
 
-                if (!empty($stack)) {
+                if ($stack !== []) {
                     // Inside an "!#else" block, the parent "!#if" condition is no longer
                     // required to be true (it's actually false). We reset the required
                     // value for this stack frame to avoid false-positive exclusivity
