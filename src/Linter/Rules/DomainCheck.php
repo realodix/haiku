@@ -211,7 +211,7 @@ final class DomainCheck implements Rule
         $reBadHostnameChars = '/[\x00-\x24\x26-\x29\x2b\x2c\x2f\x3b-\x40\x5c\x5e\x60\x7b-\x7f]/';
         if (preg_match($reBadHostnameChars, $normDomain)) {
             $err->message("Bad domain: \"{$domain}\"")
-                ->identifier('domain.badChar')
+                ->identifier('domain.unexpectedChar')
                 ->build();
 
             return true;
