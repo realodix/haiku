@@ -248,4 +248,4 @@ builder:
 ## Real-World Example
 
 For a production configuration example, see
-[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/704275f782cdcc292b1e86ab31347a3f31d6ecb3/haiku.yml)
+[AdBlockID-src/haiku.yml](https://github.com/realodix/AdBlockID-src/blob/main/haiku.yml)
