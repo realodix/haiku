@@ -18,7 +18,7 @@ linter:
   paths:
     - src
 
-fixer:
+formatter:
   paths:
     - src
 
@@ -66,12 +66,12 @@ cache_dir: .tmp
 - Deleting this directory forces a full reprocess
 
 
-## Fixer Configuration
+## Formatter Configuration
 
 This section configures the behavior for the `fix` command.
 
 ```yml
-fixer:
+formatter:
   paths:
     - src
   excludes:
@@ -86,7 +86,7 @@ A list of files or directories to process. Paths are relative to the project roo
 #### `excludes`
 A list of files or directories to be excluded during processing. If `excludes` contains root paths, Haiku automatically excludes `vendor` directory.
 
-Paths under `excludes` are relative to the `fixer.paths`. Here are some examples of `excludes`, assuming that `src` is defined in `fixer.paths`:
+Paths under `excludes` are relative to the `formatter.paths`. Here are some examples of `excludes`, assuming that `src` is defined in `formatter.paths`:
 - `Config` will skip the `src/Config` folder.
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
 

@@ -44,7 +44,7 @@ class InitCommand extends Command
 # cache_dir: .tmp
 
 # Settings for the `fix` command
-fixer:
+formatter:
   paths:
     - folder_1/file.txt
     - folder_2

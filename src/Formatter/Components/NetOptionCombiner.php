@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Formatter\Components;
 
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Formatter\Regex;
 
 /**
@@ -31,7 +31,7 @@ final class NetOptionCombiner
     ];
 
     public function __construct(
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**

@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Filter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Formatter\Components\NetOptionCombiner;
 use Realodix\Haiku\Test\TestCase;
 
@@ -15,7 +15,7 @@ final class NetOptionCombinerTest extends TestCase
     {
         parent::setUp();
         $this->optionCombiner = app(NetOptionCombiner::class);
-        $config = app(FixerConfig::class);
+        $config = app(FormatterConfig::class);
         $config->flags = ['all' => true];
     }
 

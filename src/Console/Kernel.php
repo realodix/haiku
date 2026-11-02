@@ -39,7 +39,7 @@ class Kernel
     public function registerServices(): void
     {
         $this->app->singleton(\Realodix\Haiku\Config\Config::class);
-        $this->app->singleton(\Realodix\Haiku\Config\FixerConfig::class);
+        $this->app->singleton(\Realodix\Haiku\Config\FormatterConfig::class);
         $this->app->singleton(\Realodix\Haiku\Config\LinterConfig::class);
 
         // parallel processing

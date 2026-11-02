@@ -5,7 +5,7 @@ namespace Realodix\Haiku\Config;
 use Realodix\Haiku\Support\File;
 
 /**
- * @phpstan-type _FixerFlags array{
+ * @phpstan-type _FmtFlags array{
  *  all?: bool,
  *  adg_non_basic_rule_modifier: bool,
  *  attr_to_basic_selector: 'strict'|'loose'|false,
@@ -21,7 +21,7 @@ use Realodix\Haiku\Support\File;
  *  remove_wildcard_covered_domains: bool,
  * }
  */
-final class FixerConfig
+final class FormatterConfig
 {
     /**
      * List of resolved absolute file paths to be processed
@@ -35,7 +35,7 @@ final class FixerConfig
      */
     public private(set) bool $backup;
 
-    /** @var _FixerFlags */
+    /** @var _FmtFlags */
     public array $flags = [
         'adg_non_basic_rule_modifier' => false,
         'attr_to_basic_selector' => false,
@@ -67,7 +67,7 @@ final class FixerConfig
      *   paths?: list<string>,
      *   excludes?: list<string>,
      *   backup?: bool,
-     *   flags?: _FixerFlags
+     *   flags?: _FmtFlags
      * } $config User-defined configuration from the config file
      * @param array{path: string|null} $cmdOpt Command options
      */

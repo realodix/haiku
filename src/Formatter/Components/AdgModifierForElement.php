@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Formatter\Components;
 
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Formatter\Regex;
 use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
@@ -13,7 +13,7 @@ use Realodix\Haiku\Support\Util;
 final class AdgModifierForElement
 {
     public function __construct(
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     public function apply(string $str): string

@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Formatter;
 
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Formatter\Components\Combiner;
 use Realodix\Haiku\Formatter\Components\ElementTidy;
 use Realodix\Haiku\Formatter\Components\NetOptionCombiner;
@@ -23,7 +23,7 @@ final class Fixer
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
         private NetOptionCombiner $optionCombiner,
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**

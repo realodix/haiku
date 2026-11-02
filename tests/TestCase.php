@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
 use Realodix\Haiku\Console\Command\FixCommand;
@@ -41,7 +41,7 @@ abstract class TestCase extends BaseTestCase
             \Symfony\Component\Console\Output\BufferedOutput::class,
         );
 
-        app()->instance(FixerConfig::class, new FixerConfig);
+        app()->instance(FormatterConfig::class, new FormatterConfig);
         app()->instance(LinterConfig::class, new LinterConfig);
 
         app(LinterConfig::class)->rules = [
@@ -52,7 +52,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function applyFlags(array $flags = [])
     {
-        app(FixerConfig::class)->flags = array_merge([
+        app(FormatterConfig::class)->flags = array_merge([
             'all' => true,
             'attr_to_basic_selector' => false,
             'convert_abp_ext_selectors' => false,

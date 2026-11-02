@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Formatter\Components;
 
 use Composer\Pcre\Preg;
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Support\Util;
 
 final class ElementTidy
@@ -11,7 +11,7 @@ final class ElementTidy
     public function __construct(
         private DomainNormalizer $domainNormalizer,
         private AdgModifierForElement $adgModifier,
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**

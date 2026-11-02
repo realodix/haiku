@@ -9,7 +9,7 @@ final readonly class CommandOptions
      * @param string|null $configFile Custom path to the configuration file
      * @param bool $ignoreCache If true, the cache is ignored
      * @param string|null $path File or directory path to process
-     * @param bool $parallel If true, the Fixer is run in parallel
+     * @param bool $parallel If true, the Formatter is run in parallel
      * @param bool $generateBaseline If true, the baseline file is generated
      */
     public function __construct(

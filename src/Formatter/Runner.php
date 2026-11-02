@@ -10,14 +10,14 @@ use Realodix\Haiku\Support\Util;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @phpstan-type _FixResultProcessed array{status: 'processed', path: string, hash: string}
- * @phpstan-type _FixResultSkipped array{status: 'skipped', path: string}
- * @phpstan-type _FixResultError array{status: 'error', path: string, message?: string}
- * @phpstan-type _FixResult _FixResultProcessed|_FixResultSkipped|_FixResultError
+ * @phpstan-type _FmtResultProcessed array{status: 'processed', path: string, hash: string}
+ * @phpstan-type _FmtResultSkipped array{status: 'skipped', path: string}
+ * @phpstan-type _FmtResultError array{status: 'error', path: string, message?: string}
+ * @phpstan-type _FmtResult _FmtResultProcessed|_FmtResultSkipped|_FmtResultError
  */
 final class Runner
 {
-    /** @var _FixResult[] */
+    /** @var _FmtResult[] */
     public private(set) array $results;
 
     public function __construct(
@@ -36,7 +36,7 @@ final class Runner
      */
     public function run($cmdOpt): void
     {
-        $config = $this->config->fixer($cmdOpt);
+        $config = $this->config->formatter($cmdOpt);
         $this->cache->prepareForRun($config->paths, $cmdOpt);
 
         $results = [];
@@ -57,8 +57,8 @@ final class Runner
     }
 
     /**
-     * @param \Realodix\Haiku\Config\FixerConfig $config
-     * @return _FixResult
+     * @param \Realodix\Haiku\Config\FormatterConfig $config
+     * @return _FmtResult
      */
     public function fixFile(string $path, $config): array
     {
@@ -91,7 +91,7 @@ final class Runner
     /**
      * Record the result of a file processing.
      *
-     * @param _FixResult $result
+     * @param _FmtResult $result
      */
     public function record($result): void
     {
@@ -132,7 +132,7 @@ final class Runner
      *
      * @param string $path Path to file
      * @param array<int, string> $content File content
-     * @param \Realodix\Haiku\Config\FixerConfig $config
+     * @param \Realodix\Haiku\Config\FormatterConfig $config
      */
     private function shouldSkip(string $path, array $content, $config): bool
     {

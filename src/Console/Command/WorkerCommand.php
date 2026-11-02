@@ -20,12 +20,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @codeCoverageIgnore
- * @phpstan-import-type _FixResult from \Realodix\Haiku\Formatter\Runner
+ * @phpstan-import-type _FmtResult from \Realodix\Haiku\Formatter\Runner
  * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Formatter\ParallelRunner
  */
 #[AsCommand(
     name: 'worker',
-    description: 'Internal command for running Fixer in parallel.',
+    description: 'Internal command for running Formatter in parallel.',
     hidden: true,
 )]
 class WorkerCommand extends Command
@@ -89,7 +89,7 @@ class WorkerCommand extends Command
                             path: $payload['path'],
                         );
 
-                        $config = app(Config::class)->fixer($cmdOpt);
+                        $config = app(Config::class)->formatter($cmdOpt);
 
                         // Important: NO pruning in worker
                         app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
@@ -98,7 +98,7 @@ class WorkerCommand extends Command
                     $result = $runner->fixFile($payload['path'], $config);
 
                     // Send result back to main process
-                    /** @var _FixResult */
+                    /** @var _FmtResult */
                     $resultData = [
                         'status' => $result['status'],
                         'path' => $result['path'],
@@ -106,7 +106,7 @@ class WorkerCommand extends Command
                     ];
                     $encoder->write($resultData);
                 } catch (\Throwable $e) {
-                    /** @var _FixResult */
+                    /** @var _FmtResult */
                     $resultData = [
                         'status' => 'error',
                         'path' => $payload['path'],
