@@ -7,7 +7,7 @@ use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Formatter\Formatter;
 
 #[Bench\BeforeMethods('setUp')]
-class FixBench
+class FmtBench
 {
     private Formatter $fmt;
 
@@ -36,7 +36,7 @@ class FixBench
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
     #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
-    public function benchFix(): void
+    public function benchFmt(): void
     {
         $this->fmt->format($this->input);
     }
@@ -48,7 +48,7 @@ class FixBench
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
     #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
-    public function benchMaximumFix(): void
+    public function benchFmtMaximum(): void
     {
         app(FormatterConfig::class)->flags = [
             'all' => true,

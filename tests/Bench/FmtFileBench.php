@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Path;
 
 #[Bench\BeforeMethods('setUp')]
 #[Bench\AfterMethods('tearDown')]
-class FixFileBench
+class FmtFileBench
 {
     private Filesystem $fs;
 
