@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Fixer;
+namespace Realodix\Haiku\Formatter;
 
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;

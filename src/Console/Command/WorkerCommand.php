@@ -10,7 +10,7 @@ use React\Socket\Connector;
 use Realodix\Haiku\Cache\Cache;
 use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Runner;
+use Realodix\Haiku\Formatter\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,8 +20,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @codeCoverageIgnore
- * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Runner
- * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Fixer\ParallelRunner
+ * @phpstan-import-type _FixResult from \Realodix\Haiku\Formatter\Runner
+ * @phpstan-import-type _WorkerPayload from \Realodix\Haiku\Formatter\ParallelRunner
  */
 #[AsCommand(
     name: 'worker',

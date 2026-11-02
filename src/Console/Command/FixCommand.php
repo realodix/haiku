@@ -6,7 +6,7 @@ use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\App;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Fixer\Runner;
+use Realodix\Haiku\Formatter\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

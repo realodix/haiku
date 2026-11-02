@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Linter\Rules\NetOptions;
 
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Formatter\Regex;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Linter\Rules\Rule;
 use Realodix\Haiku\Support\Util;

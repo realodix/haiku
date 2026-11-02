@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Fixer;
+namespace Realodix\Haiku\Formatter;
 
 use Clue\React\NDJson\Decoder;
 use Clue\React\NDJson\Encoder;
@@ -12,7 +12,7 @@ use React\Socket\ConnectionInterface;
 use React\Socket\SocketServer;
 
 /**
- * @phpstan-import-type _FixResult from \Realodix\Haiku\Fixer\Runner
+ * @phpstan-import-type _FixResult from \Realodix\Haiku\Formatter\Runner
  * @phpstan-type _WorkerPayload array{
  *  path: string,
  *  cachePath: string,
@@ -30,7 +30,7 @@ final class ParallelRunner
     }
 
     /**
-     * @param \Realodix\Haiku\Fixer\Runner $runner The Fixer instance
+     * @param \Realodix\Haiku\Formatter\Runner $runner The Fixer instance
      * @param \Realodix\Haiku\Config\FixerConfig $config The Fixer configuration
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt The CLI runtime options
      * @return _FixResult[]

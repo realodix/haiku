@@ -1,12 +1,12 @@
 <?php
 
-namespace Realodix\Haiku\Fixer;
+namespace Realodix\Haiku\Formatter;
 
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Components\Combiner;
-use Realodix\Haiku\Fixer\Components\ElementTidy;
-use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
-use Realodix\Haiku\Fixer\Components\NetworkTidy;
+use Realodix\Haiku\Formatter\Components\Combiner;
+use Realodix\Haiku\Formatter\Components\ElementTidy;
+use Realodix\Haiku\Formatter\Components\NetOptionCombiner;
+use Realodix\Haiku\Formatter\Components\NetworkTidy;
 use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
 

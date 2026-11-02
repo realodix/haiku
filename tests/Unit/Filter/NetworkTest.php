@@ -42,7 +42,7 @@ class NetworkTest extends TestCase
     }
 
     /**
-     * @see \Realodix\Haiku\Fixer\Regex::NET_OPTION_DOMAIN
+     * @see \Realodix\Haiku\Formatter\Regex::NET_OPTION_DOMAIN
      */
     #[PHPUnit\DataProvider('combineSupportedOptionsProvider')]
     #[PHPUnit\Test]

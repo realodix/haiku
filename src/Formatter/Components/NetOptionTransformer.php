@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Components;
+namespace Realodix\Haiku\Formatter\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
 

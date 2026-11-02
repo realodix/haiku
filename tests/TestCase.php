@@ -7,7 +7,7 @@ use Realodix\Haiku\Config\FixerConfig;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
 use Realodix\Haiku\Console\Command\FixCommand;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Formatter\Fixer;
 use Realodix\Haiku\Linter\ErrorBuilder;
 use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;

@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Test\Unit\Filter;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
+use Realodix\Haiku\Formatter\Components\NetOptionCombiner;
 use Realodix\Haiku\Test\TestCase;
 
 final class NetOptionCombinerTest extends TestCase

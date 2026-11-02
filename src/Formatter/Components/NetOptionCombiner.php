@@ -1,9 +1,9 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Components;
+namespace Realodix\Haiku\Formatter\Components;
 
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Formatter\Regex;
 
 /**
  * Combines compatible network filter rules that share the same pattern by merging

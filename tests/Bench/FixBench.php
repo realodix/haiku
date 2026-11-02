@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Test\Bench;
 
 use PhpBench\Attributes as Bench;
 use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Formatter\Fixer;
 
 #[Bench\BeforeMethods('setUp')]
 class FixBench

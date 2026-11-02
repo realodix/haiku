@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Linter\Rules;
 
 use Composer\Pcre\Preg;
 use Realodix\Haiku\Config\LinterConfig;
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Formatter\Regex;
 use Realodix\Haiku\Linter\Registry;
 use Realodix\Haiku\Support\Tld;
 use Realodix\Haiku\Support\Util;

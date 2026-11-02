@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit;
 
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Runner;
+use Realodix\Haiku\Formatter\Runner;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Filesystem\Path;
 
