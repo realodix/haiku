@@ -16,7 +16,7 @@ use Realodix\Haiku\Support\Util;
  *     value: string
  * }
  */
-final class Fixer
+final class Formatter
 {
     public function __construct(
         private Combiner $combiner,

@@ -21,7 +21,7 @@ final class Runner
     public private(set) array $results;
 
     public function __construct(
-        private Fixer $fixer,
+        private Formatter $fmt,
         private ParallelRunner $parallel,
         private Config $config,
         private Filesystem $fs,
@@ -76,7 +76,7 @@ final class Runner
             $this->backup($path);
         }
 
-        $content = $this->fixer->fix($content);
+        $content = $this->fmt->fix($content);
         $content = Helper::joinLines($content);
 
         File::safeDumpFile($path, $content);

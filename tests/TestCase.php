@@ -7,7 +7,7 @@ use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
 use Realodix\Haiku\Console\Command\FixCommand;
-use Realodix\Haiku\Formatter\Fixer;
+use Realodix\Haiku\Formatter\Formatter;
 use Realodix\Haiku\Linter\ErrorBuilder;
 use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -65,7 +65,7 @@ abstract class TestCase extends BaseTestCase
     {
         $this->applyFlags($flags);
 
-        return app(Fixer::class)->fix($value);
+        return app(Formatter::class)->fix($value);
     }
 
     protected function runBuildCommand(array $options = [])

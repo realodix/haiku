@@ -4,12 +4,12 @@ namespace Realodix\Haiku\Test\Bench;
 
 use PhpBench\Attributes as Bench;
 use Realodix\Haiku\Config\FormatterConfig;
-use Realodix\Haiku\Formatter\Fixer;
+use Realodix\Haiku\Formatter\Formatter;
 
 #[Bench\BeforeMethods('setUp')]
 class FixBench
 {
-    private Fixer $fixer;
+    private Formatter $fmt;
 
     private array $input;
 
@@ -19,7 +19,7 @@ class FixBench
     {
         app()->instance(FormatterConfig::class, new FormatterConfig);
 
-        $this->fixer = app(Fixer::class);
+        $this->fmt = app(Formatter::class);
         $this->inputFile = base_path('tests/Bench/storage/filter.txt');
 
         $file = file($this->inputFile, FILE_IGNORE_NEW_LINES);
@@ -38,7 +38,7 @@ class FixBench
     #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
     public function benchFix(): void
     {
-        $this->fixer->fix($this->input);
+        $this->fmt->fix($this->input);
     }
 
     /**
@@ -55,6 +55,6 @@ class FixBench
             'option_format' => 'long',
         ];
 
-        $this->fixer->fix($this->input);
+        $this->fmt->fix($this->input);
     }
 }
