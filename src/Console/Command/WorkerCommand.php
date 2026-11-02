@@ -95,7 +95,7 @@ class WorkerCommand extends Command
                         app(Cache::class)->prepareForRun($config->paths, $cmdOpt, pruning: false);
                     }
 
-                    $result = $runner->fixFile($payload['path'], $config);
+                    $result = $runner->formatFile($payload['path'], $config);
 
                     // Send result back to main process
                     /** @var _FmtResult */

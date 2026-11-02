@@ -44,7 +44,7 @@ final class Runner
             $results = $this->parallel->run($this, $config, $cmdOpt);
         } else {
             foreach ($config->paths as $path) {
-                $result = $this->fixFile($path, $config);
+                $result = $this->formatFile($path, $config);
 
                 $this->record($result);
                 $results[] = $result;
@@ -60,7 +60,7 @@ final class Runner
      * @param \Realodix\Haiku\Config\FormatterConfig $config
      * @return _FmtResult
      */
-    public function fixFile(string $path, $config): array
+    public function formatFile(string $path, $config): array
     {
         $content = File::read($path);
 
