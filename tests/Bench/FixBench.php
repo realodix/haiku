@@ -30,7 +30,7 @@ class FixBench
     }
 
     /**
-     * Benchmark the core fix() method.
+     * Benchmark the core format() method.
      */
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
@@ -38,11 +38,11 @@ class FixBench
     #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
     public function benchFix(): void
     {
-        $this->fmt->fix($this->input);
+        $this->fmt->format($this->input);
     }
 
     /**
-     * Benchmark the core fix() method.
+     * Benchmark the core format() method.
      */
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
@@ -55,6 +55,6 @@ class FixBench
             'option_format' => 'long',
         ];
 
-        $this->fmt->fix($this->input);
+        $this->fmt->format($this->input);
     }
 }

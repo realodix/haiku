@@ -61,11 +61,11 @@ abstract class TestCase extends BaseTestCase
         ], $flags);
     }
 
-    protected function fix(array $value, array $flags = []): mixed
+    protected function format(array $value, array $flags = []): mixed
     {
         $this->applyFlags($flags);
 
-        return app(Formatter::class)->fix($value);
+        return app(Formatter::class)->format($value);
     }
 
     protected function runBuildCommand(array $options = [])

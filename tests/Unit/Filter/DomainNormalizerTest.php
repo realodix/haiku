@@ -12,27 +12,27 @@ final class DomainNormalizerTest extends TestCase
     {
         $input = ['~d.com,c.com,a.com,~b.com##.ad'];
         $expected = ['~b.com,~d.com,a.com,c.com##.ad'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = ['*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org'];
         $expected = ['*$domain=~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // Path-in-domain syntax
         $input = ['site.com/path,example.com##.sidebar-ad'];
         $expected = ['example.com,site.com/path##.sidebar-ad'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // TLD
         $input = ['info,me,pm,site,~edu.me,~edu.pm,~proton.me,example.com,~foo.example.com##.ad'];
         $expected = ['info,me,pm,site,~edu.me,~edu.pm,~foo.example.com,~proton.me,example.com##.ad'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
         $input = ['*$domain=example.com|~localhost|~127.0.0.1|0.0.0.0|~example.org|uk'];
         $expected = ['*$domain=uk|~127.0.0.1|~example.org|~localhost|0.0.0.0|example.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
         $input = ['*$script,3p,to=cloudfront.net,from=info|me|pm|site|~edu.pm|~gov.me|~proton.me|example.com|~foo.example.com'];
         $expected = ['*$3p,script,from=info|me|pm|site|~edu.pm|~foo.example.com|~gov.me|~proton.me|example.com,to=cloudfront.net'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -46,7 +46,7 @@ final class DomainNormalizerTest extends TestCase
             '*$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '*$domain=example.com|example.org',
@@ -58,7 +58,7 @@ final class DomainNormalizerTest extends TestCase
             '*$domain=example.com|example.org',
             'example.com,example.org##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -72,14 +72,14 @@ final class DomainNormalizerTest extends TestCase
             '*$domain=a.com|b.com',
             'a.com,b.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // regex domain will not affected
         $input = [
             '*$domain=/example\.[a-Z]/',
             '/example\.[a-Z]/##.ads',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -96,7 +96,7 @@ final class DomainNormalizerTest extends TestCase
             '-ads.$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // complex
         $input = [
@@ -107,7 +107,7 @@ final class DomainNormalizerTest extends TestCase
             '/ads.$domain=example.com',
             'example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // regex
         $input = [
@@ -117,7 +117,7 @@ final class DomainNormalizerTest extends TestCase
             '/ads1.$domain=~/REGEX/',
             '~/REGEX/##.ads1',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -131,7 +131,7 @@ final class DomainNormalizerTest extends TestCase
             '||example.com^$domain=a.com|b.com',
             'a.com,b.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -145,14 +145,14 @@ final class DomainNormalizerTest extends TestCase
             '||example.com^$domain=a.com|b.com',
             'a.com,b.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\DataProvider('wrongSeparatorProvider')]
     #[PHPUnit\Test]
     public function wrong_separator($input, $expected): void
     {
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     public static function wrongSeparatorProvider(): array
@@ -202,13 +202,13 @@ final class DomainNormalizerTest extends TestCase
             '*$domain=~example.*|example.*',
             '~example.*,~example.*>>,example.*,example.*>>##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '*$domain=api.example.com|example.*',
             'api.example.com,example.*##.ads',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
 
         $input = [
             '*$domain=example.com|~example.net',
@@ -221,16 +221,16 @@ final class DomainNormalizerTest extends TestCase
             'example.*##.ads',
             '~example.net##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // The parent domain is the negated domain.
         $input = ['*$domain=example.com|~example.net|~example.*'];
         $expected = ['*$domain=~example.*|example.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // Just in case the user enters invalid input
         $input = ['192.*,192.168.1.1##.ads'];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -242,7 +242,7 @@ final class DomainNormalizerTest extends TestCase
         $expected = [
             '~example.com,~example.com>>,example.com,example.com>>##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '*$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk|example.co.uk|login.example.co.uk',
@@ -252,7 +252,7 @@ final class DomainNormalizerTest extends TestCase
             '*$domain=~ads.example.co.uk|example.co.uk',
             '~ads.example.com,example.com,example.org##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '*$domain=~ads.example.co.uk|login.api.example.co.uk|api.example.co.uk',
@@ -265,11 +265,11 @@ final class DomainNormalizerTest extends TestCase
             'example.com,example.org##.ads',
             '~ads.example.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // The parent domain is the negated domain.
         $input = ['*$domain=~ads.example.co.uk|api.example.co.uk|~example.co.uk'];
         $expected = ['*$domain=~example.co.uk|api.example.co.uk'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 }

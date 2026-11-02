@@ -67,7 +67,7 @@ class CosmeticTest extends TestCase
         ];
 
         arsort($input);
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -87,10 +87,10 @@ class CosmeticTest extends TestCase
             '/example\.com/###ads',
             '/example\.com/#@#ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $v = ['/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/##.ads'];
-        $this->assertSame($v, $this->fix($v));
+        $this->assertSame($v, $this->format($v));
 
         $input = [
             'a##b',
@@ -100,7 +100,7 @@ class CosmeticTest extends TestCase
             'b##a',
             'a##b',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '/a/##b',
@@ -114,7 +114,7 @@ class CosmeticTest extends TestCase
             '/b/##a',
             '/a/##b',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -130,7 +130,7 @@ class CosmeticTest extends TestCase
             'a.com,b.com##.ad',
             'a.com,b.com##.adRight',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             'b.com,a.com##.ads',
@@ -143,7 +143,7 @@ class CosmeticTest extends TestCase
             'a.com#@#.ads',
             'a.com#?#.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -154,7 +154,7 @@ class CosmeticTest extends TestCase
             'a.com##.ad',
         ];
 
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -169,7 +169,7 @@ class CosmeticTest extends TestCase
         $expected = [
             '~d.com,a.com,b.com,c.com,e.com##.ad',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // negated & negated
         $input = [
@@ -179,7 +179,7 @@ class CosmeticTest extends TestCase
         $expected = [
             '~a.com,~b.com,~c.com##.ad',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // maybeMixed & negated
         $input = [
@@ -190,7 +190,7 @@ class CosmeticTest extends TestCase
             'x.com##.ad',
             '~y.com##.ad',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // ancestor contexts
         $input = [
@@ -210,7 +210,7 @@ class CosmeticTest extends TestCase
 
             'a.com,a.com>>,b.com##.adRight',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -220,7 +220,7 @@ class CosmeticTest extends TestCase
             'a.com##.ad1',
             'b.com##.ad2',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     // ========================================================================
@@ -231,7 +231,7 @@ class CosmeticTest extends TestCase
     #[PHPUnit\Test]
     public function selector_removeleadingSpases($actual, $expected): void
     {
-        $this->assertSame([$expected], $this->fix([$actual]));
+        $this->assertSame([$expected], $this->format([$actual]));
     }
 
     public static function selector_removeleadingSpasesProvider(): array
@@ -296,22 +296,22 @@ class CosmeticTest extends TestCase
             'example.com##div#adsId + div.adsClass',
             'example.com##div#adsId.adsClass',
         ];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         // tilde matches
         $input = ['##div[id~="teaser"] div[class~="adsClass"]'];
         $expected = ['##div[id~="teaser"] div.adsClass'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         // partially converted
         $input = ['##div[id*="teaser"] div[class="adsClass"]'];
         $expected = ['##div[id*="teaser"] div.adsClass'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         // multiple selectors
         $input = ['##div[id="a"], span[class="b"]'];
         $expected = ['##div#a, span.b'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         // escape
         $input = [
@@ -326,7 +326,7 @@ class CosmeticTest extends TestCase
             '!', '##div#aspect-\[calc\(4\*3\+1\)\/3\]',
             '!', '##div#will-change-\[top\,left\]',
         ];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         // not converted
         $input = [
@@ -334,9 +334,9 @@ class CosmeticTest extends TestCase
             '##div[id="teaser" i]',
             '##div[id^="teaser"]',
         ];
-        $this->assertSame($input, $this->fix($input, $flags));
+        $this->assertSame($input, $this->format($input, $flags));
         $input = ['##div[class="ads-Class"]'];
-        $this->assertSame($input, $this->fix($input, ['attr_to_basic_selector' => 'strict']));
+        $this->assertSame($input, $this->format($input, ['attr_to_basic_selector' => 'strict']));
     }
 
     #[PHPUnit\Test]
@@ -346,9 +346,9 @@ class CosmeticTest extends TestCase
 
         $expected = ['example.com##.banner:remove()'];
         $input = ['example.com##.banner { remove: true ; } '];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
         $input = ['example.com##.banner {remove:true;}'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
     }
 
     #[PHPUnit\Test]
@@ -363,7 +363,7 @@ class CosmeticTest extends TestCase
             'example.com##div:has(> span:has-text(Advertisment))',
             '!', 'example.com#@#div:has(> span:has-text(Advertisment))',
         ];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
     }
 
     // ========================================================================
@@ -375,11 +375,11 @@ class CosmeticTest extends TestCase
     {
         $input = ['~d.com,c.com,a.com,~b.com##+js(...)'];
         $expected = ['~b.com,~d.com,a.com,c.com##+js(...)'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = ['~d.com,c.com,a.com,~b.com#%#//scriptlet(...)'];
         $expected = ['~b.com,~d.com,a.com,c.com#%#//scriptlet(...)'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -397,7 +397,7 @@ class CosmeticTest extends TestCase
             '!',
             '~a.com,a.com,b.com##+js(...)',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             'a.com#%#//scriptlet(...)',
@@ -411,7 +411,7 @@ class CosmeticTest extends TestCase
             '!',
             '~a.com,a.com,b.com#%#//scriptlet(...)',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -421,12 +421,12 @@ class CosmeticTest extends TestCase
             'a.com##+js(aopr, Notification)',
             'b.com##+js(aopw, Fingerprint2)',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
 
         $input = [
             "example.org#%#//scriptlet('abort-on-property-read', 'alert')",
             "example.org#%#//scriptlet('remove-class', 'branding', 'div[class^=\"inner\"]')",
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 }

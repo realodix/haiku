@@ -39,7 +39,7 @@ final class NetOptionCombinerTest extends TestCase
             '||example.com/banner/',
             '||example.org/banner/',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]

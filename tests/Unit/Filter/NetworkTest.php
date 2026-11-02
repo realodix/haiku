@@ -22,11 +22,11 @@ class NetworkTest extends TestCase
         ];
 
         arsort($input);
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = ['D', 'A', 'c', 'b'];
         $expected = ['A', 'b', 'c', 'D'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -38,7 +38,7 @@ class NetworkTest extends TestCase
         $expected = [
             '||example.com^$css,domain=a.com|b.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     /**
@@ -48,7 +48,7 @@ class NetworkTest extends TestCase
     #[PHPUnit\Test]
     public function combine_supported_options(array $input, array $expected): void
     {
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     public static function combineSupportedOptionsProvider(): array
@@ -105,7 +105,7 @@ class NetworkTest extends TestCase
             '||example.com^$css,domain=c.com',
             '||example.com^$domain=a.com|b.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '$permissions=storage-access=()\, camera=(),domain=b.com|a.com,image',
@@ -115,7 +115,7 @@ class NetworkTest extends TestCase
         $expected = [
             '$image,permissions=storage-access=()\, camera=(),domain=a.com|b.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -128,7 +128,7 @@ class NetworkTest extends TestCase
             '-banner-$image',
         ];
 
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -143,7 +143,7 @@ class NetworkTest extends TestCase
         $expected = [
             '||example.com^$domain=~d.com|a.com|b.com|c.com|e.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // negated & negated
         $input = [
@@ -153,7 +153,7 @@ class NetworkTest extends TestCase
         $expected = [
             '||example.com^$domain=~a.com|~b.com|~c.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // maybeMixed & negated
         $input = [
@@ -164,7 +164,7 @@ class NetworkTest extends TestCase
             '||example.com^$domain=x.com',
             '||example.com^$domain=~y.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -172,10 +172,10 @@ class NetworkTest extends TestCase
     {
         $input = ['||example.com^$script,image,third-party,domain=a.com'];
         $expected = ['||example.com^$third-party,image,script,domain=a.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = ['||example.com^$~image,image'];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -186,11 +186,11 @@ class NetworkTest extends TestCase
         // badfilter, important & match-case
         $input = ['*$important,domain=3p.com,css,badfilter,match-case'];
         $expected = ['*$badfilter,important,match-case,css,domain=3p.com'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         $input = ['*$css,~3p,third-party,strict3p,first-party,1p,strict1p,strict-first-party,strict-third-party'];
         $expected = ['*$strict-first-party,strict-third-party,strict1p,strict3p,1p,~3p,first-party,third-party,css'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         $input = [
             '$css,domain=x.com,reason="foo",redirect-rule=noopjs,script,',
@@ -198,22 +198,22 @@ class NetworkTest extends TestCase
         $expected = [
             '$css,script,redirect-rule=noopjs,domain=x.com,reason="foo"',
         ];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         $flags = ['option_order' => 'name'];
         $input = ['*$css,~3p,third-party,strict3p,domain=3p.com,reason="foo"'];
         $expected = ['*$~3p,css,domain=3p.com,reason="foo",strict3p,third-party'];
-        $this->assertSame($expected, $this->fix($input, $flags));
+        $this->assertSame($expected, $this->format($input, $flags));
 
         $flags = ['option_order' => false];
-        $this->assertSame($input, $this->fix($input, $flags));
+        $this->assertSame($input, $this->format($input, $flags));
     }
 
     #[PHPUnit\DataProvider('optionOrdeDomainValueProvider')]
     #[PHPUnit\Test]
     public function option_order__domain_value(array $input, array $expected): void
     {
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     public static function optionOrdeDomainValueProvider(): array
@@ -247,16 +247,16 @@ class NetworkTest extends TestCase
     {
         $input = ['||example.com^$css,css'];
         $expected = ['||example.com^$css'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = ['||example.com^$domain=a.com|c.com,css,domain=b.com'];
         $expected = ['||example.com^$css,domain=a.com|b.com|c.com'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // Except for "multi-value options", they cannot be combined
         $input = ['||example.com^$redirect=1x1.gif,css,redirect=noopjs'];
         $expected = ['||example.com^$css,redirect=1x1.gif,redirect=noopjs'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -264,14 +264,14 @@ class NetworkTest extends TestCase
     {
         $input = ['||example.com^$ALL'];
         $expected = ['||example.com^$all'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\DataProvider('optDomainValuesAreSortedProvider')]
     #[PHPUnit\Test]
     public function optDomain_values_are_sorted(array $input, array $expected): void
     {
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     public static function optDomainValuesAreSortedProvider(): array
@@ -332,14 +332,14 @@ class NetworkTest extends TestCase
             '$METHOD=GET',
         ];
 
-        $this->assertSame(array_map('strtolower', $input), $this->fix($input));
+        $this->assertSame(array_map('strtolower', $input), $this->format($input));
     }
 
     #[PHPUnit\DataProvider('lowercaseTheOptionNamePreserveValueProvider')]
     #[PHPUnit\Test]
     public function lowercase_the_option_name_preserve_value($input, $expected): void
     {
-        $this->assertSame([$expected], $this->fix([$input]));
+        $this->assertSame([$expected], $this->format([$input]));
     }
 
     public static function lowercaseTheOptionNamePreserveValueProvider(): array
@@ -374,18 +374,18 @@ class NetworkTest extends TestCase
             '@@/ads.$domain=/example\.com/',
             '@@/ads.$domain=example.com',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // left as is
         $str = ['/ads.$domain=/example\.(org|com)/'];
-        $this->assertSame($str, $this->fix($str));
+        $this->assertSame($str, $this->format($str));
     }
 
     #[PHPUnit\DataProvider('handleRegexValuesProvider')]
     #[PHPUnit\Test]
     public function handle_regex_values($actual, $expected): void
     {
-        $this->assertSame([$expected], $this->fix([$actual]));
+        $this->assertSame([$expected], $this->format([$actual]));
     }
 
     public static function handleRegexValuesProvider(): array

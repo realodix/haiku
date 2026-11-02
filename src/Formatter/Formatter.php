@@ -32,7 +32,7 @@ final class Formatter
      * @param array<int, string> $lines An array of raw filter lines
      * @return array<int, string> The processed and optimized list of filter lines
      */
-    public function fix(array $lines): array
+    public function format(array $lines): array
     {
         $result = []; // Stores the final processed rules
         /** @var list<SectionItem> */

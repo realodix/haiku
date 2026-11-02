@@ -76,7 +76,7 @@ final class Runner
             $this->backup($path);
         }
 
-        $content = $this->fmt->fix($content);
+        $content = $this->fmt->format($content);
         $content = Helper::joinLines($content);
 
         File::safeDumpFile($path, $content);

@@ -55,6 +55,6 @@ class AdGuardJavaScriptRulesTest extends TestCase
             'example.com#%#window.__gaq = undefined;',
             'example.com#@%#window.__gaq = undefined;',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 }
