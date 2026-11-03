@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Builder;
+namespace Realodix\Haiku\Bundler;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;

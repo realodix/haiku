@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Builder;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Builder\Cleaner;
+use Realodix\Haiku\Bundler\Cleaner;
 use Realodix\Haiku\Test\TestCase;
 
 class CleaningTest extends TestCase

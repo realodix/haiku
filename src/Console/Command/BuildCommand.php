@@ -2,7 +2,7 @@
 
 namespace Realodix\Haiku\Console\Command;
 
-use Realodix\Haiku\Builder\Builder;
+use Realodix\Haiku\Bundler\Builder;
 use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\App;
 use Realodix\Haiku\Console\CommandOptions;

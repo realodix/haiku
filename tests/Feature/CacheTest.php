@@ -242,7 +242,7 @@ class CacheTest extends TestCase
     }
 
     /**
-     * @see Realodix\Haiku\Builder\Builder::class
+     * @see Realodix\Haiku\Bundler\Builder::class
      * @see Realodix\Haiku\Cache\Cache::cleanStaleEntries()
      */
     public function testCleanStaleEntriesForBuilder(): void
