@@ -94,12 +94,12 @@ Paths under `excludes` are relative to the `formatter.paths`. Here are some exam
 Back up each file before formatting. Default is `false`.
 
 #### `flags`
-Flags control how the fixer processes and transforms rules during the fixing pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
+Flags control how the Formatter processes and transforms rules during the formatting pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
 
-Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./fixer_transformations.md#-filter-option-format)).
+Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./formatter_transformations.md#-filter-option-format)).
 
 - **`all`**: Bulk toggle for all boolean flags. Default is `false`.
-- See [docs/fixer_transformations.md](./fixer_transformations.md) for a complete list of available flags.
+- See [docs/formatter_transformations.md](./formatter_transformations.md) for a complete list of available flags.
 
 
 ## Linter Configuration

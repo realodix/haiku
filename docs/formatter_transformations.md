@@ -13,7 +13,7 @@ formatter:
 
 ## Preserved Line
 
-Certain lines are preserved verbatim. The fixer never modifies their content, formatting, or position.
+Certain lines are preserved verbatim. The Formatter never modifies their content, formatting, or position.
 
 In addition to being preserved, these lines also act as section boundaries. They explicitly separate rule blocks and prevent rules from being sorted, combined, or deduplicated across the boundary.
 
@@ -55,7 +55,7 @@ This behavior preserves:
 
 ## Sorting & Structural Grouping
 
-The fixer does not simply sort rules alphabetically. Instead, it performs structural grouping followed by canonical ordering to produce a predictable and readable.
+The Formatter does not simply sort rules alphabetically. Instead, it performs structural grouping followed by canonical ordering to produce a predictable and readable.
 
 Rules are always sorted in the following order:
 
@@ -147,7 +147,7 @@ example.com,example.org##.ads
 
 ### # Combine Overlapping Options
 
-When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
+When multiple network filters share the same pattern but differ only in their option sets, the Formatter merges them into a single rule.
 
 `combine_option_sets`, default: `true`
 
