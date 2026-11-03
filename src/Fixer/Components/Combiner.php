@@ -21,7 +21,7 @@ final class Combiner
      * @param ','|'|' $separator Domain separator (`,` or `|`)
      * @return array<int, string> Combined filter rules
      */
-    public function applyFix(array $filters, string $domainPattern, string $separator): array
+    public function apply(array $filters, string $domainPattern, string $separator): array
     {
         $combined = [];
         $filterCount = count($filters);
@@ -42,7 +42,7 @@ final class Combiner
 
             if ($this->canCombine($currentLineParse, $nextLineParse, $separator)) {
                 // Merges two domain lists into a single normalized domain list
-                $newDomain = $this->domainNormalizer->applyFix(
+                $newDomain = $this->domainNormalizer->apply(
                     $currentLineParse['domain'].$separator.$nextLineParse['domain'],
                     $separator,
                 );

@@ -19,7 +19,7 @@ final class ElementTidy
      * @param array<int, string> $m The regex match
      * @return string The normalized rule
      */
-    public function applyFix(string $line, array $m): string
+    public function apply(string $line, array $m): string
     {
         if ($m === []) {
             return $line;
@@ -34,8 +34,8 @@ final class ElementTidy
             return $line;
         }
 
-        $modifier = $this->adgModifier->applyFix($modifier);
-        $domain = $this->domainNormalizer->applyFix($domain, ',');
+        $modifier = $this->adgModifier->apply($modifier);
+        $domain = $this->domainNormalizer->apply($domain, ',');
         [$selector, $separator] = $this->convertAbpExtendedSelectors($selector, $separator);
         $selector = $this->normalizeSelector($selector);
 

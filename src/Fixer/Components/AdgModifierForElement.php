@@ -16,7 +16,7 @@ final class AdgModifierForElement
         private FixerConfig $config,
     ) {}
 
-    public function applyFix(string $str): string
+    public function apply(string $str): string
     {
         if (!$this->config->flags['adg_non_basic_rule_modifier']) {
             return $str;
