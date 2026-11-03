@@ -54,7 +54,7 @@ CLI options always override configuration file values for the current command ex
 Global configuration options apply to all commands and are defined at the root level of configuration file.
 
 #### `cache_dir`
-Specifies the directory where Haiku stores cache data for both the `build` and `fix` commands.
+Specifies the directory where Haiku stores cache data.
 
 ```yml
 cache_dir: .tmp
@@ -91,7 +91,7 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
 
 #### `backup`
-Creates a backup of each file before applying fixes. Default is `false`.
+Back up each file before formatting. Default is `false`.
 
 #### `flags`
 Flags control how the fixer processes and transforms rules during the fixing pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
