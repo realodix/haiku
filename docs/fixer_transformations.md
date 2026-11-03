@@ -1,4 +1,4 @@
-This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
+This document describes all transformations performed by the `format` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
 
 Some transformations can be toggled via the `formatter.flags` configuration option.
 

@@ -32,7 +32,7 @@ Combines multiple filter list files (local and/or remote URLs) into a single fil
     ```
 
 2. **Initialize**. Run `vendor/bin/haiku init` in your project root. The command writes a `haiku.yml` configuration file.
-2. **Run**. Use `vendor/bin/haiku lint`, `vendor/bin/haiku fix`, or `vendor/bin/haiku build`. Wire it into pre-commit, CI, or your editor.
+2. **Run**. Use `vendor/bin/haiku lint`, `vendor/bin/haiku format`, or `vendor/bin/haiku build`. Wire it into pre-commit, CI, or your editor.
 
 For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
 

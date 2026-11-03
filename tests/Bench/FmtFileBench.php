@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Bench;
 
 use PhpBench\Attributes as Bench;
-use Realodix\Haiku\Console\Command\FixCommand;
+use Realodix\Haiku\Console\Command\FmtCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -49,8 +49,8 @@ class FmtFileBench
         $this->fs->copy($this->inputFile, $processingFile, true);
 
         $application = new Application;
-        $application->addCommand(app(FixCommand::class));
-        $command = $application->find('fix');
+        $application->addCommand(app(FmtCommand::class));
+        $command = $application->find('format');
         $commandTester = new CommandTester($command);
 
         $commandTester->execute([

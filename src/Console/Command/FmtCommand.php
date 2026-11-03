@@ -15,10 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'fix',
+    name: 'format|fix',
     description: 'Sort, combine, and normalize ad-blocking filter lists.',
 )]
-class FixCommand extends Command
+class FmtCommand extends Command
 {
     public function __construct(
         private Runner $runner,

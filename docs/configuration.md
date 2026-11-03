@@ -5,7 +5,7 @@ This document provides comprehensive documentation for configuring Haiku through
 
 ## Configuration File Overview
 
-Haiku is configured through a YAML file named `haiku.yml` located in your project's root directory. This file controls the behavior of Haiku's `build`, `fix`, and `lint` commands through separate configuration sections.
+Haiku is configured through a YAML file named `haiku.yml` located in your project's root directory. This file controls the behavior of Haiku's `build`, `format`, and `lint` commands through separate configuration sections.
 
 If you want to override settings locally, create and commit to VCS `haiku.yml.dist` but locally use `haiku.yml` which should be ignored (e.g. in `.gitignore`).
 
@@ -68,7 +68,7 @@ cache_dir: .tmp
 
 ## Formatter Configuration
 
-This section configures the behavior for the `fix` command.
+This section configures the behavior for the `format` command.
 
 ```yml
 formatter:

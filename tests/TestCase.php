@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
-use Realodix\Haiku\Console\Command\FixCommand;
+use Realodix\Haiku\Console\Command\FmtCommand;
 use Realodix\Haiku\Formatter\Formatter;
 use Realodix\Haiku\Linter\ErrorBuilder;
 use Realodix\Haiku\Linter\Helper;
@@ -81,11 +81,11 @@ abstract class TestCase extends BaseTestCase
         ], $options));
     }
 
-    protected function runFixCommand(array $options = []): CommandTester
+    protected function runFmtCommand(array $options = []): CommandTester
     {
         $application = new Application;
-        $application->addCommand(app(FixCommand::class));
-        $command = $application->find('fix');
+        $application->addCommand(app(FmtCommand::class));
+        $command = $application->find('format');
         $commandTester = new CommandTester($command);
 
         $this->applyFlags();

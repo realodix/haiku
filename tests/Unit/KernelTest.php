@@ -24,7 +24,7 @@ class KernelTest extends TestCase
 
     #[PHPUnit\TestWith(['init'])]
     #[PHPUnit\TestWith(['build'])]
-    #[PHPUnit\TestWith(['fix'])]
+    #[PHPUnit\TestWith(['format'])]
     #[PHPUnit\TestWith(['lint'])]
     #[PHPUnit\TestWith(['worker'])]
     public function testRegisterCommands($name)

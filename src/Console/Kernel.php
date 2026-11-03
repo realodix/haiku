@@ -54,7 +54,7 @@ class Kernel
         foreach ([
             \Realodix\Haiku\Console\Command\InitCommand::class,
             \Realodix\Haiku\Console\Command\BuildCommand::class,
-            \Realodix\Haiku\Console\Command\FixCommand::class,
+            \Realodix\Haiku\Console\Command\FmtCommand::class,
             \Realodix\Haiku\Console\Command\LintCommand::class,
             \Realodix\Haiku\Console\Command\WorkerCommand::class,
         ] as $command) {
