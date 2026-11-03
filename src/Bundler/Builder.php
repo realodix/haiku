@@ -26,9 +26,9 @@ final class Builder
      */
     public function handle($cmdOpt): void
     {
-        $filterLists = $this->config->builder($cmdOpt)->filterLists;
+        $filterLists = $this->config->bundler($cmdOpt)->filterLists;
         $this->cache->prepareForRun(
-            // builder.filter_lists.filename
+            // bundler.filter_lists.filename
             array_map(fn($filterList) => $filterList['outdir'], $filterLists),
             $cmdOpt,
             Section::B,

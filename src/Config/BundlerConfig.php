@@ -18,12 +18,12 @@ use Symfony\Component\Filesystem\Path;
  *  includes: array<int, string>,
  *  remove_duplicates?: bool,
  * }>
- * @phpstan-type _BuilderConfig array{
+ * @phpstan-type _BundlerConfig array{
  *  output_dir?: string,
  *  filter_lists: _FilterListInput,
  * }
  */
-final class BuilderConfig
+final class BundlerConfig
 {
     /** @var list<_FilterList> */
     public private(set) array $filterLists;
@@ -35,7 +35,7 @@ final class BuilderConfig
     ) {}
 
     /**
-     * @param _BuilderConfig $config
+     * @param _BundlerConfig $config
      */
     public function make(array $config): self
     {
@@ -102,13 +102,13 @@ final class BuilderConfig
 
     /**
      * @codeCoverageIgnore
-     * @param _BuilderConfig $config
+     * @param _BundlerConfig $config
      */
     private function validate(array $config): void
     {
         if (empty($config['filter_lists'])) {
             throw new InvalidConfigurationException(
-                "The 'builder > filter_lists' configuration is missing.",
+                "The 'bundler > filter_lists' configuration is missing.",
             );
         }
 
@@ -117,13 +117,13 @@ final class BuilderConfig
             $index++;
             if (empty($entry['filename'])) {
                 throw new InvalidConfigurationException(
-                    "The 'builder > filter_lists > {$index} > filename' configuration is missing.",
+                    "The 'bundler > filter_lists > {$index} > filename' configuration is missing.",
                 );
             }
 
             if (empty($entry['includes'])) {
                 throw new InvalidConfigurationException(sprintf(
-                    "The 'builder > filter_lists > includes' configuration of '%s' is missing.",
+                    "The 'bundler > filter_lists > includes' configuration of '%s' is missing.",
                     basename($entry['filename']),
                 ));
             }

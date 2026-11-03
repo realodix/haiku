@@ -39,18 +39,21 @@ final class Schema
     /**
      * @return \Nette\Schema\Elements\Structure
      */
-    public static function builder()
+    public static function bundler()
     {
+        $bundler = Expect::structure([
+            'output_dir' => Expect::string(),
+            'filter_lists' => Expect::listOf(Expect::structure([
+                'filename' => Expect::string(),
+                'remove_duplicates' => Expect::bool(),
+                'header' => Expect::string(),
+                'includes' => Expect::listOf('string'),
+            ])),
+        ]);
+
         return self::global()->extend([
-            'builder' => Expect::structure([
-                'output_dir' => Expect::string(),
-                'filter_lists' => Expect::listOf(Expect::structure([
-                    'filename' => Expect::string(),
-                    'remove_duplicates' => Expect::bool(),
-                    'header' => Expect::string(),
-                    'includes' => Expect::listOf('string'),
-                ])),
-            ]),
+            'bundler' => $bundler,
+            'builder' => $bundler,
         ]);
     }
 

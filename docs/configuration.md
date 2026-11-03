@@ -22,7 +22,7 @@ formatter:
   paths:
     - src
 
-builder:
+bundler:
   filter_lists:
     - filename: example.txt
       includes:
@@ -201,12 +201,12 @@ A set of options used to configure the linter.
   ``` -->
 
 
-## Builder Configuration
+## Bundler Configuration
 
 This section configures the behavior for the `build` command.
 
 ```yml
-builder:
+bundler:
   output_dir: dist
   filter_lists:
     - filename: example.txt
@@ -237,7 +237,7 @@ An array defining one or more filter lists to build. Each item in the array conf
 ```yml
 # A minimal configuration requires for the build command:
 
-builder:
+bundler:
   filter_lists:
     - filename: output.txt
       includes:
