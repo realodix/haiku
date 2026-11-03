@@ -57,9 +57,9 @@ final class DomainNormalizer
      * If the domain string contains an incorrect separator (e.g. '|' instead of ','),
      * it will be replaced with the expected separator.
      *
-     * @param string $domainStr The domain string to fix
+     * @param string $domainStr The domain string to be formatted
      * @param string $separator The correct separator to use
-     * @return string The fixed domain string
+     * @return string The formatted domain string
      */
     private function fixWrongSeparator(string $domainStr, string $separator): string
     {
