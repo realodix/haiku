@@ -28,7 +28,7 @@ class CommandTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function builder_needs_config(): void
+    public function bundler_needs_config(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessageIs('The configuration file does not exist.');
@@ -41,7 +41,7 @@ class CommandTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function builder_custom_config_not_found(): void
+    public function bundler_custom_config_not_found(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessageIs('Cannot read config file "notfound.yml".');

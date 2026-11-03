@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Test\Unit\Builder;
+namespace Realodix\Haiku\Test\Unit\Bundler;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Bundler\Cleaner;

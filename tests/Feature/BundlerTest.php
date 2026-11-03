@@ -6,14 +6,14 @@ use Carbon\Carbon;
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Test\TestCase;
 
-class BuilderTest extends TestCase
+class BundlerTest extends TestCase
 {
     public function testBuild()
     {
         $this->runBuildCommand();
 
         $this->assertFileEquals(
-            base_path('tests/Integration/Builder/result/compiled1.txt'),
+            base_path('tests/Integration/Bundler/result/compiled1.txt'),
             base_path('tests/Integration/tmp/compiled1.txt'),
         );
     }
@@ -25,7 +25,7 @@ class BuilderTest extends TestCase
         $this->runBuildCommand();
 
         $this->assertFileEquals(
-            base_path('tests/Integration/Builder/result/compiled2.txt'),
+            base_path('tests/Integration/Bundler/result/compiled2.txt'),
             base_path('tests/Integration/tmp/compiled2.txt'),
         );
     }
@@ -35,7 +35,7 @@ class BuilderTest extends TestCase
     {
         $this->assertStringContainsString(
             'date_modified: %timestamp%',
-            file_get_contents(base_path('tests/Integration/Builder/haiku.yml')),
+            file_get_contents(base_path('tests/Integration/Bundler/haiku.yml')),
         );
 
         $this->runBuildCommand();

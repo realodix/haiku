@@ -76,7 +76,7 @@ abstract class TestCase extends BaseTestCase
         $commandTester = new CommandTester($command);
 
         $commandTester->execute(array_merge([
-            '--config' => 'tests/Integration/Builder/haiku.yml',
+            '--config' => 'tests/Integration/Bundler/haiku.yml',
             '--force' => true,
         ], $options));
     }

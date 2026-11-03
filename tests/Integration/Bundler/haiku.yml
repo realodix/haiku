@@ -1,12 +1,12 @@
 cache_dir: tests/Integration/tmp
 
-builder:
+bundler:
   output_dir: tests/Integration/tmp
   filter_lists:
     - filename: compiled1.txt
       includes:
-        - tests/Integration/Builder/filter1.txt
-        - tests/Integration/Builder/filter2.txt
+        - tests/Integration/Bundler/filter1.txt
+        - tests/Integration/Bundler/filter2.txt
     - filename: compiled2.txt
       remove_duplicates: true
       header: |
@@ -17,10 +17,10 @@ builder:
         License: MIT
         ------------------------------
       includes:
-        - tests/Integration/Builder/filter1.txt
-        - tests/Integration/Builder/filter2.txt
+        - tests/Integration/Bundler/filter1.txt
+        - tests/Integration/Bundler/filter2.txt
     - filename: date_modified.txt
       header: |
         date_modified: %timestamp%
       includes:
-        - tests/Integration/Builder/filter1.txt
+        - tests/Integration/Bundler/filter1.txt

@@ -245,7 +245,7 @@ class CacheTest extends TestCase
      * @see Realodix\Haiku\Bundler\Builder::class
      * @see Realodix\Haiku\Cache\Cache::cleanStaleEntries()
      */
-    public function testCleanStaleEntriesForBuilder(): void
+    public function testCleanStaleEntriesForBundler(): void
     {
         $this->repository->setCacheFile($this->testCacheFile);
 
