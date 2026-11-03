@@ -26,7 +26,7 @@ final class NetworkTidy
     /**
      * Tidies a network filter rule by normalizing options and sorting domains.
      */
-    public function applyFix(string $line): string
+    public function apply(string $line): string
     {
         if (!preg_match(Regex::NET_OPTION, $line, $m)) {
             return $line;
@@ -91,7 +91,7 @@ final class NetworkTidy
             if (isset(self::MULTI_VALUE[$name]) && $values !== []) {
                 $caseSensitive = self::MULTI_VALUE[$name]['case_sensitive'] ?? false;
                 $this->domainNormalizer->modifier = $name;
-                $value = $this->domainNormalizer->applyFix(implode('|', $values), '|', $caseSensitive);
+                $value = $this->domainNormalizer->apply(implode('|', $values), '|', $caseSensitive);
                 $optionList[] = $name.'='.$value;
 
                 continue;
@@ -109,7 +109,7 @@ final class NetworkTidy
         }
 
         // 3. Post-processing
-        $optionList = $this->netOptionTransformer->applyFix($optionList);
+        $optionList = $this->netOptionTransformer->apply($optionList);
         $optionList = array_filter($optionList, static fn($s) => $s !== '');
         $optionList = array_unique($optionList);
 

@@ -49,7 +49,7 @@ final class NetOptionTransformer
      * @param array<int, string> $options
      * @return array<int, string>
      */
-    public function applyFix(array $options): array
+    public function apply(array $options): array
     {
         $result = [];
 

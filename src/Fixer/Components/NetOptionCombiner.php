@@ -38,7 +38,7 @@ final class NetOptionCombiner
      * @param array<int, string> $rules
      * @return array<int, string>
      */
-    public function applyFix(array $rules): array
+    public function apply(array $rules): array
     {
         if (!$this->config->flags['combine_option_sets']) {
             return $rules;

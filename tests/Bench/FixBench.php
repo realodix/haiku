@@ -21,7 +21,12 @@ class FixBench
 
         $this->fixer = app(Fixer::class);
         $this->inputFile = base_path('tests/Bench/storage/filter.txt');
-        $this->input = file($this->inputFile, FILE_IGNORE_NEW_LINES);
+
+        $file = file($this->inputFile, FILE_IGNORE_NEW_LINES);
+        if ($file === false) {
+            throw new \InvalidArgumentException(\sprintf('Failed to read file "%s": ', $file));
+        }
+        $this->input = $file;
     }
 
     /**

@@ -59,14 +59,14 @@ final class Fixer
 
             if (preg_match(Regex::IS_COSMETIC_RULE, $line)) {
                 if (preg_match(Regex::COSMETIC_RULE, $line, $m)) {
-                    $line = $this->elementTidy->applyFix($line, $m);
+                    $line = $this->elementTidy->apply($line, $m);
                 }
 
                 $section[] = ['type' => 'cosmetic', 'value' => $line];
             } else {
                 $section[] = [
                     'type' => 'network',
-                    'value' => $this->networkTidy->applyFix($line),
+                    'value' => $this->networkTidy->apply($line),
                 ];
             }
         }
@@ -118,15 +118,15 @@ final class Fixer
 
         // Cosmetic pipeline
         $cosmetic = Arr::uniqueSortBy($cosmetic, fn(string $value) => $this->cosmeticSortKey($value));
-        $cosmetic = $this->combiner->applyFix($cosmetic, Regex::COSMETIC_DOMAIN, ',');
+        $cosmetic = $this->combiner->apply($cosmetic, Regex::COSMETIC_DOMAIN, ',');
         // Network pipeline
-        $network = $this->optionCombiner->applyFix($network);
+        $network = $this->optionCombiner->apply($network);
         $network = Arr::uniqueSortBy(
             $network,
             fn(string $value) => str_starts_with($value, '@@') ? '}'.$value : $value,
             SORT_STRING | SORT_FLAG_CASE,
         );
-        $network = $this->combiner->applyFix($network, Regex::NET_OPTION_DOMAIN, '|');
+        $network = $this->combiner->apply($network, Regex::NET_OPTION_DOMAIN, '|');
 
         return array_merge($network, $cosmetic);
     }

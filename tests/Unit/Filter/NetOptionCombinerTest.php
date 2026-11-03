@@ -24,7 +24,7 @@ final class NetOptionCombinerTest extends TestCase
     {
         $actual = ['/ads.$image', '/ads.$css'];
         $expected = ['/ads.$image,css'];
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
 
         $input = [
             '||example.com/banner/',
@@ -47,33 +47,33 @@ final class NetOptionCombinerTest extends TestCase
     {
         $actual = ['/ads.$image,css', '/ads.$image'];
         $expected = ['/ads.$image,css'];
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
 
         $actual = ['/ads.$image,stylesheet', '/ads.$stylesheet'];
         $expected = ['/ads.$image,stylesheet'];
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
 
         $actual = ['/ads.$font,stylesheet,script', '/ads.$image,stylesheet,xhr'];
         $expected = ['/ads.$font,script,image,stylesheet,xhr'];
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
 
         $actual = ['/ads.$image,css', '/ads.$image,script'];
         $expected = ['/ads.$image,css,script'];
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
     }
 
     public function testIgnoreOptionOrderDifferences(): void
     {
         $actual = ['/ads.$image,css', '/ads.$css,image'];
         $expected = ['/ads.$image,css'];
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
     }
 
     #[PHPUnit\DataProvider('doNotMergeProvider')]
     #[PHPUnit\Test]
     public function doNotMerge($actual): void
     {
-        $this->assertSame($actual, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($actual, $this->optionCombiner->apply($actual));
     }
 
     public static function doNotMergeProvider(): array
@@ -96,7 +96,7 @@ final class NetOptionCombinerTest extends TestCase
     #[PHPUnit\Test]
     public function handlePolarity_Accepted($actual, $expected): void
     {
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
     }
 
     public static function handlePolarityAcceptedProvider(): array
@@ -132,7 +132,7 @@ final class NetOptionCombinerTest extends TestCase
     #[PHPUnit\Test]
     public function handlePolarity_Dissallowed($actual, $expected): void
     {
-        $this->assertSame($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertSame($expected, $this->optionCombiner->apply($actual));
     }
 
     public static function handlePolarityDissallowedProvider(): array
@@ -198,7 +198,7 @@ final class NetOptionCombinerTest extends TestCase
     #[PHPUnit\Test]
     public function aliasConflict($actual, $expected): void
     {
-        $this->assertEqualsCanonicalizing($expected, $this->optionCombiner->applyFix($actual));
+        $this->assertEqualsCanonicalizing($expected, $this->optionCombiner->apply($actual));
     }
 
     public static function aliasConflictProvider(): array
@@ -230,7 +230,7 @@ final class NetOptionCombinerTest extends TestCase
         $rules = ['/ads.$script'];
         $this->assertSame(
             ['/ads.$script'],
-            $this->optionCombiner->applyFix($rules),
+            $this->optionCombiner->apply($rules),
         );
     }
 }
