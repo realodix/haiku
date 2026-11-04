@@ -19,7 +19,7 @@ A deterministic formatter that sorts, combines, and deduplicates rules for a lea
 
 For a complete list of transformations, see [docs/formatter_transformations.md](./docs/formatter_transformations.md).
 
-#### 📦 03/Builder
+#### 📦 03/Bundler
 Combines multiple filter list files (local and/or remote URLs) into a single file. Automatically regenerates header metadata, strips unnecessary lines such as comments, and delivers a production-ready deployment.
 
 

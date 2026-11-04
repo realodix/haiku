@@ -8,7 +8,7 @@ Haiku provides three main commands:
 
 - `lint` — Analyzing adblock filter lists for potential issues.
 - `format` — Sorting, combining, and optimizing adblock filter lists.
-- `build` — Compiles multiple filter list sources (local files and remote URLs) into unified output files.
+- `build` — Combines multiple filter list files (local and/or remote URLs) into a single file.
 
 All commands use the same configuration system unless overridden by CLI options.
 
