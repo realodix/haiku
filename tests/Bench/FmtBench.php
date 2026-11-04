@@ -3,13 +3,13 @@
 namespace Realodix\Haiku\Test\Bench;
 
 use PhpBench\Attributes as Bench;
-use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Config\FormatterConfig;
+use Realodix\Haiku\Formatter\Formatter;
 
 #[Bench\BeforeMethods('setUp')]
-class FixBench
+class FmtBench
 {
-    private Fixer $fixer;
+    private Formatter $fmt;
 
     private array $input;
 
@@ -17,9 +17,9 @@ class FixBench
 
     public function setUp(): void
     {
-        app()->instance(FixerConfig::class, new FixerConfig);
+        app()->instance(FormatterConfig::class, new FormatterConfig);
 
-        $this->fixer = app(Fixer::class);
+        $this->fmt = app(Formatter::class);
         $this->inputFile = base_path('tests/Bench/storage/filter.txt');
 
         $file = file($this->inputFile, FILE_IGNORE_NEW_LINES);
@@ -30,31 +30,31 @@ class FixBench
     }
 
     /**
-     * Benchmark the core fix() method.
+     * Benchmark the core format() method.
      */
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
     #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
-    public function benchFix(): void
+    public function benchFmt(): void
     {
-        $this->fixer->fix($this->input);
+        $this->fmt->format($this->input);
     }
 
     /**
-     * Benchmark the core fix() method.
+     * Benchmark the core format() method.
      */
     #[Bench\Revs(1000)]
     #[Bench\Iterations(5)]
     #[Bench\Warmup(1)]
     #[Bench\Assert('(mode(variant.time.avg) < mode(baseline.time.avg) +/- 10%)')]
-    public function benchMaximumFix(): void
+    public function benchFmtMaximum(): void
     {
-        app(FixerConfig::class)->flags = [
+        app(FormatterConfig::class)->flags = [
             'all' => true,
             'option_format' => 'long',
         ];
 
-        $this->fixer->fix($this->input);
+        $this->fmt->format($this->input);
     }
 }

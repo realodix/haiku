@@ -3,11 +3,11 @@
 namespace Realodix\Haiku\Test;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Console\Command\BuildCommand;
-use Realodix\Haiku\Console\Command\FixCommand;
-use Realodix\Haiku\Fixer\Fixer;
+use Realodix\Haiku\Console\Command\FmtCommand;
+use Realodix\Haiku\Formatter\Formatter;
 use Realodix\Haiku\Linter\ErrorBuilder;
 use Realodix\Haiku\Linter\Helper;
 use Realodix\Haiku\Linter\Rules\Rule;
@@ -41,7 +41,7 @@ abstract class TestCase extends BaseTestCase
             \Symfony\Component\Console\Output\BufferedOutput::class,
         );
 
-        app()->instance(FixerConfig::class, new FixerConfig);
+        app()->instance(FormatterConfig::class, new FormatterConfig);
         app()->instance(LinterConfig::class, new LinterConfig);
 
         app(LinterConfig::class)->rules = [
@@ -52,7 +52,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function applyFlags(array $flags = [])
     {
-        app(FixerConfig::class)->flags = array_merge([
+        app(FormatterConfig::class)->flags = array_merge([
             'all' => true,
             'attr_to_basic_selector' => false,
             'convert_abp_ext_selectors' => false,
@@ -61,11 +61,11 @@ abstract class TestCase extends BaseTestCase
         ], $flags);
     }
 
-    protected function fix(array $value, array $flags = []): mixed
+    protected function format(array $value, array $flags = []): mixed
     {
         $this->applyFlags($flags);
 
-        return app(Fixer::class)->fix($value);
+        return app(Formatter::class)->format($value);
     }
 
     protected function runBuildCommand(array $options = [])
@@ -81,11 +81,11 @@ abstract class TestCase extends BaseTestCase
         ], $options));
     }
 
-    protected function runFixCommand(array $options = []): CommandTester
+    protected function runFmtCommand(array $options = []): CommandTester
     {
         $application = new Application;
-        $application->addCommand(app(FixCommand::class));
-        $command = $application->find('fix');
+        $application->addCommand(app(FmtCommand::class));
+        $command = $application->find('format');
         $commandTester = new CommandTester($command);
 
         $this->applyFlags();

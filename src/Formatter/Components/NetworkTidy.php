@@ -1,9 +1,9 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Components;
+namespace Realodix\Haiku\Formatter\Components;
 
-use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Config\FormatterConfig;
+use Realodix\Haiku\Formatter\Regex;
 use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
 
@@ -20,7 +20,7 @@ final class NetworkTidy
     public function __construct(
         private DomainNormalizer $domainNormalizer,
         private NetOptionTransformer $netOptionTransformer,
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**

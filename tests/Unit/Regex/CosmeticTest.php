@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Regex;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Formatter\Regex;
 use Realodix\Haiku\Test\TestCase;
 
 class CosmeticTest extends TestCase

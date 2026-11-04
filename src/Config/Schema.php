@@ -19,10 +19,10 @@ final class Schema
     /**
      * @return \Nette\Schema\Elements\Structure
      */
-    public static function fixer()
+    public static function formatter()
     {
         return self::global()->extend([
-            'fixer' => Expect::structure([
+            'formatter' => Expect::structure([
                 'paths' => Expect::listOf('string'),
                 'excludes' => Expect::listOf('string'),
                 'backup' => Expect::bool(),

@@ -1,12 +1,12 @@
 <?php
 
-namespace Realodix\Haiku\Fixer;
+namespace Realodix\Haiku\Formatter;
 
-use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Components\Combiner;
-use Realodix\Haiku\Fixer\Components\ElementTidy;
-use Realodix\Haiku\Fixer\Components\NetOptionCombiner;
-use Realodix\Haiku\Fixer\Components\NetworkTidy;
+use Realodix\Haiku\Config\FormatterConfig;
+use Realodix\Haiku\Formatter\Components\Combiner;
+use Realodix\Haiku\Formatter\Components\ElementTidy;
+use Realodix\Haiku\Formatter\Components\NetOptionCombiner;
+use Realodix\Haiku\Formatter\Components\NetworkTidy;
 use Realodix\Haiku\Support\Arr;
 use Realodix\Haiku\Support\Util;
 
@@ -16,14 +16,14 @@ use Realodix\Haiku\Support\Util;
  *     value: string
  * }
  */
-final class Fixer
+final class Formatter
 {
     public function __construct(
         private Combiner $combiner,
         private ElementTidy $elementTidy,
         private NetworkTidy $networkTidy,
         private NetOptionCombiner $optionCombiner,
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**
@@ -32,7 +32,7 @@ final class Fixer
      * @param array<int, string> $lines An array of raw filter lines
      * @return array<int, string> The processed and optimized list of filter lines
      */
-    public function fix(array $lines): array
+    public function format(array $lines): array
     {
         $result = []; // Stores the final processed rules
         /** @var list<SectionItem> */

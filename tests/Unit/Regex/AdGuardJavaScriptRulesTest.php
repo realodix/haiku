@@ -3,7 +3,7 @@
 namespace Realodix\Haiku\Test\Unit\Regex;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Formatter\Regex;
 use Realodix\Haiku\Test\TestCase;
 
 /**
@@ -55,6 +55,6 @@ class AdGuardJavaScriptRulesTest extends TestCase
             'example.com#%#window.__gaq = undefined;',
             'example.com#@%#window.__gaq = undefined;',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Components;
+namespace Realodix\Haiku\Formatter\Components;
 
-use Realodix\Haiku\Config\FixerConfig;
-use Realodix\Haiku\Fixer\Regex;
+use Realodix\Haiku\Config\FormatterConfig;
+use Realodix\Haiku\Formatter\Regex;
 
 /**
  * Combines compatible network filter rules that share the same pattern by merging
@@ -31,7 +31,7 @@ final class NetOptionCombiner
     ];
 
     public function __construct(
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**

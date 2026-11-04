@@ -18,7 +18,7 @@ final class Config
 
     public function __construct(
         private BuilderConfig $builder,
-        private FixerConfig $fixer,
+        private FormatterConfig $formatter,
         private LinterConfig $linter,
         private Processor $schemaProcessor,
         private OutputInterface $output,
@@ -41,16 +41,22 @@ final class Config
     }
 
     /**
-     * Loads and returns the Fixer configuration.
+     * Loads and returns the Formatter configuration.
      *
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
-    public function fixer($cmdOpt): FixerConfig
+    public function formatter($cmdOpt): FormatterConfig
     {
         $this->load(Section::F, $cmdOpt->configFile);
 
-        return $this->fixer->make(
-            $this->config['fixer'] ?? [],
+        $cfg = $this->config;
+        if (isset($cfg['fixer'])) {
+            $cfg['formatter'] = $cfg['fixer'];
+            unset($cfg['fixer']);
+        }
+
+        return $this->formatter->make(
+            $cfg['formatter'] ?? [],
             [
                 'path' => $cmdOpt->path,
             ],
@@ -135,7 +141,7 @@ final class Config
     {
         if (!isset($config['cache_dir'])
             && !isset($config['builder'])
-            && !isset($config['fixer'])
+            && !isset($config['formatter'])
             && !isset($config['linter'])
         ) {
             throw new InvalidConfigurationException('Invalid configuration file.');
@@ -148,8 +154,8 @@ final class Config
             $config = Arr::only($config, ['cache_dir', 'linter']);
             $schema = Schema::linter();
         } else {
-            $config = Arr::only($config, ['cache_dir', 'fixer']);
-            $schema = Schema::fixer();
+            $config = Arr::only($config, ['cache_dir', 'formatter']);
+            $schema = Schema::formatter();
         }
 
         try {

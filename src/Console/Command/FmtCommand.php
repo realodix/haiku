@@ -6,7 +6,7 @@ use Realodix\Haiku\Config\InvalidConfigurationException;
 use Realodix\Haiku\Console\App;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
-use Realodix\Haiku\Fixer\Runner;
+use Realodix\Haiku\Formatter\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'fix',
+    name: 'format|fix',
     description: 'Sort, combine, and normalize ad-blocking filter lists.',
 )]
-class FixCommand extends Command
+class FmtCommand extends Command
 {
     public function __construct(
         private Runner $runner,

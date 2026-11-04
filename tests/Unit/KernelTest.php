@@ -11,7 +11,7 @@ class KernelTest extends TestCase
 {
     #[PHPUnit\TestWith([\Realodix\Haiku\Cache\Cache::class])]
     #[PHPUnit\TestWith([\Realodix\Haiku\Config\Config::class])]
-    #[PHPUnit\TestWith([\Realodix\Haiku\Config\FixerConfig::class])]
+    #[PHPUnit\TestWith([\Realodix\Haiku\Config\FormatterConfig::class])]
     #[PHPUnit\TestWith([\Realodix\Haiku\Config\LinterConfig::class])]
     public function testregisterServices($class)
     {
@@ -24,7 +24,7 @@ class KernelTest extends TestCase
 
     #[PHPUnit\TestWith(['init'])]
     #[PHPUnit\TestWith(['build'])]
-    #[PHPUnit\TestWith(['fix'])]
+    #[PHPUnit\TestWith(['format'])]
     #[PHPUnit\TestWith(['lint'])]
     #[PHPUnit\TestWith(['worker'])]
     public function testRegisterCommands($name)

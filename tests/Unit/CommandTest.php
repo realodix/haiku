@@ -50,19 +50,19 @@ class CommandTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function fixer_custom_path_not_found(): void
+    public function formatter_custom_path_not_found(): void
     {
-        $commandTester = $this->runFixCommand(['--path' => 'notfound.yml']);
+        $commandTester = $this->runFmtCommand(['--path' => 'notfound.yml']);
 
         $this->assertStringContainsString('Error: 1', $commandTester->getDisplay());
     }
 
     #[PHPUnit\Test]
-    public function fixer_custom_config_not_found(): void
+    public function formatter_custom_config_not_found(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessageIs('Cannot read config file "notfound.yml".');
 
-        $this->runFixCommand(['--config' => 'notfound.yml']);
+        $this->runFmtCommand(['--config' => 'notfound.yml']);
     }
 }

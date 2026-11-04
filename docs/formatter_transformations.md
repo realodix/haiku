@@ -1,10 +1,10 @@
-This document describes all transformations performed by the `fix` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
+This document describes all transformations performed by the `format` command. It serves as a reference for how Haiku normalizes, sorts, combines, and cleans adblock rules.
 
-Some transformations can be toggled via the `fixer.flags` configuration option.
+Some transformations can be toggled via the `formatter.flags` configuration option.
 
 ```yml
 # Example configuration
-fixer:
+formatter:
   flags:
     option_format: short
     remove_wildcard_covered_domains: true
@@ -13,7 +13,7 @@ fixer:
 
 ## Preserved Line
 
-Certain lines are preserved verbatim. The fixer never modifies their content, formatting, or position.
+Certain lines are preserved verbatim. The Formatter never modifies their content, formatting, or position.
 
 In addition to being preserved, these lines also act as section boundaries. They explicitly separate rule blocks and prevent rules from being sorted, combined, or deduplicated across the boundary.
 
@@ -55,7 +55,7 @@ This behavior preserves:
 
 ## Sorting & Structural Grouping
 
-The fixer does not simply sort rules alphabetically. Instead, it performs structural grouping followed by canonical ordering to produce a predictable and readable.
+The Formatter does not simply sort rules alphabetically. Instead, it performs structural grouping followed by canonical ordering to produce a predictable and readable.
 
 Rules are always sorted in the following order:
 
@@ -103,7 +103,7 @@ a.com,~b.com,c.com,~d.com##.ads
 
 Sort network options using configured order.
 
-`fixer.flags.option_order`, default: `type`
+`option_order`, default: `type`
 
 **Possible values**:
 - `name`: Sort options alphabetically by name.
@@ -147,9 +147,9 @@ example.com,example.org##.ads
 
 ### # Combine Overlapping Options
 
-When multiple network filters share the same pattern but differ only in their option sets, the fixer merges them into a single rule.
+When multiple network filters share the same pattern but differ only in their option sets, the Formatter merges them into a single rule.
 
-`fixer.flags.combine_option_sets`, default: `true`
+`combine_option_sets`, default: `true`
 
 **Possible values**: `true`, `false`
 
@@ -170,7 +170,7 @@ When multiple network filters share the same pattern but differ only in their op
 
 Sort domains and modifiers in AdGuard non-basic rules modifiers.
 
-`fixer.flags.adg_non_basic_rule_modifier`, default: `false`
+`adg_non_basic_rule_modifier`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -189,7 +189,7 @@ Sort domains and modifiers in AdGuard non-basic rules modifiers.
 
 Removes empty lines based on the specified configuration.
 
-`fixer.flags.remove_empty_lines`, default: `keep_before_comment`
+`remove_empty_lines`, default: `keep_before_comment`
 
 **Possible values**:
 - `true`: Remove empty lines.
@@ -278,7 +278,7 @@ Reduces domain lists by eliminating entries that are semantically covered by mor
 
 #### Wildcard TLD Coverage
 
-`fixer.flags.remove_wildcard_covered_domains`, default: `false`
+`remove_wildcard_covered_domains`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -294,7 +294,7 @@ example.com,~example.net,example.*##.ads
 
 #### Subdomain Coverage
 
-`fixer.flags.remove_subdomains`, default: `false`
+`remove_subdomains`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -342,7 +342,7 @@ Corrects incorrect separator usage:
 - `|` is used for network rule domain lists
 - `,` is used for cosmetic rule domain lists
 
-`fixer.flags.fix_domain_separators`, default: `false`
+`fix_domain_separators`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -403,7 +403,7 @@ Option names must be in lowercase.
 
 Normalizes network filter option names into a consistent format.
 
-`fixer.flags.option_format`, default: unset; `native` when `all` is set to `true`.
+`option_format`, default: unset; `native` when `all` is set to `true`.
 
 **Possible values**:
 - `long`: Converts all options to their descriptive (long) form.
@@ -430,7 +430,7 @@ Converts deprecated filter options to their modern equivalents. This helps maint
 
 Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`.
 
-`fixer.flags.migrate_deprecated_options`, default: `false`
+`migrate_deprecated_options`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -446,7 +446,7 @@ Supported options: `$empty`, `$mp4`,`$object-subrequest`, `$queryprune`.
 
 Converts legacy property-based `remove` actions (used by ABP/AdGuard) to uBlock Origin syntax.
 
-`fixer.flags.convert_legacy_remove_action`, default: `false`
+`convert_legacy_remove_action`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -462,7 +462,7 @@ example.com##.banner:remove()
 
 Converts Adblock Plus extended selector syntax to native CSS selector.
 
-`fixer.flags.convert_abp_ext_selectors`, default: `false`
+`convert_abp_ext_selectors`, default: `false`
 
 **Possible values**: `true`, `false`
 
@@ -478,7 +478,7 @@ example.com##div:has(> span:has-text(Advertisment))
 
 Converts `id` and `class` attribute selectors into their equivalent CSS basic selector forms.
 
-`fixer.flags.attr_to_basic_selector`, default: unset; `strict` when `all` is set to `true`.
+`attr_to_basic_selector`, default: unset; `strict` when `all` is set to `true`.
 
 **Possible values**:
 - `strict`: Only applies transformations that are fully semantically equivalent.

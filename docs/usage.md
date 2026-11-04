@@ -7,7 +7,7 @@ This document describes how to use Haiku from the command line, including availa
 Haiku provides three main commands:
 
 - `lint` — Analyzing adblock filter lists for potential issues.
-- `fix` — Sorting, combining, and optimizing adblock filter lists.
+- `format` — Sorting, combining, and optimizing adblock filter lists.
 - `build` — Compiles multiple filter list sources (local files and remote URLs) into unified output files.
 
 All commands use the same configuration system unless overridden by CLI options.
@@ -55,10 +55,10 @@ vendor/bin/haiku lint --path filter-list.txt --config haiku.yml
 <br>
 
 
-## `fix` Command
+## `format` Command
 
 ```sh
-vendor/bin/haiku fix [options]
+vendor/bin/haiku format [options]
 ```
 
 ### Options
@@ -94,13 +94,13 @@ vendor/bin/haiku fix [options]
 
 ```sh
 # Process all files in the current directory
-vendor/bin/haiku fix
+vendor/bin/haiku format
 
 # Process a specific file with a custom config
-vendor/bin/haiku fix --path filter-list.txt --config haiku.yml
+vendor/bin/haiku format --path filter-list.txt --config haiku.yml
 
 # Reprocess all files
-vendor/bin/haiku fix --force
+vendor/bin/haiku format --force
 ```
 
 

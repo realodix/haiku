@@ -5,7 +5,7 @@ This document provides comprehensive documentation for configuring Haiku through
 
 ## Configuration File Overview
 
-Haiku is configured through a YAML file named `haiku.yml` located in your project's root directory. This file controls the behavior of Haiku's `build`, `fix`, and `lint` commands through separate configuration sections.
+Haiku is configured through a YAML file named `haiku.yml` located in your project's root directory. This file controls the behavior of Haiku's `build`, `format`, and `lint` commands through separate configuration sections.
 
 If you want to override settings locally, create and commit to VCS `haiku.yml.dist` but locally use `haiku.yml` which should be ignored (e.g. in `.gitignore`).
 
@@ -18,7 +18,7 @@ linter:
   paths:
     - src
 
-fixer:
+formatter:
   paths:
     - src
 
@@ -66,12 +66,12 @@ cache_dir: .tmp
 - Deleting this directory forces a full reprocess
 
 
-## Fixer Configuration
+## Formatter Configuration
 
-This section configures the behavior for the `fix` command.
+This section configures the behavior for the `format` command.
 
 ```yml
-fixer:
+formatter:
   paths:
     - src
   excludes:
@@ -86,7 +86,7 @@ A list of files or directories to process. Paths are relative to the project roo
 #### `excludes`
 A list of files or directories to be excluded during processing. If `excludes` contains root paths, Haiku automatically excludes `vendor` directory.
 
-Paths under `excludes` are relative to the `fixer.paths`. Here are some examples of `excludes`, assuming that `src` is defined in `fixer.paths`:
+Paths under `excludes` are relative to the `formatter.paths`. Here are some examples of `excludes`, assuming that `src` is defined in `formatter.paths`:
 - `Config` will skip the `src/Config` folder.
 - `Folder/with/File.txt` will skip `src/Folder/with/File.txt`.
 
@@ -94,12 +94,12 @@ Paths under `excludes` are relative to the `fixer.paths`. Here are some examples
 Back up each file before formatting. Default is `false`.
 
 #### `flags`
-Flags control how the fixer processes and transforms rules during the fixing pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
+Flags control how the Formatter processes and transforms rules during the formatting pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
 
-Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./fixer_transformations.md#-filter-option-format)).
+Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./formatter_transformations.md#-filter-option-format)).
 
 - **`all`**: Bulk toggle for all boolean flags. Default is `false`.
-- See [docs/fixer_transformations.md](./fixer_transformations.md) for a complete list of available flags.
+- See [docs/formatter_transformations.md](./formatter_transformations.md) for a complete list of available flags.
 
 
 ## Linter Configuration

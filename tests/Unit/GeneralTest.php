@@ -4,7 +4,7 @@ namespace Realodix\Haiku\Test\Unit;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
 use Realodix\Haiku\Console\CommandOptions;
-use Realodix\Haiku\Fixer\Runner;
+use Realodix\Haiku\Formatter\Runner;
 use Realodix\Haiku\Test\TestCase;
 use Symfony\Component\Filesystem\Path;
 
@@ -37,21 +37,21 @@ class GeneralTest extends TestCase
             '-ads-',
         ];
         $expected = ['-ads-'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             '##.ads',
             '##.ads',
         ];
         $expected = ['##.ads'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         $input = [
             'example.com##.adsHeader',
             'example.com##.adsHeader',
         ];
         $expected = ['example.com##.adsHeader'];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -70,7 +70,7 @@ class GeneralTest extends TestCase
             'B',
             'b',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -115,7 +115,7 @@ class GeneralTest extends TestCase
         ];
 
         arsort($input);
-        $output = $this->fix($input);
+        $output = $this->format($input);
 
         $this->assertSame($expected, $output);
     }
@@ -138,7 +138,7 @@ class GeneralTest extends TestCase
             'example.com#@%#ads',
             'example.*,~/example\.([a-z]{1,2}|[a-z]{4,16})/##body > *',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     public function testEmptyLine()
@@ -154,19 +154,19 @@ class GeneralTest extends TestCase
         ];
 
         $expected = ['##.ads', '##.banner', '! comment', '##.foo'];
-        $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => true]));
+        $this->assertSame($expected, $this->format($input, ['remove_empty_lines' => true]));
 
         $expected = ['##.ads', '', '##.banner', '', '', '! comment', '##.foo'];
-        $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => false]));
+        $this->assertSame($expected, $this->format($input, ['remove_empty_lines' => false]));
 
         $expected = ['##.ads', '##.banner', '', '! comment', '##.foo'];
-        $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => 'keep_before_comment']));
+        $this->assertSame($expected, $this->format($input, ['remove_empty_lines' => 'keep_before_comment']));
 
         $input = array_map(fn($value) => str_replace('! ', '# ', $value), $input);
         $expected = ['##.ads', '##.banner', '', '# comment', '##.foo'];
-        $this->assertSame($expected, $this->fix($input, ['remove_empty_lines' => 'keep_before_comment']));
+        $this->assertSame($expected, $this->format($input, ['remove_empty_lines' => 'keep_before_comment']));
         // there is no next line
-        $this->assertSame([], $this->fix([''], ['remove_empty_lines' => 'keep_before_comment']));
+        $this->assertSame([], $this->format([''], ['remove_empty_lines' => 'keep_before_comment']));
     }
 
     #[PHPUnit\Test]
@@ -180,14 +180,14 @@ class GeneralTest extends TestCase
             '! b',
             '! a',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\DataProvider('notCombinedProvider')]
     #[PHPUnit\Test]
     public function not_combined($input, $expected): void
     {
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -217,7 +217,7 @@ class GeneralTest extends TestCase
             '2',
         ];
 
-        $output = $this->fix($input);
+        $output = $this->format($input);
 
         $this->assertSame($expected, $output);
     }
@@ -234,7 +234,7 @@ class GeneralTest extends TestCase
             '$image,extension="userscript name\, with \"quote\"",permissions=storage-access=()\, camera=(),domain=a.com|b.com',
             '||example.org^$extension="userscript name\, with \"quote\"",hls=/#UPLYNK-SEGMENT:.*\,ad/t,domain=/a\,b/',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // non escape comma
         $input = [
@@ -248,7 +248,7 @@ class GeneralTest extends TestCase
             '/^https:\/\/[a-z\d]{4,}+\.[a-z\d]{12,}+\.(cfd|sbs|shop)$/##.ads',
             '~/example\.([a-z]{1,2}|[a-z]{4,16})/##body > *',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
 
         // Contains $, and must not be affected.
         $input = [
@@ -263,7 +263,7 @@ class GeneralTest extends TestCase
             'example.com#$?#style[id="mdpDeblocker-css"] { remove: true; }',
             'example.com#%#(function(b){Object.defineProperty(Element.prototype,"innerHTML",{get:function(){return b.get.call(this)},set:function(a){/^(?:<([abisuq]) id="[^"]*"><\/\1>)*$/.test(a)||b.set.call(this,a)},enumerable:!0,configurable:!0})})(Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML"));',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     #[PHPUnit\Test]
@@ -277,7 +277,7 @@ class GeneralTest extends TestCase
             '$domain=färgbolaget.nu|jõulud.eu|éxample.com',
             'färgbolaget.nu,jõulud.eu,éxample.com##.ads',
         ];
-        $this->assertSame($expected, $this->fix($input));
+        $this->assertSame($expected, $this->format($input));
     }
 
     /**
@@ -294,7 +294,7 @@ class GeneralTest extends TestCase
             'example.com#?#',
             'example.com##+',
         ];
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
     }
 
     /**
@@ -329,7 +329,7 @@ class GeneralTest extends TestCase
             '.example.org',
         ];
 
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
         $this->analyse($input);
 
         $input = [
@@ -338,7 +338,7 @@ class GeneralTest extends TestCase
             '*://*.example.org/*',
         ];
 
-        $this->assertSame($input, $this->fix($input));
+        $this->assertSame($input, $this->format($input));
         $this->analyse($input);
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Realodix\Haiku\Fixer\Components;
+namespace Realodix\Haiku\Formatter\Components;
 
-use Realodix\Haiku\Config\FixerConfig;
+use Realodix\Haiku\Config\FormatterConfig;
 
 /**
  * Transforms and normalizes network filter options.
@@ -40,7 +40,7 @@ final class NetOptionTransformer
     ];
 
     public function __construct(
-        private FixerConfig $config,
+        private FormatterConfig $config,
     ) {}
 
     /**

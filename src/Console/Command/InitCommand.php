@@ -43,8 +43,8 @@ class InitCommand extends Command
         $content = <<<'YML'
 # cache_dir: .tmp
 
-# Settings for the `fix` command
-fixer:
+# Settings for the `format` command
+formatter:
   paths:
     - folder_1/file.txt
     - folder_2
