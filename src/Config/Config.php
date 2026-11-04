@@ -5,6 +5,7 @@ namespace Realodix\Haiku\Config;
 use Illuminate\Support\Arr;
 use Nette\Schema\Processor;
 use Realodix\Haiku\Enums\Section;
+use Realodix\Haiku\Support\Arr as _Arr;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -34,11 +35,7 @@ final class Config
         $this->load(Section::B, $cmdOpt->configFile);
 
         $cfg = $this->config;
-
-        if (isset($cfg['builder'])) {
-            $cfg['bundler'] = $cfg['builder'];
-            unset($cfg['builder']);
-        }
+        $cfg = _Arr::renameKey($cfg, ['builder' => 'bundler']);
 
         if (!isset($cfg['bundler'])) {
             throw new InvalidConfigurationException('The "bundler" configuration is missing.');
@@ -57,10 +54,7 @@ final class Config
         $this->load(Section::F, $cmdOpt->configFile);
 
         $cfg = $this->config;
-        if (isset($cfg['fixer'])) {
-            $cfg['formatter'] = $cfg['fixer'];
-            unset($cfg['fixer']);
-        }
+        $cfg = _Arr::renameKey($cfg, ['fixer' => 'formatter']);
 
         return $this->formatter->make(
             $cfg['formatter'] ?? [],

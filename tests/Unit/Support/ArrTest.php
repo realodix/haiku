@@ -18,4 +18,43 @@ class ArrTest extends TestCase
 
         $this->assertSame($expected, $output);
     }
+
+    #[PHPUnit\Test]
+    public function renameKey()
+    {
+        $input = [
+            'a' => 1,
+            'b' => 2,
+        ];
+        $override = [
+            'b' => 'foo',
+        ];
+        $expected = [
+            'a' => 1,
+            'foo' => 2,
+        ];
+        $this->assertSame($expected, Arr::renameKey($input, $override));
+
+        $override = ['c' => 'foo'];
+        $this->assertSame($input, Arr::renameKey($input, $override));
+
+        $input = ['foo' => 'bar'];
+        $this->assertSame($input, Arr::renameKey($input, $override));
+    }
+
+    #[PHPUnit\Test]
+    public function renameKeyException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageIs('Keys "b" and "foo" cannot coexist.');
+
+        $input = [
+            'foo' => 1,
+            'b' => 2,
+        ];
+        $override = [
+            'b' => 'foo',
+        ];
+        Arr::renameKey($input, $override);
+    }
 }

@@ -39,4 +39,33 @@ final class Arr
 
         return array_values($v);
     }
+
+    /**
+     * @template T of array<string, mixed>
+     *
+     * @param T $input
+     * @param array<string, string> $keyMap
+     * @return T
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function renameKey(array $input, array $keyMap): array
+    {
+        foreach ($keyMap as $key => $newKey) {
+            if (!array_key_exists($key, $input)) {
+                continue;
+            }
+
+            if (array_key_exists($newKey, $input)) {
+                throw new \InvalidArgumentException(
+                    sprintf('Keys "%s" and "%s" cannot coexist.', $key, $newKey),
+                );
+            }
+
+            $input[$newKey] = $input[$key];
+            unset($input[$key]);
+        }
+
+        return $input;
+    }
 }
