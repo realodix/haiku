@@ -1,6 +1,6 @@
 <?php
 
-namespace Realodix\Haiku\Builder;
+namespace Realodix\Haiku\Bundler;
 
 use Composer\Pcre\Preg;
 use Realodix\Haiku\Support\Util;

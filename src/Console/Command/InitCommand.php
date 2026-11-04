@@ -57,7 +57,7 @@ formatter:
   #  remove_empty_lines: false
 
 # Settings for the `build` command
-builder:
+bundler:
   output_dir: dist
   filter_lists:
     - filename: general_blocklist.txt # Required

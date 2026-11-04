@@ -17,7 +17,7 @@ final class Config
     private array $config;
 
     public function __construct(
-        private BuilderConfig $builder,
+        private BundlerConfig $bundler,
         private FormatterConfig $formatter,
         private LinterConfig $linter,
         private Processor $schemaProcessor,
@@ -25,19 +25,26 @@ final class Config
     ) {}
 
     /**
-     * Loads and returns the Builder configuration.
+     * Loads and returns the Bundler configuration.
      *
      * @param \Realodix\Haiku\Console\CommandOptions $cmdOpt CLI runtime options
      */
-    public function builder($cmdOpt): BuilderConfig
+    public function bundler($cmdOpt): BundlerConfig
     {
         $this->load(Section::B, $cmdOpt->configFile);
 
-        if (!isset($this->config['builder'])) {
-            throw new InvalidConfigurationException('The "builder" configuration is missing.');
+        $cfg = $this->config;
+
+        if (isset($cfg['builder'])) {
+            $cfg['bundler'] = $cfg['builder'];
+            unset($cfg['builder']);
         }
 
-        return $this->builder->make($this->config['builder']);
+        if (!isset($cfg['bundler'])) {
+            throw new InvalidConfigurationException('The "bundler" configuration is missing.');
+        }
+
+        return $this->bundler->make($cfg['bundler']);
     }
 
     /**
@@ -140,7 +147,7 @@ final class Config
     private function validate($config, $section): void
     {
         if (!isset($config['cache_dir'])
-            && !isset($config['builder'])
+            && !isset($config['bundler'])
             && !isset($config['formatter'])
             && !isset($config['linter'])
         ) {
@@ -148,8 +155,8 @@ final class Config
         }
 
         if ($section === Section::B) {
-            $config = Arr::only($config, ['cache_dir', 'builder']);
-            $schema = Schema::builder();
+            $config = Arr::only($config, ['cache_dir', 'bundler']);
+            $schema = Schema::bundler();
         } elseif ($section === Section::L) {
             $config = Arr::only($config, ['cache_dir', 'linter']);
             $schema = Schema::linter();
