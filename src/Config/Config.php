@@ -103,7 +103,8 @@ final class Config
         $filepath = Helper::resolveConfigPath($path) ?? 'noop';
 
         try {
-            $config = $this->parseAndProcessIncludes($filepath);
+            $config = Yaml::parseFile($filepath) ?? [];
+            $config = $this->processIncludes($config, $filepath);
             $this->validate($config, $section);
 
             $warnings = $this->schemaProcessor->getWarnings();
@@ -135,47 +136,59 @@ final class Config
     /**
      * Parses a YAML file and recursively resolves/merges imported files listed in `includes`.
      *
-     * @param array<string> $loadedFiles Tracked files to prevent circular references
+     * @param array<string, mixed> $config Tracked files to prevent circular references
      * @return array<string, mixed>
      */
-    private function parseAndProcessIncludes(string $filepath, array $loadedFiles = []): array
+    private function processIncludes(array $config, string $filepath): array
     {
-        $realPath = realpath($filepath);
-        if ($realPath !== false && in_array($realPath, $loadedFiles, true)) {
-            throw new InvalidConfigurationException("Circular reference detected in configuration includes: {$filepath}");
+        $includes = $config['includes'] ?? [];
+
+        unset($config['includes']);
+
+        $merged = [];
+
+        foreach ($includes as $include) {
+            $includePath = Path::makeAbsolute($include, dirname($filepath));
+
+            $includedConfig = Yaml::parseFile($includePath) ?? [];
+            $includedConfig = $this->processIncludes($includedConfig, $includePath);
+
+            $merged = $this->mergeConfig($merged, $includedConfig);
         }
 
-        if ($realPath !== false) {
-            $loadedFiles[] = $realPath;
-        }
+        return $this->mergeConfig($merged, $config);
+    }
 
-        $parsed = Yaml::parseFile($filepath) ?? [];
-        if (!is_array($parsed)) {
-            return [];
-        }
+    /**
+     * @param array<string, mixed> $base
+     * @param array<string, mixed> $override
+     * @return array<string, mixed>
+     */
+    private function mergeConfig(array $base, array $override): array
+    {
+        foreach ($override as $key => $value) {
+            if (!isset($base[$key]) || !is_array($base[$key]) || !is_array($value)) {
+                $base[$key] = $value;
 
-        $mergedIncludes = [];
-        if (isset($parsed['includes']) && is_array($parsed['includes'])) {
-            $baseDir = dirname($filepath);
-
-            foreach ($parsed['includes'] as $includePath) {
-                // Resolve path relative to the YAML file that includes
-                $resolvedPath = Path::isAbsolute($includePath)
-                    ? $includePath
-                    : $baseDir.DIRECTORY_SEPARATOR.$includePath;
-
-                if (!is_file($resolvedPath)) {
-                    throw new InvalidConfigurationException("Included configuration file does not exist: {$includePath}");
-                }
-
-                $includedConfig = $this->parseAndProcessIncludes($resolvedPath, $loadedFiles);
-                $mergedIncludes = array_merge_recursive($mergedIncludes, $includedConfig);
+                continue;
             }
 
-            unset($parsed['includes']);
+            if (array_is_list($base[$key]) && array_is_list($value)) {
+                $base[$key] = array_merge($base[$key], $value);
+
+                continue;
+            }
+
+            if (!array_is_list($base[$key]) && !array_is_list($value)) {
+                $base[$key] = $this->mergeConfig($base[$key], $value);
+
+                continue;
+            }
+
+            $base[$key] = $value;
         }
 
-        return array_merge_recursive($mergedIncludes, $parsed);
+        return $base;
     }
 
     /**
