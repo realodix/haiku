@@ -7,6 +7,7 @@ use Nette\Schema\Processor;
 use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Support\Arr as _Arr;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -102,7 +103,7 @@ final class Config
         $filepath = Helper::resolveConfigPath($path) ?? 'noop';
 
         try {
-            $config = Yaml::parseFile($filepath);
+            $config = $this->parseAndProcessIncludes($filepath);
             $this->validate($config, $section);
 
             $warnings = $this->schemaProcessor->getWarnings();
@@ -129,6 +130,52 @@ final class Config
         $this->cacheDir = $config['cache_dir'] ?? null;
 
         return $this;
+    }
+
+    /**
+     * Parses a YAML file and recursively resolves/merges imported files listed in `includes`.
+     *
+     * @param array<string> $loadedFiles Tracked files to prevent circular references
+     * @return array<string, mixed>
+     */
+    private function parseAndProcessIncludes(string $filepath, array $loadedFiles = []): array
+    {
+        $realPath = realpath($filepath);
+        if ($realPath !== false && in_array($realPath, $loadedFiles, true)) {
+            throw new InvalidConfigurationException("Circular reference detected in configuration includes: {$filepath}");
+        }
+
+        if ($realPath !== false) {
+            $loadedFiles[] = $realPath;
+        }
+
+        $parsed = Yaml::parseFile($filepath) ?? [];
+        if (!is_array($parsed)) {
+            return [];
+        }
+
+        $mergedIncludes = [];
+        if (isset($parsed['includes']) && is_array($parsed['includes'])) {
+            $baseDir = dirname($filepath);
+
+            foreach ($parsed['includes'] as $includePath) {
+                // Resolve path relative to the YAML file that includes
+                $resolvedPath = Path::isAbsolute($includePath)
+                    ? $includePath
+                    : $baseDir.DIRECTORY_SEPARATOR.$includePath;
+
+                if (!is_file($resolvedPath)) {
+                    throw new InvalidConfigurationException("Included configuration file does not exist: {$includePath}");
+                }
+
+                $includedConfig = $this->parseAndProcessIncludes($resolvedPath, $loadedFiles);
+                $mergedIncludes = array_merge_recursive($mergedIncludes, $includedConfig);
+            }
+
+            unset($parsed['includes']);
+        }
+
+        return array_merge_recursive($mergedIncludes, $parsed);
     }
 
     /**
