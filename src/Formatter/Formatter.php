@@ -169,6 +169,11 @@ final class Formatter
      */
     private function sortRules(array $rules, bool $isNetwork = false): array
     {
+        $cfg = $this->config->flags['sort_rules'];
+        if ($cfg === false) {
+            return $rules;
+        }
+
         if ($isNetwork) {
             return Arr::uniqueSortBy(
                 $rules,
@@ -177,7 +182,11 @@ final class Formatter
             );
         }
 
-        return Arr::uniqueSortBy($rules, function (string $value): string {
+        return Arr::uniqueSortBy($rules, function (string $value) use ($cfg): string {
+            if (!$cfg['cosmetic_by_selector']) {
+                return $value;
+            }
+
             // regex domain
             if (str_starts_with($value, '/') || str_starts_with($value, '~/')) {
                 preg_match(Regex::COSMETIC_RULE, $value, $m);

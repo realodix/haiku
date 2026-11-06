@@ -31,6 +31,11 @@ final class Schema
                     'option_format' => Expect::anyOf('native', 'long', 'short', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
                     'sort_options' => Expect::anyOf('name', 'type', false),
+                    'sort_rules' => Expect::anyOf(
+                        false,
+                        Expect::structure(['cosmetic_by_selector' => Expect::bool()])
+                            ->castTo('array'),
+                    ),
                 ])->otherItems(Expect::bool()),
             ]),
         ]);

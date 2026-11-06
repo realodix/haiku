@@ -65,9 +65,25 @@ class CosmeticTest extends TestCase
 
             '/example\.com/###ads2',
         ];
-
         arsort($input);
         $this->assertSame($expected, $this->format($input));
+
+        $input = [
+            '4.example.com##.ads1',
+            '3.example.com##.ads2',
+            '2.example.com##.ads3',
+            '1.example.com##.ads4',
+        ];
+        $expected = [
+            '1.example.com##.ads4',
+            '2.example.com##.ads3',
+            '3.example.com##.ads2',
+            '4.example.com##.ads1',
+        ];
+        $this->assertSame(
+            $expected,
+            $this->format($input, ['sort_rules' => ['cosmetic_by_selector' => false]]),
+        );
     }
 
     #[PHPUnit\Test]
