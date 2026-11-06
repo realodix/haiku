@@ -177,30 +177,6 @@ Normalizes network filter option names into a consistent format.
 ```
 
 
-### # `option_order`
-
-**Default**: `type`
-
-**Possible values**:
-- `name`: Sort options alphabetically by name.
-- `type`: Options are grouped by type. The group order is fixed, and options inside each group are sorted alphabetically.
-- `false`: Disable this rule.
-
-```adblock
-!## BEFORE
-*$image,script,css,badfilter,domain=example.com
--ads-$domain=~example.com,~image,third-party,xmlhttprequest,reason=disreputable
-
-!## AFTER - name
-*$badfilter,css,domain=example.com,image,script
--ads-$domain=~example.com,~image,reason=disreputable,third-party,xmlhttprequest
-
-!## AFTER - type
-*$badfilter,css,image,script,domain=example.com
--ads-$third-party,~image,xmlhttprequest,domain=~example.com,reason=disreputable
-```
-
-
 ### # `remove_empty_lines`
 
 **Default**: `keep_before_comment`
@@ -285,6 +261,30 @@ b.com,a.com,c.com##.ads
 !## AFTER
 *$css,domain=a.com|b.com|c.com
 a.com,b.com,c.com##.ads
+```
+
+
+### # `sort_options`
+
+**Default**: `type`
+
+**Possible values**:
+- `name`: Sort options alphabetically by name.
+- `type`: Options are grouped by type. The group order is fixed, and options inside each group are sorted alphabetically.
+- `false`: Disable this rule.
+
+```adblock
+!## BEFORE
+*$image,script,css,badfilter,domain=example.com
+-ads-$domain=~example.com,~image,third-party,xmlhttprequest,reason=disreputable
+
+!## AFTER - name
+*$badfilter,css,domain=example.com,image,script
+-ads-$domain=~example.com,~image,reason=disreputable,third-party,xmlhttprequest
+
+!## AFTER - type
+*$badfilter,css,image,script,domain=example.com
+-ads-$third-party,~image,xmlhttprequest,domain=~example.com,reason=disreputable
 ```
 
 

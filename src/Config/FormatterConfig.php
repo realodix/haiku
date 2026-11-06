@@ -16,11 +16,11 @@ use Realodix\Haiku\Support\File;
  *  merge_options: bool,
  *  migrate_deprecated_options: bool,
  *  option_format: 'native'|'long'|'short'|false,
- *  option_order: 'name'|'type'|false,
  *  remove_empty_lines: bool|'keep_before_comment',
  *  remove_subdomains: bool,
  *  remove_wildcard_covered_domains: bool,
- *  sort_domains: bool
+ *  sort_domains: bool,
+ *  sort_options: 'name'|'type'|false,
  * }
  */
 final class FormatterConfig
@@ -48,11 +48,11 @@ final class FormatterConfig
         'merge_options' => true,
         'migrate_deprecated_options' => false,
         'option_format' => false,
-        'option_order' => 'type',
         'remove_empty_lines' => 'keep_before_comment',
         'remove_subdomains' => false,
         'remove_wildcard_covered_domains' => false,
         'sort_domains' => true,
+        'sort_options' => 'type',
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
