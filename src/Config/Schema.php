@@ -29,8 +29,8 @@ final class Schema
                 'flags' => Expect::structure([
                     'attr_to_basic_selector' => Expect::anyOf('strict', 'loose', false),
                     'option_format' => Expect::anyOf('native', 'long', 'short', false),
-                    'option_order' => Expect::anyOf('name', 'type', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
+                    'sort_options' => Expect::anyOf('name', 'type', false),
                 ])->otherItems(Expect::bool()),
             ]),
         ]);

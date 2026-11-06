@@ -111,56 +111,62 @@ final class NetworkTidy
         // 3. Post-processing
         $optionList = $this->netOptionTransformer->apply($optionList);
         $optionList = array_filter($optionList, static fn($s) => $s !== '');
+        $optionList = $this->sort($optionList);
         $optionList = array_unique($optionList);
 
-        if ($this->config->flags['option_order'] === false) {
-            return $optionList;
-        }
-
-        return Arr::sortBy($optionList, fn(string $v) => $this->optionOrder($v));
+        return $optionList;
     }
 
     /**
-     * Returns a string representing the order of the filter option.
+     * Sorts the network filter options.
+     *
+     * @param array<int, string> $options
+     * @return array<int, string>
      */
-    private function optionOrder(string $option): string
+    private function sort(array $options): array
     {
-        $option = ltrim($option, '~');
-
-        if ($this->config->flags['option_order'] === 'name') {
-            return $option;
+        if ($this->config->flags['sort_options'] === false) {
+            return $options;
         }
 
-        // P1: 'important' and 'party' options should always be at the front/beginning
-        if ($option === 'important' || $option === 'badfilter' || $option === 'match-case') {
-            return '0'.$option;
-        }
-        if ($option === 'strict1p' || $option === 'strict-first-party'
-            || $option === 'strict3p' || $option === 'strict-third-party') {
-            return '1'.$option;
-        }
-        if ($option === '1p' || $option === 'first-party'
-            || $option === '3p' || $option === 'third-party') {
-            return '2'.$option;
-        }
+        return Arr::sortBy($options, function (string $option) {
+            $option = ltrim($option, '~');
 
-        // Always put at the end
-        if (str_starts_with($option, 'reason=')) {
-            return $option;
-        }
-
-        // P3: options that support values
-        if (str_contains($option, '=')) {
-            if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
-                || str_starts_with($option, 'from=') || str_starts_with($option, 'to=') || str_starts_with($option, 'top=')
-                || str_starts_with($option, 'ipaddress=')) {
-                return '5'.$option;
+            if ($this->config->flags['sort_options'] === 'name') {
+                return $option;
             }
 
-            return '4'.$option;
-        }
+            // P1: 'important' and 'party' options should always be at the front/beginning
+            if ($option === 'important' || $option === 'badfilter' || $option === 'match-case') {
+                return '0'.$option;
+            }
+            if ($option === 'strict1p' || $option === 'strict-first-party'
+                || $option === 'strict3p' || $option === 'strict-third-party') {
+                return '1'.$option;
+            }
+            if ($option === '1p' || $option === 'first-party'
+                || $option === '3p' || $option === 'third-party') {
+                return '2'.$option;
+            }
 
-        // P2: basic options
-        return '3'.$option;
+            // Always put at the end
+            if (str_starts_with($option, 'reason=')) {
+                return $option;
+            }
+
+            // P3: options that support values
+            if (str_contains($option, '=')) {
+                if (str_starts_with($option, 'denyallow=') || str_starts_with($option, 'domain=')
+                    || str_starts_with($option, 'from=') || str_starts_with($option, 'to=') || str_starts_with($option, 'top=')
+                    || str_starts_with($option, 'ipaddress=')) {
+                    return '5'.$option;
+                }
+
+                return '4'.$option;
+            }
+
+            // P2: basic options
+            return '3'.$option;
+        });
     }
 }

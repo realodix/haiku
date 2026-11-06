@@ -179,9 +179,9 @@ class NetworkTest extends TestCase
     }
 
     #[PHPUnit\Test]
-    public function option_order(): void
+    public function option_sort_order(): void
     {
-        $flags = ['option_order' => 'type'];
+        $flags = ['sort_options' => 'type'];
 
         // badfilter, important & match-case
         $input = ['*$important,domain=3p.com,css,badfilter,match-case'];
@@ -200,23 +200,23 @@ class NetworkTest extends TestCase
         ];
         $this->assertSame($expected, $this->format($input, $flags));
 
-        $flags = ['option_order' => 'name'];
+        $flags = ['sort_options' => 'name'];
         $input = ['*$css,~3p,third-party,strict3p,domain=3p.com,reason="foo"'];
         $expected = ['*$~3p,css,domain=3p.com,reason="foo",strict3p,third-party'];
         $this->assertSame($expected, $this->format($input, $flags));
 
-        $flags = ['option_order' => false];
+        $flags = ['sort_options' => false];
         $this->assertSame($input, $this->format($input, $flags));
     }
 
-    #[PHPUnit\DataProvider('optionOrdeDomainValueProvider')]
+    #[PHPUnit\DataProvider('optionSortDomainValueProvider')]
     #[PHPUnit\Test]
-    public function option_order__domain_value(array $input, array $expected): void
+    public function option_sort__domain_value(array $input, array $expected): void
     {
         $this->assertSame($expected, $this->format($input));
     }
 
-    public static function optionOrdeDomainValueProvider(): array
+    public static function optionSortDomainValueProvider(): array
     {
         return [
             // Domain
