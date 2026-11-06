@@ -102,7 +102,8 @@ final class Config
         $filepath = Helper::resolveConfigPath($path) ?? 'noop';
 
         try {
-            $config = Yaml::parseFile($filepath);
+            $config = Yaml::parseFile($filepath) ?? [];
+            $config = Helper::processIncludes($config, $filepath);
             $this->validate($config, $section);
 
             $warnings = $this->schemaProcessor->getWarnings();
