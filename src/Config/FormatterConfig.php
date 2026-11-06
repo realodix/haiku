@@ -20,6 +20,7 @@ use Realodix\Haiku\Support\File;
  *  remove_empty_lines: bool|'keep_before_comment',
  *  remove_subdomains: bool,
  *  remove_wildcard_covered_domains: bool,
+ *  sort_domains: bool
  * }
  */
 final class FormatterConfig
@@ -51,6 +52,7 @@ final class FormatterConfig
         'remove_empty_lines' => 'keep_before_comment',
         'remove_subdomains' => false,
         'remove_wildcard_covered_domains' => false,
+        'sort_domains' => true,
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {

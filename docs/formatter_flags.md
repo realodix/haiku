@@ -271,6 +271,23 @@ example.com,~example.net,example.*##.ads
 ```
 
 
+### # `sort_domains`
+
+**Default**: `true`
+
+**Possible values**: `true`, `false`
+
+```adblock
+!## BEFORE
+*$css,domain=a.com|c.com|b.com
+b.com,a.com,c.com##.ads
+
+!## AFTER
+*$css,domain=a.com|b.com|c.com
+a.com,b.com,c.com##.ads
+```
+
+
 ### # `adg_non_basic_rule_modifier`
 
 **Default**: `false`

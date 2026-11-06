@@ -43,12 +43,38 @@ final class DomainNormalizer
             $domains[$key] = $this->normalizeDomain($d, $caseSensitive);
         }
 
+        $domains = $this->sort($domains);
         $domains = $this->removeWildcardCoveredDomains($domains);
         $domains = $this->removeCoveredSubdomains($domains);
         $domains = array_unique($domains);
-        $domains = Arr::sortBy($domains, fn(string $value) => $this->domainSortKey($value));
 
         return implode($separator, $domains);
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @return array<int, string>
+     */
+    private function sort(array $domains): array
+    {
+        if (!$this->config->flags['sort_domains']) {
+            return $domains;
+        }
+
+        return Arr::sortBy($domains, function (string $str) {
+            $domain = ltrim($str, '~');
+            $isTld = preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true);
+            $isNegated = str_starts_with($str, '~');
+
+            if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true) && $this->modifier !== null) {
+                return [$isNegated ? 0 : 1, $domain];
+            }
+
+            return [
+                $isTld ? 0 : ($isNegated ? 1 : 2),
+                $domain,
+            ];
+        });
     }
 
     /**
@@ -257,26 +283,5 @@ final class DomainNormalizer
         });
 
         return $filtered;
-    }
-
-    /**
-     * Generate a sorting key for a domain entry.
-     *
-     * @return list<int|string> Sorting tuple
-     */
-    private function domainSortKey(string $str): array
-    {
-        $domain = ltrim($str, '~');
-        $isTld = preg_match('/^[a-z]+$/', $domain) && !in_array($domain, ['localhost', 'local'], true);
-        $isNegated = str_starts_with($str, '~');
-
-        if (!in_array($this->modifier, Registry::DOMAIN_OPTIONS, true) && $this->modifier !== null) {
-            return [$isNegated ? 0 : 1, $domain];
-        }
-
-        return [
-            $isTld ? 0 : ($isNegated ? 1 : 2),
-            $domain,
-        ];
     }
 }
