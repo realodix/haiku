@@ -113,6 +113,25 @@ example.com,example.org##.ads
 ```
 
 
+### # `merge_domains`
+
+**Default**: `true`
+
+**Possible values**: `true`, `false`
+
+```adblock
+!## BEFORE
+/ads/*$domain=example.com
+/ads/*$domain=example.org
+example.com##.ads
+example.org##.ads
+
+!## AFTER
+/ads/*$image,domain=example.com|example.org
+example.com,example.org##.ads
+```
+
+
 ### # `migrate_deprecated_options`
 
 Converts deprecated filter options to their modern equivalents.

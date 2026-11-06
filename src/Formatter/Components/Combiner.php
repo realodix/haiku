@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Formatter\Components;
 
 use Composer\Pcre\Preg;
+use Realodix\Haiku\Config\FormatterConfig;
 
 /**
  * Combines adjacent filter rules that are identical except for their domain list.
@@ -11,6 +12,7 @@ final class Combiner
 {
     public function __construct(
         private DomainNormalizer $domainNormalizer,
+        private FormatterConfig $config,
     ) {}
 
     /**
@@ -23,6 +25,10 @@ final class Combiner
      */
     public function apply(array $filters, string $domainPattern, string $separator): array
     {
+        if (!$this->config->flags['merge_domains']) {
+            return $filters;
+        }
+
         $combined = [];
         $filterCount = count($filters);
 
