@@ -39,25 +39,6 @@ example.com##div.foo div.bar
 ```
 
 
-### # `combine_option_sets`
-
-**Default**: `true`
-
-**Possible values**: `true`, `false`
-
-```adblock
-!## BEFORE
--ads-$css,image
--ads-$image
--banner-$css
--banner-$image
-
-!## AFTER
--ads-$css,image
--banner-$css,image
-```
-
-
 ### # `convert_abp_ext_selectors`
 
 Converts Adblock Plus extended selector syntax to native CSS selector.
@@ -129,6 +110,25 @@ example.org##.ads
 !## AFTER
 /ads/*$image,domain=example.com|example.org
 example.com,example.org##.ads
+```
+
+
+### # `merge_options`
+
+**Default**: `true`
+
+**Possible values**: `true`, `false`
+
+```adblock
+!## BEFORE
+-ads-$css,image
+-ads-$image
+-banner-$css
+-banner-$image
+
+!## AFTER
+-ads-$css,image
+-banner-$css,image
 ```
 
 

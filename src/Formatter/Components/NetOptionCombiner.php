@@ -40,7 +40,7 @@ final class NetOptionCombiner
      */
     public function apply(array $rules): array
     {
-        if (!$this->config->flags['combine_option_sets']) {
+        if (!$this->config->flags['merge_options']) {
             return $rules;
         }
 
