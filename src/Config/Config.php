@@ -7,7 +7,6 @@ use Nette\Schema\Processor;
 use Realodix\Haiku\Enums\Section;
 use Realodix\Haiku\Support\Arr as _Arr;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -104,7 +103,7 @@ final class Config
 
         try {
             $config = Yaml::parseFile($filepath) ?? [];
-            $config = $this->processIncludes($config, $filepath);
+            $config = Helper::processIncludes($config, $filepath);
             $this->validate($config, $section);
 
             $warnings = $this->schemaProcessor->getWarnings();
@@ -131,64 +130,6 @@ final class Config
         $this->cacheDir = $config['cache_dir'] ?? null;
 
         return $this;
-    }
-
-    /**
-     * Parses a YAML file and recursively resolves/merges imported files listed in `includes`.
-     *
-     * @param array<string, mixed> $config Tracked files to prevent circular references
-     * @return array<string, mixed>
-     */
-    private function processIncludes(array $config, string $filepath): array
-    {
-        $includes = $config['includes'] ?? [];
-
-        unset($config['includes']);
-
-        $merged = [];
-
-        foreach ($includes as $include) {
-            $includePath = Path::makeAbsolute($include, dirname($filepath));
-
-            $includedConfig = Yaml::parseFile($includePath) ?? [];
-            $includedConfig = $this->processIncludes($includedConfig, $includePath);
-
-            $merged = $this->mergeConfig($merged, $includedConfig);
-        }
-
-        return $this->mergeConfig($merged, $config);
-    }
-
-    /**
-     * @param array<string, mixed> $base
-     * @param array<string, mixed> $override
-     * @return array<string, mixed>
-     */
-    private function mergeConfig(array $base, array $override): array
-    {
-        foreach ($override as $key => $value) {
-            if (!isset($base[$key]) || !is_array($base[$key]) || !is_array($value)) {
-                $base[$key] = $value;
-
-                continue;
-            }
-
-            if (array_is_list($base[$key]) && array_is_list($value)) {
-                $base[$key] = array_merge($base[$key], $value);
-
-                continue;
-            }
-
-            if (!array_is_list($base[$key]) && !array_is_list($value)) {
-                $base[$key] = $this->mergeConfig($base[$key], $value);
-
-                continue;
-            }
-
-            $base[$key] = $value;
-        }
-
-        return $base;
     }
 
     /**

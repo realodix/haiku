@@ -3,6 +3,8 @@
 namespace Realodix\Haiku\Config;
 
 use Realodix\Haiku\Support\Util;
+use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Yaml\Yaml;
 
 final class Helper
 {
@@ -88,5 +90,63 @@ final class Helper
 
         /** @var T */
         return $baseConfig;
+    }
+
+    /**
+     * Parses a YAML file and recursively resolves/merges imported files listed in `includes`.
+     *
+     * @param array<string, mixed> $config Tracked files to prevent circular references
+     * @return array<string, mixed>
+     */
+    public static function processIncludes(array $config, string $filepath): array
+    {
+        $includes = $config['includes'] ?? [];
+
+        unset($config['includes']);
+
+        $merged = [];
+
+        foreach ($includes as $include) {
+            $includePath = Path::makeAbsolute($include, dirname($filepath));
+
+            $includedConfig = Yaml::parseFile($includePath) ?? [];
+            $includedConfig = self::processIncludes($includedConfig, $includePath);
+
+            $merged = self::mergeConfig($merged, $includedConfig);
+        }
+
+        return self::mergeConfig($merged, $config);
+    }
+
+    /**
+     * @param array<string, mixed> $base
+     * @param array<string, mixed> $override
+     * @return array<string, mixed>
+     */
+    public static function mergeConfig(array $base, array $override): array
+    {
+        foreach ($override as $key => $value) {
+            if (!isset($base[$key]) || !is_array($base[$key]) || !is_array($value)) {
+                $base[$key] = $value;
+
+                continue;
+            }
+
+            if (array_is_list($base[$key]) && array_is_list($value)) {
+                $base[$key] = array_merge($base[$key], $value);
+
+                continue;
+            }
+
+            if (!array_is_list($base[$key]) && !array_is_list($value)) {
+                $base[$key] = self::mergeConfig($base[$key], $value);
+
+                continue;
+            }
+
+            $base[$key] = $value;
+        }
+
+        return $base;
     }
 }
