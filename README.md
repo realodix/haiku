@@ -17,8 +17,6 @@ Analyze your filter lists to perform intelligent redundancy analysis, while catc
 #### 📝 02/Formatter
 A deterministic formatter that sorts, combines, and deduplicates rules for a leaner, faster-loading filter list. No manual formatting roulette; drop in, automate it, and move on.
 
-For a complete list of transformations, see [docs/formatter_transformations.md](./docs/formatter_transformations.md).
-
 #### 📦 03/Bundler
 Combines multiple filter list files (local and/or remote URLs) into a single file. Automatically regenerates header metadata, strips unnecessary lines such as comments, and delivers a production-ready deployment.
 

@@ -96,10 +96,7 @@ Back up each file before formatting. Default is `false`.
 #### `flags`
 Flags control how the Formatter processes and transforms rules during the formatting pipeline. Each flag either toggles a specific behavior or adjusts how a particular transformation is performed.
 
-Some flags are simple boolean switches, while others accept configuration values that determine the exact processing mode (e.g. [`option_format`](./formatter_transformations.md#-filter-option-format)).
-
-- **`all`**: Bulk toggle for all boolean flags. Default is `false`.
-- See [docs/formatter_transformations.md](./formatter_transformations.md) for a complete list of available flags.
+See [docs/formatter_flags.md](./formatter_flags.md) for a complete list of available flags.
 
 
 ## Linter Configuration
