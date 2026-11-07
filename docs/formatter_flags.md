@@ -7,6 +7,22 @@ formatter:
     remove_wildcard_covered_domains: true
 ```
 
+| Name | Default | All |
+|------|---------|-----|
+| [`attr_to_basic_selector`](#-attr_to_basic_selector)  | unset | `strict` |
+| [`convert_abp_ext_selectors`](#-convert_abp_ext_selectors) | `false` | `true` |
+| [`convert_legacy_remove_action`](#-convert_legacy_remove_action) | `false` | `true` |
+| [`fix_domain_separators`](#-fix_domain_separators) | `false` | `true` |
+| [`merge_domains`](#-merge_domains) | `true` | `true` |
+| [`merge_options`](#-merge_options) | `true` | `true` |
+| [`migrate_deprecated_options`](#-migrate_deprecated_options) | `false` | `true` |
+| [`option_format`](#-option_format) | unset | `native` |
+| [`remove_empty_lines`](#-remove_empty_lines) | `keep_before_comment` | `keep_before_comment` |
+| [`remove_subdomains`](#-remove_subdomains) | `false` | `true` |
+| [`remove_wildcard_covered_domains`](#-remove_wildcard_covered_domains) | `false` | `true` |
+| [`sort_domains`](#-sort_domains) | `true` | `true` |
+| [`sort_options`](#-sort_options) | `type` | `type` |
+
 
 ### # `all`
 
@@ -288,7 +304,7 @@ a.com,b.com,c.com##.ads
 ```
 
 
-### # `adg_non_basic_rule_modifier`
+<!-- ### # `adg_non_basic_rule_modifier`
 
 **Default**: `false`
 
@@ -300,4 +316,4 @@ a.com,b.com,c.com##.ads
 
 !## AFTER
 [$app=com.apple.Safari|test_app,domain=a.com|b.com]##selector
-```
+``` -->
