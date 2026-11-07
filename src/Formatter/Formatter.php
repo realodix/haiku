@@ -117,15 +117,11 @@ final class Formatter
         }
 
         // Cosmetic pipeline
-        $cosmetic = Arr::uniqueSortBy($cosmetic, fn(string $value) => $this->cosmeticSortKey($value));
+        $cosmetic = $this->sortRules($cosmetic);
         $cosmetic = $this->combiner->apply($cosmetic, Regex::COSMETIC_DOMAIN, ',');
         // Network pipeline
         $network = $this->optionCombiner->apply($network);
-        $network = Arr::uniqueSortBy(
-            $network,
-            fn(string $value) => str_starts_with($value, '@@') ? '}'.$value : $value,
-            SORT_STRING | SORT_FLAG_CASE,
-        );
+        $network = $this->sortRules($network, true);
         $network = $this->combiner->apply($network, Regex::NET_OPTION_DOMAIN, '|');
 
         return array_merge($network, $cosmetic);
@@ -168,36 +164,53 @@ final class Formatter
     }
 
     /**
-     * Generate a sorting key for cosmetic rules.
-     *
-     * @param string $rule The cosmetic rule to determine the order for
-     * @return string Sorting key
+     * @param array<int, string> $rules
+     * @return array<int, string>
      */
-    private function cosmeticSortKey(string $rule): string
+    private function sortRules(array $rules, bool $isNetwork = false): array
     {
-        // regex domain
-        if (str_starts_with($rule, '/') || str_starts_with($rule, '~/')) {
-            preg_match(Regex::COSMETIC_RULE, $rule, $m);
-            $rule = isset($m[1]) ? substr($rule, strlen($m[1])) : $rule;
-
-            return '3'.$rule;
+        $cfg = $this->config->flags['sort_rules'];
+        if ($cfg === false) {
+            return $rules;
         }
 
-        preg_match(Regex::COSMETIC_DOMAIN, $rule, $m);
-        $rule = isset($m[1]) ? substr($rule, strlen($m[1])) : $rule;
-
-        // https://regex101.com/r/eqaq6o/1
-        if (preg_match('/^(#@?[?$]{1,2}#|#@?#\^|\$@?\$)/', $rule)
-            || str_starts_with($rule, '[$')) {
-            return '1'.$rule;
+        if ($isNetwork) {
+            return Arr::uniqueSortBy(
+                $rules,
+                fn(string $value) => str_starts_with($value, '@@') ? '}'.$value : $value,
+                SORT_STRING | SORT_FLAG_CASE,
+            );
         }
 
-        // scriptlet rules
-        if (str_starts_with($rule, '##+') || str_starts_with($rule, '#@#+')
-            || str_starts_with($rule, '#%#') || str_starts_with($rule, '#@%#')) {
-            return '2'.$rule;
-        }
+        return Arr::uniqueSortBy($rules, function (string $value) use ($cfg): string {
+            if (!$cfg['cosmetic_by_selector']) {
+                return $value;
+            }
 
-        return $rule;
+            // regex domain
+            if (str_starts_with($value, '/') || str_starts_with($value, '~/')) {
+                preg_match(Regex::COSMETIC_RULE, $value, $m);
+                $value = isset($m[1]) ? substr($value, strlen($m[1])) : $value;
+
+                return '3'.$value;
+            }
+
+            preg_match(Regex::COSMETIC_DOMAIN, $value, $m);
+            $value = isset($m[1]) ? substr($value, strlen($m[1])) : $value;
+
+            // https://regex101.com/r/eqaq6o/1
+            if (preg_match('/^(#@?[?$]{1,2}#|#@?#\^|\$@?\$)/', $value)
+                || str_starts_with($value, '[$')) {
+                return '1'.$value;
+            }
+
+            // scriptlet rules
+            if (str_starts_with($value, '##+') || str_starts_with($value, '#@#+')
+                || str_starts_with($value, '#%#') || str_starts_with($value, '#@%#')) {
+                return '2'.$value;
+            }
+
+            return $value;
+        });
     }
 }

@@ -22,6 +22,7 @@ formatter:
 | [`remove_wildcard_covered_domains`](#-remove_wildcard_covered_domains) | `false` | `true` |
 | [`sort_domains`](#-sort_domains) | `true` | `true` |
 | [`sort_options`](#-sort_options) | `type` | `type` |
+| [`sort_rules`](#-sort_rules) | `{cosmetic_by_selector: true}` | `{cosmetic_by_selector: true}` |
 
 
 ### # `all`
@@ -301,6 +302,44 @@ a.com,b.com,c.com##.ads
 !## AFTER - type
 *$badfilter,css,image,script,domain=example.com
 -ads-$third-party,~image,xmlhttprequest,domain=~example.com,reason=disreputable
+```
+
+
+### # `sort_rules`
+
+**Default**: `{cosmetic_by_selector: true}`
+
+**Possible values**:
+- `{cosmetic_by_selector: bool}`:
+  - `true`: Sort cosmetic rules by selector.
+  - `false`: Sort cosmetic rules by their original line order.
+- `false`: Disable this rule.
+
+```adblock
+!## BEFORE
+/ads2.$3p
+/ads1.$3p
+2.example.com##.ads2
+3.example.com##.ads1
+1.example.com##.ads3
+
+!## AFTER
+! sort_rules:
+!   cosmetic_by_selector: true
+/ads1.$3p
+/ads2.$3p
+3.example.com##.ads1
+2.example.com##.ads2
+1.example.com##.ads3
+
+!## AFTER
+! sort_rules:
+!   cosmetic_by_selector: false
+/ads1.$3p
+/ads2.$3p
+3.example.com##.ads1
+2.example.com##.ads2
+1.example.com##.ads3
 ```
 
 

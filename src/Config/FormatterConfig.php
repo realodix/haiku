@@ -21,6 +21,7 @@ use Realodix\Haiku\Support\File;
  *  remove_wildcard_covered_domains: bool,
  *  sort_domains: bool,
  *  sort_options: 'name'|'type'|false,
+ *  sort_rules: false|array{cosmetic_by_selector: bool},
  * }
  */
 final class FormatterConfig
@@ -53,6 +54,7 @@ final class FormatterConfig
         'remove_wildcard_covered_domains' => false,
         'sort_domains' => true,
         'sort_options' => 'type',
+        'sort_rules' => ['cosmetic_by_selector' => true],
     ] {
         /** @param array<array-key, mixed> $value */
         set(array $value) {
