@@ -56,13 +56,13 @@ final class FormatterConfig
         'sort_options' => 'type',
         'sort_rules' => ['cosmetic_by_selector' => true],
     ] {
-        /** @param array<array-key, mixed> $value */
-        set(array $value) {
+        /** @param array<array-key, mixed> $userCfg */
+        set(array $userCfg) {
             $enabledValues = [
                 'attr_to_basic_selector' => 'strict',
                 'option_syntax' => 'native',
             ];
-            $this->flags = Helper::resolveOptions($this->flags, $value, $enabledValues);
+            $this->flags = Helper::resolveOptions($this->flags, $userCfg, $enabledValues);
         }
     }
 
