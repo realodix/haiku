@@ -70,9 +70,8 @@ final class Schema
                     'extra_blank_lines' => Expect::anyOf(Expect::int()->min(1), false),
                     'no_invalid_scriptlets' => Expect::anyOf(
                         Expect::bool(),
-                        Expect::structure([
-                            'known' => Expect::listOf('string')->min(1),
-                        ])->castTo('array'),
+                        Expect::structure(['known' => Expect::listOf('string')->min(1)])
+                            ->castTo('array'),
                     ),
                     'no_short_rules' => Expect::anyOf(
                         true,
