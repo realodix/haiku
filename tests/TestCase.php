@@ -57,7 +57,7 @@ abstract class TestCase extends BaseTestCase
             'attr_to_basic_selector' => false,
             'convert_abp_ext_selectors' => false,
             'convert_legacy_remove_action' => false,
-            'option_format' => false,
+            'option_syntax' => false,
         ], $flags);
     }
 

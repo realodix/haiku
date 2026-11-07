@@ -52,7 +52,7 @@ class FmtBench
     {
         app(FormatterConfig::class)->flags = [
             'all' => true,
-            'option_format' => 'long',
+            'option_syntax' => 'long',
         ];
 
         $this->fmt->format($this->input);

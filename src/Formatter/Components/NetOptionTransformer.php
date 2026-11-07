@@ -76,7 +76,7 @@ final class NetOptionTransformer
      */
     private function transformName(string $option): string
     {
-        $format = $this->config->flags['option_format'];
+        $format = $this->config->flags['option_syntax'];
 
         if ($format === false) {
             return $option;

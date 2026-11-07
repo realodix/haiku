@@ -25,14 +25,14 @@ final class NetOptionTransformerTest extends TestCase
     #[PHPUnit\Test]
     public function convertOptionNameToLongerName($native, $alias): void
     {
-        $this->assertSame([$native], $this->format([$alias], ['option_format' => 'long']));
+        $this->assertSame([$native], $this->format([$alias], ['option_syntax' => 'long']));
     }
 
     #[PHPUnit\DataProvider('optionNameMappingProvider')]
     #[PHPUnit\Test]
     public function convertOptionNameToShorterName($native, $alias): void
     {
-        $this->assertSame([$alias], $this->format([$native], ['option_format' => 'short']));
+        $this->assertSame([$alias], $this->format([$native], ['option_syntax' => 'short']));
     }
 
     public static function optionNameMappingProvider(): array
@@ -63,7 +63,7 @@ final class NetOptionTransformerTest extends TestCase
     #[PHPUnit\Test]
     public function convertOptionNameToNativeName($alias, $native): void
     {
-        $this->assertSame([$native], $this->format([$alias], ['option_format' => 'native']));
+        $this->assertSame([$native], $this->format([$alias], ['option_syntax' => 'native']));
     }
 
     public static function optionNameToNativeNameProvider(): array
@@ -83,24 +83,24 @@ final class NetOptionTransformerTest extends TestCase
     public function convertOptionNameSpecialSemantics(): void
     {
         $input = ['*$1p', '!', '*$first-party'];
-        $this->assertSame(['*$first-party', '!', '*$first-party'], $this->format($input, ['option_format' => 'long']));
-        $this->assertSame(['*$1p', '!', '*$1p'], $this->format($input, ['option_format' => 'short']));
-        $this->assertSame(['*$~third-party', '!', '*$~third-party'], $this->format($input, ['option_format' => 'native']));
+        $this->assertSame(['*$first-party', '!', '*$first-party'], $this->format($input, ['option_syntax' => 'long']));
+        $this->assertSame(['*$1p', '!', '*$1p'], $this->format($input, ['option_syntax' => 'short']));
+        $this->assertSame(['*$~third-party', '!', '*$~third-party'], $this->format($input, ['option_syntax' => 'native']));
 
         $input = ['*$~1p', '!', '*$~first-party'];
-        $this->assertSame(['*$~first-party', '!', '*$~first-party'], $this->format($input, ['option_format' => 'long']));
-        $this->assertSame(['*$~1p', '!', '*$~1p'], $this->format($input, ['option_format' => 'short']));
-        $this->assertSame(['*$third-party', '!', '*$third-party'], $this->format($input, ['option_format' => 'native']));
+        $this->assertSame(['*$~first-party', '!', '*$~first-party'], $this->format($input, ['option_syntax' => 'long']));
+        $this->assertSame(['*$~1p', '!', '*$~1p'], $this->format($input, ['option_syntax' => 'short']));
+        $this->assertSame(['*$third-party', '!', '*$third-party'], $this->format($input, ['option_syntax' => 'native']));
 
         $input = ['*$3p', '!', '*$third-party'];
-        $this->assertSame(['*$third-party', '!', '*$third-party'], $this->format($input, ['option_format' => 'long']));
-        $this->assertSame(['*$3p', '!', '*$3p'], $this->format($input, ['option_format' => 'short']));
-        $this->assertSame(['*$third-party', '!', '*$third-party'], $this->format($input, ['option_format' => 'native']));
+        $this->assertSame(['*$third-party', '!', '*$third-party'], $this->format($input, ['option_syntax' => 'long']));
+        $this->assertSame(['*$3p', '!', '*$3p'], $this->format($input, ['option_syntax' => 'short']));
+        $this->assertSame(['*$third-party', '!', '*$third-party'], $this->format($input, ['option_syntax' => 'native']));
 
         $input = ['*$~3p', '!', '*$~third-party'];
-        $this->assertSame(['*$~third-party', '!', '*$~third-party'], $this->format($input, ['option_format' => 'long']));
-        $this->assertSame(['*$~3p', '!', '*$1p'], $this->format($input, ['option_format' => 'short']));
-        $this->assertSame(['*$~third-party', '!', '*$~third-party'], $this->format($input, ['option_format' => 'native']));
+        $this->assertSame(['*$~third-party', '!', '*$~third-party'], $this->format($input, ['option_syntax' => 'long']));
+        $this->assertSame(['*$~3p', '!', '*$1p'], $this->format($input, ['option_syntax' => 'short']));
+        $this->assertSame(['*$~third-party', '!', '*$~third-party'], $this->format($input, ['option_syntax' => 'native']));
     }
 
     #[PHPUnit\DataProvider('migrateDeprecatedOptionsProvider')]

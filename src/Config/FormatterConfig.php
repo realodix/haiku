@@ -15,7 +15,7 @@ use Realodix\Haiku\Support\File;
  *  merge_domains: bool,
  *  merge_options: bool,
  *  migrate_deprecated_options: bool,
- *  option_format: 'native'|'long'|'short'|false,
+ *  option_syntax: 'native'|'long'|'short'|false,
  *  remove_empty_lines: bool|'keep_before_comment',
  *  remove_subdomains: bool,
  *  remove_wildcard_covered_domains: bool,
@@ -48,7 +48,7 @@ final class FormatterConfig
         'merge_domains' => true,
         'merge_options' => true,
         'migrate_deprecated_options' => false,
-        'option_format' => false,
+        'option_syntax' => false,
         'remove_empty_lines' => 'keep_before_comment',
         'remove_subdomains' => false,
         'remove_wildcard_covered_domains' => false,
@@ -60,7 +60,7 @@ final class FormatterConfig
         set(array $value) {
             $enabledValues = [
                 'attr_to_basic_selector' => 'strict',
-                'option_format' => 'native',
+                'option_syntax' => 'native',
             ];
             $this->flags = Helper::resolveOptions($this->flags, $value, $enabledValues);
         }

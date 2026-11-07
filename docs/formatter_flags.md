@@ -3,7 +3,7 @@ The formatter is opinionated and ships sensible defaults, but a handful of optio
 ```yml
 formatter:
   flags:
-    option_format: short
+    option_syntax: short
     remove_wildcard_covered_domains: true
 ```
 
@@ -16,7 +16,7 @@ formatter:
 | [`merge_domains`](#-merge_domains) | `true` | `true` |
 | [`merge_options`](#-merge_options) | `true` | `true` |
 | [`migrate_deprecated_options`](#-migrate_deprecated_options) | `false` | `true` |
-| [`option_format`](#-option_format) | unset | `native` |
+| [`option_syntax`](#-option_syntax) | unset | `native` |
 | [`remove_empty_lines`](#-remove_empty_lines) | `keep_before_comment` | `keep_before_comment` |
 | [`remove_subdomains`](#-remove_subdomains) | `false` | `true` |
 | [`remove_wildcard_covered_domains`](#-remove_wildcard_covered_domains) | `false` | `true` |
@@ -168,9 +168,9 @@ Converts deprecated filter options to their modern equivalents.
 ```
 
 
-### # `option_format`
+### # `option_syntax`
 
-Normalizes network filter option names into a consistent format.
+Network filter option should be standardised using configured syntax.
 
 **Default**: unset; `native` when `all` is set to `true`.
 

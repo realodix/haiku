@@ -28,7 +28,7 @@ final class Schema
                 'backup' => Expect::bool(),
                 'flags' => Expect::structure([
                     'attr_to_basic_selector' => Expect::anyOf('strict', 'loose', false),
-                    'option_format' => Expect::anyOf('native', 'long', 'short', false),
+                    'option_syntax' => Expect::anyOf('native', 'long', 'short', false),
                     'remove_empty_lines' => Expect::anyOf(true, false, 'keep_before_comment'),
                     'sort_options' => Expect::anyOf('name', 'type', false),
                     'sort_rules' => Expect::anyOf(
