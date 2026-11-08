@@ -56,7 +56,7 @@ final class FormatterConfig
         'sort_options' => 'type',
         'sort_rules' => ['cosmetic_by_selector' => true],
     ] {
-        /** @param array<array-key, mixed> $userCfg */
+        /** @param array<string, mixed> $userCfg */
         set(array $userCfg) {
             $enabledValues = [
                 'attr_to_basic_selector' => 'strict',

@@ -83,7 +83,7 @@ final class LinterConfig
         'net.unnecessaryWildcard' => false,
         'scriptlet.invalidValue' => false,
     ] {
-        /** @param array<array-key, mixed> $value */
+        /** @param array<string, mixed> $value */
         set(array $value) {
             $enabledValues = [
                 'no_short_rules' => ['minLen' => 4],
