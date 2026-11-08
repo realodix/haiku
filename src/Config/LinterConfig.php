@@ -26,7 +26,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_invalid_negated_options: bool,
  *  no_invalid_option_context: bool,
  *  no_invalid_redirect_resources: bool,
- *  no_invalid_scriptlets: bool|array{known: list<string>},
+ *  no_invalid_scriptlets: bool,
  *  no_short_rules: false|array{minLen: int},
  *  no_uppercase_domains: bool,
  *  'net.badSeparator': bool,
@@ -92,10 +92,25 @@ final class LinterConfig
         }
     }
 
+    /** @var array<int, string> */
+    public array $userResources {
+        /** @param array<int, string> $resources */
+        set(array $resources) {
+            foreach ($resources as $resource) {
+                if (!str_ends_with($resource, '.js')) {
+                    throw new InvalidConfigurationException("'{$resource}' must end with '.js'");
+                }
+            }
+
+            $this->userResources = $resources;
+        }
+    }
+
     /**
      * @param array{
      *   paths?: list<string>,
      *   excludes?: list<string>,
+     *   userResources?: list<string>,
      *   rules?: _LinterRules,
      *   ignoreErrors?: list<_ConfigIgnoredError>
      * } $config User-defined configuration from the config file
@@ -108,6 +123,7 @@ final class LinterConfig
             $config['excludes'] ?? [],
         );
 
+        $this->userResources = $config['userResources'] ?? [];
         $this->rules = $config['rules'] ?? [];
         $this->ignoreErrors = $this->normalizeIgnorePaths($config['ignoreErrors'] ?? []);
 

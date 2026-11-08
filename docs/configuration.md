@@ -120,6 +120,15 @@ A list of files or directories to analyze. Paths are relative to the project roo
 #### `excludes`
 A list of files or directories to exclude from analysis. If root-level paths are provided, the `vendor` directory is automatically excluded.
 
+#### `userResources`
+When you use [`userResourcesLocation`](https://github.com/gorhill/uBlock/wiki/Advanced-settings#userresourceslocation) in uBlock Origin, you need to register it here so that Haiku can recognize it.
+
+```yml
+linter:
+  userResources:
+    - myscript.js
+```
+
 #### `ignoreErrors`
 Errors can be ignored by adding a regular expression to the configuration file under the `ignoreErrors` key.
 
@@ -180,22 +189,12 @@ A set of options used to configure the linter.
 
   Checks for unknown scriptlet names to help catch typos.
 
-  **Type:** `bool` | `array`
+  **Type:** `bool`
   **Default:** `true`
 
   - `true`: enable the check with default known scriptlets.
   - `false`: disable the check.
-  - `array`: enable the check and register custom scriptlets under the `known` key.
-
-  <br>
-
-  ```yml
-  linter:
-    rules:
-      no_invalid_scriptlets:
-        known:
-          - my-custom-scriptlet
-  ``` -->
+-->
 
 
 ## Bundler Configuration
