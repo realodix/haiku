@@ -23,16 +23,19 @@ Combines multiple filter list files (local and/or remote URLs) into a single fil
 
 ### # Three steps to first run
 
-1. **Install**. Install the package via [Composer](https://getcomposer.org/)
+1. **Install** - Install the package via [Composer](https://getcomposer.org/)
 
     ```sh
     composer require realodix/haiku
     ```
 
-2. **Initialize**. Run `vendor/bin/haiku init` in your project root. The command writes a `haiku.yml` configuration file.
-2. **Run**. Use `vendor/bin/haiku lint`, `vendor/bin/haiku format`, or `vendor/bin/haiku build`. Wire it into pre-commit, CI, or your editor.
+2. **Initialize** - Run `vendor/bin/haiku init` in your project root.
 
-For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
+   The command writes a `haiku.yml` configuration file. If you want to override settings locally, create and commit to VCS `haiku.yml.dist` but locally use `haiku.yml` which should be ignored (e.g. in `.gitignore`).
+
+3. **Run**
+
+   Use `vendor/bin/haiku lint`, `vendor/bin/haiku format`, or `vendor/bin/haiku build`. Wire it into pre-commit, CI, or your editor. For detailed command usage, available options, and more examples, see [docs/usage.md](./docs/usage.md).
 
 
 ### # Configuration
