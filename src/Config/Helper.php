@@ -45,14 +45,12 @@ final class Helper
      * @param T $baseConfig Current configuration array
      * @param array<string, mixed> $override Overrides to apply
      * @param array<string, mixed> $enabledValues Default values for enabled options
-     * @param string $type Type of configuration for error messages
      * @return T
      */
     public static function resolveOptions(
         array $baseConfig,
         array $override,
         array $enabledValues = [],
-        string $type = 'flag',
     ): array {
         // Acts as a bulk toggle for all options
         if (array_key_exists('all', $override)) {
@@ -80,8 +78,8 @@ final class Helper
                 $hint = Util::getSuggestion(array_merge(array_keys($baseConfig), ['all']), $name);
 
                 throw new InvalidConfigurationException(sprintf(
-                    'Unknown %s: "%s"'.($hint !== null ? ", did you mean '%s'?" : '.'),
-                    $type, $name, $hint,
+                    'Unknown option: "%s"'.($hint !== null ? ", did you mean '%s'?" : '.'),
+                    $name, $hint,
                 ));
             }
 

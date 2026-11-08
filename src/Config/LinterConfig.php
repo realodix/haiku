@@ -88,7 +88,7 @@ final class LinterConfig
             $enabledValues = [
                 'no_short_rules' => ['minLen' => 4],
             ];
-            $this->rules = Helper::resolveOptions($this->rules, $value, $enabledValues, 'rule');
+            $this->rules = Helper::resolveOptions($this->rules, $value, $enabledValues);
         }
     }
 
