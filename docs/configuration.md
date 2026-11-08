@@ -180,22 +180,12 @@ A set of options used to configure the linter.
 
   Checks for unknown scriptlet names to help catch typos.
 
-  **Type:** `bool` | `array`
+  **Type:** `bool`
   **Default:** `true`
 
   - `true`: enable the check with default known scriptlets.
   - `false`: disable the check.
-  - `array`: enable the check and register custom scriptlets under the `known` key.
-
-  <br>
-
-  ```yml
-  linter:
-    rules:
-      no_invalid_scriptlets:
-        known:
-          - my-custom-scriptlet
-  ``` -->
+-->
 
 
 ## Bundler Configuration

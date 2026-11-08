@@ -93,7 +93,7 @@ final class ScriptletCheck implements Rule
      */
     private function checkUnknownName($err, string $value): void
     {
-        if ($this->config->rules['no_invalid_scriptlets'] === false) {
+        if (!$this->config->rules['no_invalid_scriptlets']) {
             return;
         }
 

@@ -26,7 +26,7 @@ use Symfony\Component\Filesystem\Path;
  *  no_invalid_negated_options: bool,
  *  no_invalid_option_context: bool,
  *  no_invalid_redirect_resources: bool,
- *  no_invalid_scriptlets: bool|array{known: list<string>},
+ *  no_invalid_scriptlets: bool,
  *  no_short_rules: false|array{minLen: int},
  *  no_uppercase_domains: bool,
  *  'net.badSeparator': bool,
