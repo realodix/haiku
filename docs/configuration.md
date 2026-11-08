@@ -120,6 +120,15 @@ A list of files or directories to analyze. Paths are relative to the project roo
 #### `excludes`
 A list of files or directories to exclude from analysis. If root-level paths are provided, the `vendor` directory is automatically excluded.
 
+#### `userResources`
+When you use [`userResourcesLocation`](https://github.com/gorhill/uBlock/wiki/Advanced-settings#userresourceslocation) in uBlock Origin, you need to register it here so that Haiku can recognize it.
+
+```yml
+linter:
+  userResources:
+    - myscript.js
+```
+
 #### `ignoreErrors`
 Errors can be ignored by adding a regular expression to the configuration file under the `ignoreErrors` key.
 
