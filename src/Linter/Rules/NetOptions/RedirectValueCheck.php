@@ -45,14 +45,18 @@ final class RedirectValueCheck implements Rule
             return;
         }
 
-        $knownResources = array_merge(
-            Util::getRedirectResources(),
-            Registry::AG_REDIRECT_RESOURCES,
-            Registry::DEPRECATED_REDIRECT_RESOURCES,
-        );
+        $resources = array_unique([
+            ...Util::getRedirectResources(),
+            ...Registry::AG_REDIRECT_RESOURCES,
+            ...Registry::DEPRECATED_REDIRECT_RESOURCES,
+            ...array_map(
+                fn($name) => str_ends_with($name, '.js') ? substr($name, 0, -3) : $name,
+                $this->config->userResources ?? [],
+            ),
+        ]);
 
-        if (!in_array($value, $knownResources, true)) {
-            $hint = Util::getSuggestion($knownResources, Registry::NORMALIZED_UNKNOWN[$value] ?? $value);
+        if (!in_array($value, $resources, true)) {
+            $hint = Util::getSuggestion($resources, Registry::NORMALIZED_UNKNOWN[$value] ?? $value);
             $err->message("Invalid redirect resource: {$value}")
                 ->identifier('redirect.invalidValue')
                 ->when($hint, fn() => $err->tip("Did you mean \"{$hint}\"?"))

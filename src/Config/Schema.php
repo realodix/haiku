@@ -71,6 +71,7 @@ final class Schema
             'linter' => Expect::structure([
                 'paths' => Expect::listOf('string'),
                 'excludes' => Expect::listOf('string'),
+                'userResources' => Expect::listOf('string'),
                 'rules' => Expect::structure([
                     'extra_blank_lines' => Expect::anyOf(Expect::int()->min(1), false),
                     'no_invalid_scriptlets' => Expect::anyOf(

@@ -3,6 +3,7 @@
 namespace Realodix\Haiku\Test\Linter\Rules\NetOptions;
 
 use PHPUnit\Framework\Attributes as PHPUnit;
+use Realodix\Haiku\Config\LinterConfig;
 use Realodix\Haiku\Test\TestCase;
 
 class RedirectValueCheckTest extends TestCase
@@ -18,7 +19,10 @@ class RedirectValueCheckTest extends TestCase
             '*$xhr,redirect-rule=noopjs:-1,to=~example.com',
             '@@||example.org^$redirect',
         ];
+        $this->analyse($lines);
 
+        app(LinterConfig::class)->userResources = ['foo.js'];
+        $lines = ['||example.com/*.js$1p,script,redirect=foo'];
         $this->analyse($lines);
     }
 

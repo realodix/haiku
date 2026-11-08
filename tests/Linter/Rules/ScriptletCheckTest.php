@@ -22,8 +22,19 @@ class ScriptletCheckTest extends TestCase
             'example.org##+js(google-ima.js)',
             'example.org##+js(google-ima3)',
         ];
-
         $this->analyse($lines);
+    }
+
+    #[PHPUnit\Test]
+    public function sl_user_resource(): void
+    {
+        app(LinterConfig::class)->userResources = ['foo.js'];
+        $lines = ['example.org##+js(foo)'];
+        $this->analyse($lines);
+
+        $this->expectException(\Realodix\Haiku\Config\InvalidConfigurationException::class);
+        $this->expectExceptionMessageIs("'foo' must end with '.js'");
+        app(LinterConfig::class)->userResources = ['foo'];
     }
 
     #[PHPUnit\Test]
@@ -45,14 +56,6 @@ class ScriptletCheckTest extends TestCase
             [4, 'Invalid scriptlet: nowolf'],
             [5, 'Invalid scriptlet: nowolf'],
         ]);
-
-        app(LinterConfig::class)->rules = [
-            'no_invalid_scriptlets' => ['known' => ['foo']],
-        ];
-        $lines = [
-            'example.org##+js(foo)',
-        ];
-        $this->analyse($lines);
     }
 
     #[PHPUnit\Test]
