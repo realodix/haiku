@@ -12,9 +12,8 @@ use Realodix\Haiku\Config\Config;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Formatter\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -28,20 +27,15 @@ use Symfony\Component\Console\Output\OutputInterface;
     description: 'Internal command for running Formatter in parallel.',
     hidden: true,
 )]
-class WorkerCommand extends Command
+class WorkerCommand
 {
-    protected function configure(): void
-    {
-        $this
-            ->addOption('socket', null, InputOption::VALUE_REQUIRED, 'Socket address to connect to for tasks');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    public function __invoke(
+        #[Option(description: 'Socket address to connect to for tasks')]
+        ?string $socket = null,
+    ): int {
         // Silence worker output to prevent clashing with main process
         app()->instance(OutputInterface::class, new NullOutput);
 
-        $socket = $input->getOption('socket');
         if (!$socket) {
             throw new \InvalidArgumentException('The --socket option is required.');
         }
