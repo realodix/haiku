@@ -46,10 +46,8 @@ class LintCommand
         App::about($io, $config);
         $io->newLine();
 
-        /** @var \Symfony\Component\Console\Helper\ProgressBar|null */
-        $progressBar = null;
-
         $startTime = microtime(true);
+        $progressBar = $io->createProgressBar();
         $errorReporter = $this->linter->run(
             new CommandOptions(
                 cachePath: $cache,
@@ -58,19 +56,17 @@ class LintCommand
                 path: $path,
                 generateBaseline: $generateBaseline,
             ),
-            function (int $count) use ($io, &$progressBar) {
-                $progressBar = $io->createProgressBar($count);
+            function (int $count) use ($progressBar) {
+                $progressBar->setMaxSteps($count);
                 $progressBar->start();
             },
-            function () use (&$progressBar) {
-                $progressBar?->advance();
+            function () use ($progressBar) {
+                $progressBar->advance();
             },
         );
 
-        if ($progressBar !== null) {
-            $progressBar->finish();
-            $io->newLine(2);
-        }
+        $progressBar->finish();
+        $io->newLine(2);
 
         if ($generateBaseline) {
             if (!empty($errorReporter->getGlobalErrors())) {
