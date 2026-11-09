@@ -8,56 +8,50 @@ use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Realodix\Haiku\Formatter\Runner;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'format|fix',
     description: 'Sort, combine, and normalize ad-blocking filter lists.',
 )]
-class FmtCommand extends Command
+class FmtCommand
 {
     public function __construct(
         private Runner $runner,
         private OutputLogger $logger,
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
-    protected function configure(): void
-    {
-        $this
-            ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to process')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and process all files')
-            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
-            ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
-            ->addOption('parallel', null, InputOption::VALUE_NONE, 'Run in parallel');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        /** @var string|null */
-        $iConfig = $input->getOption('config');
-        if ($iConfig && !is_readable($iConfig)) {
-            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'File or directory to process')]
+        ?string $path = null,
+        #[Option(description: 'Ignore the cache and process all files')]
+        bool $force = false,
+        #[Option(description: 'Path to config file')]
+        ?string $config = null,
+        #[Option(description: 'Path to the cache file')]
+        ?string $cache = null,
+        #[Option(description: 'Run in parallel')]
+        bool $parallel = false,
+    ): int {
+        if ($config && !is_readable($config)) {
+            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $config));
         }
 
-        $io = new SymfonyStyle($input, $output);
-        App::about($io, $iConfig);
+        App::about($io, $config);
         $io->newLine();
 
         // ---- Execute ----
         $startTime = microtime(true);
         $this->runner->run(
             new CommandOptions(
-                cachePath: $input->getOption('cache'),
-                configFile: $input->getOption('config'),
-                ignoreCache: $input->getOption('force'),
-                path: $input->getOption('path'),
-                parallel: $input->getOption('parallel'),
+                cachePath: $cache,
+                configFile: $config,
+                ignoreCache: $force,
+                path: $path,
+                parallel: $parallel,
             ),
         );
 

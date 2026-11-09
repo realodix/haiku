@@ -8,10 +8,8 @@ use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Linter\IgnoredErrors;
 use Realodix\Haiku\Linter\Linter;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
@@ -20,36 +18,32 @@ use Symfony\Component\Yaml\Yaml;
     name: 'lint',
     description: 'Analyses source code',
 )]
-class LintCommand extends Command
+class LintCommand
 {
     const ERRORS_LIMIT = 200;
 
     public function __construct(
         private Linter $linter,
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
-    protected function configure(): void
-    {
-        $this
-            ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'File or directory to analyse')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore the cache and analyse all files')
-            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file')
-            ->addOption('cache', null, InputOption::VALUE_OPTIONAL, 'Path to the cache file')
-            ->addOption('generate-baseline', 'b', InputOption::VALUE_NONE, 'Generate baseline file');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        /** @var string|null */
-        $iConfig = $input->getOption('config');
-        if ($iConfig && !is_readable($iConfig)) {
-            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'File or directory to analyse')]
+        ?string $path = null,
+        #[Option(description: 'Ignore the cache and analyse all files')]
+        bool $force = false,
+        #[Option(description: 'Path to config file')]
+        ?string $config = null,
+        #[Option(description: 'Path to the cache file')]
+        ?string $cache = null,
+        #[Option(name: 'generate-baseline', shortcut: 'b', description: 'Generate baseline file')]
+        bool $generateBaseline = false,
+    ): int {
+        if ($config && !is_readable($config)) {
+            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $config));
         }
 
-        $io = new SymfonyStyle($input, $output);
-        App::about($io, $iConfig);
+        App::about($io, $config);
         $io->newLine();
 
         /** @var \Symfony\Component\Console\Helper\ProgressBar|null */
@@ -58,11 +52,11 @@ class LintCommand extends Command
         $startTime = microtime(true);
         $errorReporter = $this->linter->run(
             new CommandOptions(
-                cachePath: $input->getOption('cache'),
-                configFile: $iConfig,
-                ignoreCache: (bool) $input->getOption('force'),
-                path: $input->getOption('path'),
-                generateBaseline: $input->getOption('generate-baseline'),
+                cachePath: $cache,
+                configFile: $config,
+                ignoreCache: $force,
+                path: $path,
+                generateBaseline: $generateBaseline,
             ),
             function (int $count) use ($io, &$progressBar) {
                 $progressBar = $io->createProgressBar($count);
@@ -78,7 +72,7 @@ class LintCommand extends Command
             $io->newLine(2);
         }
 
-        if ($input->getOption('generate-baseline')) {
+        if ($generateBaseline) {
             if (!empty($errorReporter->getGlobalErrors())) {
                 $this->renderGlobalErrors($io, $errorReporter->getGlobalErrors());
             }
