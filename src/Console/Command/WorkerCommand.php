@@ -33,8 +33,7 @@ class WorkerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('socket', null, InputOption::VALUE_REQUIRED, 'Socket address to connect to for tasks')
-            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file');
+            ->addOption('socket', null, InputOption::VALUE_REQUIRED, 'Socket address to connect to for tasks');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
