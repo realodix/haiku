@@ -39,8 +39,9 @@ class FmtCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var string|null */
         $iConfig = $input->getOption('config');
-        if ($iConfig && !file_exists($iConfig)) {
+        if ($iConfig && !is_readable($iConfig)) {
             throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
         }
 
