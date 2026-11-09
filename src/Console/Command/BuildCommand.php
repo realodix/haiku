@@ -8,42 +8,33 @@ use Realodix\Haiku\Console\App;
 use Realodix\Haiku\Console\CommandOptions;
 use Realodix\Haiku\Console\OutputLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'build',
     description: 'Compiles multiple filter list sources into single unified output files.',
 )]
-class BuildCommand extends Command
+class BuildCommand
 {
     public function __construct(
         private Builder $builder,
         private OutputLogger $logger,
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
-    protected function configure(): void
-    {
-        $this
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Ignore cache and rebuild all sources')
-            ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to config file');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        /** @var string|null */
-        $iConfig = $input->getOption('config');
-        if ($iConfig && !is_readable($iConfig)) {
-            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $iConfig));
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'Ignore cache and rebuild all sources')]
+        bool $force = false,
+        #[Option(description: 'Path to config file')]
+        ?string $config = null,
+    ): int {
+        if ($config && !is_readable($config)) {
+            throw new InvalidConfigurationException(sprintf('Cannot read config file "%s".', $config));
         }
 
-        $io = new SymfonyStyle($input, $output);
-        App::about($io, $iConfig);
+        App::about($io, $config);
         $io->newLine();
 
         // ---- Execute ----
@@ -51,8 +42,8 @@ class BuildCommand extends Command
         $io->writeln('Building...');
         $this->builder->handle(
             new CommandOptions(
-                configFile: $iConfig,
-                ignoreCache: $input->getOption('force'),
+                configFile: $config,
+                ignoreCache: $force,
             ),
         );
 
