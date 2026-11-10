@@ -112,7 +112,7 @@ final class LinterConfig
      *   excludes?: list<string>,
      *   userResources?: list<string>,
      *   rules?: _LinterRules,
-     *   ignoreErrors?: list<_ConfigIgnoredError>
+     *   ignoreErrors?: list<_ConfigIgnoredError>,
      * } $config User-defined configuration from the config file
      * @param array{path: string|null} $cmdOpt Command options
      */
