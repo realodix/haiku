@@ -92,6 +92,7 @@ final class Schema
                         ])->castTo('array'),
                     ),
                 ),
+                'reportUnmatchedIgnoredErrors' => Expect::bool(),
             ]),
         ]);
     }

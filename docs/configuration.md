@@ -160,6 +160,15 @@ linter:
       message: 'Error message 2'
 ```
 
+#### `reportUnmatchedIgnoredErrors`
+
+If some of the ignored errors do not occur in the result anymore, Haiku will let you know and you will have to remove the pattern from the configuration. You can turn off this behaviour by setting `reportUnmatchedIgnoredErrors` to `false` in the configuration:
+
+```yml
+linter:
+  reportUnmatchedIgnoredErrors: false
+```
+
 <!-- #### `rules`
 A set of options used to configure the linter.
 
