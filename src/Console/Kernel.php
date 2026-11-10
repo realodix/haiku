@@ -4,7 +4,6 @@ namespace Realodix\Haiku\Console;
 
 use Illuminate\Container\Container;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -24,13 +23,11 @@ class Kernel
     public function handle(): int
     {
         $this->registerServices();
-        $output = new ConsoleOutput;
-        $this->app->instance(OutputInterface::class, $output);
 
         $console = new Application(App::NAME, App::version());
         $this->registerCommands($console);
 
-        return $console->run(new ArgvInput, $output);
+        return $console->run();
     }
 
     /**
@@ -41,9 +38,10 @@ class Kernel
         $this->app->singleton(\Realodix\Haiku\Config\Config::class);
         $this->app->singleton(\Realodix\Haiku\Config\FormatterConfig::class);
         $this->app->singleton(\Realodix\Haiku\Config\LinterConfig::class);
-
         // parallel processing
         $this->app->singleton(\Realodix\Haiku\Cache\Cache::class);
+
+        $this->app->instance(OutputInterface::class, new ConsoleOutput);
     }
 
     /**
