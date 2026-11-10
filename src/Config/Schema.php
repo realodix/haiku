@@ -89,6 +89,7 @@ final class Schema
                             'paths' => Expect::listOf('string'),
                             'identifier' => Expect::string(),
                             'identifiers' => Expect::listOf('string'),
+                            'reportUnmatched' => Expect::bool(),
                         ])->castTo('array'),
                     ),
                 ),

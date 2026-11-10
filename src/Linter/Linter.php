@@ -56,9 +56,7 @@ final class Linter
 
         $this->cache->repository()->save();
 
-        if ($config->reportUnmatchedIgnoredErrors) {
-            $ignoredErrors->reportUnmatched($this->errorReporter);
-        }
+        $ignoredErrors->reportUnmatched($this->errorReporter, $config->reportUnmatchedIgnoredErrors);
 
         $this->errorReporter->baselineMatches = $ignoredErrors->countBaselineMatches();
         $this->errorReporter->unmatchedBaselineEntries = $ignoredErrors->countUnmatchedBaselineEntries();

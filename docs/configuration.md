@@ -169,6 +169,30 @@ linter:
   reportUnmatchedIgnoredErrors: false
 ```
 
+You can turn on/off reporting unused ignores explicitly for each entry in `ignoredErrors`. This overwrites global `reportUnmatchedIgnoredErrors` setting.
+
+```yml
+linter:
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    - '#This message will not be reported as unmatched#'
+    - '#This message will not be reported as unmatched either#'
+    -
+      message: '#But this one will be reported#'
+      reportUnmatched: true
+```
+
+```yml
+linter:
+  reportUnmatchedIgnoredErrors: true
+  ignoreErrors:
+    - '#This message will be reported as unmatched#'
+    - '#This message will be reported as unmatched too#'
+    -
+      message: '#But this one will not be reported#'
+      reportUnmatched: false
+```
+
 <!-- #### `rules`
 A set of options used to configure the linter.
 

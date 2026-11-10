@@ -41,6 +41,7 @@ use Symfony\Component\Filesystem\Path;
  *  paths?: list<string>,
  *  identifier?: string,
  *  identifiers?: list<string>,
+ *  reportUnmatched?: bool,
  * }|string
  */
 final class LinterConfig
