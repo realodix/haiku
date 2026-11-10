@@ -10,98 +10,6 @@ use Realodix\Haiku\Test\TestCase;
 
 class IgnoreErrorsTest extends TestCase
 {
-    #[PHPUnit\Test]
-    public function reportUnmatchedGlobalErrors(): void
-    {
-        $configFile = $this->tmpDir.'/haiku.yml';
-        $dummyFile = $this->tmpDir.'/ignored.txt';
-
-        $this->fs->dumpFile($configFile, <<<'YAML'
-linter:
-  paths:
-    - tests/Integration/tmp/ignored.txt
-  rules:
-    extra_blank_lines: false
-  ignoreErrors:
-    - messages:
-      - '#^Unexpected empty domain#'
-      - 'foo'
-    - path: tests/Integration/tmp/ignored.txt
-      message: 'bar'
-    - path: path_foo.txt
-YAML);
-
-        // This triggers DomainCheck: "Unexpected empty domain.."
-        $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
-
-        $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml', cachePath: $this->cacheFile);
-
-        $errorReporter = $linter->run($cmdOpt);
-
-        $globalErrors = $errorReporter->getGlobalErrors();
-        $this->assertContains(
-            'Ignored error pattern <fg=yellow>foo</> was not matched in reported errors.',
-            $globalErrors,
-        );
-        $this->assertContains(
-            'Ignored error pattern <fg=yellow>bar</> in path tests/Integration/tmp/ignored.txt was not matched in reported errors.',
-            $globalErrors,
-        );
-        $this->assertContains(
-            'Ignored error pattern in path path_foo.txt was not matched in reported errors.',
-            $globalErrors,
-        );
-
-        // Ensure that the matched error pattern is NOT in the reported unmatched errors list
-        $this->assertNotContains(
-            'Ignored error pattern Unexpected empty domain in cosmetic rule was not matched in reported errors.',
-            $globalErrors,
-        );
-
-        // Ensure that the actual error was correctly ignored from the file's errors
-        $fileErrors = $errorReporter->getErrors();
-        $this->assertEmpty($fileErrors);
-    }
-
-    #[PHPUnit\Test]
-    public function stringIgnorePattern(): void
-    {
-        $configFile = $this->tmpDir.'/haiku2.yml';
-        $dummyFile_1 = $this->tmpDir.'/ignored2_a.txt';
-        $dummyFile_2 = $this->tmpDir.'/ignored2_b.txt';
-
-        $this->fs->dumpFile($configFile, <<<'YAML'
-linter:
-  paths:
-    - tests/Integration/tmp/ignored2_a.txt
-    - tests/Integration/tmp/ignored2_b.txt
-  rules:
-    extra_blank_lines: false
-  ignoreErrors:
-    - '#^Unexpected empty domain#'
-    - path: '#_b#'
-    - 'foo-string'
-YAML);
-
-        $this->fs->dumpFile($dummyFile_1, ',example.com##.ads');
-        $this->fs->dumpFile($dummyFile_2, 'example.com,example.com###ads');
-
-        $linter = app(Linter::class);
-        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml', cachePath: $this->cacheFile);
-
-        $errorReporter = $linter->run($cmdOpt);
-        $globalErrors = $errorReporter->getGlobalErrors();
-
-        $this->assertContains(
-            'Ignored error pattern <fg=yellow>foo-string</> was not matched in reported errors.',
-            $globalErrors,
-        );
-
-        $fileErrors = $errorReporter->getErrors();
-        $this->assertEmpty($fileErrors);
-    }
-
     #[PHPUnit\RequiresOperatingSystemFamily('Windows')]
     #[PHPUnit\Test]
     public function pathNormalization(): void
@@ -377,5 +285,97 @@ YAML);
         // Non-matches
         $this->assertFalse($ignoredErrors->shouldIgnore('file3.txt', ['message' => 'foo message']));
         $this->assertFalse($ignoredErrors->shouldIgnore('file1.txt', ['message' => 'baz message']));
+    }
+
+    #[PHPUnit\Test]
+    public function reportUnmatchedGlobalErrors(): void
+    {
+        $configFile = $this->tmpDir.'/haiku.yml';
+        $dummyFile = $this->tmpDir.'/ignored.txt';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests/Integration/tmp/ignored.txt
+  rules:
+    extra_blank_lines: false
+  ignoreErrors:
+    - messages:
+      - '#^Unexpected empty domain#'
+      - 'foo'
+    - path: tests/Integration/tmp/ignored.txt
+      message: 'bar'
+    - path: path_foo.txt
+YAML);
+
+        // This triggers DomainCheck: "Unexpected empty domain.."
+        $this->fs->dumpFile($dummyFile, 'example.com,##.ads');
+
+        $linter = app(Linter::class);
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku.yml', cachePath: $this->cacheFile);
+
+        $errorReporter = $linter->run($cmdOpt);
+
+        $globalErrors = $errorReporter->getGlobalErrors();
+        $this->assertContains(
+            'Ignored error pattern <fg=yellow>foo</> was not matched in reported errors.',
+            $globalErrors,
+        );
+        $this->assertContains(
+            'Ignored error pattern <fg=yellow>bar</> in path tests/Integration/tmp/ignored.txt was not matched in reported errors.',
+            $globalErrors,
+        );
+        $this->assertContains(
+            'Ignored error pattern in path path_foo.txt was not matched in reported errors.',
+            $globalErrors,
+        );
+
+        // Ensure that the matched error pattern is NOT in the reported unmatched errors list
+        $this->assertNotContains(
+            'Ignored error pattern Unexpected empty domain in cosmetic rule was not matched in reported errors.',
+            $globalErrors,
+        );
+
+        // Ensure that the actual error was correctly ignored from the file's errors
+        $fileErrors = $errorReporter->getErrors();
+        $this->assertEmpty($fileErrors);
+    }
+
+    #[PHPUnit\Test]
+    public function stringIgnorePattern(): void
+    {
+        $configFile = $this->tmpDir.'/haiku2.yml';
+        $dummyFile_1 = $this->tmpDir.'/ignored2_a.txt';
+        $dummyFile_2 = $this->tmpDir.'/ignored2_b.txt';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests/Integration/tmp/ignored2_a.txt
+    - tests/Integration/tmp/ignored2_b.txt
+  rules:
+    extra_blank_lines: false
+  ignoreErrors:
+    - '#^Unexpected empty domain#'
+    - path: '#_b#'
+    - 'foo-string'
+YAML);
+
+        $this->fs->dumpFile($dummyFile_1, ',example.com##.ads');
+        $this->fs->dumpFile($dummyFile_2, 'example.com,example.com###ads');
+
+        $linter = app(Linter::class);
+        $cmdOpt = new CommandOptions(configFile: 'tests/Integration/tmp/haiku2.yml', cachePath: $this->cacheFile);
+
+        $errorReporter = $linter->run($cmdOpt);
+        $globalErrors = $errorReporter->getGlobalErrors();
+
+        $this->assertContains(
+            'Ignored error pattern <fg=yellow>foo-string</> was not matched in reported errors.',
+            $globalErrors,
+        );
+
+        $fileErrors = $errorReporter->getErrors();
+        $this->assertEmpty($fileErrors);
     }
 }
