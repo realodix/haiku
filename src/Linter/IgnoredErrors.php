@@ -14,6 +14,7 @@ use Symfony\Component\Yaml\Yaml;
  *  identifier?: string,
  *  covered_by_line?: int,
  *  count?: int, // from baseline, not user config
+ *  reportUnmatched?: bool,
  *  isBaseline?: bool,
  * }
  */
@@ -193,13 +194,14 @@ final class IgnoredErrors
      * Report any ignore patterns that were not matched. This is useful for
      * identifying stale ignore patterns.
      */
-    public function reportUnmatched(ErrorReporter $reporter): void
+    public function reportUnmatched(ErrorReporter $reporter, bool $globalReportUnmatched = true): void
     {
         foreach ($this->patternMatched as $index => $used) {
             $pattern = $this->ignorePatterns[$index];
+            $reportUnmatched = $pattern['reportUnmatched'] ?? $globalReportUnmatched;
 
             // If the pattern was matched, or it's a baseline entry, skip it
-            if ($used || isset($pattern['isBaseline'])) {
+            if ($used || isset($pattern['isBaseline']) || !$reportUnmatched) {
                 continue;
             }
 

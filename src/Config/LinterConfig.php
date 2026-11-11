@@ -41,6 +41,7 @@ use Symfony\Component\Filesystem\Path;
  *  paths?: list<string>,
  *  identifier?: string,
  *  identifiers?: list<string>,
+ *  reportUnmatched?: bool,
  * }|string
  */
 final class LinterConfig
@@ -54,6 +55,8 @@ final class LinterConfig
 
     /** @var list<_ConfigIgnoredError> */
     public array $ignoreErrors = [];
+
+    public private(set) bool $reportUnmatchedIgnoredErrors;
 
     /** @var _LinterRules */
     public array $rules = [
@@ -113,6 +116,7 @@ final class LinterConfig
      *   userResources?: list<string>,
      *   rules?: _LinterRules,
      *   ignoreErrors?: list<_ConfigIgnoredError>,
+     *   reportUnmatchedIgnoredErrors?: bool,
      * } $config User-defined configuration from the config file
      * @param array{path: string|null} $cmdOpt Command options
      */
@@ -125,6 +129,7 @@ final class LinterConfig
 
         $this->userResources = $config['userResources'] ?? [];
         $this->rules = $config['rules'] ?? [];
+        $this->reportUnmatchedIgnoredErrors = $config['reportUnmatchedIgnoredErrors'] ?? true;
         $this->ignoreErrors = $this->normalizeIgnorePaths($config['ignoreErrors'] ?? []);
 
         return $this;

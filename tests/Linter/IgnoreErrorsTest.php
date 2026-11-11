@@ -378,4 +378,61 @@ YAML);
         $fileErrors = $errorReporter->getErrors();
         $this->assertEmpty($fileErrors);
     }
+
+    #[PHPUnit\Test]
+    public function reportUnmatchedIgnoredErrors(): void
+    {
+        $configFile = $this->tmpDir.'/cfg_reportUnmatchedIgnoredErrors.yml';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests
+  rules:
+    all: false
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    - This message will not be reported as unmatched
+    - message: But this one will be reported
+      reportUnmatched: true
+YAML);
+
+        $linter = app(Linter::class);
+        $cmdOpt = new CommandOptions(configFile: $configFile, cachePath: $this->cacheFile);
+        $errorReporter = $linter->run($cmdOpt);
+        $globalErrors = $errorReporter->getGlobalErrors();
+
+        $this->assertSame(
+            ['Ignored error pattern <fg=yellow>But this one will be reported</> was not matched in reported errors.'],
+            $globalErrors,
+        );
+    }
+
+    #[PHPUnit\Test]
+    public function reportUnmatchedIgnoredErrors_reportUnmatched(): void
+    {
+        $configFile = $this->tmpDir.'/cfg_reportUnmatchedIgnoredErrors.yml';
+
+        $this->fs->dumpFile($configFile, <<<'YAML'
+linter:
+  paths:
+    - tests
+  rules:
+    all: false
+  ignoreErrors:
+    - This message will be reported as unmatched
+    - message: But this one will not be reported
+      reportUnmatched: false
+YAML);
+
+        $linter = app(Linter::class);
+        $cmdOpt = new CommandOptions(configFile: $configFile, cachePath: $this->cacheFile);
+        $errorReporter = $linter->run($cmdOpt);
+        $globalErrors = $errorReporter->getGlobalErrors();
+
+        $this->assertSame(
+            ['Ignored error pattern <fg=yellow>This message will be reported as unmatched</> was not matched in reported errors.'],
+            $globalErrors,
+        );
+    }
 }
