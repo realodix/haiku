@@ -4,7 +4,7 @@ The formatter is opinionated and ships sensible defaults, but a handful of optio
 formatter:
   flags:
     option_syntax: short
-    remove_wildcard_covered_domains: true
+    remove_redundant_domains: false
 ```
 
 | Name | Default | All |
@@ -18,8 +18,7 @@ formatter:
 | [`migrate_deprecated_options`](#-migrate_deprecated_options) | `false` | `true` |
 | [`option_syntax`](#-option_syntax) | unset | `native` |
 | [`remove_empty_lines`](#-remove_empty_lines) | `keep_before_comment` | `keep_before_comment` |
-| [`remove_subdomains`](#-remove_subdomains) | `false` | `true` |
-| [`remove_wildcard_covered_domains`](#-remove_wildcard_covered_domains) | `false` | `true` |
+| [`remove_redundant_domains`](#-remove_redundant_domains) | `{subdomains: false, wildcard_covered: false}` | `{subdomains: true, wildcard_covered: true}` |
 | [`sort_domains`](#-sort_domains) | `true` | `true` |
 | [`sort_options`](#-sort_options) | `type` | `type` |
 | [`sort_rules`](#-sort_rules) | `{cosmetic_by_selector: true}` | `{cosmetic_by_selector: true}` |
@@ -230,32 +229,33 @@ Network filter option should be standardised using configured syntax.
 ```
 
 
-### # `remove_subdomains`
+### # `remove_redundant_domains`
 
-**Default**: `false`
+**Configuration**:
+- `subdomains`
 
-**Possible values**: `true`, `false`
+  Removes subdomain that are covered by their parent domain.
 
-Removes subdomain entries that are covered by their parent domain. When a base domain like `example.com` is present, subdomains like `api.example.com` are redundant. Negated subdomains are preserved.
+  Default value: `false`
+
+- `wildcard_covered`
+
+  Remove domains covered by domains with a wildcard TLD.
+
+  Default value: `false`
 
 ```adblock
+! remove_redundant_domains:
+!   subdomains: true
 !## BEFORE
 example.com,~ads.example.com,api.example.com,example.org##.ads
 
 !## AFTER
 ~ads.example.com,example.com,example.org##.ads
-```
 
 
-### # `remove_wildcard_covered_domains`
-
-**Default**: `false`
-
-**Possible values**: `true`, `false`
-
-Eliminates explicit domains that are already covered by wildcard TLD domains. When a wildcard domain like `example.*` is present, specific domains like `example.com` are redundant and removed. Negated domains are preserved.
-
-```adblock
+! remove_redundant_domains:
+!   wildcard_covered: true
 !## BEFORE
 example.com,~example.net,example.*##.ads
 
