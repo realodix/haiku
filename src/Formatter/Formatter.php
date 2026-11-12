@@ -42,7 +42,7 @@ final class Formatter
             $line = trim($line);
 
             if ($line === '') {
-                $this->handleEmptyLine($i, $lines, $section, $result);
+                $this->fmtEmptyLine($i, $lines, $section, $result);
 
                 continue;
             }
@@ -117,11 +117,11 @@ final class Formatter
         }
 
         // Cosmetic pipeline
-        $cosmetic = $this->sortRules($cosmetic);
+        $cosmetic = $this->fmtSortRules($cosmetic);
         $cosmetic = $this->combiner->apply($cosmetic, Regex::COSMETIC_DOMAIN, ',');
         // Network pipeline
         $network = $this->optionCombiner->apply($network);
-        $network = $this->sortRules($network, true);
+        $network = $this->fmtSortRules($network, true);
         $network = $this->combiner->apply($network, Regex::NET_OPTION_DOMAIN, '|');
 
         return array_merge($network, $cosmetic);
@@ -138,7 +138,7 @@ final class Formatter
      * @param list<SectionItem> &$section Reference to the current rule section buffer
      * @param array<int, string> &$result Reference to the final output buffer
      */
-    private function handleEmptyLine(int $index, array $lines, array &$section, array &$result): void
+    private function fmtEmptyLine(int $index, array $lines, array &$section, array &$result): void
     {
         $mode = $this->config->flags['remove_empty_lines'];
 
@@ -167,7 +167,7 @@ final class Formatter
      * @param array<int, string> $rules
      * @return array<int, string>
      */
-    private function sortRules(array $rules, bool $isNetwork = false): array
+    private function fmtSortRules(array $rules, bool $isNetwork = false): array
     {
         $cfg = $this->config->flags['sort_rules'];
         if ($cfg === false) {
