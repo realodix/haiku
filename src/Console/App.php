@@ -11,7 +11,7 @@ use Realodix\Haiku\Config\Helper;
 class App
 {
     const NAME = 'Haiku';
-    const VERSION = '1.13.x';
+    const VERSION = '1.14.x';
 
     public static function version(): string
     {
