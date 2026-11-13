@@ -49,7 +49,10 @@ final class FormatterConfig
         'migrate_deprecated_options' => false,
         'option_syntax' => false,
         'remove_empty_lines' => 'keep_before_comment',
-        'remove_redundant_domains' => false,
+        'remove_redundant_domains' => [
+            'subdomains' => true,
+            'wildcard_covered' => false,
+        ],
         'sort_domains' => true,
         'sort_options' => 'type',
         'sort_rules' => ['cosmetic_by_selector' => true],

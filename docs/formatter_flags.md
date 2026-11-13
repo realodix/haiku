@@ -18,7 +18,7 @@ formatter:
 | [`migrate_deprecated_options`](#-migrate_deprecated_options) | `false` | `true` |
 | [`option_syntax`](#-option_syntax) | unset | `native` |
 | [`remove_empty_lines`](#-remove_empty_lines) | `keep_before_comment` | same as default |
-| [`remove_redundant_domains`](#-remove_redundant_domains) | `false` | `true` |
+| [`remove_redundant_domains`](#-remove_redundant_domains) | `{subdomains: true}` | All are `true` |
 | [`sort_domains`](#-sort_domains) | `true` | same as default |
 | [`sort_options`](#-sort_options) | `type` | same as default |
 | [`sort_rules`](#-sort_rules) | `{cosmetic_by_selector: true}` | same as default |
@@ -236,7 +236,7 @@ Network filter option should be standardised using configured syntax.
 
   Removes subdomain that are covered by their parent domain.
 
-  Default value: `false`
+  Default value: `true`
 
 - `wildcard_covered`
 
