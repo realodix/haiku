@@ -3,25 +3,25 @@ The formatter is opinionated and ships sensible defaults, but a handful of optio
 ```yml
 formatter:
   flags:
+    all: true
     option_syntax: short
-    remove_redundant_domains: false
 ```
 
-| Name | Default | All |
+| Name | Default | `all: true` |
 |------|---------|-----|
 | [`attr_to_basic_selector`](#-attr_to_basic_selector)  | unset | `strict` |
 | [`convert_abp_ext_selectors`](#-convert_abp_ext_selectors) | `false` | `true` |
 | [`convert_legacy_remove_action`](#-convert_legacy_remove_action) | `false` | `true` |
 | [`fix_domain_separators`](#-fix_domain_separators) | `false` | `true` |
-| [`merge_domains`](#-merge_domains) | `true` | `true` |
-| [`merge_options`](#-merge_options) | `true` | `true` |
+| [`merge_domains`](#-merge_domains) | `true` | same as default |
+| [`merge_options`](#-merge_options) | `true` | same as default |
 | [`migrate_deprecated_options`](#-migrate_deprecated_options) | `false` | `true` |
 | [`option_syntax`](#-option_syntax) | unset | `native` |
-| [`remove_empty_lines`](#-remove_empty_lines) | `keep_before_comment` | `keep_before_comment` |
-| [`remove_redundant_domains`](#-remove_redundant_domains) | `{subdomains: false, wildcard_covered: false}` | `{subdomains: true, wildcard_covered: true}` |
-| [`sort_domains`](#-sort_domains) | `true` | `true` |
-| [`sort_options`](#-sort_options) | `type` | `type` |
-| [`sort_rules`](#-sort_rules) | `{cosmetic_by_selector: true}` | `{cosmetic_by_selector: true}` |
+| [`remove_empty_lines`](#-remove_empty_lines) | `keep_before_comment` | same as default |
+| [`remove_redundant_domains`](#-remove_redundant_domains) | `false` | `true` |
+| [`sort_domains`](#-sort_domains) | `true` | same as default |
+| [`sort_options`](#-sort_options) | `type` | same as default |
+| [`sort_rules`](#-sort_rules) | `{cosmetic_by_selector: true}` | same as default |
 
 
 ### # `all`
