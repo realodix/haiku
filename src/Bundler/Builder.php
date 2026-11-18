@@ -35,7 +35,7 @@ final class Builder
         );
 
         foreach ($filterLists as $filterList) {
-            // Step 1: Step 1: Read all included files or URLs
+            // Step 1: Read all included files or URLs
             $outputPath = $filterList['outdir'];
             $header = $filterList['header'];
             $rawContent = $this->read($filterList['includes']);
