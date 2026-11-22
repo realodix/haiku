@@ -222,6 +222,7 @@ final class Registry
         'noop-vast3.xml' => ['alias' => ['noopvast-3.0']],
         'noop-vast4.xml' => ['alias' => ['noopvast-4.0']],
         'noop-vmap1.xml' => ['alias' => ['noop-vmap1.0.xml', 'noopvmap-1.0']],
+        'optimizely.js',
         'outbrain-widget.js' => ['alias' => ['widgets.outbrain.com/outbrain.js']],
         'piano-analytics.js',
         'popads.js' => [
